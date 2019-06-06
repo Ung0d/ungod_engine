@@ -1,0 +1,73 @@
+#include <boost/test/unit_test.hpp>
+#include "ungod/base/World.h"
+#include "ungod/application/Application.h"
+#include "ungod/test/mainTest.h"
+
+using namespace ungod;
+
+BOOST_AUTO_TEST_SUITE(CollisionTest)
+
+BOOST_AUTO_TEST_CASE( collision_events_test )
+{
+    ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+    ungod::World world(&state);
+    world.instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
+    world.initSpace(0,0,8000,6000);
+
+    bool collisionDetected = false;
+    bool collisionDetectedBegin = false;
+    bool collisionDetectedEnd = false;
+    Entity e1 = world.create(BaseComponents<TransformComponent, RigidbodyComponent<>, MovementComponent>());
+    Entity e2 = world.create(BaseComponents<TransformComponent, RigidbodyComponent<>, MovementComponent>());
+    Entity e3 = world.create(BaseComponents<TransformComponent, RigidbodyComponent<>, MovementComponent>());
+    world.getRigidbodyManager().addCollider(e1, {0,0}, {10.0f, 10.0f});
+    world.getRigidbodyManager().addCollider(e2, {0.0f,0.0f}, {40.0f, 40.0f});
+
+    world.getMovementCollisionManager().onCollision([&collisionDetected] (Entity e, Entity other, const sf::Vector2f& mdv,
+                                                const Collider& collider, const Collider& otherCollider)
+                                            {
+                                                collisionDetected = true;
+                                            });
+    world.getMovementCollisionManager().onBeginCollision([&collisionDetectedBegin] (Entity e, Entity other)
+                                            {
+                                                collisionDetectedBegin = true;
+                                            });
+    world.getMovementCollisionManager().onEndCollision([&collisionDetectedEnd] (Entity e, Entity other)
+                                            {
+                                                collisionDetectedEnd = true;
+                                            });
+
+
+    world.getQuadTree().insert(e1);
+    world.getQuadTree().insert(e2);
+    world.getQuadTree().insert(e3);
+
+    world.update(0.1f, {0,0}, {800, 600});
+
+    BOOST_CHECK(collisionDetected);
+    BOOST_CHECK(collisionDetectedBegin);
+
+    world.getTransformManager().setPosition(e1, {1000, 1000});
+
+    world.update(0.1f, {0,0}, {800, 600});
+
+    BOOST_CHECK(collisionDetectedEnd);
+}
+
+BOOST_AUTO_TEST_CASE( point_inside_collider_test )
+{
+    sf::Vector2f isInside{10.0f, 10.0f};
+    sf::Vector2f isNotInside{0.0f, 0.0f};
+
+    ungod::Collider rect( {8.0f, 8.0f}, {16.0f, 16.0f} );
+    ungod::Collider orRect( {8.0f, 8.0f}, {16.0f, 16.0f}, 30.0f );
+
+    ungod::TransformComponent transf;
+
+    BOOST_CHECK( ungod::containsPoint(rect, transf, isInside) );
+    BOOST_CHECK( !ungod::containsPoint(rect, transf, isNotInside) );
+    BOOST_CHECK( ungod::containsPoint(orRect, transf, isInside) );
+    BOOST_CHECK( !ungod::containsPoint(orRect, transf, isNotInside) );
+}
+
+BOOST_AUTO_TEST_SUITE_END()

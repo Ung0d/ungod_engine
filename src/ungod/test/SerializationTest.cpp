@@ -1,0 +1,230 @@
+#include <boost/test/unit_test.hpp>
+#include "ungod/base/World.h"
+#include "ungod/application/Application.h"
+#include "ungod/content/TileMap.h"
+#include "ungod/serialization/SerialGraph.h"
+#include "ungod/application/ScriptedGameState.h"
+#include "ungod/test/mainTest.h"
+
+BOOST_AUTO_TEST_SUITE(SerializationTest)
+
+BOOST_AUTO_TEST_CASE( serializsation_test )
+{
+   {
+        sf::RenderWindow window;
+        ungod::TileMap tilemap;
+        tilemap.loadTiles("tilemap_tiles.png", "tilemap_tiles.xml", 128, 128, { "planks", "stones", "dirt", "grass" });
+        tilemap.setTiles({ 0,1,2,3,0,0,
+                          0,1,2,3,0,0,
+                          0,1,2,3,0,0,
+                          0,1,2,3,0,0,
+                          0,1,2,3,0,0 },
+                        { 0,1,2,3,0,0,
+                          0,1,2,3,0,0,
+                          0,1,2,3,0,0,
+                          0,1,2,3,0,0,
+                          0,1,2,3,0,0 }, 5, 6);
+        ungod::SerializationContext context;
+        context.serializeRootObject(tilemap);
+        context.save("test_output/tilemap_sav.xml");
+    }
+    //tilemap is deleted...
+    {
+        sf::RenderWindow window;
+        ungod::TileMap tilemap; //we want to restore it now
+        ungod::DeserializationContext context;
+
+        context.read("test_output/tilemap_sav.xml");
+        context.deserializeRootObject(tilemap);
+
+        BOOST_CHECK_EQUAL(tilemap.getTileWidth(), 128u);
+        BOOST_CHECK_EQUAL(tilemap.getMapSizeX(), 5u);
+        BOOST_REQUIRE(tilemap.getTiledata(2,2));
+        BOOST_CHECK_EQUAL(tilemap.getTiledata(2,2)->getTileID(), 2);
+        BOOST_CHECK_EQUAL(tilemap.getTiledata(2,2)->getMaterialID(), 2u);
+    }
+
+    //serialize world
+    {
+        sf::RenderWindow window;
+        ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+        ungod::World world(&state);
+        world.instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
+        world.initSpace(0,0,800,600);
+
+        ungod::Entity e = world.create(ungod::BaseComponents<ungod::SoundEmitterComponent, ungod::TransformComponent>(), ungod::OptionalComponents<>());
+        ungod::Entity e2 = world.create(ungod::BaseComponents<ungod::VisualsComponent, ungod::TransformComponent>(),
+                                        ungod::OptionalComponents<ungod::RigidbodyComponent<>>());
+
+        e2.add<ungod::RigidbodyComponent<>>();
+
+        auto profile = world.getAudioManager().initSoundProfile("test");
+        world.getAudioManager().initSounds(profile, 1);
+        world.getAudioManager().loadSound(profile, "test_data/sound.wav", 0);
+        world.getAudioManager().connectProfile(e, profile);
+
+        world.getTransformManager().setPosition(e, {10.0f, 10.0f});
+        world.getTransformManager().setPosition(e2, {100.0f, 100.0f});
+        world.getVisualsManager().loadTexture(e2, "test_data/test.png");
+
+        world.getRigidbodyManager().addCollider(e2, {0,0}, {10,10}, 0);
+
+        world.getQuadTree().insert(e);
+        world.getQuadTree().insert(e2);
+
+        ungod::SerializationContext context;
+        context.serializeRootObject(world, static_cast<const sf::RenderTarget&>(window));
+        context.save("test_output/world_sav.xml");
+    }
+    {
+        sf::RenderWindow window;
+        ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+        ungod::World world(&state);
+
+        world.registerInstantiation(ungod::BaseComponents<ungod::SoundEmitterComponent, ungod::TransformComponent>(), ungod::OptionalComponents<>());
+        world.registerInstantiation(ungod::BaseComponents<ungod::VisualsComponent, ungod::TransformComponent>(), ungod::OptionalComponents<ungod::RigidbodyComponent<>>());
+
+        ungod::DeserializationContext context;
+        context.read("test_output/world_sav.xml");
+
+        context.deserializeRootObject(world, static_cast<const sf::RenderTarget&>(window));
+
+        BOOST_CHECK_EQUAL(2u, world.getQuadTree().size());
+
+        quad::PullResult<ungod::Entity> pull;
+        world.getQuadTree().getContent(pull);
+        for (const auto& e : pull.getList())
+        {
+            if ( e.getInstantiation()->getIdentifier() ==
+                 ungod::SerialIdentifier< ungod::EntityInstantiation< ungod::BaseComponents<ungod::SoundEmitterComponent, ungod::TransformComponent>, ungod::OptionalComponents<> > >::get())
+            {
+                BOOST_CHECK_EQUAL(10.0f, e.get<ungod::TransformComponent>().getPosition().x);
+            }
+            else if ( e.getInstantiation()->getIdentifier() ==
+                 ungod::SerialIdentifier< ungod::EntityInstantiation< ungod::BaseComponents<ungod::VisualsComponent, ungod::TransformComponent>, ungod::OptionalComponents<ungod::RigidbodyComponent<>> > >::get())
+             {
+                 BOOST_CHECK(e.has<ungod::RigidbodyComponent<>>());
+                 BOOST_CHECK_EQUAL(10.0f, e.get<ungod::RigidbodyComponent<>>().getColliders()[0].getDownright().y);
+                 BOOST_CHECK(e.get<ungod::VisualsComponent>().isLoaded());
+                 BOOST_CHECK_EQUAL(100.0f, e.get<ungod::TransformComponent>().getPosition().y);
+             }
+        }
+    }
+    {
+        sf::RenderWindow window;
+        ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+
+        ungod::World* world = state.addWorld();
+        world->instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
+        world->initSpace(0,0,800,600);
+
+
+        ungod::World* world2 = state.addWorld();
+        world2->instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
+        world2->initSpace(0,0,1000,800);
+        world2->setRenderDepth(4.0f);
+
+        ungod::SerializationContext context;
+        context.serializeRootObject(state);
+        context.save("test_output/renderlayers_sav.xml");
+    }
+    {
+        sf::RenderWindow window;
+        ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+
+        ungod::DeserializationContext context;
+        context.read("test_output/renderlayers_sav.xml");
+
+        context.deserializeRootObject(state);
+
+        BOOST_REQUIRE_EQUAL(state.getLayers().getVector().size(), 2u);
+
+        ungod::World* world = dynamic_cast<ungod::World*>(state.getLayers().getVector()[0].first.get());
+        BOOST_REQUIRE(world);
+        ungod::World* world2 = dynamic_cast<ungod::World*>(state.getLayers().getVector()[1].first.get());
+        BOOST_REQUIRE(world2);
+
+        BOOST_CHECK_EQUAL(800u, world->getQuadTree().getBoundary().size.x);
+        BOOST_CHECK_EQUAL(1000u, world2->getQuadTree().getBoundary().size.x);
+        BOOST_CHECK_EQUAL(world2->getRenderDepth(), 4.0f);
+    }
+}
+
+BOOST_AUTO_TEST_CASE( polymorphic_test )
+{
+
+}
+
+BOOST_AUTO_TEST_CASE( serial_graph_test )
+{
+    {
+        //(de)serialize this graph
+        /*
+        *   a --2-- b --1-- c ---2-- d -1-- e
+        *     \      \          ____/
+        *    2 \    2 \   __9__/
+        *       f -1-- g /
+        */
+
+        std::vector<ungod::graph::EdgeInstantiator> edges = { {0,1}, {1,2}, {2,3}, {3,4}, {0,5}, {1,6}, {5,6}, {6,3} };
+
+        ungod::graph::UndirectedAdjacencyLists graph {7, edges.begin(), edges.end()};
+
+        ungod::SerializationContext context;
+        context.serializeRootObject(graph);
+        context.save("test_output/graph_sav.xml");
+    }
+
+    {
+        ungod::DeserializationContext context;
+        context.read("test_output/graph_sav.xml");
+
+        ungod::graph::UndirectedAdjacencyLists graph {};
+
+        context.deserializeRootObject(graph);
+
+        BOOST_CHECK_EQUAL(7u, graph.getVertexCount());
+        BOOST_CHECK_EQUAL(8u, graph.getEdgeCount());
+
+        for (const auto& e : graph.getNeighbors(0))
+        {
+            BOOST_CHECK(e.destination == 1 || e.destination == 5);
+            switch (e.destination)
+            {
+            case 1:
+                BOOST_CHECK_EQUAL(0u, e.index);
+                break;
+            case 5:
+                BOOST_CHECK_EQUAL(4u, e.index);
+                break;
+            default:
+                break;
+            }
+        }
+
+        for (const auto& e : graph.getNeighbors(2))
+        {
+            BOOST_CHECK(e.destination == 1 || e.destination == 3);
+            switch (e.destination)
+            {
+            case 1:
+                BOOST_CHECK_EQUAL(1u, e.index);
+                break;
+            case 3:
+                BOOST_CHECK_EQUAL(2u, e.index);
+                break;
+            default:
+                break;
+            }
+        }
+
+        for (const auto& e : graph.getNeighbors(4))
+        {
+            BOOST_CHECK(e.destination == 3);
+            BOOST_CHECK_EQUAL(3u, e.index);
+        }
+    }
+}
+
+
+BOOST_AUTO_TEST_SUITE_END()
