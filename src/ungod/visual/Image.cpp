@@ -55,4 +55,32 @@ namespace ungod
         //glFlush();
         return success;
     }
+
+
+
+
+    BigImage::BigImage(const std::string& filePath, const LoadPolicy policy) : Asset<sf::BigTexture>(filePath, policy) {}
+
+    BigImage::BigImage() : Asset<sf::BigTexture>() {}
+
+    bool LoadBehavior<sf::BigTexture>::loadFromFile(const std::string& filepath, sf::BigTexture& data)
+    {
+        //sf::Context context;
+        bool success;
+        if (Image::quality == IMAGE_QUALITY_NORMAL)
+        {
+            success = data.loadFromFile(filepath);
+        }
+        else
+        {
+            boost::filesystem::path normalPath(filepath);
+            boost::filesystem::path lowPath = normalPath.parent_path() / boost::filesystem::path(normalPath.stem().string() + "_low" + normalPath.extension().string());
+            if ( boost::filesystem::exists(lowPath) )
+                success = data.loadFromFile(lowPath.string());
+            else
+                success = data.loadFromFile(filepath);  //give the normal version a try
+        }
+        //glFlush();
+        return success;
+    }
 }

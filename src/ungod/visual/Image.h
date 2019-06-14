@@ -28,6 +28,7 @@
 
 #include "ungod/ressource_management/Asset.h"
 #include <SFML/Graphics.hpp>
+#include <sfml_ext/BigTexture.hpp>
 
 namespace ungod
 {
@@ -47,6 +48,22 @@ namespace ungod
     {
         static bool loadFromFile(const std::string& filepath, sf::Texture& data);
         static std::string getIdentifier() { return "Image"; }
+    };
+
+
+    /** \brief For images that do not fit into the hardwares internal texture size. */
+    struct BigImage : public Asset<sf::BigTexture>
+    {
+        BigImage(const std::string& filePath, const LoadPolicy policy = SYNC);
+
+        BigImage();
+    };
+
+    template<>
+    struct LoadBehavior<sf::BigTexture>
+    {
+        static bool loadFromFile(const std::string& filepath, sf::BigTexture& data);
+        static std::string getIdentifier() { return "BigImage"; }
     };
 }
 

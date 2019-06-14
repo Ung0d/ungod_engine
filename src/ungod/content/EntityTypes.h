@@ -48,6 +48,7 @@ namespace ungod
     class VisualAffectorComponent;
     class SpriteMetadataComponent;
     class AnimationComponent;
+    class BigSpriteComponent;
     class TileMapComponent;
     class WaterComponent;
     class LightEmitterComponent;
@@ -75,7 +76,7 @@ namespace ungod
     using EntityBaseComponents = BaseComponents<TransformComponent, EntityBehaviorComponent>;
     using EntityOptionalComponents = OptionalComponents<VisualsComponent, RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>, MovementComponent, SpriteMetadataComponent,
                                                         SpriteComponent, MultiComponent<SpriteComponent>, VertexArrayComponent, VisualAffectorComponent, MultiComponent<VisualAffectorComponent>,
-                                                        AnimationComponent, MultiComponent<AnimationComponent>, RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>,
+                                                        AnimationComponent, MultiComponent<AnimationComponent>, BigSpriteComponent, RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>,
                                                         EntityUpdateTimer, SoundEmitterComponent, SteeringComponent<script::Environment>, PathFinderComponent, ShadowEmitterComponent, LightEmitterComponent, LightAffectorComponent,
                                                         MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>, MultiComponent<ShadowEmitterComponent>, ParticleSystemComponent>;
 

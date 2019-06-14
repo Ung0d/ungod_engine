@@ -92,7 +92,7 @@ namespace ungod
 
     void Sprite::move(const sf::Vector2f& mv)
     {
-        mTransformable.move(mv);
+        mTransformable.move(mv);  //TODO round here?
     }
 
     void Sprite::setRotation(float rotation)

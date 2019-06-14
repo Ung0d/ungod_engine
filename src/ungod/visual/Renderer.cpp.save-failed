@@ -267,10 +267,10 @@ namespace ungod
               if (bs.isVisible() && bs.isLoaded())
               {
                 states.transform *= transf.getTransform();
-                mVisualsManager->setBigSpriteTexture(e, bs);
+                mVisualsManager->setBigSpriteTexture(bs);
                 target.draw(bs.mBigSprite, states);
               }
-          });
+          };
     }
 
     void Renderer::renderBounds(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const

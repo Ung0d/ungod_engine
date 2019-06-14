@@ -504,6 +504,54 @@ namespace ungod
         world.getVisualsManager().setRunning(e, std::get<0>(result));
     }
 
+    void SerialBehavior<BigSpriteComponent, Entity, const World&, const Application&>::serialize(const BigSpriteComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&)
+    {
+        context.serializeProperty("filepath", data.mBigImage.getFilePath(), serializer);
+        if (!data.mVisible)
+            context.serializeProperty("visible", data.mVisible, serializer);
+
+
+        if (data.mBigSprite.getPosition().x != 0.0f)
+            context.serializeProperty("pos_x", data.mBigSprite.getPosition().x, serializer);
+        if (data.mBigSprite.getPosition().y != 0.0f)
+            context.serializeProperty("pos_y", data.mBigSprite.getPosition().y, serializer);
+
+        if (data.mBigSprite.getScale().x != 1.0f)
+            context.serializeProperty("scale_x", data.mBigSprite.getScale().x, serializer);
+        if (data.mBigSprite.getScale().y != 1.0f)
+            context.serializeProperty("scale_y", data.mBigSprite.getScale().y, serializer);
+        if (data.mBigSprite.getRotation() != 0.0f)
+            context.serializeProperty("rotation", data.mBigSprite.getRotation(), serializer);
+
+        if (data.mBigSprite.getOrigin().x != 0.0f)
+            context.serializeProperty("origin_x", data.mBigSprite.getOrigin().x, serializer);
+        if (data.mBigSprite.getOrigin().y != 0.0f)
+            context.serializeProperty("origin_y", data.mBigSprite.getOrigin().y, serializer);
+
+        //serialize color, if we got a color unequal to white... ommit serial, if its white
+        if (data.mBigSprite.getColor() != sf::Color::White)
+        {
+            context.serializeProperty("r", data.mBigSprite.getColor().r, serializer);
+            context.serializeProperty("g", data.mBigSprite.getColor().g, serializer);
+            context.serializeProperty("b", data.mBigSprite.getColor().b, serializer);
+            context.serializeProperty("a", data.mBigSprite.getColor().a, serializer);
+        }
+    }
+
+    void DeserialBehavior<BigSpriteComponent, Entity, World&, const Application&>::deserialize(BigSpriteComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&)
+    {
+        auto result = deserializer.getAttributes<std::string, bool, float, float, float, float, float,float, float>(
+                    {"filepath", ""}, {"visible", true},
+                     {"pos_x", 0.0f},  {"pos_y", 0.0f}, {"scale_x", 1.0f}, {"scale_y", 1.0f}, {"rotation", 0.0f},
+                     {"origin_x", 0.0f}, {"origin_y", 0.0f}  );
+        world.getVisualsManager().loadBigTexture(data, std::get<0>(result), ASYNC);
+        world.getVisualsManager().setBigSpriteVisibility(data, std::get<1>(result));
+        world.getVisualsManager().setBigSpritePosition(e, data, sf::Vector2f(std::get<2>(result), std::get<3>(result)));
+        world.getVisualsManager().setBigSpriteScale(e, data, {std::get<4>(result), std::get<5>(result)});
+        world.getVisualsManager().setBigSpriteRotation(e, data, std::get<6>(result));
+        world.getVisualsManager().setBigSpriteOrigin(e, data, sf::Vector2f(std::get<7>(result), std::get<8>(result)));
+    }
+
 
     void SerialBehavior<TileMapComponent, Entity, const World&, const Application&>::serialize(const TileMapComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application& app)
     {

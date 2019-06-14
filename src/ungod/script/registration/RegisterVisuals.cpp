@@ -56,7 +56,7 @@ namespace ungod
                                                   "getBounds", [] (const SpriteComponent& sprite) {return sprite.getSprite().getBounds();},
                                                   "getUntransformedBounds", [] (const SpriteComponent& sprite) {return sprite.getSprite().getUntransformedBounds();});
 
-            detail::registerMultiComponent<Sprite>(state, "MultiSpriteComponent");
+            detail::registerMultiComponent<SpriteComponent>(state, "MultiSpriteComponent");
 
             state.registerUsertype<VisualAffectorComponent>("VisualAffectorComponent",
                                                   "setActive", &VisualAffectorComponent::setActive,
@@ -74,6 +74,18 @@ namespace ungod
                                                   "getSpeed", [] (const AnimationComponent& anim) {return anim.getAnimation().getSpeed();});
 
             detail::registerMultiComponent<AnimationComponent>(state, "MultiAnimationComponent");
+
+            state.registerUsertype<BigSpriteComponent>("BigSpriteComponent",
+                                                  "isLoaded", &BigSpriteComponent::isLoaded,
+                                                  "isVisible", &BigSpriteComponent::isVisible,
+                                                  "getFilepath", &BigSpriteComponent::getFilePath,
+                                                  "getPosition", [] (const BigSpriteComponent& sprite) {return sprite.getBigSprite().getPosition();},
+                                                  "getScale", [] (const BigSpriteComponent& sprite) {return sprite.getBigSprite().getScale();},
+                                                  "getRotation", [] (const BigSpriteComponent& sprite) {return sprite.getBigSprite().getRotation();},
+                                                  "getOrigin", [] (const BigSpriteComponent& sprite) {return sprite.getBigSprite().getOrigin();},
+                                                  "getBounds", [] (const BigSpriteComponent& sprite) {return sprite.getBigSprite().getGlobalBounds();},
+                                                  "getColor", [] (const BigSpriteComponent& sprite) {return sprite.getBigSprite().getColor();}
+                                                  );
 
             state.registerUsertype<VisualsManager>("VisualsManager",
                                                          "initTextureRects", &VisualsManager::initTextureRects,
@@ -121,7 +133,16 @@ namespace ungod
                                                          "setSpriteColor", sol::overload([] (VisualsManager& vm, Entity e, const sf::Color& color) { return vm.setSpriteColor(e, color); },
                                                                                      [] (VisualsManager& vm, Entity e, const sf::Color& color, std::size_t multiindex) { return vm.setSpriteColor(e, color, multiindex); }),
                                                          "setArrayRectColor", [] (VisualsManager& vm, Entity e, const sf::Color& color, std::size_t index) { vm.setArrayRectColor(e, color, index); },
-                                                         "setOpacity", &VisualsManager::setOpacity);
+                                                         "setOpacity", &VisualsManager::setOpacity,
+                                                         "loadBigTexture", sol::overload([] (VisualsManager& vm, Entity e, const std::string& imageID, LoadPolicy policy) { vm.loadBigTexture(e, imageID, policy); },
+                                                                                      [] (VisualsManager& vm, Entity e, const std::string& imageID) { vm.loadBigTexture(e, imageID); }),
+                                                         "setBigSpriteVisibility",  [] (VisualsManager& vm, Entity e, bool visible) { vm.setBigSpriteVisibility(e, visible); },
+                                                         "setBigSpritePosition",  [] (VisualsManager& vm, Entity e, const sf::Vector2f& position) { vm.setBigSpritePosition(e, position); },
+                                                         "setBigSpriteColor",  [] (VisualsManager& vm, Entity e, const sf::Color& color) { vm.setBigSpriteColor(e, color); },
+                                                         "setBigSpriteScale",  [] (VisualsManager& vm, Entity e, const sf::Vector2f& scale) { vm.setBigSpriteScale(e, scale); },
+                                                         "setBigSpriteOrigin",  [] (VisualsManager& vm, Entity e, const sf::Vector2f& origin) { vm.setBigSpriteOrigin(e, origin); },
+                                                         "setBigSpriteRotation",  [] (VisualsManager& vm, Entity e, float rotation) { vm.setBigSpriteRotation(e, rotation); }
+                                                         );
 
             state.registerUsertype<Camera>("Camera",
                                            "lockToEntity", &Camera::lockToEntity,

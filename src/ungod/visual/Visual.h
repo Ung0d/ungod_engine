@@ -38,6 +38,8 @@
 #include "ungod/base/Entity.h"
 #include "ungod/physics/Collision.h"
 #include "ungod/base/MultiComponent.h"
+#include <sfml_ext/BigTexture.hpp>
+#include <sfml_ext/BigSprite.hpp>
 
 namespace ungod
 {
@@ -214,6 +216,39 @@ namespace ungod
     * \ingroup Components
     * \brief Animation-components with multipe animations. */
     using MultiAnimationComponent = MultiComponent<AnimationComponent>;
+
+
+    /**
+    * \ingroup Components
+    * \brief A component managing a BigSprite that renders textures that are (or can be) bigger than
+    * the internal texture size limit.
+    */
+    class BigSpriteComponent : public Serializable<BigSpriteComponent>
+    {
+    friend class VisualsManager;
+    friend class Renderer;
+    friend class SerialBehavior<BigSpriteComponent, Entity, const World&, const Application&>;
+    public:
+        /** \brief Default constructs a BigSpriteComponent. */
+        BigSpriteComponent() : mVisible(false) {}
+
+        /** \brief Accesses the underlying BigSprite. */
+        const sf::BigSprite& getBigSprite() const { return mBigSprite; }
+
+        /** \brief Returns true if a texture is successfully loaded. */
+        bool isLoaded() const;
+
+        /** \brief Returns the visibility status of the VIsuals-component. */
+        bool isVisible() const;
+
+        /** \brief Returns the filepath of the texture if it is loaded. */
+        std::string getFilePath() const;
+
+    private:
+        sf::BigSprite mBigSprite;
+        BigImage mBigImage;
+        bool mVisible;
+    };
 
 
     /** \brief Helper class that manages all actions performed on Visuals-components. Emits events. */
@@ -418,6 +453,39 @@ namespace ungod
         inline static void flipSpriteY(Entity e) {flipSpriteY(e.modify<SpriteComponent>());}
         inline static void flipSpriteY(Entity e, std::size_t multiIndex) {flipSpriteY(e.modify<MultiSpriteComponent>().getComponent(multiIndex));}
         static void flipSpriteY(SpriteComponent& sprite);
+
+
+        /** \brief Loads a texture that can be bigger than the hardware limitations into memory and displays it in a BigSpriteComponent. */
+        inline void loadBigTexture(Entity e, const std::string& filepath, LoadPolicy policy = ASYNC) { loadBigTexture(e.modify<BigSpriteComponent>(), filepath, policy); }
+        void loadBigTexture(BigSpriteComponent& bigSprite, const std::string& filepath, LoadPolicy policy);
+
+        /** \brief Loads a texture that can be bigger than the hardware limitations into memory and displays it in a BigSpriteComponent. */
+        inline void setBigSpriteTexture(Entity e) { setBigSpriteTexture(e, e.modify<BigSpriteComponent>()); }
+        void setBigSpriteTexture(Entity e, BigSpriteComponent& bigSprite);
+
+        /** \brief Sets the visibility flag of the BigTextureComponent. */
+        inline void setBigSpriteVisibility(Entity e, bool visible = true) { setBigSpriteVisibility(e.modify<BigSpriteComponent>(), visible); }
+        void setBigSpriteVisibility(BigSpriteComponent& bigSprite, bool visible = true);
+
+        /** \brief Sets the position of the BigTextureComponent. */
+        inline void setBigSpritePosition(Entity e, const sf::Vector2f& position) { setBigSpritePosition(e, e.modify<BigSpriteComponent>(), position); }
+        void setBigSpritePosition(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& position);
+
+        /** \brief Sets the color of the BigTextureComponent. */
+        inline void setBigSpriteColor(Entity e, const sf::Color& color) { setBigSpriteColor(e.modify<BigSpriteComponent>(), color); }
+        void setBigSpriteColor(BigSpriteComponent& bigSprite, const sf::Color& color);
+
+        /** \brief Sets the scale of the BigTextureComponent. */
+        inline void setBigSpriteScale(Entity e, const sf::Vector2f& scale) { setBigSpriteScale(e, e.modify<BigSpriteComponent>(), scale); }
+        void setBigSpriteScale(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& scale);
+
+        /** \brief Sets the origin of the BigTextureComponent. */
+        inline void setBigSpriteOrigin(Entity e, const sf::Vector2f& origin) { setBigSpriteOrigin(e, e.modify<BigSpriteComponent>(), origin); }
+        void setBigSpriteOrigin(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& origin);
+
+        /** \brief Sets the scale of the BigTextureComponent. */
+        inline void setBigSpriteRotation(Entity e, float angle) { setBigSpriteRotation(e, e.modify<BigSpriteComponent>(), angle); }
+        void setBigSpriteRotation(Entity e, BigSpriteComponent& bigSprite, const float angle);
 
     private:
         sf::Vector2f getLowerBoundInternal(Entity e, const std::function<sf::FloatRect(const Sprite&)>& boundsGetter);

@@ -46,6 +46,7 @@ namespace ungod
     class VisualAffectorComponent;
     class SpriteMetadataComponent;
     class AnimationComponent;
+    class BigSpriteComponent;
     class TileMapComponent;
     class WaterComponent;
     class LightEmitterComponent;
@@ -306,6 +307,23 @@ namespace ungod
     struct DeserialBehavior<AnimationComponent, Entity, World&, const Application&>
     {
         static void deserialize(AnimationComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+    };
+
+
+    template <>
+    struct SerialIdentifier<BigSpriteComponent>
+    {
+        static std::string get()  { return "BigS"; }
+    };
+    template <>
+    struct SerialBehavior<BigSpriteComponent, Entity, const World&, const Application&>
+    {
+        static void serialize(const BigSpriteComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+    };
+    template <>
+    struct DeserialBehavior<BigSpriteComponent, Entity, World&, const Application&>
+    {
+        static void deserialize(BigSpriteComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
     };
 
 

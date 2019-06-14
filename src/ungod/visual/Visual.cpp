@@ -1,4 +1,4 @@
-/*
+ /*
 * This file is part of the ungod - framework.
 * Copyright (C) 2016 Felix Becker - fb132550@uni-greifswald.de
 *
@@ -103,6 +103,20 @@ namespace ungod
         return texrect;
     }
 
+    bool BigSpriteComponent::isLoaded() const
+    {
+        return mBigImage.isLoaded();
+    }
+
+    bool BigSpriteComponent::isVisible() const
+    {
+        return mVisible;
+    }
+
+    std::string BigSpriteComponent::getFilePath() const
+    {
+        return mBigImage.getFilePath();
+    }
 
 
     void VisualsManager::initTextureRects(Entity e, std::size_t num)
@@ -173,9 +187,9 @@ namespace ungod
     void VisualsManager::loadTexture(VisualsComponent& visuals, const std::string& imageID, std::function<void(VisualsComponent&)> callback)
     {
         visuals.mImage.load(imageID, ASYNC);
+        visuals.mVisible = true;
         visuals.mImage.get([this, &visuals, callback](sf::Texture& texture)
           {
-              visuals.mVisible = true;
               callback(visuals);
           });
     }
@@ -183,10 +197,7 @@ namespace ungod
     void VisualsManager::loadTexture(VisualsComponent& visuals, const std::string& imageID, const LoadPolicy policy)
     {
         visuals.mImage.load(imageID, policy);
-        visuals.mImage.get([this, &visuals, policy](sf::Texture& texture)
-          {
-              visuals.mVisible = true;
-          });
+        visuals.mVisible = true;
     }
 
     void VisualsManager::loadMetadata(Entity e, const std::string& metaID)
@@ -556,5 +567,54 @@ namespace ungod
     {
         sprite.mFlipY = !sprite.mFlipY;
         sprite.mSprite.flipY();
+    }
+
+    void VisualsManager::loadBigTexture(BigSpriteComponent& bigSprite, const std::string& filepath, LoadPolicy policy)
+    {
+        bigSprite.mBigImage.load(filepath, policy);
+        bigSprite.mVisible = true;
+
+    }
+
+    void VisualsManager::setBigSpriteTexture(Entity e, BigSpriteComponent& bigSprite)
+    {
+        if (bigSprite.mBigSprite.getBigTexture() == bigSprite.mBigImage.get())
+            return;
+        bigSprite.mBigSprite.setTexture(*bigSprite.mBigImage.get());
+        mContentsChangedSignal(e, static_cast<sf::IntRect>(bigSprite.mBigSprite.getGlobalBounds()));
+    }
+
+    void VisualsManager::setBigSpriteVisibility(BigSpriteComponent& bigSprite, bool visible)
+    {
+        bigSprite.mVisible = visible;
+    }
+
+    void VisualsManager::setBigSpritePosition(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& position)
+    {
+        bigSprite.mBigSprite.setPosition(position);
+        mContentsChangedSignal(e, static_cast<sf::IntRect>(bigSprite.mBigSprite.getGlobalBounds()));
+    }
+
+    void VisualsManager::setBigSpriteColor(BigSpriteComponent& bigSprite, const sf::Color& color)
+    {
+        bigSprite.mBigSprite.setColor(color);
+    }
+
+    void VisualsManager::setBigSpriteScale(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& scale)
+    {
+        bigSprite.mBigSprite.setScale(scale);
+        mContentsChangedSignal(e, static_cast<sf::IntRect>(bigSprite.mBigSprite.getGlobalBounds()));
+    }
+
+    void VisualsManager::setBigSpriteOrigin(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& origin)
+    {
+        bigSprite.mBigSprite.setOrigin(origin);
+        mContentsChangedSignal(e, static_cast<sf::IntRect>(bigSprite.mBigSprite.getGlobalBounds()));
+    }
+
+    void VisualsManager::setBigSpriteRotation(Entity e, BigSpriteComponent& bigSprite, const float angle)
+    {
+        bigSprite.mBigSprite.setRotation(angle);
+        mContentsChangedSignal(e, static_cast<sf::IntRect>(bigSprite.mBigSprite.getGlobalBounds()));
     }
 }
