@@ -572,13 +572,11 @@ namespace ungod
     void VisualsManager::loadBigTexture(Entity e, BigSpriteComponent& bigSprite, const std::string& filepath, LoadPolicy policy)
     {
         bigSprite.mBigImage.load(filepath, policy);
-        bigSprite.mBigImage.get([this, &bigSprite, e](sf::BigTexture& btxt)
+        visuals.mImage.get([this, &visuals, e](sf::BigTexture& btxt)
           {
+              bigSprite.mVisible = true;
               if (e.valid())
-              {
-                bigSprite.mVisible = true;
-                setBigSpriteTexture(e, bigSprite);
-              }
+                setBigSpriteTexture(e, btxt);
           });
     }
 

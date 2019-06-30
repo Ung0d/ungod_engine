@@ -544,7 +544,7 @@ namespace ungod
                     {"filepath", ""}, {"visible", true},
                      {"pos_x", 0.0f},  {"pos_y", 0.0f}, {"scale_x", 1.0f}, {"scale_y", 1.0f}, {"rotation", 0.0f},
                      {"origin_x", 0.0f}, {"origin_y", 0.0f}  );
-        world.getVisualsManager().loadBigTexture(data, std::get<0>(result), ASYNC);
+        world.getVisualsManager().loadBigTexture(e, data, std::get<0>(result), ASYNC);
         world.getVisualsManager().setBigSpriteVisibility(data, std::get<1>(result));
         world.getVisualsManager().setBigSpritePosition(e, data, sf::Vector2f(std::get<2>(result), std::get<3>(result)));
         world.getVisualsManager().setBigSpriteScale(e, data, {std::get<4>(result), std::get<5>(result)});

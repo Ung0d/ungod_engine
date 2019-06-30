@@ -67,6 +67,7 @@ namespace ungod
 
         /** \brief Access the camera. */
         Camera& getCamera() { return mCamera; }
+        const Camera& getCamera() const { return mCamera; }
 
         /** \brief Grants access to the underyling script environment. */
         script::Environment getEnvironment() const { return mScriptCallbacks.getEnvironment(); }

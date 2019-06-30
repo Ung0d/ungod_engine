@@ -267,7 +267,6 @@ namespace ungod
               if (bs.isVisible() && bs.isLoaded())
               {
                 states.transform *= transf.getTransform();
-                mVisualsManager->setBigSpriteTexture(e, bs);
                 target.draw(bs.mBigSprite, states);
               }
           });

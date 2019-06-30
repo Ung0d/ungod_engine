@@ -175,6 +175,9 @@ namespace ungod
         /** \brief Cleans out expired states of the stack. */
         void cleanup();
 
+        /** \brief Adds pending new states. */
+        void addPending();
+
         /** \brief Accesses the state from the foreground of the state stack. */
         State* getForegroundState() const;
 
@@ -185,6 +188,19 @@ namespace ungod
         Application* mApp;
         StateStack mStates;
         StateHash mHash;
+
+        struct PendingAdded
+        {
+            State* state;
+            bool toBack;
+            bool activate;
+            bool reinsert;
+
+            PendingAdded(State* state, bool toBack, bool activate, bool reinsert) :
+                state(state), toBack(toBack), activate(activate), reinsert(reinsert) {}
+        };
+
+        std::list<PendingAdded> mPending;
     };
 
 
@@ -201,8 +217,7 @@ namespace ungod
         auto ins = mHash.emplace( id, std::unique_ptr<State>(new STATE(*mApp, id, std::forward<ARGS>(args)...)) );
         if (ins.second)
         {
-            mStates.emplace_back( &(*ins.first->second) );
-            ins.first->second->initState();
+            mPending.emplace_back(ins.first->second.get(), true, true, false);
         }
     }
 
@@ -212,7 +227,7 @@ namespace ungod
         auto ins = mHash.emplace( id, std::unique_ptr<State>(new STATE(*mApp, id, std::forward<ARGS>(args)...)) );
         if (ins.second)
         {
-            mStates.emplace_back( &(*ins.first->second) );
+            mPending.emplace_back(ins.first->second.get(), true, false, false);
         }
     }
 

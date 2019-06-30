@@ -38,6 +38,16 @@ namespace ungod
 
             state.registerFunction("layout", [] (const std::string& x, const std::string& y) -> tgui::Layout2d { return tgui::Layout2d(x,y); } );
 
+            state.registerEnum("Alignment",
+                                         "UpperLeft", tgui::Grid::Alignment::UpperLeft,
+                                         "Up", tgui::Grid::Alignment::Up,
+                                         "UpperRight", tgui::Grid::Alignment::UpperRight,
+                                         "Right", tgui::Grid::Alignment::Right,
+                                         "BottomRight", tgui::Grid::Alignment::BottomRight,
+                                         "Bottom", tgui::Grid::Alignment::Bottom,
+                                         "BottomLeft", tgui::Grid::Alignment::BottomLeft,
+                                         "Left", tgui::Grid::Alignment::Left,
+                                         "Center", tgui::Grid::Alignment::Center);
             state.registerEnum("VerticalAlignment",
                                          "Top", tgui::Label::VerticalAlignment::Top,
                                          "Center", tgui::Label::VerticalAlignment::Center,
@@ -52,6 +62,7 @@ namespace ungod
             state.registerUsertype<Gui>("Gui",
                                                         "addWidget", sol::overload( [] (Gui& gui, const tgui::Widget::Ptr& widget, const std::string& name) { gui.add(widget, name); },
                                                                                       [] (Gui& gui, const tgui::Group::Ptr& widget, const std::string& name) { gui.add(widget, name); },
+                                                                                      [] (Gui& gui, const tgui::Grid::Ptr& widget, const std::string& name) { gui.add(widget, name); },
                                                                                       [] (Gui& gui, const tgui::Panel::Ptr& widget, const std::string& name) { gui.add(widget, name); },
                                                                                       [] (Gui& gui, const tgui::Button::Ptr& widget, const std::string& name) { gui.add(widget, name); },
                                                                                       [] (Gui& gui, const tgui::RadioButton::Ptr& widget, const std::string& name) { gui.add(widget, name); },
@@ -83,7 +94,7 @@ namespace ungod
                                                         "connect", sol::overload(
                                                             [] (Gui& gui, const tgui::Button::Ptr& button, const std::string& signalID, const ungod::script::ProtectedFunc& func)
                                                            {
-                                                                //button->connect(signalID, [&gui, button, func] () { scriptRegistration::detail::callback(func, gui, button); });
+                                                                button->connect(signalID, [&gui, button, func] () { scriptRegistration::detail::callback(func, gui, button); });
                                                            },
                                                             [] (Gui& gui, const tgui::RadioButton::Ptr& button, const std::string& signalID, const ungod::script::ProtectedFunc& func)
                                                            {
@@ -157,7 +168,7 @@ namespace ungod
                                                             "showWithEffect", [] (tgui::Widget& widget, tgui::ShowAnimationType type, int32_t durationInMs) { widget.showWithEffect(type, sf::milliseconds(durationInMs)); });
 
             //container (base for certain widgets)
-            state.registerUsertype<tgui::Container>("Container",
+            /*state.registerUsertype<tgui::Container>("Container",
                                                                 "add", sol::overload( [] (tgui::Container& cont, const tgui::Widget::Ptr& widget, const std::string& name) { cont.add(widget, name); },
                                                                                       [] (tgui::Container& cont, const tgui::Group::Ptr& widget, const std::string& name) { cont.add(widget, name); },
                                                                                       [] (tgui::Container& cont, const tgui::Panel::Ptr& widget, const std::string& name) { cont.add(widget, name); },
@@ -185,15 +196,15 @@ namespace ungod
                                                                 "getTabs", [] (tgui::Container& cont, const std::string& name) { return cont.get<tgui::Tabs>(name); },
                                                                 "getChildWindow", [] (tgui::Container& cont, const std::string& name) { return cont.get<tgui::ChildWindow>(name); },
                                                                 "getTiledBackground", [] (tgui::Container& cont, const std::string& name) { return cont.get<tgui::TiledBackground>(name); },
-                                                                sol::base_classes, sol::bases<tgui::Widget>());
+                                                                sol::base_classes, sol::bases<tgui::Widget>());*/
 
             //group
-            state.registerFunction("createGroup", []() { return tgui::Group::create(); });
+            /*state.registerFunction("createGroup", []() { return tgui::Group::create(); });
             state.registerUsertype<tgui::Group>("Group",
                                                             "setSize", sol::overload( [] (tgui::Group& g, const sf::Vector2f& s) { g.setSize(s); },
                                                                                       [] (tgui::Group& g, float x, float y) { g.setSize({x,y}); },
                                                                                       [] (tgui::Group& g, const tgui::Layout2d& layout) { g.setSize(layout); }),
-                                                          sol::base_classes, sol::bases<tgui::Container, tgui::Widget>());
+                                                          sol::base_classes, sol::bases<tgui::Container, tgui::Widget>());*/
 
             //button
             state.registerFunction("createButton", []() { return tgui::Button::create(); });
@@ -272,6 +283,40 @@ namespace ungod
                                                            "setScrollAmount", &tgui::Scrollbar::setScrollAmount,
                                                            "setAutoHide", &tgui::Scrollbar::setAutoHide,
                                                             sol::base_classes, sol::bases<tgui::Widget>());
+
+            //grid
+            state.registerFunction("createGrid", []() { return tgui::Grid::create(); });
+            state.registerUsertype<tgui::Grid>("Grid",
+                                                "setSize", sol::overload( [] (tgui::Grid& grid, const sf::Vector2f& s) { grid.setSize(s); },
+                                                                          [] (tgui::Grid& grid, float x, float y) { grid.setSize({x,y}); },
+                                                                          [] (tgui::Grid& grid, const tgui::Layout2d& layout) { grid.setSize(layout); }),
+                                               "addWidget", sol::overload([] (tgui::Grid& grid, const tgui::Widget::Ptr& widget, unsigned int row, unsigned int column, float left, float top, float right, float bottom, tgui::Grid::Alignment alignment)
+                                                                                    { grid.addWidget(widget, row, column); },
+                                                                          [] (tgui::Grid& grid, const tgui::Group::Ptr& widget, unsigned int row, unsigned int column, float left, float top, float right, float bottom, tgui::Grid::Alignment alignment)
+                                                                          { grid.addWidget(widget, row, column, tgui::Borders{left, top, right, bottom}, alignment); },
+                                                                          [] (tgui::Grid& grid, const tgui::Panel::Ptr& widget, unsigned int row, unsigned int column, float left, float top, float right, float bottom, tgui::Grid::Alignment alignment)
+                                                                          { grid.addWidget(widget, row, column, tgui::Borders{left, top, right, bottom}, alignment); },
+                                                                          [] (tgui::Grid& grid, const tgui::Button::Ptr& widget, unsigned int row, unsigned int column, float left, float top, float right, float bottom, tgui::Grid::Alignment alignment)
+                                                                          { grid.addWidget(widget, row, column, tgui::Borders{left, top, right, bottom}, alignment); },
+                                                                          [] (tgui::Grid& grid, const tgui::RadioButton::Ptr& widget, unsigned int row, unsigned int column, float left, float top, float right, float bottom, tgui::Grid::Alignment alignment)
+                                                                          { grid.addWidget(widget, row, column, tgui::Borders{left, top, right, bottom}, alignment); },
+                                                                          [] (tgui::Grid& grid, const tgui::CheckBox::Ptr& widget, unsigned int row, unsigned int column, float left, float top, float right, float bottom, tgui::Grid::Alignment alignment)
+                                                                          { grid.addWidget(widget, row, column, tgui::Borders{left, top, right, bottom}, alignment); },
+                                                                          [] (tgui::Grid& grid, const tgui::ProgressBar::Ptr& widget, unsigned int row, unsigned int column, float left, float top, float right, float bottom, tgui::Grid::Alignment alignment)
+                                                                          { grid.addWidget(widget, row, column, tgui::Borders{left, top, right, bottom}, alignment); },
+                                                                          [] (tgui::Grid& grid, const tgui::Picture::Ptr& widget, unsigned int row, unsigned int column, float left, float top, float right, float bottom, tgui::Grid::Alignment alignment)
+                                                                          { grid.addWidget(widget, row, column, tgui::Borders{left, top, right, bottom}, alignment); },
+                                                                          [] (tgui::Grid& grid, const tgui::Scrollbar::Ptr& widget, unsigned int row, unsigned int column, float left, float top, float right, float bottom, tgui::Grid::Alignment alignment)
+                                                                          { grid.addWidget(widget, row, column, tgui::Borders{left, top, right, bottom}, alignment); },
+                                                                          [] (tgui::Grid& grid, const tgui::Label::Ptr& widget, unsigned int row, unsigned int column, float left, float top, float right, float bottom, tgui::Grid::Alignment alignment)
+                                                                          { grid.addWidget(widget, row, column, tgui::Borders{left, top, right, bottom}, alignment); },
+                                                                          [] (tgui::Grid& grid, const tgui::Tabs::Ptr& widget, unsigned int row, unsigned int column, float left, float top, float right, float bottom, tgui::Grid::Alignment alignment)
+                                                                          { grid.addWidget(widget, row, column, tgui::Borders{left, top, right, bottom}, alignment); },
+                                                                          [] (tgui::Grid& grid, const tgui::ChildWindow::Ptr& widget, unsigned int row, unsigned int column, float left, float top, float right, float bottom, tgui::Grid::Alignment alignment)
+                                                                          { grid.addWidget(widget, row, column, tgui::Borders{left, top, right, bottom}, alignment); },
+                                                                          [] (tgui::Grid& grid, const tgui::TiledBackground::Ptr& widget, unsigned int row, unsigned int column, float left, float top, float right, float bottom, tgui::Grid::Alignment alignment)
+                                                                          { grid.addWidget(widget, row, column, tgui::Borders{left, top, right, bottom}, alignment); }),
+                                                sol::base_classes, sol::bases<tgui::Widget>());
 
             //label
             state.registerFunction("createLabel", []() { return tgui::Label::create(); });

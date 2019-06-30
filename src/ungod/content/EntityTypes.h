@@ -93,7 +93,7 @@ namespace ungod
 
     /** \brief A Light that illuminates dark places. */
     using LightBaseComponents = BaseComponents<TransformComponent, LightEmitterComponent>;
-    using LightOptionalComponents = OptionalComponents<>;
+    using LightOptionalComponents = OptionalComponents<LightAffectorComponent>;
 
     /** \brief A trigger is an entity in the world that has a transform, a rigidbody and a script-behavior coupled to that rigidbody.. */
     using TriggerBaseComponents = BaseComponents<TransformComponent, EntityBehaviorComponent>;

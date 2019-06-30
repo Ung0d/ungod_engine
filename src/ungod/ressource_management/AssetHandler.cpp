@@ -32,5 +32,12 @@ namespace ungod
         sID = 0;
     }
 
+
+    void AssetManager::update()
+    {
+        for (auto& h : mHandlers)
+            h->update();
+    }
+
     std::atomic<std::size_t> AssetManager::sID(0);
 }

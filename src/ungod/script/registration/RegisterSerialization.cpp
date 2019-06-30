@@ -80,17 +80,20 @@ namespace ungod
 
 
             state.registerUsertype<MetaMap>("MetaMap",
+                                                sol::constructors<MetaMap(), MetaMap(const std::string id)>(),
                                                   "load", [] (MetaMap& metamap, const std::string& id) { metamap.load(id); },
                                                   "isLoaded", &MetaMap::isLoaded,
                                                   "getNodeWithKey", &MetaMap::getNodeWithKey);
 
             state.registerUsertype<MetaList>("MetaList",
+                                                sol::constructors<MetaList(), MetaList(const std::string id)>(),
                                                    "load", [] (MetaList& metalist, const std::string& id) { metalist.load(id); },
                                                    "isLoaded", &MetaList::isLoaded,
                                                    "getNodeAt", &MetaList::getNodeAt,
                                                    "getNodeCount", &MetaList::getNodeCount);
 
             state.registerUsertype<MetaTable>("MetaTable",
+                                                sol::constructors<MetaTable(), MetaTable(const std::string id)>(),
                                                    "load", [] (MetaTable& metatable, const std::string& id) { metatable.load(id); },
                                                    "isLoaded", &MetaTable::isLoaded,
                                                    "getNodeAt", &MetaTable::getNodeAt,

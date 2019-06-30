@@ -456,8 +456,8 @@ namespace ungod
 
 
         /** \brief Loads a texture that can be bigger than the hardware limitations into memory and displays it in a BigSpriteComponent. */
-        inline void loadBigTexture(Entity e, const std::string& filepath, LoadPolicy policy = ASYNC) { loadBigTexture(e.modify<BigSpriteComponent>(), filepath, policy); }
-        void loadBigTexture(BigSpriteComponent& bigSprite, const std::string& filepath, LoadPolicy policy);
+        inline void loadBigTexture(Entity e, const std::string& filepath, LoadPolicy policy = ASYNC) { loadBigTexture(e, e.modify<BigSpriteComponent>(), filepath, policy); }
+        void loadBigTexture(Entity e, BigSpriteComponent& bigSprite, const std::string& filepath, LoadPolicy policy);
 
         /** \brief Loads a texture that can be bigger than the hardware limitations into memory and displays it in a BigSpriteComponent. */
         inline void setBigSpriteTexture(Entity e) { setBigSpriteTexture(e, e.modify<BigSpriteComponent>()); }

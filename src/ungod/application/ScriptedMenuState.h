@@ -32,6 +32,7 @@
 #include "ungod/base/Input.h"
 #include "ungod/audio/Audio.h"
 #include "ungod/gui/Gui.h"
+#include "ungod/visual/Camera.h"
 
 namespace ungod
 {
@@ -99,6 +100,7 @@ namespace ungod
         Gui mGui;
         InputHandler mInputHandler;
         AudioManager mAudioManager;
+        Camera mCamera;
     };
 }
 

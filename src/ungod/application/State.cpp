@@ -121,6 +121,7 @@ namespace ungod
 
     void StateManager::handleEvent(const sf::Event& curEvent)
     {
+        addPending();
         if (!hasState()) return;
         auto state = mStates.end()-1;
         for (; state != mStates.begin(); --state)
@@ -136,6 +137,7 @@ namespace ungod
 
     void StateManager::update(const float delta)
     {
+        addPending();
         if (!hasState()) return;
         auto state = mStates.end()-1;
         for (; state != mStates.begin(); --state)
@@ -164,6 +166,7 @@ namespace ungod
 
     void StateManager::onCustomEvent(const CustomEvent& event)
     {
+        addPending();
         if (!hasState()) return;
         auto state = mStates.end()-1;
         for (; state != mStates.begin(); --state)
@@ -173,7 +176,6 @@ namespace ungod
         }
         for(; state != mStates.end(); ++state)
             (*state)->onCustomEvent(event);
-        cleanup();
     }
 
     bool StateManager::hasState() const
@@ -195,11 +197,37 @@ namespace ungod
                         break;
                     }
                 }
+                //is the state still pending?
+                for (auto it = mPending.begin(); it != mPending.end(); ++it)
+                {
+                    if (it->state == state->second.get())
+                    {
+                        mPending.erase(it);
+                        break;
+                    }
+                }
                 state->second->closeState();
                 state = mHash.erase(state);
             }
             else
                 ++state;
+        }
+    }
+
+    void StateManager::addPending()
+    {
+        while (!mPending.empty())
+        {
+            PendingAdded pending = mPending.front();
+            mPending.pop_front();
+            if (pending.reinsert)
+                mStates.erase(std::remove(mStates.begin(), mStates.end(), pending.state), mStates.end());
+            if (pending.toBack)
+                mStates.emplace_back( pending.state );
+            else
+                mStates.emplace(mStates.begin(), pending.state);
+            if (pending.activate)
+                pending.state->initState();
         }
     }
 
@@ -215,32 +243,20 @@ namespace ungod
 
     void StateManager::moveToBackground(StateID id)
     {
-        auto it = mStates.begin();
-        for (; it != mStates.end(); ++it)
+        auto res = mHash.find(id);
+        if (res != mHash.end())
         {
-            if ((*it)->getID() == id)
-            {
-                State* tmp = *it;
-                mStates.erase(it);
-                mStates.emplace(mStates.begin(), tmp);
-                break;
-            }
+            mPending.emplace_back(res->second.get(), false, false, true);
         }
     }
 
 
     void StateManager::moveToForeground(StateID id)
     {
-        auto it = mStates.begin();
-        for (; it != mStates.end(); ++it)
+        auto res = mHash.find(id);
+        if (res != mHash.end())
         {
-            if ((*it)->getID() == id)
-            {
-                State* tmp = *it;
-                mStates.erase(it);
-                mStates.emplace_back(tmp);
-                break;
-            }
+            mPending.emplace_back(res->second.get(), true, false, true);
         }
     }
 

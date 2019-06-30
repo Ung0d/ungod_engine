@@ -130,7 +130,7 @@ namespace ungod
     void Renderer::renderColliders(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const
     {
           dom::Utility<Entity>::iterate<TransformComponent, RigidbodyComponent<CONTEXT>>(pull.getList(),
-          [&target, &states] (Entity e, TransformComponent& transf, RigidbodyComponent<CONTEXT>& body)
+          [this, &target, &states] (Entity e, TransformComponent& transf, RigidbodyComponent<CONTEXT>& body)
           {
             Renderer::renderColliders(transf, body, target, states);
           });

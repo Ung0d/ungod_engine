@@ -80,7 +80,6 @@ BOOST_AUTO_TEST_CASE( state_test )
         ErrorCode err = EmbeddedTestApp::getApp().runApplication();
 
         BOOST_CHECK_EQUAL(err, QUIT_STATUS_OK);
-
         BOOST_REQUIRE(EmbeddedTestApp::getApp().getStateManager().getState(0));
 
         auto check_init = EmbeddedTestApp::getApp().getStateManager().getState<ScriptedMenuState>(0)->getEnvironment().get<Optional<bool>>("check_init");
@@ -88,7 +87,15 @@ BOOST_AUTO_TEST_CASE( state_test )
         BOOST_REQUIRE(check_init);
         BOOST_REQUIRE(*check_init);
 
+        auto check_update = EmbeddedTestApp::getApp().getStateManager().getState<ScriptedMenuState>(0)->getEnvironment().get<Optional<bool>>("check_update");
+
+        BOOST_REQUIRE(check_update);
+        BOOST_REQUIRE(*check_update);
+
+        BOOST_REQUIRE(EmbeddedTestApp::getApp().getStateManager().getState(1)); //successfully added a state with id 1
+
         EmbeddedTestApp::getApp().getStateManager().getState(0)->expire();
+        EmbeddedTestApp::getApp().getStateManager().getState(1)->expire();
 
         EmbeddedTestApp::getApp().getStateManager().cleanup();
     }

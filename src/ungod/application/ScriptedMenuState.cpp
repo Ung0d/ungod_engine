@@ -40,7 +40,8 @@ namespace ungod
         ScriptedMenuState::ScriptedMenuState(Application& app, StateID id, const std::string& scriptID) :
             State(app, id),
             mScriptCallbacks( app.getScriptState(), app.getGlobalScriptEnv(), { std::begin(MENU_CALLBACK_IDENTIFIERS), std::end(MENU_CALLBACK_IDENTIFIERS) } ),
-            mGui(app.getWindow())
+            mGui(app.getWindow()),
+            mCamera(app.getWindow())
         {
             //register functionality
             scriptRegistration::registerUtility(mScriptCallbacks);
@@ -68,6 +69,7 @@ namespace ungod
 
         void ScriptedMenuState::update(const float delta)
         {
+            mCamera.update(delta);
             mInputHandler.update();
             mAudioManager.update(delta);
             if (mIntervalTimer.getElapsedTime().asMilliseconds() >= UPDATE_INTERVAL)
@@ -80,7 +82,9 @@ namespace ungod
 
         void ScriptedMenuState::render(sf::RenderTarget& target, sf::RenderStates states)
         {
+            mCamera.renderBegin();
             mGui.draw();
+            mCamera.renderEnd();
         }
 
 

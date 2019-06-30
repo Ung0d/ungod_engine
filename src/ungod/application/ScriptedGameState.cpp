@@ -153,12 +153,14 @@ namespace ungod
 
         mLayers.update(delta);
 
-        if (mIntervalTimer.getElapsedTime().asMilliseconds() >= UPDATE_INTERVAL)
-        {
-            mIntervalTimer.restart();
+        mScriptCallbacks.execute(ON_UPDATE, this, delta);
 
-            mScriptCallbacks.execute(ON_UPDATE, this, UPDATE_INTERVAL);
-        }
+        //if (mIntervalTimer.getElapsedTime().asMilliseconds() >= UPDATE_INTERVAL)
+        //{
+            //mIntervalTimer.restart();
+
+           //mScriptCallbacks.execute(ON_UPDATE, this, UPDATE_INTERVAL);
+        //}
     }
 
 

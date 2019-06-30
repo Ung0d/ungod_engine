@@ -67,7 +67,7 @@ namespace ungod
 			detail::registerMultiComponent<LightAffectorComponent>(state, "MultiLightAffector");
 
             state.registerUsertype<LightSystem>("LightSystem",
-                                                      "setAmbientColor", &LightSystem::setAmbientColor/*,
+                                                      "setAmbientColor", &LightSystem::setAmbientColor,
                                                       "setLocalLightPosition",
                                                       sol::overload(
                                                         [] (LightSystem& ls, Entity e, const sf::Vector2f& position) { ls.setLocalLightPosition(e, position); },
@@ -114,7 +114,7 @@ namespace ungod
                                                                      [] (LightSystem& ls, Entity e, std::size_t lightIndex, std::size_t affectorIndex, const std::function<void(float, LightEmitterComponent&)>& callback)
                                                                     { ls.setAffectorCallback(e, lightIndex, affectorIndex, callback); } ),
                                                         "getLowerBound", &LightSystem::getLowerBound,
-                                                        "getUpperBound", &LightSystem::getUpperBound*/
+                                                        "getUpperBound", &LightSystem::getUpperBound
                                                       );
         }
     }

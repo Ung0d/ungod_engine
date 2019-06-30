@@ -36,7 +36,7 @@ namespace ungod
             state.registerUsertype<ScriptedGameState>("ScriptedGameState",
                                                             "addWorld", sol::overload( [] (ScriptedGameState& state, std::size_t i) { return state.addWorld(i); },
                                                                                         [] (ScriptedGameState& state) { return state.addWorld(); }),
-                                                            "camera", &ScriptedGameState::getCamera,
+                                                            "camera", [] (ScriptedGameState& state) -> Camera& { return state.getCamera(); },
                                                             "toggleDebugmode", &ScriptedGameState::toggleDebugmode,
                                                             "debugEntityBounds", &ScriptedGameState::debugEntityBounds,
                                                             "debugTexrects", &ScriptedGameState::debugTexrects,

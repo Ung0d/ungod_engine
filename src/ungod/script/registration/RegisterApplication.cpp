@@ -63,8 +63,8 @@ namespace ungod
 
             state.registerFunction("getMousePosition", [&app]() { return sf::Mouse::getPosition(app.getWindow()); });
             state.registerFunction("getWindowSize", [&app]() { return sf::Vector2i{(int)app.getWindow().getSize().x, (int)app.getWindow().getSize().y}; });
-            state.registerFunction("world2Screen", [&app](const sf::Vector2f& pos) { return app.getWindow().mapCoordsToPixel(pos); });
-            state.registerFunction("screen2World", [&app](const sf::Vector2i& pos) { return app.getWindow().mapPixelToCoords(pos); });
+            state.registerFunction("world2Screen", [&app](const sf::Vector2f& pos, const ScriptedGameState& state) { return app.getWindow().mapCoordsToPixel(pos, state.getCamera().getView()); });
+            state.registerFunction("screen2World", [&app](const sf::Vector2i& pos, const ScriptedGameState& state) { return app.getWindow().mapPixelToCoords(pos, state.getCamera().getView()); });
 
             state.registerFunction("emit", [&app](const std::string& type, script::Environment data) { return app.emitCustomEvent(type, data); });
         }

@@ -88,6 +88,7 @@ namespace ungod
         Logger::info(mTitle);
         Logger::info("...");
         Logger::endl();
+        mRunning = true;
         mainloop();
         return mExitcode;
     }
@@ -300,6 +301,7 @@ namespace ungod
         mUpdateCounter = 0;
         while (mAccumulator >= mDelta && ++mUpdateCounter <= mMaxUpdates)
         {
+             mAssetmanager.update();
              mStatemanager.update(mDelta);
              mAccumulator -= mDelta;
         }

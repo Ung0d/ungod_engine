@@ -51,6 +51,8 @@ namespace ungod
         Handler(const std::string& cTypeStr) : typeStr(cTypeStr) {}
         const std::string getType() { return typeStr; }
 
+        virtual void update() = 0;
+
         virtual ~Handler() {}
     };
 
@@ -67,8 +69,11 @@ namespace ungod
         //constructor
         AssetHandler() : Handler(LoadBehavior<T, PARAM...>::getIdentifier()) {}
 
+        virtual void update() override;
+
     private:
         std::unordered_map< std::string, std::shared_ptr<AssetData<T, PARAM...>> > mAssetData;  ///<stores loaded assets under fileID as key
+        std::list< AssetData<T, PARAM...>* > mPending; ///<stores asset data that is loading asyc and invokes callbacks on main thread if finished
 
         /**
         * \brief Tells the handler that an asset requires AssetData refering to the given path.
@@ -103,6 +108,9 @@ namespace ungod
 
         template<typename T, typename ... PARAM>
         AssetHandler<T, PARAM...>* getHandler();
+
+        void update();
+
     private:
         std::vector< std::unique_ptr<Handler> > mHandlers;
         std::mutex mMutex;
@@ -130,6 +138,29 @@ namespace ungod
             mHandlers.emplace_back(new AssetHandler<T, PARAM...>());
         }
         return static_cast<AssetHandler<T, PARAM...>*>( mHandlers[id].get() );
+    }
+
+
+
+    template<typename T, typename ... PARAM>
+    void AssetHandler<T, PARAM...>::update()
+    {
+        for (auto data = mPending.begin(); data != mPending.end();)
+        {
+            if ((*data)->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            {
+                while(!(*data)->callbackStack.empty()) //invoke callbacks
+                {
+                    //pair contains a pointer to the requesting asset(first) and the callback(second)
+                    auto callback = std::move((*data)->callbackStack.front());
+                    (*data)->callbackStack.pop_front();
+                    callback.second(*((*data)->asset));
+                }
+                data = mPending.erase(data);
+            }
+            else
+                data++;
+        }
     }
 
 
@@ -162,6 +193,8 @@ namespace ungod
 
                 data->future = std::async(std::launch::async, &AssetHandler<T, PARAM...>::asyncLoad,
                                           this, data, path, std::forward<PARAM>(param)...);
+
+                mPending.emplace_back(data.get());
             }
         }
         else
@@ -208,17 +241,7 @@ namespace ungod
         std::lock_guard<std::mutex> lg(sharedData->mutex);
         sharedData->asset = std::move(emptyPtr);
         sharedData->isLoaded = success;
-        if (success)
-        {
-            while(!sharedData->callbackStack.empty()) //invoke callbacks
-            {
-                //pair contains a pointer to the requesting asset(first) and the callback(second)
-                auto callback = std::move(sharedData->callbackStack.front());
-                sharedData->callbackStack.pop_front();
-                callback.second(*sharedData->asset);
-            }
-        }
-        else
+        if (!success)
         {
             Logger::error("Could not load asset ");
             Logger::error(filepath);
