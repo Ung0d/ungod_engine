@@ -32,6 +32,7 @@
 #include "ungod/serialization/MetaData.h"
 #include "ungod/ressource_management/AssetHandler.h"
 #include "ungod/script/Script.h"
+#include "ungod/application/ConfigFile.h"
 
 namespace ungod
 {
@@ -78,7 +79,7 @@ namespace ungod
         /** \brief Returns the current build version: */
         static const std::string getBuildVersion() {return "Version: 0.01 - pre alpha build";}
 
-        /** \brief Check if the debug mode is currently active. */
+        /** \brief Check if the debug mode is currentlyConfigGroup active. */
         bool debugModeActive();
 
         /** \brief Toggles the debug mode. */
@@ -91,7 +92,11 @@ namespace ungod
         sf::RenderWindow& getWindow();
 
         /** \brief Accesses the config file. */
-        const MetaMap& getConfig() const;
+        Configuration& getConfig() {return mConfig;}
+        const Configuration& getConfig() const {return mConfig;}
+
+        /** \brief Loads a config file. If none exists yet, a default file is generated. */
+        void loadConfig();
 
         /** \brief Defines the background color of the window. */
         void setBackgroundColor(const sf::Color& color);
@@ -111,6 +116,9 @@ namespace ungod
         /** \brief Connects a callback to the on target size changed signal.*/
         void onTargetSizeChanged(const std::function<void(const sf::Vector2u&)>& callback);
 
+        /** \brief Restores the default value of a config property. */
+        void restoreDefaultConfigProperty(const std::string& name);
+
     private:
         //const
         const float mDelta;
@@ -127,7 +135,7 @@ namespace ungod
         unsigned long mWindowStyle;
         sf::ContextSettings mContextSettings;
         //configuration
-        MetaMap mConfig;
+        Configuration mConfig;
         //behavior
         bool mIsInit;
         bool mRunning;
@@ -154,7 +162,6 @@ namespace ungod
     */
     protected:
         void init();
-        void loadConfig();
         void createWindow();
         void createWindow(sf::WindowHandle handle);
         void mainloop();

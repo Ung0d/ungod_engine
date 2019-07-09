@@ -48,7 +48,7 @@ namespace ungod
                                                    "getMaxForce", &MovementComponent::getMaxForce,
                                                    "getBaseSpeed", &MovementComponent::getBaseSpeed);
 
-            state.registerUsertype<MovementManager>("MovementManager"/*,
+            state.registerUsertype<MovementManager>("MovementManager",
                                                           "setMaximumVelocity", &MovementManager::setMaximumVelocity,
                                                           "setBaseSpeed", &MovementManager::setBaseSpeed,
                                                           "setMaximumForce", &MovementManager::setMaximumForce,
@@ -63,7 +63,7 @@ namespace ungod
                                                           "avoidObstacles", &MovementManager::avoidObstacles,
                                                           "directMovement", &MovementManager::directMovement,
                                                           "slowDown", &MovementManager::slowDown,
-                                                          "resetAcceleration", &MovementManager::resetAcceleration*/
+                                                          "resetAcceleration", &MovementManager::resetAcceleration
                                                           );
 
             state.registerUsertype<SteeringComponent<script::Environment>>("Steering",

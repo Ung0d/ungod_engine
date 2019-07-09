@@ -29,13 +29,13 @@
 namespace ungod
 {
     const std::string Application::CONFIG_LOAD_PATH = "databases/config.xml";
-    const std::string Application::DEFAULT_CONFIG_XML = "<meta>"\
-                                                       "<resolution width=\"800\" height=\"600\" fullscreen=\"0\"/>"\
+    const std::string Application::DEFAULT_CONFIG_XML = "<config>"\
+                                                       "<resolution width=\"800\" height=\"600\" fullscreen=\"0\" vsync=\"0\" framerate_limit=\"120\"/>"\
                                                        "<graphics_settings image_quality=\"0\"/>"\
                                                        "<light unshadow_vertex_shader=\"resource/unshadowShader.vert\" unshadow_frag_shader=\"resource/unshadowShader.frag\"\
                                                        light_vertex_shader=\"resource/lightOverShapeShader.vert\" light_frag_shader=\"resource/lightOverShapeShader.frag\"\
                                                        default_penumbra_texture=\"resource/penumbraTexture.png\"/>"\
-                                                       "</meta>";
+                                                       "</config>";
     const unsigned Application::DEFAULT_VIDEO_WIDTH = 800;
     const unsigned Application::DEFAULT_VIDEO_HEIGHT = 600;
     const unsigned Application::DEFAULT_VIDEO_BPP = 32;
@@ -90,6 +90,7 @@ namespace ungod
         Logger::endl();
         mRunning = true;
         mainloop();
+        mConfig.save();
         return mExitcode;
     }
 
@@ -103,6 +104,29 @@ namespace ungod
     {
         mExitcode = error;
         mRunning = false;
+    }
+
+
+    void Application::loadConfig()
+    {
+        if ( boost::filesystem::exists(CONFIG_LOAD_PATH) )
+        {
+            mConfig.load(CONFIG_LOAD_PATH);
+        }
+        else
+        {
+            boost::filesystem::path configPath(CONFIG_LOAD_PATH);
+            boost::system::error_code err;
+            boost::filesystem::create_directories(configPath.parent_path(), err);
+            if (!err)
+            {
+                std::ofstream file(CONFIG_LOAD_PATH);
+                file << DEFAULT_CONFIG_XML;
+                file.close();
+                mConfig.load(CONFIG_LOAD_PATH);
+            }
+            else quitApplication(COULD_NOT_CREATE_CONFIG_FILE);
+        }
     }
 
 
@@ -147,12 +171,6 @@ namespace ungod
     }
 
 
-    const MetaMap& Application::getConfig() const
-    {
-        return mConfig;
-    }
-
-
     void Application::setBackgroundColor(const sf::Color& color)
     {
         mBackgroundColor = color;
@@ -177,45 +195,19 @@ namespace ungod
     }
 
 
-    void Application::loadConfig()
-    {
-        if ( boost::filesystem::exists(CONFIG_LOAD_PATH) )
-        {
-            mConfig.load(CONFIG_LOAD_PATH);
-        }
-        else
-        {
-            boost::filesystem::path configPath(CONFIG_LOAD_PATH);
-            boost::system::error_code err;
-            boost::filesystem::create_directories(configPath.parent_path(), err);
-            if (!err)
-            {
-                std::ofstream file(CONFIG_LOAD_PATH);
-                file << DEFAULT_CONFIG_XML;
-                file.close();
-                mConfig.load(CONFIG_LOAD_PATH);
-            }
-            else quitApplication(COULD_NOT_CREATE_CONFIG_FILE);
-        }
-    }
-
-
     void Application::createWindow()
     {
         //createWindow
-        auto resolutionConfig = mConfig.getNodeWithKey("resolution");
-        auto values = resolutionConfig.getAttributes<unsigned, unsigned, bool, bool, unsigned>(
-                    {"width", DEFAULT_VIDEO_WIDTH}, {"height", DEFAULT_VIDEO_HEIGHT}, {"fullscreen", false}, {"vsync", false}, {"framerate_limit", 120});
-        mVideoMode.width = std::get<0>(values);
-        mVideoMode.height = std::get<1>(values);
-        if (std::get<2>(values))
+        mVideoMode.width = mConfig.getOr<unsigned>("resolution/width", 800u);
+        mVideoMode.height = mConfig.getOr<unsigned>("resolution/height", 600u);
+        if (mConfig.getOr<bool>("resolution/fullscreen", false))
             mWindowStyle = sf::Style::Fullscreen;
         mVideoMode.bitsPerPixel = DEFAULT_VIDEO_BPP;
         mWindow.create(mVideoMode, mTitle, mWindowStyle, mContextSettings);
-        if (std::get<3>(values))
+        if (mConfig.getOr<bool>("resolution/vsync", false))
             mWindow.setVerticalSyncEnabled(true);
         else
-            mWindow.setFramerateLimit(std::get<4>(values));
+            mWindow.setFramerateLimit(mConfig.getOr<unsigned>("resolution/framerate_limit", 120));
         mWindow.setIcon(icon.width, icon.height, icon.pixel_data);
         mWindow.clear(mBackgroundColor);
         mWindow.display();
@@ -241,12 +233,12 @@ namespace ungod
         mGlobalScriptEnvironment = mScriptState->create_named_table("ungod");
 
         //load images in normal or low quality?
-        auto graphicsConfig = mConfig.getNodeWithKey("graphics_settings");
-        if (graphicsConfig)
-        {
+        //auto graphicsConfig = mConfig.getNodeWithKey("graphics_settings");
+        //if (graphicsConfig)
+        //{
             /*Image::quality = (ImageQuality)ungod::getAttribute<std::underlying_type<ImageQuality>::type>(
                                         "image_quality", graphics_config, IMAGE_QUALITY_NORMAL);*/
-        }
+        //}
     }
 
 

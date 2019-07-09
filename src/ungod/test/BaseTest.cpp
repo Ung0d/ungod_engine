@@ -74,6 +74,45 @@ BOOST_AUTO_TEST_CASE( render_system_test )
     BOOST_REQUIRE( e.get<ungod::VisualsComponent>().isLoaded() );
 }
 
+BOOST_AUTO_TEST_CASE( config_property_test )
+{
+    bool changed1 = false;
+    bool changed2 = false;
+
+    EmbeddedTestApp::getApp().getConfig().onConfigurationChanged([&changed1] (ungod::Configuration& config, const std::string& item)
+                                                                 { if(item == "testgroup/floatTest") changed1 = true; });
+
+    EmbeddedTestApp::getApp().getConfig().set("testgroup/floatTest", 1.0f);
+    EmbeddedTestApp::getApp().getConfig().set("testgroup/stringTest", std::string{"hello"});
+    EmbeddedTestApp::getApp().getConfig().set("testgroup/boolTest", true);
+    EmbeddedTestApp::getApp().getConfig().set("testgroup/intTest", 24);
+
+    BOOST_CHECK(changed1);
+
+    BOOST_CHECK_EQUAL(EmbeddedTestApp::getApp().getConfig().get<float>("testgroup/floatTest").value(), 1.0f);
+    BOOST_CHECK_EQUAL(EmbeddedTestApp::getApp().getConfig().get<std::string>("testgroup/stringTest").value(), "hello");
+    BOOST_CHECK_EQUAL(EmbeddedTestApp::getApp().getConfig().get<bool>("testgroup/boolTest").value(), true);
+    BOOST_CHECK_EQUAL(EmbeddedTestApp::getApp().getConfig().get<int>("testgroup/intTest").value(), 24);
+
+    EmbeddedTestApp::getApp().getConfig().set("testgroup/floatTest", 12.0f);
+    EmbeddedTestApp::getApp().getConfig().set<std::string>("testgroup/stringTest", "bye");
+    EmbeddedTestApp::getApp().getConfig().set("testgroup/boolTest", false);
+    EmbeddedTestApp::getApp().getConfig().set("testgroup/intTest", 199);
+
+    EmbeddedTestApp::getApp().getConfig().onConfigurationChanged([&changed2] (ungod::Configuration& config, const std::string& item)
+                                                                 { if(item == "") changed2 = true; });
+
+    EmbeddedTestApp::getApp().getConfig().save();
+    EmbeddedTestApp::getApp().loadConfig();
+
+    BOOST_CHECK(changed2);
+
+    BOOST_CHECK_EQUAL(EmbeddedTestApp::getApp().getConfig().get<float>("testgroup/floatTest").value(), 12.0f);
+    BOOST_CHECK_EQUAL(EmbeddedTestApp::getApp().getConfig().get<std::string>("testgroup/stringTest").value(), "bye");
+    BOOST_CHECK_EQUAL(EmbeddedTestApp::getApp().getConfig().get<bool>("testgroup/boolTest").value(), false);
+    BOOST_CHECK_EQUAL(EmbeddedTestApp::getApp().getConfig().get<int>("testgroup/intTest").value(), 199);
+}
+
 BOOST_AUTO_TEST_CASE( metadata_test )
 {
     ungod::MetaMap metamap;
@@ -313,7 +352,7 @@ BOOST_AUTO_TEST_CASE( entity_instantiation_test )
 
     ungod::Entity wo = world.create(ungod::WorldObjectBaseComponents(), ungod::WorldObjectOptionalComponents());
     ungod::Entity ac = world.create(ungod::ActorBaseComponents(), ungod::ActorOptionalComponents());
-    ungod::Entity me = world.create(ungod::AudioEmitterBaseComponents(), ungod::AudioEmitterOptionalComponents());
+    //ungod::Entity me = world.create(ungod::AudioEmitterBaseComponents(), ungod::AudioEmitterOptionalComponents());
     ungod::Entity ps = world.create(ungod::ParticleSystemBaseComponents(), ungod::ParticleSystemOptionalComponents());
 
     BOOST_CHECK_EQUAL(world.getComponentCount<ungod::TransformComponent>(), 4u);

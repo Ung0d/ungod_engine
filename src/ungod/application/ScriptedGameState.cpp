@@ -86,13 +86,14 @@ namespace ungod
         World* world = new World( mApp->getScriptState(), mApp->getGlobalScriptEnv(), this);
 
         //instantate the world
-        MetaNode lightdata = mApp->getConfig().getNodeWithKey("light");
-        if (lightdata)
+        auto unshadowVertex = mApp->getConfig().get<std::string>("light/unshadow_vertex_shader");
+        auto unshadowFrag = mApp->getConfig().get<std::string>("light/unshadow_frag_shader");
+        auto lightVertex = mApp->getConfig().get<std::string>("light/light_vertex_shader");
+        auto lightFrag = mApp->getConfig().get<std::string>("light/light_frag_shader");
+        auto pen = mApp->getConfig().get<std::string>("light/default_penumbra_texture");
+        if (unshadowVertex && unshadowFrag && lightVertex && lightFrag && pen)
         {
-            auto res = lightdata.getAttributes<std::string, std::string, std::string, std::string, std::string>
-            ({"unshadow_vertex_shader",""}, {"unshadow_frag_shader",""}, {"light_vertex_shader",""}, {"light_frag_shader",""}, {"default_penumbra_texture",""});
-
-            world->instantiate(*mApp, std::get<0>(res), std::get<1>(res), std::get<2>(res), std::get<3>(res), std::get<4>(res), mApp->getGlobalScriptEnv());
+            world->instantiate(*mApp, unshadowVertex.value(), unshadowFrag.value(), lightVertex.value(), lightFrag.value(), pen.value(), mApp->getGlobalScriptEnv());
         }
         else
         {

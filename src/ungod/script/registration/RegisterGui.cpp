@@ -280,6 +280,7 @@ namespace ungod
                                                                                       [] (tgui::Scrollbar& scrollbar, const tgui::Layout2d& layout) { scrollbar.setSize(layout); }),
                                                            "setMaximum", &tgui::Scrollbar::setMaximum,
                                                            "setValue", &tgui::Scrollbar::setValue,
+                                                           "getValue", &tgui::Scrollbar::getValue,
                                                            "setScrollAmount", &tgui::Scrollbar::setScrollAmount,
                                                            "setAutoHide", &tgui::Scrollbar::setAutoHide,
                                                             sol::base_classes, sol::bases<tgui::Widget>());
