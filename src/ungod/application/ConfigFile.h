@@ -30,6 +30,7 @@
 #include <tuple>
 #include <optional>
 #include "owls/Signal.h"
+#include "ungod/base/Logger.h"
 
 namespace ungod
 {
@@ -196,7 +197,7 @@ namespace ungod
             auto res = mParam.find(item);
             if (res != mParam.end())
             {
-                res->second.getValue<T>();
+                return res->second.getValue<T>();
             }
             return {};
         }

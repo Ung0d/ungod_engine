@@ -89,6 +89,11 @@ BOOST_AUTO_TEST_CASE( config_property_test )
 
     BOOST_CHECK(changed1);
 
+    BOOST_REQUIRE(EmbeddedTestApp::getApp().getConfig().get<float>("testgroup/floatTest"));
+    BOOST_REQUIRE(EmbeddedTestApp::getApp().getConfig().get<std::string>("testgroup/stringTest"));
+    BOOST_REQUIRE(EmbeddedTestApp::getApp().getConfig().get<bool>("testgroup/boolTest"));
+    BOOST_REQUIRE(EmbeddedTestApp::getApp().getConfig().get<int>("testgroup/intTest"));
+
     BOOST_CHECK_EQUAL(EmbeddedTestApp::getApp().getConfig().get<float>("testgroup/floatTest").value(), 1.0f);
     BOOST_CHECK_EQUAL(EmbeddedTestApp::getApp().getConfig().get<std::string>("testgroup/stringTest").value(), "hello");
     BOOST_CHECK_EQUAL(EmbeddedTestApp::getApp().getConfig().get<bool>("testgroup/boolTest").value(), true);
@@ -106,6 +111,11 @@ BOOST_AUTO_TEST_CASE( config_property_test )
     EmbeddedTestApp::getApp().loadConfig();
 
     BOOST_CHECK(changed2);
+
+    BOOST_REQUIRE(EmbeddedTestApp::getApp().getConfig().get<float>("testgroup/floatTest"));
+    BOOST_REQUIRE(EmbeddedTestApp::getApp().getConfig().get<std::string>("testgroup/stringTest"));
+    BOOST_REQUIRE(EmbeddedTestApp::getApp().getConfig().get<bool>("testgroup/boolTest"));
+    BOOST_REQUIRE(EmbeddedTestApp::getApp().getConfig().get<int>("testgroup/intTest"));
 
     BOOST_CHECK_EQUAL(EmbeddedTestApp::getApp().getConfig().get<float>("testgroup/floatTest").value(), 12.0f);
     BOOST_CHECK_EQUAL(EmbeddedTestApp::getApp().getConfig().get<std::string>("testgroup/stringTest").value(), "bye");
@@ -352,7 +362,7 @@ BOOST_AUTO_TEST_CASE( entity_instantiation_test )
 
     ungod::Entity wo = world.create(ungod::WorldObjectBaseComponents(), ungod::WorldObjectOptionalComponents());
     ungod::Entity ac = world.create(ungod::ActorBaseComponents(), ungod::ActorOptionalComponents());
-    //ungod::Entity me = world.create(ungod::AudioEmitterBaseComponents(), ungod::AudioEmitterOptionalComponents());
+    ungod::Entity me = world.create(ungod::AudioEmitterBaseComponents(), ungod::AudioEmitterOptionalComponents());
     ungod::Entity ps = world.create(ungod::ParticleSystemBaseComponents(), ungod::ParticleSystemOptionalComponents());
 
     BOOST_CHECK_EQUAL(world.getComponentCount<ungod::TransformComponent>(), 4u);

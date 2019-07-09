@@ -40,6 +40,7 @@ namespace ungod
         if (!metalist.isLoaded())
             return;
         mFilepath = filepath;
+        mContent.clear();
         for (std::size_t i = 0; i < metalist.getNodeCount(); i++)
         {
             auto node = metalist.getNodeAt(i);
@@ -66,6 +67,7 @@ namespace ungod
                 node.appendAttribute( doc.allocateAttribute(item.first, item.second.mValue) );
             }
         }
+
         std::ofstream file(mFilepath);
         file << doc;
         file.close();
@@ -77,7 +79,7 @@ namespace ungod
         auto pos = item.find("/");
         if (pos != std::string::npos)
         {
-            return {item.substr(0, pos), item.substr(pos)};
+            return {item.substr(0, pos), item.substr(pos+1)};
         }
         else
         {
