@@ -119,6 +119,12 @@ namespace ungod
         /** \brief Restores the default value of a config property. */
         void restoreDefaultConfigProperty(const std::string& name);
 
+        /** \brief Returns true if and only if fullscreen is enabled. */
+        bool isFullscreen() const { return mWindowStyle == sf::Style::Fullscreen; }
+
+        /** \brief Returns true if and only if vsync is enabled. */
+        bool vsyncEnabled() const { return mVsync; }
+
     private:
         //const
         const float mDelta;
@@ -134,6 +140,7 @@ namespace ungod
         sf::VideoMode mVideoMode;
         unsigned long mWindowStyle;
         sf::ContextSettings mContextSettings;
+        bool mVsync;
         //configuration
         Configuration mConfig;
         //behavior

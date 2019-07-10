@@ -51,6 +51,7 @@ namespace ungod
         mVideoMode(DEFAULT_VIDEO_WIDTH, DEFAULT_VIDEO_HEIGHT, DEFAULT_VIDEO_BPP),
         mWindowStyle(sf::Style::Close | sf::Style::Resize),
         mContextSettings(),
+        mVsync(false),
         mConfig(),
         mIsInit(false),
         mRunning(false),
@@ -204,7 +205,8 @@ namespace ungod
             mWindowStyle = sf::Style::Fullscreen;
         mVideoMode.bitsPerPixel = DEFAULT_VIDEO_BPP;
         mWindow.create(mVideoMode, mTitle, mWindowStyle, mContextSettings);
-        if (mConfig.getOr<bool>("resolution/vsync", false))
+        mVsync = mConfig.getOr<bool>("resolution/vsync", false);
+        if (mVsync)
             mWindow.setVerticalSyncEnabled(true);
         else
             mWindow.setFramerateLimit(mConfig.getOr<unsigned>("resolution/framerate_limit", 120));
@@ -239,6 +241,12 @@ namespace ungod
             /*Image::quality = (ImageQuality)ungod::getAttribute<std::underlying_type<ImageQuality>::type>(
                                         "image_quality", graphics_config, IMAGE_QUALITY_NORMAL);*/
         //}
+
+        mConfig.onConfigurationChanged([this] (Configuration& config, const std::string& item)
+           {
+               if (item == "resolution/width" || item == "resolution/height" || item == "resolution/fullscreen" || item == "resolution/vsync" || item == "resolution/framerate_limit")
+                    createWindow();
+           });
     }
 
 
@@ -277,10 +285,7 @@ namespace ungod
             case sf::Event::LostFocus:
                 break;
             case sf::Event::MouseMoved:
-            {
-                mActiveCursor.setPosition(event.mouseMove.x, event.mouseMove.y);
                 break;
-            }
             default:
                 break;
             }
@@ -303,6 +308,7 @@ namespace ungod
     {
         mWindow.clear(mBackgroundColor);
         mStatemanager.render(mWindow, sf::RenderStates());
+        mActiveCursor.setPosition(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y);
         mWindow.draw(mActiveCursor);
         mWindow.display();
     }

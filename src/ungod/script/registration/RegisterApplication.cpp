@@ -61,12 +61,26 @@ namespace ungod
             state.registerFunction("logWarning", [] (const std::string& txt) { Logger::warning(txt); Logger::endl(); });
             state.registerFunction("logError", [] (const std::string& txt) { Logger::error(txt); Logger::endl(); });
 
+            state.registerFunction("setFloatConfig", [&app] (const std::string& item, float x) { app.getConfig().set<float>(item, x); });
+            state.registerFunction("setIntConfig", [&app] (const std::string& item, int x) { app.getConfig().set<int>(item, x); });
+            state.registerFunction("setBoolConfig", [&app] (const std::string& item, bool x) { app.getConfig().set<bool>(item, x); });
+            state.registerFunction("setStringConfig", [&app] (const std::string& item, const std::string& x) { app.getConfig().set<std::string>(item, x); });
+
+            state.registerFunction("getFloatConfigOr", [&app] (const std::string& item, float x) -> float { return app.getConfig().getOr<float>(item, x); });
+            state.registerFunction("getIntConfigOr", [&app] (const std::string& item, int x) -> int { return app.getConfig().getOr<int>(item, x); });
+            state.registerFunction("getBoolConfigOr", [&app] (const std::string& item, bool x) -> bool { return app.getConfig().getOr<bool>(item, x); });
+            state.registerFunction("getStringConfigOr", [&app] (const std::string& item, const std::string& x) -> std::string { return app.getConfig().getOr<std::string>(item, x); });
+
             state.registerFunction("getMousePosition", [&app]() { return sf::Mouse::getPosition(app.getWindow()); });
             state.registerFunction("getWindowSize", [&app]() { return sf::Vector2i{(int)app.getWindow().getSize().x, (int)app.getWindow().getSize().y}; });
+            state.registerFunction("isFullscreen", [&app]() { return app.isFullscreen(); });
+            state.registerFunction("isVsyncEnabled", [&app]() { return app.vsyncEnabled(); });
             state.registerFunction("world2Screen", [&app](const sf::Vector2f& pos, const ScriptedGameState& state) { return app.getWindow().mapCoordsToPixel(pos, state.getCamera().getView()); });
             state.registerFunction("screen2World", [&app](const sf::Vector2i& pos, const ScriptedGameState& state) { return app.getWindow().mapPixelToCoords(pos, state.getCamera().getView()); });
 
             state.registerFunction("emit", [&app](const std::string& type, script::Environment data) { return app.emitCustomEvent(type, data); });
+
+            state.registerFunction("setCursor", [&app](const std::string& cursor) { app.setCursor(cursor); });
         }
     }
 }

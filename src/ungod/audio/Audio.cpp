@@ -159,6 +159,7 @@ namespace ungod
     void AudioManager::setMusicVolume(float volume, std::size_t index)
     {
         mMusicVolumes[index] = volume;
+        mMusic[index]->setVolume(100.0f * mMusicVolumes[index]);
     }
 
     ProfileHandle AudioManager::initSoundProfile(const std::string& key)

@@ -86,6 +86,7 @@ namespace ungod
                                                         "getScrollbar", [] (Gui& gui, const std::string& name) { return gui.get<tgui::Scrollbar>(name); },
                                                         "getLabel", [] (Gui& gui, const std::string& name) { return gui.get<tgui::Label>(name); },
                                                         "getTabs", [] (Gui& gui, const std::string& name) { return gui.get<tgui::Tabs>(name); },
+                                                        "getGrid", [] (Gui& gui, const std::string& name) { return gui.get<tgui::Grid>(name); },
                                                         "getChildWindow", [] (Gui& gui, const std::string& name) { return gui.get<tgui::ChildWindow>(name); },
                                                         "getTiledBackground", [] (Gui& gui, const std::string& name) { return gui.get<tgui::TiledBackground>(name); },
                                                         "loadTheme", &Gui::loadTheme,
@@ -158,12 +159,12 @@ namespace ungod
                                                                                       [] (tgui::Widget& widget, float x, float y) { widget.setSize({x,y}); },
                                                                                       [] (tgui::Widget& widget, const tgui::Layout2d& layout) { widget.setSize(layout); }),
                                                             "setRenderer", &tgui::Widget::setRenderer,
-                                                            /*"setFocused", &tgui::Widget::setFocused,
+                                                            "setFocused", &tgui::Widget::setFocused,
                                                             "isFocused", &tgui::Widget::isFocused,
                                                             "isEnabled", &tgui::Widget::isEnabled,
                                                             "setEnabled", &tgui::Widget::setEnabled,
                                                             "isVisible", &tgui::Widget::isVisible,
-                                                            "setVisible", &tgui::Widget::setVisible,*/
+                                                            "setVisible", &tgui::Widget::setVisible,
                                                             "hideWithEffect", [] (tgui::Widget& widget, tgui::ShowAnimationType type, int32_t durationInMs) { widget.hideWithEffect(type, sf::milliseconds(durationInMs)); },
                                                             "showWithEffect", [] (tgui::Widget& widget, tgui::ShowAnimationType type, int32_t durationInMs) { widget.showWithEffect(type, sf::milliseconds(durationInMs)); });
 
@@ -221,7 +222,7 @@ namespace ungod
             //radio-button
             state.registerFunction("createRadioButton", []() { return tgui::RadioButton::create(); });
             state.registerUsertype<tgui::RadioButton>("RadioButton",
-                                                           //"setChecked", &tgui::RadioButton::setChecked,
+                                                           "setChecked", &tgui::RadioButton::setChecked,
                                                            "isChecked", &tgui::RadioButton::isChecked,
                                                            "setText", [] (tgui::RadioButton& rb, const std::string& text) { rb.setText(text); },
                                                            "setTextSize", &tgui::RadioButton::setTextSize,
@@ -234,7 +235,6 @@ namespace ungod
             //checkbox
             state.registerFunction("createCheckbox", []() { return tgui::CheckBox::create(); });
             state.registerUsertype<tgui::CheckBox>("CheckBox",
-                                                           //"setChecked", &tgui::CheckBox::setChecked,
                                                             sol::base_classes, sol::bases<tgui::RadioButton, tgui::Widget>());
 
             //progress_bar
