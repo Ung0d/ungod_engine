@@ -27,6 +27,7 @@
 #include "ungod/application/Application.h"
 #include "ungod/application/ScriptedGameState.h"
 #include "ungod/application/ScriptedMenuState.h"
+#include "ungod/application/CutsceneState.h"
 
 namespace ungod
 {
@@ -49,6 +50,7 @@ namespace ungod
             state.registerFunction("buildVersion", [&app] () { return app.getBuildVersion(); });
             state.registerFunction("addGameState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<ScriptedGameState>(id, scriptfile); });
             state.registerFunction("addMenuState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<ScriptedMenuState>(id, scriptfile); });
+            state.registerFunction("addCutsceneState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<CutsceneState>(id, scriptfile); });
             state.registerFunction("addInactiveGameState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<ScriptedGameState>(id, scriptfile); });
             state.registerFunction("addInactiveMenuState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<ScriptedMenuState>(id, scriptfile); });
             state.registerFunction("moveStateToForeground", [&app] (StateID id) { return app.getStateManager().moveToForeground(id); });

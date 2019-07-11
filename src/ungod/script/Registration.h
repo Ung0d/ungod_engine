@@ -48,5 +48,7 @@
 #include "ungod/script/registration/RegisterWater.h"
 #include "ungod/script/registration/RegisterTileMap.h"
 #include "ungod/script/registration/RegisterParticleSystem.h"
+#include "ungod/script/registration/RegisterCutscene.h"
+#include "ungod/script/registration/RegisterCutsceneState.h"
 
 #endif // REGISTRATION_H
