@@ -1124,15 +1124,25 @@ namespace dom
         }
     }
 
+    namespace detail
+    {
+        constexpr int64_t ipow_p(int64_t base, int exp, int64_t ans = 1)
+        {
+            return exp < 1 ?
+                ans : ipow_p(base*base, exp/2, (exp % 2) ? ans*base : ans);
+        }
+
+        constexpr double ipow(int base, int exp)
+        {
+            return exp > 0 ? ipow_p(base, exp) : 1.0 / ipow_p(base, -exp);
+        }
+    }
 
     template<typename CINDEX, CINDEX COMP_TOTAL>
     EntityID Universe<CINDEX, COMP_TOTAL>::getID( const EntityHandle<CINDEX, COMP_TOTAL>& e )
     {
-        EntityID id;
-        id = e.mGeneration;
-        id = (id << sizeof(SubID)) | e.mHandle.index;
-        id = (id << sizeof(SubID)) | e.mHandle.block;
-        return id;
+        constexpr EntityID MAX_UNGEN_ID = detail::ipow(2,31)*2 - 1;
+        return MAX_UNGEN_ID*e.mGeneration + ENTITY_BLOCK_SIZE*e.mHandle.block + e.mHandle.index;
     }
 
 

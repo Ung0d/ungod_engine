@@ -78,6 +78,12 @@ namespace ungod
          }
     }
 
+
+    Scene::Scene(unsigned duration) : mDuration(duration)
+    {
+    }
+
+
     void Scene::addLayer(const std::string& texture)
     {
         mLayers.emplace_back(sf::BigSprite{}, texture);
@@ -105,12 +111,50 @@ namespace ungod
     {
         for (const auto& layer : mLayers)
             target.draw(layer.first, states);
+        target.draw(mText, states);
+    }
+
+
+    void Scene::setText(const std::string& text)
+    {
+        mText.setString(text);
+    }
+
+
+    void Scene::setTextPosition(const sf::Vector2f& percentagePos)
+    {
+        mTextPosition = percentagePos;
+    }
+
+
+    void Scene::setTextFillColor(const sf::Color& color)
+    {
+        mText.setFillColor(color);
+    }
+
+
+    void Scene::setTextOutlineColor(const sf::Color& color)
+    {
+        mText.setOutlineColor(color);
+    }
+
+
+    void Scene::setTextSize(unsigned textsize)
+    {
+        mText.setCharacterSize(textsize);
+    }
+
+
+    Cutscene::Cutscene() : mPlaying(false), mCurrent(0), mFadingEnabled(true)
+    {
+        mBlackScreen.setFillColor(sf::Color::Black);
     }
 
 
     Scene& Cutscene::addScene(unsigned duration)
     {
         mScenes.emplace_back(duration);
+        mScenes.back().mText.setFont(mFont);
         return mScenes.back();
     }
 
@@ -140,13 +184,15 @@ namespace ungod
 
         mScenes[mCurrent].applyEffects(delta);
 
+        bool status = false;
+
         if ((unsigned)mTimer.getElapsedTime().asMilliseconds() >= mScenes[mCurrent].mDuration)
         {
             if (mCurrent == mScenes.size()-1) //end of the cutscene
             {
                 mCurrent++;
                 mPlaying = false;
-                    return true;
+                    status = true;
             }
             else
             {
@@ -158,34 +204,42 @@ namespace ungod
                         mDataLoader.loadNext(&mScenes[mCurrent+1]);
                     setTextures();
                     mTimer.restart();
-                    return true;
+                    status = true;
                 }
             }
         }
-        return false;
+
+        //calculate the transparency value for the scene (for fadein and fadeout effects)
+        float alpha = 1.0f;
+        if ((unsigned)mTimer.getElapsedTime().asMilliseconds() < mFadingDuration)
+            alpha = (float)mTimer.getElapsedTime().asMilliseconds()/mFadingDuration;
+        else if ((unsigned)mTimer.getElapsedTime().asMilliseconds() > mScenes[mCurrent].mDuration - mFadingDuration)
+            alpha = ((float)mScenes[mCurrent].mDuration - (float)mTimer.getElapsedTime().asMilliseconds())/mFadingDuration;
+        sf::Color blackScreenCol = sf::Color::Black;
+        blackScreenCol.a = (uint8_t)255*(1-alpha);
+        mBlackScreen.setFillColor(blackScreenCol);
+
+        return status;
     }
 
 
     void Cutscene::render(sf::RenderTarget& target, sf::RenderStates states) const
     {
+        sf::View stor = target.getView();
+        target.setView(target.getDefaultView());
         if (!mPlaying)
             return;
         mScenes[mCurrent].render(target, states);
+        if (mFadingEnabled)
+            target.draw(mBlackScreen, states);
+        target.setView(stor);
     }
 
 
     void Cutscene::setScreenSize(const sf::Vector2u& screensize)
     {
-        for (auto& scene : mScenes)
-        {
-            for (auto& layer : scene.mLayers)
-            {
-                sf::Vector2f scaling;
-                scaling.x = layer.first.getLocalBounds().width / screensize.x;
-                scaling.y = layer.first.getLocalBounds().height / screensize.y;
-                layer.first.setScale(scaling);
-            }
-        }
+        mScreenSize = screensize;
+        mBlackScreen.setSize({(float)mScreenSize.x, (float)mScreenSize.y});
     }
 
 
@@ -196,5 +250,21 @@ namespace ungod
         {
             mScenes[mCurrent].mLayers[i].first.setTexture(data.textures[i]);
         }
+        for (auto& layer : mScenes[mCurrent].mLayers)
+        {
+            sf::Vector2f scaling;
+            scaling.x = mScreenSize.x / layer.first.getLocalBounds().width;
+            scaling.y = mScreenSize.y / layer.first.getLocalBounds().height;
+            float scale = (scaling.x+scaling.y)/2;
+            layer.first.setScale({scale, scale});
+            layer.first.setPosition({-(layer.first.getLocalBounds().width*scale-mScreenSize.x)/2, -(layer.first.getLocalBounds().height*scale-mScreenSize.y)/2});
+        }
+        mScenes[mCurrent].mText.setPosition({mScreenSize.x*mScenes[mCurrent].mTextPosition.x, mScreenSize.y*mScenes[mCurrent].mTextPosition.y});
+    }
+
+
+    void Cutscene::loadFont(const std::string& font)
+    {
+        mFont.loadFromFile(font);
     }
 }

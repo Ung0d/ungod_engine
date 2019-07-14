@@ -31,20 +31,22 @@ namespace ungod
 {
         CutsceneState::CutsceneState(Application& app, StateID id, const std::string& gameScriptID) : State(app, id),
             mScriptCallbacks( app.getScriptState(), app.getGlobalScriptEnv(), { std::begin(GAME_CALLBACK_IDENTIFIERS), std::end(GAME_CALLBACK_IDENTIFIERS) } ),
-            mGameScriptID()
+            mGameScriptID(), mEnded(false)
         {
             setTranscendency(false);
             setTransparency(false);
             runScript(gameScriptID);
+            mCutscene.setScreenSize(app.getWindow().getSize());
         }
 
 
         CutsceneState::CutsceneState(Application& app, StateID id) : State(app, id),
             mScriptCallbacks( app.getScriptState(), app.getGlobalScriptEnv(), { std::begin(GAME_CALLBACK_IDENTIFIERS), std::end(GAME_CALLBACK_IDENTIFIERS) } ),
-            mGameScriptID()
+            mGameScriptID(), mEnded(false)
         {
             setTranscendency(false);
             setTransparency(false);
+            mCutscene.setScreenSize(app.getWindow().getSize());
         }
 
 
@@ -75,6 +77,11 @@ namespace ungod
             if (mCutscene.update(delta))
             {
                 mScriptCallbacks.execute(ON_SCENE_END, this, mCutscene.getSceneIndex());
+            }
+            if (!mCutscene.isPlaying() && !mEnded)
+            {
+                mEnded = true;
+                mScriptCallbacks.execute(ON_CUTSCENE_END, this);
             }
         }
 

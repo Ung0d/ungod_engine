@@ -122,7 +122,7 @@ namespace ungod
     void StateManager::handleEvent(const sf::Event& curEvent)
     {
         addPending();
-        if (!hasState()) return;
+        if (mStates.empty()) return;
         auto state = mStates.end()-1;
         for (; state != mStates.begin(); --state)
         {
@@ -138,7 +138,7 @@ namespace ungod
     void StateManager::update(const float delta)
     {
         addPending();
-        if (!hasState()) return;
+        if (mStates.empty()) return;
         auto state = mStates.end()-1;
         for (; state != mStates.begin(); --state)
         {
@@ -153,7 +153,7 @@ namespace ungod
 
     void StateManager::render(sf::RenderTarget& target, sf::RenderStates states) const
     {
-        if (!hasState()) return;
+        if (mStates.empty()) return;
         auto state = mStates.end()-1;
         for (; state != mStates.begin(); --state)
         {
@@ -167,7 +167,7 @@ namespace ungod
     void StateManager::onCustomEvent(const CustomEvent& event)
     {
         addPending();
-        if (!hasState()) return;
+        if (mStates.empty()) return;
         auto state = mStates.end()-1;
         for (; state != mStates.begin(); --state)
         {

@@ -107,7 +107,9 @@ namespace ungod
     friend class ungod::detail::SceneDataLoader;
     friend class Cutscene;
     public:
-        Scene(unsigned duration) : mDuration(duration) {}
+        Scene(unsigned duration);
+
+        Scene(Scene&& a) = default;
 
         /** \brief Adds a new layer to the scene given a texture. This texture may be larger than the
         * devices internal tex size limit. */
@@ -124,10 +126,27 @@ namespace ungod
         /** \brief Renders the scene. */
         void render(sf::RenderTarget& target, sf::RenderStates states) const;
 
+        /** \brief Sets the scenes text. */
+        void setText(const std::string& text);
+
+        /** \brief Sets the text position in screen percentage. */
+        void setTextPosition(const sf::Vector2f& percentagePos);
+
+        /** \brief Sets the text fill color. */
+        void setTextFillColor(const sf::Color& color);
+
+        /** \brief Sets the text outline color. */
+        void setTextOutlineColor(const sf::Color& color);
+
+        /** \brief Sets the text size. */
+        void setTextSize(unsigned textsize);
+
     private:
         unsigned mDuration;
         std::vector<std::pair<sf::BigSprite, std::string>> mLayers;
         std::vector<std::pair<std::unique_ptr<CutsceneEffects::LayerEffectBase>, unsigned>> mEffects;
+        sf::Text mText;
+        sf::Vector2f mTextPosition;
     };
 
     /** \brief A cutscene is a stack of scenes that are invoked subsequently.
@@ -139,7 +158,7 @@ namespace ungod
     class Cutscene
     {
     public:
-        Cutscene() = default;
+        Cutscene();
 
         /** \brief Creates a new scene given its duration in ms. */
         Scene& addScene(unsigned duration);
@@ -166,6 +185,12 @@ namespace ungod
         /** \brief Returns the index of the current active scene. */
         unsigned getSceneIndex() const { return mCurrent; }
 
+        /** \brief Loads the font used for the text in each scene. */
+        void loadFont(const std::string& font);
+
+        /** \brief Enables fadeout/fadein scene transitions (default true). */
+        void setSceneFading(bool fading) { mFadingEnabled = fading; }
+
     private:
         std::vector<Scene> mScenes;
         bool mPlaying;
@@ -173,6 +198,11 @@ namespace ungod
         sf::Clock mTimer;
         detail::SceneDataLoader mDataLoader;
         AudioManager mAudioManager;
+        sf::Vector2u mScreenSize;
+        sf::Font mFont;
+        bool mFadingEnabled;
+        static constexpr unsigned mFadingDuration = 1000u; ///< hardcoded duration of the fading effect in milliseconds
+        sf::RectangleShape mBlackScreen;
 
     private:
         void setTextures();

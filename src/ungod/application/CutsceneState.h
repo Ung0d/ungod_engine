@@ -62,16 +62,17 @@ namespace ungod
 
     private:
         /** \brief Defines ids for script callbacks. */
-        enum GameScriptCallbacks { ON_INIT, ON_SCENE_END, ON_CLOSE,
+        enum GameScriptCallbacks { ON_INIT, ON_SCENE_END, ON_CUTSCENE_END, ON_CLOSE,
                                NUM_CALLBACK /*Dont use*/ };
 
         /** \brief Defines names for script callbacks. */
-        static constexpr std::array<const char*, NUM_CALLBACK>  GAME_CALLBACK_IDENTIFIERS = {"onInit", "onSceneEnd", "onClose"};
+        static constexpr std::array<const char*, NUM_CALLBACK>  GAME_CALLBACK_IDENTIFIERS = {"onInit", "onSceneEnd", "onCutsceneEnd", "onClose"};
 
     private:
         Cutscene mCutscene;
         CallbackInvoker mScriptCallbacks;
         std::string mGameScriptID;
+        bool mEnded;
     };
 }
 

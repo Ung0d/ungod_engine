@@ -36,13 +36,21 @@ namespace ungod
                                                     "addScene", &Cutscene::addScene,
                                                     "play", &Cutscene::play,
                                                     "isPlaying", &Cutscene::isPlaying,
-                                                    "getSceneIndex", &Cutscene::getSceneIndex
+                                                    "getSceneIndex", &Cutscene::getSceneIndex,
+                                                    "getAudioManager", [] (Cutscene& cs) -> AudioManager& { return cs.getAudioManager(); },
+                                                    "loadFont", &Cutscene::loadFont,
+                                                    "setSceneFading", &Cutscene::setSceneFading
                                                     );
 
                 state.registerUsertype<Scene>("Scene",
                                                     "addLayer", &Scene::addLayer,
                                                     "addLayerTransitionEffect", [] (Scene& scene, unsigned index, const sf::Vector2f& direction, const sf::Vector2f& startingPos, float speed)
-                                                                                    { scene.addEffectToLayer<CutsceneEffects::LayerTransition>(index, direction, startingPos, speed); }
+                                                                                    { scene.addEffectToLayer<CutsceneEffects::LayerTransition>(index, direction, startingPos, speed); },
+                                                    "setText", &Scene::setText,
+                                                    "setTextPosition", &Scene::setTextPosition,
+                                                    "setTextFillColor", &Scene::setText,
+                                                    "setTextOutlineColor", &Scene::setTextPosition,
+                                                    "setTextSize", &Scene::setTextSize
                                                     );
         }
     }

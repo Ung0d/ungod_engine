@@ -100,7 +100,10 @@ namespace ungod
             if (mMusic[i].isLoaded())
                 mMusic[i].get()->setLoop(false);
         }
-        mCurrentlyPlaying = mMusic.size()-1;
+        if (random)
+            mCurrentlyPlaying = NumberGenerator::getRandBetw(0, mMusic.size()-1);
+        else
+            mCurrentlyPlaying = mMusic.size()-1;
     }
 
     bool Playlist::isLoaded() const

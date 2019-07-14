@@ -308,7 +308,7 @@ namespace ungod
     {
         mWindow.clear(mBackgroundColor);
         mStatemanager.render(mWindow, sf::RenderStates());
-        mActiveCursor.setPosition(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y);
+        mActiveCursor.setPosition(sf::Mouse::getPosition(mWindow).x, sf::Mouse::getPosition(mWindow).y);
         mWindow.draw(mActiveCursor);
         mWindow.display();
     }

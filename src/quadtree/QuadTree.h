@@ -268,7 +268,7 @@ namespace quad
         std::tuple<bool, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>*> removeFromNode(T& deleteThis);
 
     private:
-        std::vector<QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>*> mOwnerNodes; ///<maps element id to owner node
+        std::unordered_map<uint64_t, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>*> mOwnerNodes; ///<maps element id to owner node
 
         /** \brief Registers a new owner node for element t. */
         void setOwner(const T& t, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>* owner);
@@ -598,9 +598,7 @@ namespace quad
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
     void QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::setOwner(const T& t, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>* owner)
     {
-        std::size_t id = ElementTraits<T,MAX_CAPACITY,MAX_LEVEL>::getID(t);
-        if (mOwnerNodes.size() <= id)
-            mOwnerNodes.resize(id+1, nullptr);
+        uint64_t id = ElementTraits<T,MAX_CAPACITY,MAX_LEVEL>::getID(t);
         mOwnerNodes[id] = owner;
     }
 
@@ -608,9 +606,10 @@ namespace quad
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
     QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>* QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::getOwner(const T& t) const
     {
-        std::size_t id = ElementTraits<T,MAX_CAPACITY,MAX_LEVEL>::getID(t);
-        if (id < mOwnerNodes.size())
-            return mOwnerNodes[ id ];
+        uint64_t id = ElementTraits<T,MAX_CAPACITY,MAX_LEVEL>::getID(t);
+        auto res = mOwnerNodes.find(id);
+        if (res != mOwnerNodes.end())
+            return res->second;
         else
             return nullptr;
     }
