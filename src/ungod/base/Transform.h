@@ -123,6 +123,9 @@ namespace ungod
         /** \brief Registers new callback for the PositionChanged signal. */
         void onPositionChanged(const std::function<void(Entity, const sf::Vector2f&)>& callback);
 
+        /** \brief Registers new callback for the ScaleChanged signal. */
+        void onScaleChanged(const std::function<void(Entity, const sf::Vector2f&)>& callback);
+
         /** \brief Registers new callback for the MoveContents signal. */
         void onMoveContents(const std::function<void(Entity, const sf::Vector2f&)>& callback);
 
@@ -144,6 +147,7 @@ namespace ungod
     private:
         quad::QuadTree<Entity>& mQuadTree;
         owls::Signal<Entity, const sf::Vector2f&> mPositionChangedSignal;
+        owls::Signal<Entity, const sf::Vector2f&> mScaleChangedSignal;
         owls::Signal<Entity, const sf::Vector2f&> mSizeChangedSignal;
         owls::Signal<Entity, const sf::Vector2f&> mMoveContentsSignal;
         owls::Request<sf::Vector2f(Entity)> mLowerBoundRequest;

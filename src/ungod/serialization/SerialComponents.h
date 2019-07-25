@@ -58,6 +58,8 @@ namespace ungod
     class EntityUpdateTimer;
     class ParticleSystemComponent;
     class MusicEmitterComponent;
+    class ParentComponent;
+    class ChildComponent;
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -502,6 +504,44 @@ namespace ungod
     struct DeserialBehavior<EntityUpdateTimer, Entity, World&, const Application&>
     {
         static void deserialize(EntityUpdateTimer& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+    };
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// parent child ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    template <>
+    struct SerialIdentifier<ParentComponent>
+    {
+        static std::string get()  { return "PRNT"; }
+    };
+    template <>
+    struct SerialBehavior<ParentComponent, Entity, const World&, const Application&>
+    {
+        static void serialize(const ParentComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+    };
+    template <>
+    struct DeserialBehavior<ParentComponent, Entity, World&, const Application&>
+    {
+        static void deserialize(ParentComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+    };
+
+
+    template <>
+    struct SerialIdentifier<ChildComponent>
+    {
+        static std::string get()  { return "CHLD"; }
+    };
+    template <>
+    struct SerialBehavior<ChildComponent, Entity, const World&, const Application&>
+    {
+        static void serialize(const ChildComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+    };
+    template <>
+    struct DeserialBehavior<ChildComponent, Entity, World&, const Application&>
+    {
+        static void deserialize(ChildComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
     };
 }
 

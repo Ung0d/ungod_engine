@@ -114,6 +114,7 @@ namespace ungod
         e.modify<TransformComponent>().mTransform.setScale(scale);
         //emit signal
         mSizeChangedSignal.emit(e, e.modify<TransformComponent>().getSize());
+        mScaleChangedSignal.emit(e, scale);
         //update quadtree
         mQuadTree.changedProperties(e);
     }
@@ -144,6 +145,12 @@ namespace ungod
     void TransformManager::onPositionChanged(const std::function<void(Entity, const sf::Vector2f&)>& callback)
     {
         mPositionChangedSignal.connect(callback);
+    }
+
+
+    void TransformManager::onScaleChanged(const std::function<void(Entity, const sf::Vector2f&)>& callback)
+    {
+        mScaleChangedSignal.connect(callback);
     }
 
 

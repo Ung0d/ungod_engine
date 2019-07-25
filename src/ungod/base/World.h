@@ -28,6 +28,7 @@
 
 #include "ungod/base/Entity.h"
 #include "ungod/base/Transform.h"
+#include "ungod/base/ParentChild.h"
 #include "ungod/visual/Visual.h"
 #include "ungod/visual/Renderer.h"
 #include "ungod/physics/Movement.h"
@@ -230,6 +231,9 @@ namespace ungod
         /** \brief Returns a reference to the particle-system-manager. */
         ParticleSystemManager& getParticleSystemManager();
 
+        /** \brief Returns a reference to the parent-child-manager. */
+        ParentChildManager& getParentChildManager();
+
         /** \brief Registers new callback for the EntityCreation-signal. */
         owls::SignalLink<void, Entity> onEntityCreation(const std::function<void(Entity)>& callback);
 
@@ -284,6 +288,7 @@ namespace ungod
         InitializerManager mInitializerManager;
         TileMapRenderer mTileMapRenderer;
         ParticleSystemManager mParticleSystemManager;
+        ParentChildManager mParentChildManager;
         std::unordered_map<std::string, std::function<void(DeserializationContext&, MetaNode)>> mDeserialMap;
         owls::Signal<Entity> mEntityCreationSignal;
         owls::Signal<Entity> mEntityDestructionSignal;

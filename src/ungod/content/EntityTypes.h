@@ -61,6 +61,8 @@ namespace ungod
     template<typename C > class MultiComponent;
     class ParticleSystemComponent;
     class MusicEmitterComponent;
+    class ParentComponent;
+    class ChildComponent;
 
     /** \defgroup EntityTypes
      * @{
@@ -78,26 +80,28 @@ namespace ungod
                                                         SpriteComponent, MultiComponent<SpriteComponent>, VertexArrayComponent, VisualAffectorComponent, MultiComponent<VisualAffectorComponent>,
                                                         AnimationComponent, MultiComponent<AnimationComponent>, BigSpriteComponent, RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>,
                                                         EntityUpdateTimer, SoundEmitterComponent, SteeringComponent<script::Environment>, PathFinderComponent, ShadowEmitterComponent, LightEmitterComponent, LightAffectorComponent,
-                                                        MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>, MultiComponent<ShadowEmitterComponent>, ParticleSystemComponent>;
+                                                        MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>, MultiComponent<ShadowEmitterComponent>, ParticleSystemComponent,
+                                                        ParentComponent, ChildComponent>;
 
     /** \brief An Actor is an entity with a transform, a visual appearence, a rigidbody, movement and scriptable-behavior. */
     using ActorBaseComponents = BaseComponents<TransformComponent, VisualsComponent, RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>, MovementComponent, EntityBehaviorComponent>;
     using ActorOptionalComponents = OptionalComponents<SpriteMetadataComponent, SpriteComponent, MultiComponent<SpriteComponent>, VertexArrayComponent, VisualAffectorComponent, MultiComponent<VisualAffectorComponent>,
                                                        AnimationComponent, MultiComponent<AnimationComponent>, RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>,
                                                        EntityUpdateTimer, SoundEmitterComponent, SteeringComponent<script::Environment>, PathFinderComponent, ShadowEmitterComponent, LightEmitterComponent, LightAffectorComponent,
-                                                       MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>, MultiComponent<ShadowEmitterComponent>, ParticleSystemComponent>;
+                                                       MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>, MultiComponent<ShadowEmitterComponent>, ParticleSystemComponent,
+                                                       ParentComponent, ChildComponent>;
 
     /** \brief An MetaObject is a scriptable entity with no transform, that has no representation in the world. */
     using MetaObjectBaseComponents = BaseComponents<EntityBehaviorComponent>;
-    using MetaObjectOptionalComponents = OptionalComponents<EntityUpdateTimer>;
+    using MetaObjectOptionalComponents = OptionalComponents<EntityUpdateTimer, ParentComponent, ChildComponent>;
 
     /** \brief A Light that illuminates dark places. */
     using LightBaseComponents = BaseComponents<TransformComponent, LightEmitterComponent>;
-    using LightOptionalComponents = OptionalComponents<LightAffectorComponent>;
+    using LightOptionalComponents = OptionalComponents<LightAffectorComponent, ParentComponent, ChildComponent>;
 
     /** \brief A trigger is an entity in the world that has a transform, a rigidbody and a script-behavior coupled to that rigidbody.. */
     using TriggerBaseComponents = BaseComponents<TransformComponent, EntityBehaviorComponent>;
-    using TriggerOptionalComponents = OptionalComponents<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>, RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
+    using TriggerOptionalComponents = OptionalComponents<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>, RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>, ParentComponent, ChildComponent>;
 
     /** \brief A world object is stationary entity in the world, that has a visual appearence and a transform by default. */
     using WorldObjectBaseComponents = BaseComponents<TransformComponent, VisualsComponent>;
@@ -105,23 +109,25 @@ namespace ungod
                                                              SpriteComponent, MultiComponent<SpriteComponent>, VertexArrayComponent, VisualAffectorComponent, MultiComponent<VisualAffectorComponent>,
                                                              AnimationComponent, MultiComponent<AnimationComponent>, RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>,
                                                              EntityUpdateTimer, SoundEmitterComponent, ShadowEmitterComponent, LightEmitterComponent, LightAffectorComponent,
-                                                             MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>, MultiComponent<ShadowEmitterComponent>, ParticleSystemComponent>;
+                                                             MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>, MultiComponent<ShadowEmitterComponent>, ParticleSystemComponent,
+                                                             ParentComponent, ChildComponent>;
 
     /** \brief A tilemap entity. */
     using TileMapBaseComponents = BaseComponents<TileMapComponent>;
-    using TileMapOptionalComponents = OptionalComponents<>;
+    using TileMapOptionalComponents = OptionalComponents<ParentComponent, ChildComponent>;
 
     /** \brief A water entity. */
     using WaterBaseComponents = BaseComponents<WaterComponent>;
-    using WaterOptionalComponents = OptionalComponents<TileMapComponent>;
+    using WaterOptionalComponents = OptionalComponents<TileMapComponent, ParentComponent, ChildComponent>;
 
     /** \brief A particle system entity. */
     using ParticleSystemBaseComponents = BaseComponents<TransformComponent, VisualsComponent, ParticleSystemComponent>;
-    using ParticleSystemOptionalComponents = OptionalComponents<LightEmitterComponent, LightAffectorComponent, MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>>;
+    using ParticleSystemOptionalComponents = OptionalComponents<LightEmitterComponent, LightAffectorComponent, MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>,
+                                                                ParentComponent, ChildComponent>;
 
     /** \brief A audio emitter entity. */
     using AudioEmitterBaseComponents = BaseComponents<TransformComponent, MusicEmitterComponent>;
-    using AudioEmitterOptionalComponents = OptionalComponents<EntityBehaviorComponent, EntityUpdateTimer>;
+    using AudioEmitterOptionalComponents = OptionalComponents<EntityBehaviorComponent, EntityUpdateTimer, ParentComponent, ChildComponent>;
 
     /** @} */
 

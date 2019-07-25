@@ -48,7 +48,8 @@ namespace ungod
         mInputManager(mQuadTree),
         mAudioManager(master),
         mLightSystem(),
-        mTileMapRenderer(*master->getApp())
+        mTileMapRenderer(*master->getApp()),
+        mParentChildManager(*this)
     {
     }
 
@@ -67,7 +68,8 @@ namespace ungod
         mInputManager(mQuadTree),
         mAudioManager(master),
         mLightSystem(),
-        mTileMapRenderer(*master->getApp())
+        mTileMapRenderer(*master->getApp()),
+        mParentChildManager(*this)
     {
     }
 
@@ -343,6 +345,11 @@ namespace ungod
     ParticleSystemManager& World::getParticleSystemManager()
     {
         return mParticleSystemManager;
+    }
+
+    ParentChildManager& World::getParentChildManager()
+    {
+        return mParentChildManager;
     }
 
     owls::SignalLink<void, Entity> World::onEntityCreation(const std::function<void(Entity)>& callback)

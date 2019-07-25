@@ -352,9 +352,6 @@ BOOST_AUTO_TEST_CASE( entity_copy_test )
 
 BOOST_AUTO_TEST_CASE( entity_instantiation_test )
 {
-    ungod::Logger::info("HI");
-    ungod::Logger::endl();
-
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
     ungod::World world(&state);
     world.instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
@@ -374,6 +371,28 @@ BOOST_AUTO_TEST_CASE( entity_instantiation_test )
     BOOST_CHECK(!wo.get<ungod::VisualsComponent>().isLoaded());
     BOOST_CHECK(!ac.get<ungod::VisualsComponent>().isLoaded());
     BOOST_CHECK(!ps.get<ungod::VisualsComponent>().isLoaded());
+}
+
+
+BOOST_AUTO_TEST_CASE( parent_child_test )
+{
+    ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+    ungod::World world(&state);
+    world.instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
+    world.initSpace(0,0,800,600);
+
+    ungod::Entity parent = world.create(ungod::EntityBaseComponents(), ungod::EntityOptionalComponents());
+    ungod::Entity child = world.create(ungod::EntityBaseComponents(), ungod::EntityOptionalComponents());
+
+    world.getTransformManager().setPosition(parent, {100.0f, 100.f});
+
+    world.getParentChildManager().addChild(parent, child);
+
+    BOOST_CHECK_EQUAL(child.get<ungod::TransformComponent>().getPosition().x , 100.0f);
+
+    world.getParentChildManager().setChildPosition(child, {20.0f, 20.0f});
+
+    BOOST_CHECK_EQUAL(child.get<ungod::TransformComponent>().getPosition().x , 120.0f);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

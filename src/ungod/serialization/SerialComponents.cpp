@@ -706,4 +706,25 @@ namespace ungod
     void DeserialBehavior<EntityUpdateTimer, Entity, World&, const Application&>::deserialize(EntityUpdateTimer& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&)
     {
     }
+
+
+
+
+
+    void SerialBehavior<ParentComponent, Entity, const World&, const Application&>::serialize(const ParentComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&)
+    {
+    }
+
+    void DeserialBehavior<ParentComponent, Entity, World&, const Application&>::deserialize(ParentComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&)
+    {
+    }
+
+
+    void SerialBehavior<ChildComponent, Entity, const World&, const Application&>::serialize(const ChildComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&)
+    {
+    }
+
+    void DeserialBehavior<ChildComponent, Entity, World&, const Application&>::deserialize(ChildComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&)
+    {
+    }
 }

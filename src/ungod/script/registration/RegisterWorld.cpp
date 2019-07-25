@@ -40,6 +40,7 @@
 #include "ungod/script/registration/RegistrationDetail.h"
 #include "ungod/script/registration/RegisterEntity.h"
 #include "ungod/script/registration/RegisterParticleSystem.h"
+#include "ungod/script/registration/RegisterParentChild.h"
 #include "ungod/application/Application.h"
 
 namespace ungod
@@ -136,6 +137,7 @@ namespace ungod
                         registerLight(state);
                         registerBehavior(state);
                         registerParticleSystem(state);
+                        registerParentChild(state);
         }
     }
 }
