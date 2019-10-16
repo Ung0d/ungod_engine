@@ -42,6 +42,7 @@ namespace ungod
     class AnimatedParticles;
     class ExplicitTexrect;
     class TexrectByKey;
+    class MultipleTexrectsByKey;
     class AnimationTexrectData;
     class FixedPosition;
     class EllipseDist;
@@ -50,6 +51,7 @@ namespace ungod
     class FixedVelocity;
     class ConeDist;
     class IntervalTick;
+    class OneShotTick;
     class IntervalLifetime;
     class UniversalEmitter;
     class UniversalEstimator;
@@ -271,6 +273,26 @@ namespace ungod
 
 
     template <>
+    struct SerialIdentifier<MultipleTexrectsByKey>
+    {
+        static std::string get()  { return "MultipleTexrectsByKey"; }
+    };
+
+    template <>
+    struct SerialBehavior<MultipleTexrectsByKey>
+    {
+        static void serialize(const MultipleTexrectsByKey& data, MetaNode serializer, SerializationContext& context);
+    };
+
+    template <>
+    struct DeserialBehavior<MultipleTexrectsByKey>
+    {
+        static void deserialize(MultipleTexrectsByKey& data, MetaNode deserializer, DeserializationContext& context);
+    };
+
+
+
+    template <>
     struct SerialIdentifier<FixedPosition>
     {
         static std::string get()  { return "FixedPosition"; }
@@ -406,6 +428,25 @@ namespace ungod
     struct DeserialBehavior<IntervalTick>
     {
         static void deserialize(IntervalTick& data, MetaNode deserializer, DeserializationContext& context);
+    };
+
+
+    template <>
+    struct SerialIdentifier<OneShotTick>
+    {
+        static std::string get()  { return "OneShotTick"; }
+    };
+
+    template <>
+    struct SerialBehavior<OneShotTick>
+    {
+        static void serialize(const OneShotTick& data, MetaNode serializer, SerializationContext& context);
+    };
+
+    template <>
+    struct DeserialBehavior<OneShotTick>
+    {
+        static void deserialize(OneShotTick& data, MetaNode deserializer, DeserializationContext& context);
     };
 
 

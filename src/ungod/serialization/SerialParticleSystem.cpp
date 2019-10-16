@@ -232,6 +232,25 @@ namespace ungod
     }
 
 
+    void SerialBehavior<MultipleTexrectsByKey>::serialize(const MultipleTexrectsByKey& data, MetaNode serializer, SerializationContext& context)
+    {
+        context.serializeProperty("metaID", data.meta.getFilePath(), serializer);
+        context.serializePropertyContainer("keys", data.keys, serializer);
+    }
+
+
+    void DeserialBehavior<MultipleTexrectsByKey>::deserialize(MultipleTexrectsByKey& data, MetaNode deserializer, DeserializationContext& context)
+    {
+        std::string metaID;
+        std::vector<std::string> keys;
+        auto attr = context.first(context.deserializeProperty(metaID), "metaID", deserializer);
+        attr = context.next(context.deserializeContainer<std::string>([&keys](std::size_t s) { keys.reserve(s); },
+                                                         [&keys](const std::string& key) { keys.emplace_back(key); }),
+                            "key", deserializer, attr);
+        data.init(metaID, keys);
+    }
+
+
     void SerialBehavior<FixedPosition>::serialize(const FixedPosition& data, MetaNode serializer, SerializationContext& context)
     {
         context.serializeProperty("px", data.position.x, serializer);
@@ -366,6 +385,21 @@ namespace ungod
     }
 
 
+    void SerialBehavior<OneShotTick>::serialize(const OneShotTick& data, MetaNode serializer, SerializationContext& context)
+    {
+        context.serializeProperty("num", data.numparticle, serializer);
+    }
+
+
+    void DeserialBehavior<OneShotTick>::deserialize(OneShotTick& data, MetaNode deserializer, DeserializationContext& context)
+    {
+        std::size_t num;
+        context.first(context.deserializeProperty<std::size_t>(num, 0u), "num", deserializer);
+        data.init(num);
+        data.shot = true;
+    }
+
+
     void SerialBehavior<IntervalLifetime>::serialize(const IntervalLifetime& data, MetaNode serializer, SerializationContext& context)
     {
         context.serializeProperty("min", data.msmin, serializer);
@@ -429,6 +463,7 @@ namespace ungod
         context.instantiate<VelocityBasedRotation>([] () { return new VelocityBasedRotation(); });
         context.instantiate<ExplicitTexrect>([] () { return new ExplicitTexrect(); });
         context.instantiate<TexrectByKey>([] () { return new TexrectByKey(); });
+        context.instantiate<MultipleTexrectsByKey>([] () { return new MultipleTexrectsByKey(); });
         context.instantiate<FixedPosition>([] () { return new FixedPosition(); });
         context.instantiate<EllipseDist>([] () { return new EllipseDist(); });
         context.instantiate<RectangleDist>([] () { return new RectangleDist(); });

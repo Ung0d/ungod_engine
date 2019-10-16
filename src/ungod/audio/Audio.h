@@ -78,7 +78,7 @@ namespace ungod
     {
     friend class AudioManager;
     public:
-        ProfileHandle(ProfileMap::iterator iter);
+        ProfileHandle(std::pair<const std::string, SoundProfile>* profile);
         ProfileHandle();
 
         /** \brief Returns the number of sounds loaded for the corresponding profile. */

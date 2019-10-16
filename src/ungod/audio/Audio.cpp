@@ -39,7 +39,7 @@ namespace ungod
     }
 
 
-    ProfileHandle::ProfileHandle(ProfileMap::iterator iter) : mIter(&(*iter))  {}
+    ProfileHandle::ProfileHandle(std::pair<const std::string, SoundProfile>* profile) : mIter(profile)  {}
 
     ProfileHandle::ProfileHandle() : mIter(nullptr) {}
 
@@ -164,26 +164,26 @@ namespace ungod
 
     ProfileHandle AudioManager::initSoundProfile(const std::string& key)
     {
-        return mSoundProfiles.emplace(key, SoundProfile()).first;
+        return &(*(mSoundProfiles.emplace(key, SoundProfile()).first));
     }
 
     ProfileHandle AudioManager::getSoundProfile(const std::string& key)
     {
-        return mSoundProfiles.find(key);
+        return &(*(mSoundProfiles.find(key)));
     }
 
     void AudioManager::connectProfile(Entity e, const std::string& profileKey)
     {
         auto profile = mSoundProfiles.find(profileKey);
         if (profile != mSoundProfiles.end())
-            connectProfile(e, profile);
+            connectProfile(e, &(*(profile)));
     }
 
     void AudioManager::connectProfile(SoundEmitterComponent& emitter, const std::string& profileKey)
     {
         auto profile = mSoundProfiles.find(profileKey);
         if (profile != mSoundProfiles.end())
-            connectProfile(emitter, profile);
+            connectProfile(emitter, &(*(profile)));
     }
 
     void AudioManager::connectProfile(Entity e, ProfileHandle profile)
@@ -201,7 +201,7 @@ namespace ungod
     {
         auto profile = mSoundProfiles.find(key);
         if (profile != mSoundProfiles.end())
-            initSounds(profile, num);
+            initSounds(&(*(profile)), num);
     }
 
     void AudioManager::initSounds(ProfileHandle profile, std::size_t num)
@@ -213,7 +213,7 @@ namespace ungod
     {
         auto profile = mSoundProfiles.find(key);
         if (profile != mSoundProfiles.end())
-            loadSound(profile, path, index);
+            loadSound(&(*(profile)), path, index);
     }
 
     void AudioManager::loadSound( ProfileHandle profile, const std::string& path, std::size_t index)
@@ -225,7 +225,7 @@ namespace ungod
     {
         auto profile = mSoundProfiles.find(key);
         if (profile != mSoundProfiles.end())
-            expireSounds(profile);
+            expireSounds(&(*(profile)));
     }
 
     void AudioManager::expireSounds( ProfileHandle profile)
@@ -255,7 +255,7 @@ namespace ungod
     {
         auto profile = mSoundProfiles.find(key);
         if (profile != mSoundProfiles.end())
-            playSound(profile, index, scaling, volumeSetting, pitch);
+            playSound(&(*(profile)), index, scaling, volumeSetting, pitch);
     }
 
     void AudioManager::playSound(ProfileHandle profile, std::size_t index, float scaling, std::size_t volumeSetting, float pitch)
@@ -297,7 +297,7 @@ namespace ungod
     {
         auto profile = mSoundProfiles.find(key);
         if (profile != mSoundProfiles.end())
-            return getLoadPath(profile, index);
+            return getLoadPath(&(*(profile)), index);
         else
             return "";
     }
@@ -353,7 +353,7 @@ namespace ungod
                 if (mSoundslots[i].mProfile.mIter->second.mExpired && mSoundslots[i].mProfile.mIter->second.mSounds[mSoundslots[i].mIndex]->linkageCounter == 0)
                     mSoundslots[i].mProfile.mIter->second.mSounds.erase( mSoundslots[i].mProfile.mIter->second.mSounds.begin() + mSoundslots[i].mIndex );
                 mSoundEnd(mSoundslots[i].mProfile.mIter->first, mSoundslots[i].mIndex);
-                mSoundslots[i].mProfile = mSoundProfiles.end();
+                mSoundslots[i].mProfile = {nullptr};
                 mSoundslots[i].mIndex = 0;
             }
             else

@@ -122,6 +122,10 @@ namespace ungod
         template <std::size_t CONTEXT = 0>
         void setColliderRotation(Entity e, std::size_t index, float rotation);
 
+        /** \brief Activates/deactivates collision handling for the given entity. */
+        template <std::size_t CONTEXT>
+        void setActive(Entity e, bool active);
+
         /** \brief Registers new callback for the ContentsChanged signal. */
         void onContentsChanged(const std::function<void(Entity, const sf::IntRect&)>& callback);
 
@@ -165,11 +169,14 @@ namespace ungod
     friend class SerialBehavior<RigidbodyComponent<CONTEXT>, Entity, const World&, const Application&>;
     private:
         std::vector< Collider > mColliders;
+        bool mActive;
 
     public:
-        RigidbodyComponent() {}
+        RigidbodyComponent() : mActive(true) {}
 
         const std::vector< Collider >& getColliders() const;
+
+        bool isActive() const { return mActive; }
     };
 
 

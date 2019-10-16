@@ -282,6 +282,32 @@ namespace ungod
 
     /** \brief Initializes particles with a texrect that is determined by a metanode. */
     sf::IntRect texrectByKey(TexrectByKey& data);
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /** \brief Data for the multipleTexrectByMetaNode affector. */
+    struct MultipleTexrectsByKey : public BaseFunctorData<>
+    {
+        MultipleTexrectsByKey() = default;
+
+        void init(const std::string& metaID, const std::vector<std::string>& k);
+
+        std::vector<std::string> keys;
+        MetaMap meta;
+        std::vector<MetaNode> nodes;
+
+    private:
+        FUNCTOR_DATA(MultipleTexrectsByKey)
+
+    public:
+        SERIALIZABLE_DERIVED
+    };
+
+
+    /** \brief Initializes particles with a texrect that is randomly chosen of a vector of possibilities. */
+    sf::IntRect multipleTexrectsByKey(MultipleTexrectsByKey& data);
 }
 
 #endif

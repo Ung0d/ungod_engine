@@ -48,16 +48,22 @@ namespace ungod
                                             "setMusicVolume", &AudioManager::setMusicVolume,
                                             "initSoundProfile", &AudioManager::initSoundProfile,
                                             "getSoundProfile", &AudioManager::getSoundProfile,
+                                            "connectProfile", sol::overload([] (AudioManager& am, Entity e, const std::string& profileKey)
+                                                                                 { am.connectProfile(e, profileKey); },
+                                                                                 [] (AudioManager& am, Entity e, ProfileHandle handle)
+                                                                                 { am.connectProfile(e, handle); }),
                                             "initSounds", sol::overload( []  (AudioManager& am, const std::string& key, std::size_t num) { am.initSounds(key, num); },
                                                                          []  (AudioManager& am, ProfileHandle handle, std::size_t num) { am.initSounds(handle, num); }),
                                             "loadSound", sol::overload( []  (AudioManager& am, const std::string& key, const std::string& path, std::size_t i) { am.loadSound(key, path, i); },
                                                                          []  (AudioManager& am, ProfileHandle handle, const std::string& path, std::size_t i) { am.loadSound(handle, path, i); }),
                                             "playSound", sol::overload( []  (AudioManager& am, const std::string& key, std::size_t index) { am.playSound(key, index); },
-                                                                        []  (AudioManager& am, const std::string& key, std::size_t index, std::size_t volumeSetting) { am.playSound(key, index, volumeSetting); },
                                                                         []  (AudioManager& am, const std::string& key, std::size_t index, std::size_t volumeSetting, float pitch) { am.playSound(key, index, volumeSetting, pitch); },
+
                                                                         []  (AudioManager& am, ProfileHandle handle, std::size_t index) { am.playSound(handle, index); },
-                                                                        []  (AudioManager& am, ProfileHandle handle, std::size_t index, std::size_t volumeSetting) { am.playSound(handle, index, volumeSetting); },
-                                                                        []  (AudioManager& am, ProfileHandle handle, std::size_t index, std::size_t volumeSetting, float pitch) { am.playSound(handle, index, volumeSetting, pitch); }),
+                                                                        []  (AudioManager& am, ProfileHandle handle, std::size_t index, std::size_t volumeSetting, float pitch) { am.playSound(handle, index, volumeSetting, pitch); },
+
+                                                                        []  (AudioManager& am, Entity e, std::size_t index) { am.playSound(e, index); },
+                                                                        []  (AudioManager& am, Entity e, std::size_t index, std::size_t volumeSetting, float pitch) { am.playSound(e, index, volumeSetting, pitch); }),
                                             "initVolumeSettings", &AudioManager::initVolumeSettings,
                                             "setVolume", &AudioManager::setVolume,
                                             "setMuteMusic", &AudioManager::setMuteMusic,

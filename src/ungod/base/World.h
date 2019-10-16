@@ -269,6 +269,9 @@ namespace ungod
         template<typename ... C, typename F>
         void forAllInRange(const F& func) const;
 
+        /** \brief Returns a ptr to the game state that owns this world. */
+        ScriptedGameState* getState() const { return mMaster; }
+
     private:
         ScriptedGameState* mMaster;
         EntityBehaviorManager mBehaviorManager;

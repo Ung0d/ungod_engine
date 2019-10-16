@@ -213,6 +213,33 @@ namespace ungod
     int intervalTick(IntervalTick& data, float delta);
 
 
+
+    /** \brief Data for the DirectionalForce affector. */
+    struct OneShotTick : public BaseFunctorData<>
+    {
+        OneShotTick() = default;
+
+        inline void init(int inumparticle)
+        {
+            numparticle = inumparticle;
+            shot = false;
+        }
+
+        int numparticle;
+        bool shot;
+
+    private:
+        FUNCTOR_DATA(OneShotTick)
+
+    public:
+        SERIALIZABLE_DERIVED
+    };
+
+
+    /** \brief Emits particles with a time tick within the given bounds. */
+    int oneShotTick(OneShotTick& data, float delta);
+
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

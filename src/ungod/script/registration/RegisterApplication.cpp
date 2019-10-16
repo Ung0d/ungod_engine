@@ -28,6 +28,7 @@
 #include "ungod/application/ScriptedGameState.h"
 #include "ungod/application/ScriptedMenuState.h"
 #include "ungod/application/CutsceneState.h"
+#include "ungod/base/World.h"
 
 namespace ungod
 {
@@ -77,12 +78,24 @@ namespace ungod
             state.registerFunction("getWindowSize", [&app]() { return sf::Vector2i{(int)app.getWindow().getSize().x, (int)app.getWindow().getSize().y}; });
             state.registerFunction("isFullscreen", [&app]() { return app.isFullscreen(); });
             state.registerFunction("isVsyncEnabled", [&app]() { return app.vsyncEnabled(); });
-            state.registerFunction("world2Screen", [&app](const sf::Vector2f& pos, const ScriptedGameState& state) { return app.getWindow().mapCoordsToPixel(pos, state.getCamera().getView()); });
-            state.registerFunction("screen2World", [&app](const sf::Vector2i& pos, const ScriptedGameState& state) { return app.getWindow().mapPixelToCoords(pos, state.getCamera().getView()); });
+
+            state.registerFunction("world2Screen", sol::overload([&app](const sf::Vector2f& pos, const ScriptedGameState& state)
+                                   { return app.getWindow().mapCoordsToPixel(pos, state.getCamera().getView()); },
+                                   [&app](const sf::Vector2f& pos, const World& world)
+                                   { return app.getWindow().mapCoordsToPixel(pos, world.getState()->getCamera().getView()); }));
+
+            state.registerFunction("screen2World", sol::overload([&app](const sf::Vector2i& pos, const ScriptedGameState& state)
+                                   { return app.getWindow().mapPixelToCoords(pos, state.getCamera().getView()); },
+                                   [&app](const sf::Vector2i& pos, const World& world)
+                                   { return app.getWindow().mapPixelToCoords(pos, world.getState()->getCamera().getView()); }));
 
             state.registerFunction("emit", [&app](const std::string& type, script::Environment data) { return app.emitCustomEvent(type, data); });
 
             state.registerFunction("setCursor", [&app](const std::string& cursor) { app.setCursor(cursor); });
+
+            state.registerFunction("randFloat", [&app](float bot, float top) { return ungod::NumberGenerator::getFloatRandBetw(bot, top); });
+            state.registerFunction("randInt", [](int bot, int top) { return ungod::NumberGenerator::getRandBetw(bot, top); });
+            state.registerFunction("normRand", [](float mu, float rho) { return ungod::NumberGenerator::getNormRand(mu, rho); });
         }
     }
 }

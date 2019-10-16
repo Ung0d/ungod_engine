@@ -58,6 +58,8 @@ namespace ungod
                                                            "setSemanticsColliderRotation", &RigidbodyManager::setColliderRotation<SEMANTICS_COLLISION_CONTEXT>,
                                                            "setSemanticsColliderDownRight", &RigidbodyManager::setColliderDownRight<SEMANTICS_COLLISION_CONTEXT>,
                                                            "setSemanticsColliderUpLeft", &RigidbodyManager::setColliderUpLeft<SEMANTICS_COLLISION_CONTEXT>,
+                                                           "setMovementCollisionActive", &RigidbodyManager::setActive<MOVEMENT_COLLISION_CONTEXT>,
+                                                           "setSemanticsCollisionActive", &RigidbodyManager::setActive<SEMANTICS_COLLISION_CONTEXT>,
                                                            "getLowerBound", &RigidbodyManager::getLowerBound,
                                                            "getUpperBound", &RigidbodyManager::getUpperBound );
         }

@@ -82,6 +82,11 @@ namespace ungod
                   {
                         psm.setSpawnInterval<IntervalTick>(e, PS_INTERVAL_TICK, imsmin, imsmax, inumparticle);
                   },
+                "setOneShotTick", [] (ParticleSystemManager& psm,
+                                          Entity e, int inumparticle)
+                  {
+                        psm.setSpawnInterval<OneShotTick>(e, PS_ONE_SHOT_TICK, inumparticle);
+                  },
                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 "setLifetimeInterval", [] (ParticleSystemManager& psm,
                                           Entity e, float ltmin, float ltmax)
@@ -129,6 +134,10 @@ namespace ungod
                "addKeyTexrectInitalizer", [] (ParticleSystemManager& psm, Entity e, const std::string& metaID, const std::string& key)
                   {
                         psm.setTexrectInitializer<TexrectByKey>(e, PS_TEXRECT_BY_KEY, metaID, key);
+                  },
+               "addMultipleKeyTexrectInitalizer", [] (ParticleSystemManager& psm, Entity e, const std::string& metaID, script::Environment keys)
+                  {
+                        psm.setTexrectInitializer<MultipleTexrectsByKey>(e, PS_MULTIPLE_TEXRECTS_BY_KEY, metaID, env2vec<std::string>(keys));
                   });
 
             state.registerUsertype<ParticleSystemComponent>("ParticleSystemComponent");

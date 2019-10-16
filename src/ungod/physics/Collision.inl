@@ -112,6 +112,12 @@ void RigidbodyManager::setColliderRotation(Entity e, std::size_t index, float ro
     mContentsChangedSignal(e, collider.getBoundingBox());
 }
 
+template <std::size_t CONTEXT>
+void RigidbodyManager::setActive(Entity e, bool active)
+{
+    e.modify<RigidbodyComponent<CONTEXT>>().mActive = active;
+}
+
 template <std::size_t N>
 struct ContextIteration
 {
@@ -270,7 +276,7 @@ void CollisionManager<CONTEXT>::checkCollisions(const std::list<Entity>& entitie
     dom::Utility<Entity>::iterate<TransformComponent, RigidbodyComponent<CONTEXT>>(entities,
       [&result, this] (Entity e, TransformComponent& transf, RigidbodyComponent<CONTEXT>& body)
       {
-          if (!e.isStatic())
+          if (!e.isStatic() && body.isActive())
           {
             result.getList().clear();
             mQuadtree->retrieve(result, { transf.getPosition().x, transf.getPosition().y,

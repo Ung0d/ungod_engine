@@ -233,7 +233,10 @@ namespace ungod
         if (texrects)
             mRenderer.renderTextureRects(mRenderedEntities, target, states);
         if (colliders)
-            mRenderer.renderColliders<>(mRenderedEntities, target, states);
+        {
+            mRenderer.renderColliders<MOVEMENT_COLLISION_CONTEXT>(mRenderedEntities, target, states, sf::Color::Cyan);
+            mRenderer.renderColliders<SEMANTICS_COLLISION_CONTEXT>(mRenderedEntities, target, states, sf::Color::Yellow);
+        }
         if (audioemitters)
             mRenderer.renderAudioEmitters(mRenderedEntities, target, states);
 

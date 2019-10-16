@@ -77,6 +77,11 @@ namespace ungod
 
         mWorld->getVisualsManager().onAnimationStart([this] (Entity e, const std::string& key) { callbackInvoker(ON_ANIMATION_BEGIN, e, key, mWorld, mGlobalEnv); });
         mWorld->getVisualsManager().onAnimationStop([this] (Entity e, const std::string& key) { callbackInvoker(ON_ANIMATION_END, e, key, mWorld, mGlobalEnv); });
+
+        mWorld->getSemanticsCollisionManager().onBeginCollision([this] (Entity e1, Entity e2) { entityCollisionEnter(e1, e2); });
+        mWorld->getSemanticsCollisionManager().onCollision([this] (Entity e1, Entity e2, const sf::Vector2f& mdv, const Collider& c1, const Collider& c2)
+                                                                { entityCollision(e1, e2, mdv, c1, c2); });
+        mWorld->getSemanticsCollisionManager().onEndCollision([this] (Entity e1, Entity e2) { entityCollisionExit(e1, e2); });
     }
 
 
@@ -87,7 +92,7 @@ namespace ungod
           {
               if (timer.mTimer.getElapsedTime().asMilliseconds() >= timer.mInterval && behavior.valid())
               {
-                  behavior.mBehavior->execute(ON_UPDATE, e, timer.mInterval*delta, mWorld, mGlobalEnv);
+                  behavior.mBehavior->execute(ON_UPDATE, e, timer.mInterval, mWorld, mGlobalEnv);
                   timer.mTimer.restart();
               }
           });
@@ -100,7 +105,7 @@ namespace ungod
               EntityBehaviorComponent& behavior = e.modify<EntityBehaviorComponent>();
               if (timer.mTimer.getElapsedTime().asMilliseconds() >= timer.mInterval && behavior.valid())
               {
-                  behavior.mBehavior->execute(ON_UPDATE, e, timer.mInterval*delta, mWorld, mGlobalEnv);
+                  behavior.mBehavior->execute(ON_UPDATE, e, timer.mInterval, mWorld, mGlobalEnv);
                   timer.mTimer.restart();
               }
             }

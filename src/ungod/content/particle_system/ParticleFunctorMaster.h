@@ -45,6 +45,7 @@ namespace ungod
     const std::string PS_ROTATE_VELOCITY = "rotate_based_on_velocity";
     const std::string PS_EXPLICIT_TEXRECT = "explicit_texrect";
     const std::string PS_TEXRECT_BY_KEY = "texrect_by_key";
+    const std::string PS_MULTIPLE_TEXRECTS_BY_KEY = "multiple_texrects_by_key";
     const std::string PS_ANIMATION_TEXRECT = "animation_texrect";
     const std::string PS_FIXED_POSITION = "fixed_position";
     const std::string PS_ELLIPSE_DIST = "ellipse_dist";
@@ -53,6 +54,7 @@ namespace ungod
     const std::string PS_FIXED_VELOCITY = "fixed_velocity";
     const std::string PS_CONE_DIST = "cone_dist";
     const std::string PS_INTERVAL_TICK = "interval_tick";
+    const std::string PS_ONE_SHOT_TICK = "one_shot_tick";
     const std::string PS_INTERVAL_LIFETIME = "interval_lifetime";
     const std::string PS_UNIVERSAL_EMITTER = "universal_emitter";
     const std::string PS_UNIVERSAL_ESTIMATE = "universal_estimate";

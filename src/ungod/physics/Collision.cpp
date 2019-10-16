@@ -206,7 +206,6 @@ namespace ungod
                transfPoint.x <= collider.getDownright().x && transfPoint.y <= collider.getDownright().y;
     }
 
-
     void RigidbodyManager::onContentsChanged(const std::function<void(Entity, const sf::IntRect&)>& callback)
     {
         mContentsChangedSignal.connect(callback);

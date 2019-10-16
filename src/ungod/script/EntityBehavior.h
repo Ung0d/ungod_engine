@@ -97,6 +97,15 @@
 *
 * onAnimationEnd(static, instance, states, e, key, world, globalEnv)
 * -- This method is invoked when a custom event occurs
+*
+* onCollisionBegin(static, instance, states, e, other, world, globalEnv)
+* -- This method is invoked when a semantics collision is detected for 2 entities that did not collide previously
+*
+* onCollision(static, instance, states, e, other, mdv, c1, c2, world, globalEnv)
+* -- This method is invoked every frame a semantics collision is detected for 2 entities
+*
+* onCollisionEnd(static, instance, states, e, other, world, globalEnv)
+* -- This method is invoked when 2 entities stop semantics collision
 */
 
 #ifndef ENTITY_BEHAVIOR_H

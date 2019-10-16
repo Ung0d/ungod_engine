@@ -87,6 +87,17 @@ namespace ungod
         }
 
 
+        int oneShotTick(OneShotTick& data, float delta)
+        {
+            if (!data.shot)
+            {
+                data.shot = true;
+                return data.numparticle;
+            }
+            return 0;
+        }
+
+
         float intervalLifetime(IntervalLifetime& data)
         {
             return NumberGenerator::getFloatRandBetw(data.msmin, data.msmax);

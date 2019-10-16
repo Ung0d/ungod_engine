@@ -117,9 +117,11 @@ namespace ungod
                                        "behavior", &World::getBehaviorManager,
                                        "tilemap", &World::getTileMapRenderer,
                                        "particles", &World::getParticleSystemManager,
+                                       "partentChild", &World::getParentChildManager,
                                        "setRenderDepth", &World::setRenderDepth,
                                        "setName", &World::setName,
-                                       "getName", &World::getName);
+                                       "getName", &World::getName,
+                                       "gamestate", &World::getState);
 
                         //if you register world, you rely on all the other stuff, so this is registered automatically
                         registerEntity(state);

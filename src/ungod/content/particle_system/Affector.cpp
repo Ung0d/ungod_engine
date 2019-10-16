@@ -26,6 +26,7 @@
 #include "ungod/content/particle_system/Affector.h"
 #include "ungod/content/particle_system/ParticleSystem.h"
 #include "ungod/physics/Physics.h"
+#include "ungod/base/Utility.h"
 #include <cmath>
 
 namespace ungod
@@ -156,6 +157,31 @@ namespace ungod
             if (!data.node)
                 return {};
             auto result = data.node.getAttributes<int, int, int, int>(
+                    {"pos_x", 0}, {"pos_y", 0}, {"width", 0}, {"height", 0} );
+            return sf::IntRect{std::get<0>(result), std::get<1>(result), std::get<2>(result), std::get<3>(result)};
+        }
+
+
+        void MultipleTexrectsByKey::init(const std::string& metaID, const std::vector<std::string>& k)
+        {
+            keys = k;
+            meta.load(metaID);
+            if (meta.isLoaded())
+            {
+                nodes.reserve(keys.size());
+                for (const auto& key : keys)
+                    nodes.emplace_back(meta.getNodeWithKey(key));
+            }
+        }
+
+        sf::IntRect multipleTexrectsByKey(MultipleTexrectsByKey& data)
+        {
+            if (data.keys.empty())
+                return {};
+            unsigned keyid = NumberGenerator::getRandBetw(0, data.keys.size()-1);
+            if (!data.nodes[keyid])
+                return {};
+            auto result = data.nodes[keyid].getAttributes<int, int, int, int>(
                     {"pos_x", 0}, {"pos_y", 0}, {"width", 0}, {"height", 0} );
             return sf::IntRect{std::get<0>(result), std::get<1>(result), std::get<2>(result), std::get<3>(result)};
         }

@@ -43,6 +43,7 @@ namespace ungod
             //texrect inits
             mTexrectInitializers.addFunctor<ExplicitTexrect>(PS_EXPLICIT_TEXRECT, &explicitTexrect);
             mTexrectInitializers.addFunctor<TexrectByKey>(PS_TEXRECT_BY_KEY, &texrectByKey);
+            mTexrectInitializers.addFunctor<MultipleTexrectsByKey>(PS_MULTIPLE_TEXRECTS_BY_KEY, &multipleTexrectsByKey);
 
             //position dists
             mPositionDistributions.addFunctor<FixedPosition>(PS_FIXED_POSITION, &fixedPosition);
@@ -56,6 +57,7 @@ namespace ungod
 
             //interval dists
             mIntervalDistributions.addFunctor<IntervalTick>(PS_INTERVAL_TICK, &intervalTick);
+            mIntervalDistributions.addFunctor<OneShotTick>(PS_ONE_SHOT_TICK, &oneShotTick);
 
             //lifetime dists
             mLifetimeDistributions.addFunctor<IntervalLifetime>(PS_INTERVAL_LIFETIME, &intervalLifetime);

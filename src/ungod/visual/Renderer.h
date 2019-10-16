@@ -63,7 +63,7 @@ namespace ungod
 
         /** \brief Draws the colliders of all entities in the internal render-list, that have a Rigidbody-component. */
         template<std::size_t CONTEXT = 0>
-        void renderColliders(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const;
+        void renderColliders(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states, const sf::Color& col) const;
 
         /** \brief Draws audio emitters. */
         void renderAudioEmitters(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const;
@@ -87,7 +87,7 @@ namespace ungod
 
         /** \brief Draws the collider-bounds the given entity. */
         template<std::size_t CONTEXT = 0>
-        static void renderColliders(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, sf::RenderTarget& target, sf::RenderStates states);
+        static void renderColliders(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, sf::RenderTarget& target, sf::RenderStates states, const sf::Color& col);
 
         /** \brief Renders a audio emitter entity. */
         static void renderAudioEmitter(Entity e, const TransformComponent& transf, MusicEmitterComponent& emitter, sf::RenderTarget& target, sf::RenderStates states);
@@ -110,7 +110,7 @@ namespace ungod
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     template<std::size_t CONTEXT>
-    void Renderer::renderColliders(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, sf::RenderTarget& target, sf::RenderStates states)
+    void Renderer::renderColliders(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, sf::RenderTarget& target, sf::RenderStates states, const sf::Color& col)
     {
         states.transform *= transf.getTransform();  //apply the transform of the entity
         for (const auto& c : body.getColliders())
@@ -121,18 +121,18 @@ namespace ungod
               rect.setPosition(c.getUpleft());
               rect.setFillColor(sf::Color::Transparent);
               rect.setOutlineThickness(2);
-              rect.setOutlineColor(sf::Color::Cyan);
+              rect.setOutlineColor(col);
               target.draw(rect, locstates);
           }
     }
 
     template<std::size_t CONTEXT>
-    void Renderer::renderColliders(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const
+    void Renderer::renderColliders(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states, const sf::Color& col) const
     {
           dom::Utility<Entity>::iterate<TransformComponent, RigidbodyComponent<CONTEXT>>(pull.getList(),
-          [this, &target, &states] (Entity e, TransformComponent& transf, RigidbodyComponent<CONTEXT>& body)
+          [this, &target, &states, col] (Entity e, TransformComponent& transf, RigidbodyComponent<CONTEXT>& body)
           {
-            Renderer::renderColliders(transf, body, target, states);
+            Renderer::renderColliders(transf, body, target, states, col);
           });
     }
 }
