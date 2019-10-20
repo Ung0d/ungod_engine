@@ -48,6 +48,9 @@
 #include "ungod/base/ComponentSignalBase.h"
 #include "ungod/content/EntityTypes.h"
 #include "ungod/content/particle_system/ParticleComponent.h"
+#include <boost/bimap.hpp>
+#include <boost/bimap/unordered_set_of.hpp>
+#include <optional>
 
 namespace ungod
 {
@@ -272,6 +275,15 @@ namespace ungod
         /** \brief Returns a ptr to the game state that owns this world. */
         ScriptedGameState* getState() const { return mMaster; }
 
+        /** \brief Tags the given entity with a name. */
+        void tagWithName(Entity e, const std::string& name);
+
+        /** \brief Retrieves an entity by name. Returns an "empty" entity if not found. */
+        Entity getEntityByName(const std::string& name) const;
+
+        /** \brief Retrieves the name of an entity. Returns empty string if not found. */
+        std::string getName(Entity e) const;
+
     private:
         ScriptedGameState* mMaster;
         EntityBehaviorManager mBehaviorManager;
@@ -302,6 +314,11 @@ namespace ungod
         quad::PullResult< Entity > mRenderedEntities;
 
         std::forward_list<Entity> mEntitiesToDestroy;
+
+        typedef boost::bimap< boost::bimaps::unordered_set_of<std::string>,
+                      boost::bimaps::unordered_set_of<Entity, std::hash<Entity>> > NameBimap;
+
+        NameBimap mEntityNames;
 
     public:
         virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, const sf::RenderTarget& target) const override

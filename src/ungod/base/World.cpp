@@ -402,4 +402,30 @@ namespace ungod
     {
         mEntityDeserializedSignal(e, serializer, context);
     }
+
+
+    void World::tagWithName(Entity e, const std::string& name)
+    {
+        mEntityNames.insert( {name, e} );
+    }
+
+
+    Entity World::getEntityByName(const std::string& name) const
+    {
+        auto result = mEntityNames.left.find(name);
+        if (result != mEntityNames.left.end())
+            return result->second;
+        else
+            return {};
+    }
+
+
+    std::string World::getName(Entity e) const
+    {
+        auto result = mEntityNames.right.find(e);
+        if (result != mEntityNames.right.end())
+            return result->second;
+        else
+            return "";
+    }
 }

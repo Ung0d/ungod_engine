@@ -121,7 +121,10 @@ namespace ungod
                                        "setRenderDepth", &World::setRenderDepth,
                                        "setName", &World::setName,
                                        "getName", &World::getName,
-                                       "gamestate", &World::getState);
+                                       "gamestate", &World::getState,
+                                       "tagWithName", &World::tagWithName,
+                                       "getEntityByName", &World::getEntityByName,
+                                       "getName", &World::getName);
 
                         //if you register world, you rely on all the other stuff, so this is registered automatically
                         registerEntity(state);
