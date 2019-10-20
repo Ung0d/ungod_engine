@@ -48,7 +48,7 @@ namespace ungod
             if (mTilemap->getKeyMap()[i].find(identifier) == 0)
             {
                 std::string rest = mTilemap->getKeyMap()[i].substr(identifier.size());
-                if (rest == "")
+                if (rest == "_basic")
                 {
                     mBasic = i;
                     mSetTiles[i] = BASIC;
@@ -414,6 +414,15 @@ namespace ungod
     }
 
 
+    void TilemapBrush::paintTile(const sf::Vector2f& pos, bool connect)
+    {
+        if (!mTilemap)
+            return;
+        auto ind = mTilemap->getTileIndices(pos);
+        paintTile(ind.x, ind.y, connect);
+    }
+
+
     void TilemapBrush::eraseTile(std::size_t ix, std::size_t iy, int erasingTileID)
     {
         if (!mTilemap)
@@ -437,6 +446,15 @@ namespace ungod
         }
 
         eraseAdjacent(tiles, erasingTileID);
+    }
+
+
+    void TilemapBrush::eraseTile(const sf::Vector2f& pos, int erasingTileID)
+    {
+        if (!mTilemap)
+            return;
+        auto ind = mTilemap->getTileIndices(pos);
+        eraseTile(ind.x, ind.y, erasingTileID);
     }
 
 
@@ -1308,14 +1326,70 @@ namespace ungod
     }
 
 
-    void TilemapBrush::setTileID(Tile* tile, int id)
+    void TilemapBrush::setTileID(Tile* tile, int id) const
     {
         if (id != -1)
+        {
             tile->setTileID(id);
+            mChangeNotificator->notifyTileChanged(tile, id);
+        }
         else
         {
             ungod::Logger::warning("Attempt to set an invalid tile ID. Does the tileset miss tiletypes?");
             ungod::Logger::endl();
         }
+    }
+
+    std::array<std::string, 47> TilemapBrush::makeKeymap(const std::string& identifier)
+    {
+        return {
+            std::string(identifier).append("_basic"),
+            std::string(identifier).append("_iso"),
+            std::string(identifier).append("_pathend_up"),
+            std::string(identifier).append("_pathend_right"),
+            std::string(identifier).append("_pathend_down"),
+            std::string(identifier).append("_pathend_left"),
+            std::string(identifier).append("_Tshape_up"),
+            std::string(identifier).append("_Tshape_right"),
+            std::string(identifier).append("_Tshape_down"),
+            std::string(identifier).append("_Tshape_left"),
+            std::string(identifier).append("_cross"),
+            std::string(identifier).append("_path_horiz"),
+            std::string(identifier).append("_path_vert"),
+            std::string(identifier).append("_pathcurve_1"),
+            std::string(identifier).append("_pathcurve_2"),
+            std::string(identifier).append("_pathcurve_3"),
+            std::string(identifier).append("_pathcurve_4"),
+            std::string(identifier).append("_trans2path_up"),
+            std::string(identifier).append("_trans2path_right"),
+            std::string(identifier).append("_trans2path_down"),
+            std::string(identifier).append("_trans2path_left"),
+            std::string(identifier).append("_corner2path_A_1"),
+            std::string(identifier).append("_corner2path_A_2"),
+            std::string(identifier).append("_corner2path_A_3"),
+            std::string(identifier).append("_corner2path_A_4"),
+            std::string(identifier).append("_corner2path_B_1"),
+            std::string(identifier).append("_corner2path_B_2"),
+            std::string(identifier).append("_corner2path_B_3"),
+            std::string(identifier).append("_corner2path_B_4"),
+            std::string(identifier).append("_corner2path_C_1"),
+            std::string(identifier).append("_corner2path_C_2"),
+            std::string(identifier).append("_corner2path_C_3"),
+            std::string(identifier).append("_corner2path_C_4"),
+            std::string(identifier).append("_trans_up"),
+            std::string(identifier).append("_trans_right"),
+            std::string(identifier).append("_trans_down"),
+            std::string(identifier).append("_trans_left"),
+            std::string(identifier).append("_corner_1"),
+            std::string(identifier).append("_corner_2"),
+            std::string(identifier).append("_corner_3"),
+            std::string(identifier).append("_corner_4"),
+            std::string(identifier).append("_innercorner_1"),
+            std::string(identifier).append("_innercorner_2"),
+            std::string(identifier).append("_innercorner_3"),
+            std::string(identifier).append("_innercorner_4"),
+            std::string(identifier).append("_diag_1"),
+            std::string(identifier).append("_diag_2")
+        };
     }
 }

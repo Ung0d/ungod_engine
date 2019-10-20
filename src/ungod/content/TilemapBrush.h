@@ -29,9 +29,20 @@
 #include "ungod/content/TileMap.h"
 #include <unordered_map>
 #include <functional>
+#include <array>
+#include <memory>
 
 namespace ungod
 {
+    namespace detail
+    {
+        //wraps a tilemap reference, can be overloaded if secondary code must be called on setTile operations
+        class TilemapChangeNotificator
+        {
+        public:
+            virtual void notifyTileChanged(Tile* tile, int id) const {}
+        };
+    }
 
     /**
     * \brief A brush for tilemaps that paints a type of tile on top of another. Fitting border tiles are automatically
@@ -58,20 +69,34 @@ namespace ungod
             /** \brief Setups the brush based on meta information. */
             void init(const std::string& identifier, TileMap& tm);
 
+            /** \brief Initializes a custom notificator that gets invoked if changes to the underlying tilemap are made. */
+            template<typename T, typename ... PARAM>
+            void setNotificator(PARAM&& ... param)
+            {
+                mChangeNotificator.reset(new T(std::forward<PARAM>(param)...));
+            }
+
             /** \brief Paints to the given tile of the given tilemap. Automatically sets fitting border tiles for transitions
             * depending on adjacent tiles.
             * If connect is true, all connections to adjacent border tiles are automatically created.
             * If it is false, automatic connections to adjacent tiles are only connected to the previously set tile. */
             void paintTile(std::size_t ix, std::size_t iy, bool connect = true);
+            void paintTile(const sf::Vector2f& pos, bool connect = true);
 
             /** \brief Erases the given tile using the given foreign tile. Adjacent tiles are automatically fixed. */
             void eraseTile(std::size_t ix, std::size_t iy, int erasingTileID);
+            void eraseTile(const sf::Vector2f& pos, int erasingTileID);
 
             /** \brief Sets the memorizer for the last visited tile to null. */
             void resetMemory();
 
             /** \brief Returns the identifier string for the brush tileset. */
             const std::string& getIdentifier() const { return mIdentifier; }
+
+            /** \brief Returns an array of tile keys for the given identifier. */
+            static std::array<std::string, 47> makeKeymap(const std::string& identifier);
+
+            TileMap const* getTilemap() const { return mTilemap; }
 
         private:
             enum TileType : int {    FOREIGN = -1,
@@ -121,6 +146,8 @@ namespace ungod
             static constexpr std::array<int, 4> mPos = {1,5,7,3};
             static constexpr std::array<int, 4> mPosCorner = {0,2,6,8};
 
+            std::unique_ptr<detail::TilemapChangeNotificator> mChangeNotificator;
+
         private:
             //retrieve data for tile and all 8 adjacent tiles (nullptr if not existing)
             //indexing:
@@ -146,7 +173,7 @@ namespace ungod
             void paintConnected2Last(const std::array<Tile*, 9>& tiles, int d) const;
 
             //sets the given tile ID if it is != -1
-            static void setTileID(Tile* tile, int id);
+            void setTileID(Tile* tile, int id) const;
     };
 }
 

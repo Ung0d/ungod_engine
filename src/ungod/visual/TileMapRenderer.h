@@ -28,12 +28,24 @@
 
 #include <SFML/Graphics/RenderTexture.hpp>
 #include "ungod/content/TileMap.h"
+#include "ungod/content/TileMapBrush.h"
 #include "ungod/content/Water.h"
 #include "ungod/base/Entity.h"
 
 namespace ungod
 {
     class Camera;
+
+
+    namespace detail
+    {
+        //wraps a tilemap reference, can be overloaded if secondary code must be called on setTile operations
+        class TilemapRendererChangeNotificator : public TilemapChangeNotificator
+        {
+        public:
+            virtual void notifyTileChanged(Tile* tile, int id) const override;
+        };
+    }
 
     /**
     * \ingroup Components
@@ -206,6 +218,15 @@ namespace ungod
         const std::list<Entity>& getTileMapEntities() const { return mTileMapEntities; }
 
         const std::list<Entity>& getWaterEntities() const { return mWaterEntities; }
+
+        /** \brief Returns a brush object that can be used to paint on the tilemap associated with entity e.
+        * Changes to the tilemap through the brush, are send notifications the renderer. */
+        TilemapBrush makeTilemapBrush(Entity e, const std::string& identifier);
+
+        /** \brief Returns a brush object that can be used to paint on the water associated with entity e.
+        * Changes to the water through the brush, are send notifications the renderer. */
+        TilemapBrush makeWaterBrush(Entity e, const std::string& identifier);
+
 
     public:
         void handleTileMapAdded(Entity e);

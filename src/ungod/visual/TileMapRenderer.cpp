@@ -30,6 +30,16 @@
 
 namespace ungod
 {
+    namespace detail
+    {
+        void TilemapRendererChangeNotificator::notifyTileChanged(Tile* tile, int id) const
+        {
+            //todo
+            //gets called every time a change is made to a tilemap through a brush object that was created by
+            //the tilemap renderers "make" fu7nctions
+        }
+    }
+
     TileMapRenderer::TileMapRenderer(Application& app)
     {
         app.onTargetSizeChanged([this] (const sf::Vector2u& targetsize)
@@ -243,6 +253,20 @@ namespace ungod
     void TileMapRenderer::handleWaterRemoved(Entity e)
     {
         mWaterEntities.erase( std::remove( mWaterEntities.begin(), mWaterEntities.end(), e ), mWaterEntities.end() );
+    }
+
+    TilemapBrush TileMapRenderer::makeTilemapBrush(Entity e, const std::string& identifier)
+    {
+        TilemapBrush brush{ identifier, e.modify<TileMapComponent>().mTileMap };
+        brush.setNotificator<detail::TilemapRendererChangeNotificator>();
+        return brush;
+    }
+
+    TilemapBrush TileMapRenderer::makeWaterBrush(Entity e, const std::string& identifier)
+    {
+        TilemapBrush brush{ identifier, e.modify<WaterComponent>().mWater.getTileMap() };
+        brush.setNotificator<detail::TilemapRendererChangeNotificator>();
+        return brush;
     }
 }
 

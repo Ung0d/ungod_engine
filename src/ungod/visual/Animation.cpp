@@ -120,8 +120,8 @@ namespace ungod
     {
         if (previous)
         {
-            auto global = mCurrentNode.parent().getAttributes<float, float>( {"global_offset_x", 0}, {"global_offset_y", 0} );
-            auto local = mCurrentNode.getAttributes<float, float>( {"offset_x", std::get<0>(global)}, {"offset_y", std::get<1>(global)} );
+            auto global = previous.parent().getAttributes<float, float>( {"global_offset_x", 0}, {"global_offset_y", 0} );
+            auto local = previous.getAttributes<float, float>( {"offset_x", std::get<0>(global)}, {"offset_y", std::get<1>(global)} );
             vertices[0].position -= sf::Vector2f(std::get<0>(local), std::get<1>(local));
         }
 
