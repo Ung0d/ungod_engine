@@ -341,6 +341,45 @@ namespace ungod
     };
 
 
+    namespace deserial_ref_semantics
+    {
+        class Ref
+        {
+        public:
+            virtual void set(BaseSerializable* bs) = 0;
+            virtual BaseSerializable* get() = 0;
+            virtual bool valid() const = 0;
+        };
+
+        class ByPointer : public Ref
+        {
+        public:
+            ByPointer() : ptr(nullptr) {}
+            virtual void set(BaseSerializable* bs) override { ptr = bs; }
+            virtual BaseSerializable* get() override { return ptr; }
+            virtual bool valid() const override { return ptr; }
+        private:
+            BaseSerializable* ptr;
+        };
+
+        template<typename T>
+        class ByValue : public Ref
+        {
+        public:
+            virtual void set(BaseSerializable* bs) override { val = *(static_cast<T*>(bs)); }
+            virtual BaseSerializable* get() override { return &val; }
+            virtual bool valid() const override { return static_cast<bool>(val); }
+        private:
+            T val;
+        };
+    }
+
+    template<typename T>
+    struct RefSemantics
+    {
+        typedef deserial_ref_semantics::ByPointer RefType;
+    };
+
 
     /**
     * \brief An object to maintain a deserialization performance.
@@ -350,15 +389,16 @@ namespace ungod
     private:
         using Factory = std::function<BaseSerializable*(void)>;
         using SerialBehavior = std::function<void(BaseSerializable*, MetaNode, DeserializationContext&)>;
+        using SemanticsProducer = std::function<deserial_ref_semantics::Ref*()>;
 
         /** \brief Utility struct that represents an already serialized object. */
         struct NodeInfo
         {
             MetaNode node;
-            BaseSerializable* ptr;
+            std::unique_ptr<deserial_ref_semantics::Ref> ptr;
             bool deserializingNow;
-            std::queue< std::function<void(BaseSerializable*)> > weakQueue;
-            NodeInfo(MetaNode start) : node(start), ptr(nullptr), deserializingNow(false) {}
+            std::queue< std::function<void()> > weakQueue;
+            NodeInfo(MetaNode start, deserial_ref_semantics::Ref* reffer) : node(start), ptr(reffer), deserializingNow(false) {}
         };
 
         /** \brief Utility struct that represents a type. */
@@ -366,7 +406,10 @@ namespace ungod
         {
             Factory factory;
             SerialBehavior behavior;
+            SemanticsProducer semanticsProducer;
             std::vector<NodeInfo> nodes;
+
+            TypeMapEntry() : semanticsProducer([]() {return new deserial_ref_semantics::ByPointer();} ) {}
         };
 
         using TypeMap = std::unordered_map< std::string, TypeMapEntry >;
@@ -408,6 +451,13 @@ namespace ungod
 
         template<typename T, typename ... PARAM>
         void instantiate(const std::string& typeIdentifier, const Factory& fac, PARAM&& ... param);
+
+
+        /** \brief Changes the underlying ref-storage semantics for the given type. Must be called before reading. */
+        template<typename T, typename SEM>
+        inline void changeStorageSemantics() { changeStorageSemantics<SEM>(SerialIdentifier<T>::get()); }
+        template<typename SEM>
+        void changeStorageSemantics(const std::string& typeIdentifier);
 
 
         /** \brief Utility method to split an object adress. */

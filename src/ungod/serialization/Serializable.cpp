@@ -115,7 +115,7 @@ namespace ungod
                 auto empl = typeMap.emplace(s.name(), TypeMapEntry{});
                 auto& vec = empl.first->second.nodes;
                 vec.reserve( countAttr.convertValue<std::size_t>() );
-                forEachSubnode(s, [&vec](MetaNode u) { vec.emplace_back(u); });
+                forEachSubnode(s, [&vec, empl](MetaNode u) { vec.emplace_back(u, empl.first->second.semanticsProducer()); });
             }
         });
 

@@ -99,6 +99,7 @@ namespace ungod
                                        "createAudioEmitters", &detail::entityCreator<AudioEmitterBaseComponents, AudioEmitterOptionalComponents>,
                                        // Entity control methods.
                                        "destroy", &World::destroy,
+                                       "destroyNamed", &World::destroyNamed,
                                        "makeCopy", &World::makeCopy,
                                        "add", [] (World& world, Entity e)  { world.getQuadTree().insert(e); },
                                        "addNearby", [] (World& world, Entity e, Entity hint)  { world.getQuadTree().insertNearby(e, hint); },

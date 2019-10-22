@@ -64,6 +64,13 @@ namespace ungod
             context.serializeObjectContainer(data.mTileMapRenderer.getWaterEntities().back().getInstantiation()->getIdentifier(),
                                              data.mTileMapRenderer.getWaterEntities().back().getInstantiation()->getIdentifier(),
                                              data.mTileMapRenderer.getWaterEntities(), serializer, data, static_cast<const Application&>(*data.mMaster->getApp()));
+
+        MetaNode nameMapNode = context.appendSubnode(serializer, "name_map");
+        for (const auto& nameEntityPair : data.mEntityNames)
+        {
+            if (nameEntityPair.get<World::EntityTag>())//also clears out invalid entities
+                context.serializeWeak(nameEntityPair.get<World::NameTag>(), &nameEntityPair.get<World::EntityTag>(), nameMapNode);
+        }
     }
 
     void DeserialBehavior<World, const sf::RenderTarget&>::deserialize(World& data, MetaNode deserializer, DeserializationContext& context, const sf::RenderTarget& target)
@@ -80,5 +87,35 @@ namespace ungod
         //retrieve all entities and add them to the quadtree
         for (const auto& instantiation : data.mDeserialMap)
             instantiation.second(context, deserializer);
+
+
+        //hacky solution, todo?
+        //the weak deserial semantics imply that a assigner might be stored for later, when
+        //the referenced object is deserialized. Generally, code like above that depends on local
+        //state is broken code.
+        //However, we assume here that every entitiy derialization is finished at this point
+        //If for some reason (e.g. because of a broken file) an entity can be deserialized in the name map,
+        //but this entitiy is not deserialized along with the instantiations above, then the assigner will be
+        //invalid indeed, however, it will never be called and dies with the context object
+        //therefore, this code is safe IF AND ONLY IF THE ASSUMPTION IS FULFILLED
+        MetaNode nameMapNode = deserializer.firstNode("name_map");
+        std::vector<Entity> entities;
+        std::vector<std::string> names;
+        forEachAttribute(nameMapNode, [&names] (MetaAttribute attr)
+         {
+            names.emplace_back(attr.name());
+         });
+        if (names.size() > 0)
+        {
+            entities.resize(names.size());
+            MetaAttribute attrIter = context.first( context.deserializeWeak<Entity>([&entities](Entity& e) mutable { entities[0] = e; }), names[0], nameMapNode );
+            for (unsigned i = 1; i < names.size(); i++)
+                attrIter = context.next( context.deserializeWeak<Entity>([&entities, i](Entity& e) mutable { entities[i] = e; }), names[i], nameMapNode, attrIter);
+            for (unsigned i = 0; i < entities.size(); i++)
+            {
+                if (entities[i])
+                    data.tagWithName(entities[i], names[i]);
+            }
+        }
     }
 }

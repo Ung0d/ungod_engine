@@ -149,6 +149,11 @@ namespace ungod
         * Emits entity destruction event. */
         void destroy(Entity e);
 
+        /** \brief Does the same as destroy but additionally removes the entity from the name list.
+        * If the entity was names before, if has to destroyed through this method to keep the name
+        * map clean. */
+        void destroyNamed(Entity e);
+
         /** \brief Creates a new entity and constructs its components with instantiators. */
         template<typename... BASE, typename... OPTIONAL>
         Entity create(BaseComponents<BASE...> cb, OptionalComponents<OPTIONAL...> co, dom::ComponentInstantiator<BASE>... ci);
@@ -315,9 +320,11 @@ namespace ungod
 
         std::forward_list<Entity> mEntitiesToDestroy;
 
-        typedef boost::bimap< boost::bimaps::unordered_set_of<std::string>,
-                      boost::bimaps::unordered_set_of<Entity, std::hash<Entity>> > NameBimap;
 
+        struct EntityTag   {};
+        struct NameTag {};
+        typedef boost::bimap< boost::bimaps::unordered_set_of< boost::bimaps::tagged<std::string, NameTag> >,
+                                boost::bimaps::unordered_set_of<boost::bimaps::tagged<Entity, EntityTag>, std::hash<Entity>> > NameBimap;
         NameBimap mEntityNames;
 
     public:

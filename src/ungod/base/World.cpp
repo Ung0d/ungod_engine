@@ -172,7 +172,6 @@ namespace ungod
                 mQuadTree.removeFromItsNode(e);
             }
             e.getInstantiation()->cleanup(e);
-            mEntityDestructionSignal(e);
             e.mHandle.destroy();
         }
         mEntitiesToDestroy.clear();
@@ -246,6 +245,12 @@ namespace ungod
     void World::destroy(Entity e)
     {
         mEntitiesToDestroy.push_front(e);
+    }
+
+    void World::destroyNamed(Entity e)
+    {
+        destroy(e);
+        mEntityNames.right.erase(e);
     }
 
     Entity World::makeCopy(Entity e)
@@ -406,15 +411,36 @@ namespace ungod
 
     void World::tagWithName(Entity e, const std::string& name)
     {
-        mEntityNames.insert( {name, e} );
+        mEntityNames.insert( NameBimap::value_type{name, e} );
+        Logger::info(e.getID());
+        Logger::info(" INSERT ");
+        Logger::info(name);
+        Logger::endl();
+
+        for (const auto& nameEntityPair : mEntityNames)
+        {
+            Logger::info(nameEntityPair.get<World::EntityTag>().getID());
+            Logger::info(" MAP ");
+            Logger::info(nameEntityPair.get<World::NameTag>());
+            Logger::endl();
+        }
+        for (const auto& pair : mEntityNames.by<NameTag>())
+        {
+            Logger::info(pair.second.getID());
+            Logger::info(" MAPBN ");
+            Logger::info(pair.first);
+            Logger::endl();
+        }
     }
 
 
     Entity World::getEntityByName(const std::string& name) const
     {
-        auto result = mEntityNames.left.find(name);
-        if (result != mEntityNames.left.end())
-            return result->second;
+        auto result = mEntityNames.by<NameTag>().find(name);
+        if (result != mEntityNames.by<NameTag>().end())
+        {
+            return result->get<EntityTag>();
+        }
         else
             return {};
     }
@@ -422,9 +448,9 @@ namespace ungod
 
     std::string World::getName(Entity e) const
     {
-        auto result = mEntityNames.right.find(e);
-        if (result != mEntityNames.right.end())
-            return result->second;
+        auto result = mEntityNames.by<EntityTag>().find(e);
+        if (result != mEntityNames.by<EntityTag>().end())
+            return result->get<NameTag>();
         else
             return "";
     }

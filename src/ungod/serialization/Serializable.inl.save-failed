@@ -395,7 +395,6 @@ namespace ungod
     void DeserializationContext::changeStorageSemantics(const std::string& typeIdentifier)
     {
         auto res = typeMap.emplace(typeIdentifier, TypeMapEntry{});
-        res.first->second.semanticsProducer = [](){ return new SEM(); };
     }
 
 

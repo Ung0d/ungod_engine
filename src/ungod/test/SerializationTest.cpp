@@ -72,6 +72,9 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
         world.getQuadTree().insert(e);
         world.getQuadTree().insert(e2);
 
+        world.tagWithName(e, "dog");
+        world.tagWithName(e2, "cat");
+
         ungod::SerializationContext context;
         context.serializeRootObject(world, static_cast<const sf::RenderTarget&>(window));
         context.save("test_output/world_sav.xml");
@@ -81,10 +84,19 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
         ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
         ungod::World world(&state);
 
-        world.registerInstantiation(ungod::BaseComponents<ungod::SoundEmitterComponent, ungod::TransformComponent>(), ungod::OptionalComponents<>());
-        world.registerInstantiation(ungod::BaseComponents<ungod::VisualsComponent, ungod::TransformComponent>(), ungod::OptionalComponents<ungod::RigidbodyComponent<>>());
+        typedef ungod::BaseComponents<ungod::SoundEmitterComponent, ungod::TransformComponent> Base1;
+        typedef ungod::OptionalComponents<> Opt1;
+        typedef ungod::BaseComponents<ungod::VisualsComponent, ungod::TransformComponent> Base2;
+        typedef ungod::OptionalComponents<ungod::RigidbodyComponent<>> Opt2;
+
+        world.registerInstantiation(Base1(), Opt1());
+        world.registerInstantiation(Base2(), Opt2());
 
         ungod::DeserializationContext context;
+        context.changeStorageSemantics<ungod::deserial_ref_semantics::ByValue<ungod::Entity>>(
+                        ungod::SerialIdentifier< ungod::EntityInstantiation< Base1, Opt1 > >::get());
+        context.changeStorageSemantics<ungod::deserial_ref_semantics::ByValue<ungod::Entity>>(
+                        ungod::SerialIdentifier< ungod::EntityInstantiation< Base2, Opt2 > >::get());
         context.read("test_output/world_sav.xml");
 
         context.deserializeRootObject(world, static_cast<const sf::RenderTarget&>(window));
@@ -109,6 +121,11 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
                  BOOST_CHECK_EQUAL(100.0f, e.get<ungod::TransformComponent>().getPosition().y);
              }
         }
+
+        BOOST_CHECK(world.getEntityByName("dog"));
+        BOOST_CHECK(world.getEntityByName("cat"));
+        BOOST_CHECK_EQUAL(world.getEntityByName("dog").get<ungod::TransformComponent>().getPosition().x, 10.0f);
+        BOOST_CHECK_EQUAL(world.getEntityByName("cat").get<ungod::TransformComponent>().getPosition().x, 100.0f);
     }
     {
         sf::RenderWindow window;

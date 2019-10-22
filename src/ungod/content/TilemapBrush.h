@@ -61,7 +61,7 @@ namespace ungod
             TilemapBrush() : mLast(false), mBasic(-1), mIso(-1), mCross(-1), mPathH(-1), mPathV(-1), mDiag1(-1), mDiag2(-1),
                              mPathEnd{-1,-1,-1,-1}, mCorner{-1,-1,-1,-1}, mInnerCorner{-1,-1,-1,-1}, mTShape{-1,-1,-1,-1},
                              mTrans2path{-1,-1,-1,-1}, mCorner2pathA{-1,-1,-1,-1}, mCorner2pathB{-1,-1,-1,-1}, mCorner2pathC{-1,-1,-1,-1},
-                             mTrans{-1,-1,-1,-1}, mPathCurve{-1,-1,-1,-1} {}
+                             mTrans{-1,-1,-1,-1}, mPathCurve{-1,-1,-1,-1}, mChangeNotificator{new detail::TilemapChangeNotificator()} {}
 
             /** \brief Setups the brush based on meta information. */
             TilemapBrush(const std::string& identifier, TileMap& tm);
