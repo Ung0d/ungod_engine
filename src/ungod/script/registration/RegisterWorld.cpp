@@ -114,7 +114,7 @@ namespace ungod
                                        "rigidbody", &World::getRigidbodyManager,
                                        "input", &World::getInputManager,
                                        "audio", &World::getAudioManager,
-                                       "light", &World::getLightSystem,
+                                       "light", [](World& world) -> LightSystem& {return world.getLightSystem();},
                                        "behavior", &World::getBehaviorManager,
                                        "tilemap", &World::getTileMapRenderer,
                                        "particles", &World::getParticleSystemManager,

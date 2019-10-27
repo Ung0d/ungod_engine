@@ -57,7 +57,7 @@ namespace ungod
         virtual bool render(sf::RenderTarget& target, sf::RenderStates states) = 0;
 
         virtual bool renderDebug(sf::RenderTarget& target, sf::RenderStates states,
-                                 bool bounds = true, bool texrects = true, bool colliders = true, bool audioemitters = true) const {return true;}
+                                 bool bounds = true, bool texrects = true, bool colliders = true, bool audioemitters = true, bool lights = true) const {return true;}
 
         /** \brief Updates the layer for the given amount of delta time and within the specified rectangular area
         * of the game world. */
@@ -105,7 +105,7 @@ namespace ungod
         bool render(sf::RenderTarget& target, sf::RenderStates states) const;
 
         bool renderDebug(sf::RenderTarget& target, sf::RenderStates states,
-                         bool bounds = true, bool texrects = true, bool colliders = true, bool audioemitters = true) const;
+                         bool bounds = true, bool texrects = true, bool colliders = true, bool audioemitters = true, bool lights = true) const;
 
         void update(float delta);
 

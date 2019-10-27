@@ -219,6 +219,52 @@ namespace ungod
     }
 
 
+    void Renderer::renderLightDebug(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states)
+    {
+        states.transform *= transf.getTransform();  //apply the transform of the entity
+
+        auto renderLightEmitter = [&](const LightEmitterComponent& light)
+        {
+            auto bb = light.getLight().getBoundingBox();
+            sf::RectangleShape rect( {bb.width, bb.height} );
+            rect.setPosition( {bb.left, bb.top} );
+            rect.setOutlineThickness(2);
+            rect.setOutlineColor(sf::Color::Yellow);
+            rect.setFillColor(sf::Color::Transparent);
+            sf::RectangleShape center( {20, 20} );
+            center.setPosition( {bb.left + bb.width/2, bb.top + bb.height/2} );
+            center.setFillColor(sf::Color::Yellow);
+            target.draw(rect, states);
+            target.draw(center, states);
+        };
+
+        if (e.has<LightEmitterComponent>())
+            renderLightEmitter(e.get<LightEmitterComponent>());
+        if (e.has<MultiLightEmitter>())
+        {
+            for (unsigned i = 0; i < e.get<MultiLightEmitter>().getComponentCount(); i++)
+                renderLightEmitter(e.get<MultiLightEmitter>().getComponent(i));
+        }
+
+        auto renderLightCollider = [&](const ShadowEmitterComponent& shadow)
+        {
+            sf::ConvexShape shape = shadow.getCollider().getShape();
+            shape.setFillColor(sf::Color::Transparent);
+            shape.setOutlineThickness(2);
+            shape.setOutlineColor(sf::Color::Blue);
+            target.draw(shape, states);
+        };
+
+        if (e.has<ShadowEmitterComponent>())
+            renderLightCollider(e.get<ShadowEmitterComponent>());
+        if (e.has<MultiShadowEmitter>())
+        {
+            for (unsigned i = 0; i < e.get<MultiShadowEmitter>().getComponentCount(); i++)
+                renderLightCollider(e.get<MultiShadowEmitter>().getComponent(i));
+        }
+    }
+
+
     void Renderer::render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const
     {
         //iterate over all entities with both Transform and Visuals-component
@@ -306,6 +352,17 @@ namespace ungod
           [&target, &states] (Entity e, TransformComponent& transf, MusicEmitterComponent& emitter)
           {
               renderAudioEmitter(e, transf, emitter, target, states);
+          });
+    }
+
+
+    void Renderer::renderLightRanges(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const
+    {
+        //single light emitter
+        dom::Utility<Entity>::iterate<TransformComponent>(pull.getList(),
+          [&target, &states] (Entity e, TransformComponent& transf)
+          {
+              renderLightDebug(e, transf, target, states);
           });
     }
 

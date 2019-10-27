@@ -37,6 +37,7 @@ namespace ungod
     class AnimationComponent;
     class ParticleSystemComponent;
     class MusicEmitterComponent;
+    class LightEmitterComponent;
 
     /** \brief A "system" class that renders entities to a render target.
     * Also updates entities with animation components. */
@@ -68,6 +69,9 @@ namespace ungod
         /** \brief Draws audio emitters. */
         void renderAudioEmitters(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const;
 
+        /** \brief Draws light ranges. */
+        void renderLightRanges(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const;
+
         /** \brief Updates the internal list of entities. Selects out the entities with Animation-components automatically.
         * Entities with no animation component will be skipped. */
         void update(const std::list<Entity>& entities, float delta);
@@ -91,6 +95,9 @@ namespace ungod
 
         /** \brief Renders a audio emitter entity. */
         static void renderAudioEmitter(Entity e, const TransformComponent& transf, MusicEmitterComponent& emitter, sf::RenderTarget& target, sf::RenderStates states);
+
+        /** \brief Renders the origin and the range of a light. */
+        static void renderLightDebug(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states);
 
     private:
         World* mWorld;

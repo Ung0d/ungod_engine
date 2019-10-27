@@ -87,8 +87,6 @@ namespace ungod
 
         /** \brief Returns a reference to the underlying sfml window. */
         const sf::RenderWindow& getWindow() const;
-
-        /** \brief Returns a reference to the underlying sfml window. */
         sf::RenderWindow& getWindow();
 
         /** \brief Accesses the config file. */
@@ -114,7 +112,7 @@ namespace ungod
         void emitCustomEvent(const std::string& type, script::Environment data);
 
         /** \brief Connects a callback to the on target size changed signal.*/
-        void onTargetSizeChanged(const std::function<void(const sf::Vector2u&)>& callback);
+        owls::SignalLink<void, const sf::Vector2u&> onTargetSizeChanged(const std::function<void(const sf::Vector2u&)>& callback);
 
         /** \brief Restores the default value of a config property. */
         void restoreDefaultConfigProperty(const std::string& name);

@@ -165,7 +165,6 @@ namespace ungod
         return mWindow;
     }
 
-
     sf::RenderWindow& Application::getWindow()
     {
         return mWindow;
@@ -319,8 +318,8 @@ namespace ungod
         mStatemanager.onCustomEvent(event);
     }
 
-    void Application::onTargetSizeChanged(const std::function<void(const sf::Vector2u&)>& callback)
+    owls::SignalLink<void, const sf::Vector2u&> Application::onTargetSizeChanged(const std::function<void(const sf::Vector2u&)>& callback)
     {
-        mTargetSizeChanged.connect(callback);
+        return mTargetSizeChanged.connect(callback);
     }
 }

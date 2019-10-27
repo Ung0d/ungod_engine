@@ -99,6 +99,12 @@ namespace ungod
         /** \brief Activates or deactivates the debug entity bounds rendering mode. */
         void debugAudioEmitters(bool audioemitters) { mDebugAudioEmitters = audioemitters; }
 
+        /** \brief Returns entity bounds debug render state. */
+        bool debugLightEmittersActive() const {return mDebugLightEmitters;}
+
+        /** \brief Activates or deactivates the debug entity bounds rendering mode. */
+        void debugLightEmitters(bool lightemitters) { mDebugLightEmitters = lightemitters; }
+
         /** \brief Saves the game state and its contents to the given file if */
         void save(const std::string& fileid);
 
@@ -160,6 +166,7 @@ namespace ungod
         bool mDebugTexrects;
         bool mDebugColliders;
         bool mDebugAudioEmitters;
+        bool mDebugLightEmitters;
     };
 }
 

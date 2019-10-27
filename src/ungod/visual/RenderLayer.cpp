@@ -66,7 +66,7 @@ namespace ungod
         return check;
     }
 
-    bool RenderLayerContainer::renderDebug(sf::RenderTarget& target, sf::RenderStates states, bool bounds, bool texrects, bool colliders, bool audioemitters) const
+    bool RenderLayerContainer::renderDebug(sf::RenderTarget& target, sf::RenderStates states, bool bounds, bool texrects, bool colliders, bool audioemitters, bool lights) const
     {
         bool check = true;
         for (const auto& layer : mRenderLayers)
@@ -74,7 +74,7 @@ namespace ungod
             if (layer.second)
             {
                 mCamera.renderBegin(layer.first->getRenderDepth());
-                check = check && layer.first->renderDebug(target, states, bounds, texrects, colliders, audioemitters);
+                check = check && layer.first->renderDebug(target, states, bounds, texrects, colliders, audioemitters, lights);
                 mCamera.renderEnd();
             }
         }

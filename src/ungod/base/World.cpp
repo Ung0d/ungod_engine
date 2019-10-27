@@ -49,7 +49,8 @@ namespace ungod
         mAudioManager(master),
         mLightSystem(),
         mTileMapRenderer(*master->getApp()),
-        mParentChildManager(*this)
+        mParentChildManager(*this),
+        mRenderLight(true)
     {
     }
 
@@ -69,7 +70,8 @@ namespace ungod
         mAudioManager(master),
         mLightSystem(),
         mTileMapRenderer(*master->getApp()),
-        mParentChildManager(*this)
+        mParentChildManager(*this),
+        mRenderLight(true)
     {
     }
 
@@ -150,7 +152,7 @@ namespace ungod
         mAudioManager.initVolumeSettings(VolumeSettings::NUM);
 
         //init light
-        mLightSystem.init(&mQuadTree, app.getWindow().getSize(), unshadowVertex, unshadowFragment, lightVertex, lightFragment, penumbraTex);
+        mLightSystem.init(app, &mQuadTree, app.getWindow().getSize(), unshadowVertex, unshadowFragment, lightVertex, lightFragment, penumbraTex);
 
         //init script behavior
         mBehaviorManager.init(*this, global, app);
@@ -220,12 +222,13 @@ namespace ungod
 
         mRenderer.render(mRenderedEntities, target, states);
 
-        mLightSystem.render(mRenderedEntities, target, states);
+        if (mRenderLight)
+            mLightSystem.render(mRenderedEntities, target, states);
 
         return true; //todo meaningful return value
     }
 
-    bool World::renderDebug(sf::RenderTarget& target, sf::RenderStates states, bool bounds, bool texrects, bool colliders, bool audioemitters) const
+    bool World::renderDebug(sf::RenderTarget& target, sf::RenderStates states, bool bounds, bool texrects, bool colliders, bool audioemitters, bool lights) const
     {
         if (bounds)
             mRenderer.renderBounds(mRenderedEntities, target, states);
@@ -238,6 +241,8 @@ namespace ungod
         }
         if (audioemitters)
             mRenderer.renderAudioEmitters(mRenderedEntities, target, states);
+        if (lights)
+            mRenderer.renderLightRanges(mRenderedEntities, target, states);
 
         return true;
     }
@@ -331,6 +336,11 @@ namespace ungod
     }
 
     LightSystem& World::getLightSystem()
+    {
+        return mLightSystem;
+    }
+
+    const LightSystem& World::getLightSystem() const
     {
         return mLightSystem;
     }
@@ -453,5 +463,17 @@ namespace ungod
             return result->get<NameTag>();
         else
             return "";
+    }
+
+
+    void World::toggleLight(bool on)
+    {
+        mRenderLight = on;
+    }
+
+
+    bool World::isLightToggled() const
+    {
+        return mRenderLight;
     }
 }

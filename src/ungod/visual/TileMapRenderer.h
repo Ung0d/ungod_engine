@@ -228,6 +228,8 @@ namespace ungod
         TilemapBrush makeWaterBrush(Entity e, const std::string& identifier);
 
 
+        ~TileMapRenderer();
+
     public:
         void handleTileMapAdded(Entity e);
         void handleTileMapRemoved(Entity e);
@@ -237,6 +239,7 @@ namespace ungod
     private:
         std::list<Entity> mTileMapEntities;
         std::list<Entity> mWaterEntities;
+        owls::SignalLink<void, const sf::Vector2u&> mAppSignalLink;
     };
 }
 

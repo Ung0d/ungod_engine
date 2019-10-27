@@ -39,6 +39,10 @@ namespace ungod
         context.serializeProperty("upper_bound", bounds.position.y, serializer);
         context.serializeProperty("world_size_x", bounds.size.x, serializer);
         context.serializeProperty("world_size_y", bounds.size.y, serializer);
+        context.serializeProperty("ambient_light_r", data.getLightSystem().getAmbientColor().r, serializer);
+        context.serializeProperty("ambient_light_g", data.getLightSystem().getAmbientColor().g, serializer);
+        context.serializeProperty("ambient_light_b", data.getLightSystem().getAmbientColor().b, serializer);
+        context.serializeProperty("ambient_light_a", data.getLightSystem().getAmbientColor().a, serializer);
 
         quad::PullResult<Entity> contentPull;
         data.mQuadTree.getContent(contentPull);
@@ -80,9 +84,11 @@ namespace ungod
         initDeserial(context, data);
 
         //get the most basic parameters of the worlds
-        auto result = deserializer.getAttributes<float, float, float, float>
-                            ( {"left_bound", 0.0f}, {"upper_bound", 0.0f}, {"world_size_x", 0.0f}, {"world_size_y", 0.0f} );
+        auto result = deserializer.getAttributes<float, float, float, float, uint8_t, uint8_t, uint8_t, uint8_t>
+                            ( {"left_bound", 0.0f}, {"upper_bound", 0.0f}, {"world_size_x", 0.0f}, {"world_size_y", 0.0f},
+                             {"ambient_light_r", 255}, {"ambient_light_g", 255}, {"ambient_light_b", 255}, {"ambient_light_a", 255} );
         data.initSpace(std::get<0>(result), std::get<1>(result), std::get<2>(result), std::get<3>(result));
+        data.getLightSystem().setAmbientColor(sf::Color{ std::get<4>(result), std::get<5>(result), std::get<6>(result), std::get<7>(result) });
 
         //retrieve all entities and add them to the quadtree
         for (const auto& instantiation : data.mDeserialMap)
@@ -99,23 +105,24 @@ namespace ungod
         //invalid indeed, however, it will never be called and dies with the context object
         //therefore, this code is safe IF AND ONLY IF THE ASSUMPTION IS FULFILLED
         MetaNode nameMapNode = deserializer.firstNode("name_map");
+        if (!nameMapNode)
+            return;
         std::vector<Entity> entities;
         std::vector<std::string> names;
         forEachAttribute(nameMapNode, [&names] (MetaAttribute attr)
          {
             names.emplace_back(attr.name());
          });
-        if (names.size() > 0)
+        if (names.size() == 0)
+            return;
+        entities.resize(names.size());
+        MetaAttribute attrIter = context.first( context.deserializeWeak<Entity>([&entities](Entity& e) mutable { entities[0] = e; }), names[0], nameMapNode );
+        for (unsigned i = 1; i < names.size(); i++)
+            attrIter = context.next( context.deserializeWeak<Entity>([&entities, i](Entity& e) mutable { entities[i] = e; }), names[i], nameMapNode, attrIter);
+        for (unsigned i = 0; i < entities.size(); i++)
         {
-            entities.resize(names.size());
-            MetaAttribute attrIter = context.first( context.deserializeWeak<Entity>([&entities](Entity& e) mutable { entities[0] = e; }), names[0], nameMapNode );
-            for (unsigned i = 1; i < names.size(); i++)
-                attrIter = context.next( context.deserializeWeak<Entity>([&entities, i](Entity& e) mutable { entities[i] = e; }), names[i], nameMapNode, attrIter);
-            for (unsigned i = 0; i < entities.size(); i++)
-            {
-                if (entities[i])
-                    data.tagWithName(entities[i], names[i]);
-            }
+            if (entities[i])
+                data.tagWithName(entities[i], names[i]);
         }
     }
 }

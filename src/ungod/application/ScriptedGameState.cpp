@@ -29,6 +29,7 @@
 #include "ungod/script/CustomEvent.h"
 #include "ungod/base/World.h"
 #include "ungod/content/EntityTypes.h"
+#include "ungod/serialization/DeserialInit.h"
 
 namespace ungod
 {
@@ -44,7 +45,8 @@ namespace ungod
             mDebugBounds(true),
             mDebugTexrects(true),
             mDebugColliders(true),
-            mDebugAudioEmitters(true)
+            mDebugAudioEmitters(true),
+            mDebugLightEmitters(true)
     {
         runScript(gameScriptID);
     }
@@ -59,7 +61,8 @@ namespace ungod
             mDebugBounds(true),
             mDebugTexrects(true),
             mDebugColliders(true),
-            mDebugAudioEmitters(true)
+            mDebugAudioEmitters(true),
+            mDebugLightEmitters(true)
     {
     }
 
@@ -169,7 +172,7 @@ namespace ungod
     {
         mLayers.render(target, states);
         if (mRenderDebug)
-            mLayers.renderDebug(target, states, mDebugBounds, mDebugTexrects, mDebugColliders, mDebugAudioEmitters);
+            mLayers.renderDebug(target, states, mDebugBounds, mDebugTexrects, mDebugColliders, mDebugAudioEmitters, mDebugLightEmitters);
     }
 
 
@@ -191,6 +194,7 @@ namespace ungod
     void ScriptedGameState::load(const std::string& fileid)
     {
         DeserializationContext context;
+        initContext(context);
         context.read(fileid);
 
         context.deserializeRootObject(*this);

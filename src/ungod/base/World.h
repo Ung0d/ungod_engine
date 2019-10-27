@@ -101,7 +101,7 @@ namespace ungod
 
         /** \brief Renders debug information. Must be called after the normal render call. */
         virtual bool renderDebug(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates(),
-                                 bool bounds = true, bool texrects = true, bool colliders = true, bool audioemitters = true) const override;
+                                 bool bounds = true, bool texrects = true, bool colliders = true, bool audioemitters = true, bool lights = true) const override;
 
         /** \brief Factory method based on dom::Universe<>::create, but constructs ungod::Entitys instead.
         * You have to specify the base- and optional components for this entity. */
@@ -226,6 +226,7 @@ namespace ungod
 
         /** \brief Returns a reference to the light system. */
         LightSystem& getLightSystem();
+        const LightSystem& getLightSystem() const;
 
         /** \brief Returns a reference to the initializer system. */
         InitializerManager& getInitializerManager();
@@ -289,6 +290,10 @@ namespace ungod
         /** \brief Retrieves the name of an entity. Returns empty string if not found. */
         std::string getName(Entity e) const;
 
+        /** \brief Toggles the rendering of light on and off. */
+        void toggleLight(bool on);
+        bool isLightToggled() const;
+
     private:
         ScriptedGameState* mMaster;
         EntityBehaviorManager mBehaviorManager;
@@ -319,6 +324,8 @@ namespace ungod
         quad::PullResult< Entity > mRenderedEntities;
 
         std::forward_list<Entity> mEntitiesToDestroy;
+
+        bool mRenderLight;
 
 
         struct EntityTag   {};

@@ -42,7 +42,7 @@ namespace ungod
 
     TileMapRenderer::TileMapRenderer(Application& app)
     {
-        app.onTargetSizeChanged([this] (const sf::Vector2u& targetsize)
+        mAppSignalLink = app.onTargetSizeChanged([this] (const sf::Vector2u& targetsize)
                                   {
                                       for (auto e = mWaterEntities.begin(); e != mWaterEntities.end(); e++)
                                       {
@@ -267,6 +267,11 @@ namespace ungod
         TilemapBrush brush{ identifier, e.modify<WaterComponent>().mWater.getTileMap() };
         brush.setNotificator<detail::TilemapRendererChangeNotificator>();
         return brush;
+    }
+
+    TileMapRenderer::~TileMapRenderer()
+    {
+        mAppSignalLink.disconnect();
     }
 }
 

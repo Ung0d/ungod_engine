@@ -26,11 +26,27 @@
 #include "ungod/serialization/DeserialInit.h"
 #include "ungod/serialization/SerialParticleSystem.h"
 #include "ungod/base/World.h"
+#include "ungod/content/EntityTypes.h"
 
 namespace ungod
 {
     void initDeserial(DeserializationContext& context, World& world)
     {
         prepareParticleSystemDeserial(context, &world.getParticleSystemManager().getFunctorMaster());
+    }
+
+
+    void initContext(DeserializationContext& context)
+    {
+        context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<EntityBaseComponents, EntityOptionalComponents> >::get() );
+        context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<ActorBaseComponents, ActorOptionalComponents> >::get() );
+        context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<MetaObjectBaseComponents, MetaObjectOptionalComponents> >::get() );
+        context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<LightBaseComponents, LightOptionalComponents> >::get() );
+        context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<TriggerBaseComponents, TriggerOptionalComponents> >::get() );
+        context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<WorldObjectBaseComponents, WorldObjectOptionalComponents> >::get() );
+        context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<TileMapBaseComponents,TileMapOptionalComponents> >::get() );
+        context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<WaterBaseComponents, WaterOptionalComponents> >::get() );
+        context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<ParticleSystemBaseComponents, ParticleSystemOptionalComponents> >::get() );
+        context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<AudioEmitterBaseComponents, AudioEmitterOptionalComponents> >::get() );
     }
 }

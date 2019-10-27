@@ -96,6 +96,8 @@ namespace ungod
 
         void setColor(const sf::Color& color);
 
+        const sf::ConvexShape& getShape() const;
+
     private:
         sf::ConvexShape mShape;
         bool mLightOverShape;
@@ -323,7 +325,7 @@ namespace ungod
 
         /** \brief Instantiates the light system will a pointer to the world-quadtree and filepaths to the required shaders.
         * Also requires a path to the penumbra-texture. */
-        void init(quad::QuadTree<Entity>* quadtree,
+        void init(Application& app, quad::QuadTree<Entity>* quadtree,
                   const sf::Vector2u &imageSize,
                   const std::string& unshadowVertex,
                   const std::string& unshadowFragment,
@@ -342,6 +344,9 @@ namespace ungod
 
         /** \brief Sets the color of the ambient light. */
         void setAmbientColor(const sf::Color& color);
+
+        /** \brief Gets the color of the ambient light. */
+        sf::Color getAmbientColor() const;
 
         /**
         * \brief Calling this function over a certain amount of time will result in
@@ -451,6 +456,8 @@ namespace ungod
         void moveLights(Entity e, const sf::Vector2f& vec);
         void moveLightColliders(Entity e, const sf::Vector2f& vec);
 
+        ~LightSystem();
+
 
     private:
         sf::RenderTexture mLightTexture, mEmissionTexture, mAntumbraTexture, mCompositionTexture;
@@ -461,6 +468,7 @@ namespace ungod
         sf::Sprite mDisplaySprite;
         sf::Vector3f mColorShift;
         owls::Signal<Entity, const sf::IntRect&> mContentsChangedSignal;
+        owls::SignalLink<void, const sf::Vector2u&> mAppSignalLink;
 
     private:
         void setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, LightAffectorComponent& affector, LightEmitterComponent& emitter);

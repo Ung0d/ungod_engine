@@ -34,6 +34,8 @@ namespace ungod
 
     /** \brief A master method that performs all initialization work on a given DeserializationContext. */
     void initDeserial(DeserializationContext& context, World& world);
+
+    void initContext(DeserializationContext& context);
 }
 
 #endif // UNGOD_DESERIAL_INIT_H

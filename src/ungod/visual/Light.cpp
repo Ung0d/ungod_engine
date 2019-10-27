@@ -29,6 +29,7 @@
 #include "ungod/visual/Light.h"
 #include "ungod/physics/Physics.h"
 #include "ungod/base/World.h"
+#include "ungod/application/Application.h"
 
 namespace ungod
 {
@@ -135,6 +136,11 @@ namespace ungod
     void LightCollider::setColor(const sf::Color& color)
     {
         mShape.setFillColor(color);
+    }
+
+    const sf::ConvexShape& LightCollider::getShape() const
+    {
+        return mShape;
     }
 
     const std::string PointLight::DEFAULT_TEXTURE_PATH = "resource/pointLightTexture.png";
@@ -754,7 +760,7 @@ namespace ungod
 
     LightSystem::LightSystem() : mQuadTree(nullptr), mAmbientColor(sf::Color::White), mColorShift(0,0,0) {}
 
-    void LightSystem::init(quad::QuadTree<Entity>* quadtree,
+    void LightSystem::init(Application& app, quad::QuadTree<Entity>* quadtree,
               const sf::Vector2u &imageSize,
               const std::string& unshadowVertex,
               const std::string& unshadowFragment,
@@ -762,6 +768,12 @@ namespace ungod
               const std::string& lightOverShapeFragment,
               const std::string& penumbraTexture)
     {
+        mAppSignalLink.disconnect(); //disconnect for safety (if init is called multiple times)
+        mAppSignalLink = app.onTargetSizeChanged([this] (const sf::Vector2u& targetsize)
+                                  {
+                                      setImageSize(targetsize);
+                                  });
+
         mQuadTree = quadtree;
 
         mUnshadowShader.loadFromFile(unshadowVertex, unshadowFragment);
@@ -781,8 +793,6 @@ namespace ungod
             ungod::Logger::warning("No valid penumbra texture loaded!");
             ungod::Logger::endl();
         }
-
-        mLightOverShapeShader.setUniform("emissionTexture", mEmissionTexture.getTexture());
     }
 
     void LightSystem::setImageSize(const sf::Vector2u &imageSize)
@@ -792,13 +802,13 @@ namespace ungod
         mAntumbraTexture.create(imageSize.x, imageSize.y);
         mCompositionTexture.create(imageSize.x, imageSize.y);
         mLightOverShapeShader.setUniform("targetSizeInv", sf::Glsl::Vec2(1.0f / imageSize.x, 1.0f / imageSize.y));
+        mLightOverShapeShader.setUniform("emissionTexture", mEmissionTexture.getTexture());
     }
 
     void LightSystem::render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states)
     {
         mCompositionTexture.clear(mAmbientColor);
         mCompositionTexture.setView(mCompositionTexture.getDefaultView());
-        mCompositionTexture.display();
 
         //iterator over the one-light-components
         dom::Utility<Entity>::iterate<TransformComponent, LightEmitterComponent>(pull.getList(),
@@ -817,12 +827,15 @@ namespace ungod
               }
           });
 
-		states.blendMode = sf::BlendMultiply;
+        mCompositionTexture.display();
+
+        sf::RenderStates lightstates{};
+		lightstates.blendMode = sf::BlendMultiply;
 
 		mDisplaySprite.setTexture(mCompositionTexture.getTexture(), true);
 		sf::View view = target.getView();
 		target.setView(target.getDefaultView());
-		target.draw(mDisplaySprite, states);
+		target.draw(mDisplaySprite, lightstates);
 		target.setView(view);
     }
 
@@ -896,6 +909,11 @@ namespace ungod
     void LightSystem::setAmbientColor(const sf::Color& color)
     {
         mAmbientColor = color;
+    }
+
+    sf::Color LightSystem::getAmbientColor() const
+    {
+        return mAmbientColor;
     }
 
     void LightSystem::interpolateAmbientLight(const sf::Color& color, float strength)
@@ -1149,5 +1167,10 @@ namespace ungod
                 shadow.getComponent(i).mLightCollider.mShape.move(vec);
             }
         }
+    }
+
+    LightSystem::~LightSystem()
+    {
+        mAppSignalLink.disconnect();
     }
 }
