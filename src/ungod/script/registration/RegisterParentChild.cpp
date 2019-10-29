@@ -31,7 +31,7 @@ namespace ungod
     namespace scriptRegistration
     {
         void registerParentChild(ScriptStateBase& state)
-        {
+        {/*
             state.registerUsertype<ParentComponent>("ParentComponent",
                                                     "getNumberOfChildren", &ParentComponent::getNumberOfChildren);
 
@@ -42,7 +42,7 @@ namespace ungod
             state.registerUsertype<ParentChildManager>("ParentChildManager",
                                                     "addChild", &ParentChildManager::addChild,
                                                     "setChildPosition", &ParentChildManager::setChildPosition,
-                                                    "setChildScale", &ParentChildManager::setChildScale);
+                                                    "setChildScale", &ParentChildManager::setChildScale);*/
         }
     }
 }

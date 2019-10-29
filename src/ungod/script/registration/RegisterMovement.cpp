@@ -33,7 +33,7 @@ namespace ungod
     {
         void registerMovement(ScriptStateBase& state)
         {
-            state.registerEnum("Direction",
+            /*state.registerEnum("Direction",
                                      "idle", MovementComponent::Direction::IDLE,
                                      "left", MovementComponent::Direction::LEFT,
                                      "right", MovementComponent::Direction::RIGHT,
@@ -83,9 +83,9 @@ namespace ungod
                                                    "removePattern", sol::overload([] (SteeringManager<script::Environment>& sm, const std::string& key) { sm.removePattern(key); },
                                                                                    [] (SteeringManager<script::Environment>& sm, SteeringPattern<script::Environment>* s) { sm.removePattern(s); }),
                                                    "attachSteering", sol::overload([] (SteeringManager<script::Environment>& sm, const std::string& key, const SteeringFunc<script::Environment>& steering) { sm.attachSteering(key, steering); },
-                                                                                   [] (SteeringManager<script::Environment>& sm, SteeringPattern<script::Environment>* s, const SteeringFunc<script::Environment>& steering) { sm.attachSteering(s, steering); })*/);
+                                                                                   [] (SteeringManager<script::Environment>& sm, SteeringPattern<script::Environment>* s, const SteeringFunc<script::Environment>& steering) { sm.attachSteering(s, steering); })*/ /*);
 
-
+/*
             state.registerEnum("PathFollowingPolicy",
                                "OneShot", PathFollowingPolicy::ONE_SHOT,
                                "Cycle", PathFollowingPolicy::CYCLE,
@@ -169,7 +169,7 @@ namespace ungod
                                             {
                                                 mvm.directMovement( e, detail::unpackParameter<sf::Vector2f>(parameters, "vec"));
                                             };
-                                       });
+                                       });*/
         }
     }
 }

@@ -35,7 +35,7 @@ namespace ungod
     {
         void registerUtility(ScriptStateBase& state)
         {
-            state.registerUsertype<sf::Vector2f>("Vec2f",
+            /*state.registerUsertype<sf::Vector2f>("Vec2f",
                                                                 sol::constructors<sf::Vector2f(), sf::Vector2f(float x, float y)>(),
                                                                     "x", &sf::Vector2f::x,
                                                                     "y", &sf::Vector2f::y);
@@ -63,7 +63,7 @@ namespace ungod
                                                                 sol::constructors<sf::Color(), sf::Color(uint8_t r, uint8_t g, uint8_t b), sf::Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)>(),
                                                                     "r", &sf::Color::r, "g", &sf::Color::g, "b", &sf::Color::b, "a", &sf::Color::a);
 
-            state.registerFunction("distance", [] (const sf::Vector2f& p1, const sf::Vector2f& p2) { return distance(p1, p2); });
+            state.registerFunction("distance", [] (const sf::Vector2f& p1, const sf::Vector2f& p2) { return distance(p1, p2); }); */
         }
     }
 }

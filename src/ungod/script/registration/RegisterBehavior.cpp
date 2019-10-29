@@ -33,7 +33,7 @@ namespace ungod
     {
         void registerBehavior(ScriptStateBase& state)
         {
-            state.registerEnum("ScriptErrorCode",
+            /*state.registerEnum("ScriptErrorCode",
                                      "ScriptOK", ScriptErrorCode::SCRIPT_OK,
                                      "ScriptNotFound", ScriptErrorCode::SCRIPT_NOT_FOUND,
                                      "ScriptLoadError", ScriptErrorCode::SCRIPT_LOAD_ERROR,
@@ -53,7 +53,7 @@ namespace ungod
                                                           { em.assignBehavior(e, name); },
                                                           [] (EntityBehaviorManager& em, Entity e, const std::string& name, script::Environment param)
                                                           { em.assignBehavior(e, name, param); } ),
-                                                         "setUpdateInterval", [] (EntityBehaviorManager& ebm, Entity e, float interval) { ebm.setUpdateInterval(e, interval); });
+                                                         "setUpdateInterval", [] (EntityBehaviorManager& ebm, Entity e, float interval) { ebm.setUpdateInterval(e, interval); });*/
         }
     }
 }

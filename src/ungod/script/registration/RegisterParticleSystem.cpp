@@ -33,7 +33,7 @@ namespace ungod
     {
         void registerParticleSystem(ScriptStateBase& state)
         {
-            state.registerUsertype<ParticleSystemManager>("ParticleSystemManager",
+           /* state.registerUsertype<ParticleSystemManager>("ParticleSystemManager",
                "clearAffectors", &ParticleSystemManager::clearAffectors,
                "setMaxForce", &ParticleSystemManager::setMaxForce,
                "setMaxVelocity", &ParticleSystemManager::setMaxVelocity,
@@ -140,7 +140,7 @@ namespace ungod
                         psm.setTexrectInitializer<MultipleTexrectsByKey>(e, PS_MULTIPLE_TEXRECTS_BY_KEY, metaID, env2vec<std::string>(keys));
                   });
 
-            state.registerUsertype<ParticleSystemComponent>("ParticleSystemComponent");
+            state.registerUsertype<ParticleSystemComponent>("ParticleSystemComponent");*/
         }
     }
 }

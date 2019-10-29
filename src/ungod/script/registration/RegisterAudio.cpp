@@ -33,7 +33,7 @@ namespace ungod
     {
         void registerAudio(ScriptStateBase& state)
         {
-            state.registerUsertype<ProfileHandle>("SoundProfileHandle");
+            /*state.registerUsertype<ProfileHandle>("SoundProfileHandle");
 
             state.registerUsertype<AudioManager>("AudioManager",
                                             "initMusic", &AudioManager::initMusic,
@@ -75,7 +75,7 @@ namespace ungod
                                                         "loadMusic", &MusicEmitterMixer::loadMusic,
                                                         "setDistanceCap", &MusicEmitterMixer::setDistanceCap,
                                                         "setEmitterActive", &MusicEmitterMixer::setEmitterActive,
-                                                        "setEmitterVolume", &MusicEmitterMixer::setEmitterVolume);
+                                                        "setEmitterVolume", &MusicEmitterMixer::setEmitterVolume); */
         }
     }
 }

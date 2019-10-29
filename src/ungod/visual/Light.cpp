@@ -983,9 +983,10 @@ namespace ungod
         mContentsChangedSignal(e, static_cast<sf::IntRect>(se.mLightCollider.getBoundingBox()));
     }
 
-    void LightSystem::setPointCount(ShadowEmitterComponent& se, std::size_t num)
+    void LightSystem::setPointCount(Entity e, ShadowEmitterComponent& se, std::size_t num)
     {
         se.mLightCollider.setPointCount(num);
+        mContentsChangedSignal(e, static_cast<sf::IntRect>(se.mLightCollider.getBoundingBox()));
     }
 
     void LightSystem::setPoints(Entity e, const std::vector<sf::Vector2f>& points)

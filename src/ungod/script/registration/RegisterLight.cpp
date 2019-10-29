@@ -33,7 +33,7 @@ namespace ungod
     {
         void registerLight(ScriptStateBase& state)
         {
-			state.registerFunction("LightFlickering",
+			/*state.registerFunction("LightFlickering",
 				[](float period, float strength) -> std::function<void(float, LightEmitterComponent&)>
 				{ return LightFlickering(period, strength); });
 
@@ -115,7 +115,7 @@ namespace ungod
                                                                     { ls.setAffectorCallback(e, lightIndex, affectorIndex, callback); } ),
                                                         "getLowerBound", &LightSystem::getLowerBound,
                                                         "getUpperBound", &LightSystem::getUpperBound
-                                                      );
+                                                      ); */
         }
     }
 }

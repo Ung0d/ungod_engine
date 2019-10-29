@@ -34,7 +34,7 @@ namespace ungod
         void registerGui(ScriptStateBase& state)
         {
             //register utility stuff
-            state.registerUsertype<tgui::Layout2d>("Layout2d");
+            /*state.registerUsertype<tgui::Layout2d>("Layout2d");
 
             state.registerFunction("layout", [] (const std::string& x, const std::string& y) -> tgui::Layout2d { return tgui::Layout2d(x,y); } );
 
@@ -167,7 +167,7 @@ namespace ungod
                                                             "setVisible", &tgui::Widget::setVisible,
                                                             "hideWithEffect", [] (tgui::Widget& widget, tgui::ShowAnimationType type, int32_t durationInMs) { widget.hideWithEffect(type, sf::milliseconds(durationInMs)); },
                                                             "showWithEffect", [] (tgui::Widget& widget, tgui::ShowAnimationType type, int32_t durationInMs) { widget.showWithEffect(type, sf::milliseconds(durationInMs)); });
-
+*/
             //container (base for certain widgets)
             /*state.registerUsertype<tgui::Container>("Container",
                                                                 "add", sol::overload( [] (tgui::Container& cont, const tgui::Widget::Ptr& widget, const std::string& name) { cont.add(widget, name); },
@@ -206,7 +206,7 @@ namespace ungod
                                                                                       [] (tgui::Group& g, float x, float y) { g.setSize({x,y}); },
                                                                                       [] (tgui::Group& g, const tgui::Layout2d& layout) { g.setSize(layout); }),
                                                           sol::base_classes, sol::bases<tgui::Container, tgui::Widget>());*/
-
+/*
             //button
             state.registerFunction("createButton", []() { return tgui::Button::create(); });
             state.registerUsertype<tgui::Button>("Button",
@@ -391,7 +391,7 @@ namespace ungod
                                                             "setTitleAlignment", &tgui::ChildWindow::setTitleAlignment ,
                                                             "setResizable", &tgui::ChildWindow::setResizable ,
                                                             "getFullSize", &tgui::ChildWindow::getFullSize,
-                                                            sol::base_classes, sol::bases<tgui::Container, tgui::Widget>());
+                                                            sol::base_classes, sol::bases<tgui::Container, tgui::Widget>()); */
         }
     }
 }

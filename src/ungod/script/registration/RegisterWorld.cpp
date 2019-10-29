@@ -49,7 +49,7 @@ namespace ungod
     {
         void registerWorld(ScriptStateBase& state, Application& app)
         {
-            state.registerUsertype<World>("World",
+            /*state.registerUsertype<World>("World",
                                        "init", &World::initSpace,
                                        // Factory methods to produce single entities.
                                        "createEntity", sol::overload([](World& world) { return world.create(EntityBaseComponents(), EntityOptionalComponents()); },
@@ -143,7 +143,7 @@ namespace ungod
                         registerLight(state);
                         registerBehavior(state);
                         registerParticleSystem(state);
-                        registerParentChild(state);
+                        registerParentChild(state); */
         }
     }
 }

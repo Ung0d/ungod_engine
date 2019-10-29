@@ -36,7 +36,7 @@ namespace ungod
     {
         void registerTileMap(ScriptStateBase& state, Application& app)
         {
-            state.registerUsertype<Tile>("Tile", "getTileID", &Tile::getTileID, "getMaterialID", &Tile::getMaterialID);
+           /* state.registerUsertype<Tile>("Tile", "getTileID", &Tile::getTileID, "getMaterialID", &Tile::getMaterialID);
 
             state.registerUsertype<TileMap>("TileMap",
                                            "setTiles", sol::overload(
@@ -98,7 +98,7 @@ namespace ungod
             state.registerUsertype<TileMapComponent>("TileMapComponent", "getTileMap", &TileMapComponent::getTileMap);
             state.registerUsertype<WaterComponent>("WaterComponent", "getWater", &WaterComponent::getWater);
 
-            state.registerFunction("floodFill", &floodFill);
+            state.registerFunction("floodFill", &floodFill); */
         }
     }
 }

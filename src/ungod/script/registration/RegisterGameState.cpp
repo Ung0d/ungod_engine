@@ -33,7 +33,7 @@ namespace ungod
     {
         void registerGameState(ScriptStateBase& state)
         {
-            state.registerUsertype<ScriptedGameState>("ScriptedGameState",
+           /* state.registerUsertype<ScriptedGameState>("ScriptedGameState",
                                                             "addWorld", sol::overload( [] (ScriptedGameState& state, std::size_t i) { return state.addWorld(i); },
                                                                                         [] (ScriptedGameState& state) { return state.addWorld(); }),
                                                             "camera", [] (ScriptedGameState& state) -> Camera& { return state.getCamera(); },
@@ -48,7 +48,7 @@ namespace ungod
                                                                 { return static_cast<World*>(sgs.getLayers().getVector().at(i).first.get()); },
                                                                 [] (ScriptedGameState& sgs, const std::string& name)
                                                                 { return static_cast<World*>(sgs.getLayers().getLayer(name)); }),
-                                                            sol::base_classes, sol::bases<State>());
+                                                            sol::base_classes, sol::bases<State>()); */
         }
     }
 }

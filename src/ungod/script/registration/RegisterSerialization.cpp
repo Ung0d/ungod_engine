@@ -33,7 +33,7 @@ namespace ungod
     {
         void registerSerialization(ScriptStateBase& state)
         {
-            state.registerUsertype<MetaAttribute>("MetaAttribute",
+            /*state.registerUsertype<MetaAttribute>("MetaAttribute",
                                                  "next", sol::overload([] (MetaAttribute& attr) { return attr.next(); },
                                                                        [] (MetaAttribute& attr, const std::string& name) { return attr.next(name.c_str()); }),
                                                  "name", &MetaAttribute::name,
@@ -98,7 +98,7 @@ namespace ungod
                                                    "isLoaded", &MetaTable::isLoaded,
                                                    "getNodeAt", &MetaTable::getNodeAt,
                                                    "getInnerSize", &MetaTable::getInnerSize,
-                                                   "getOuterSize", &MetaTable::getOuterSize);
+                                                   "getOuterSize", &MetaTable::getOuterSize); */
 
 
         }

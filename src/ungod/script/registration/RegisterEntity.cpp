@@ -33,7 +33,7 @@ namespace ungod
     {
         void registerEntity(ScriptStateBase& state)
         {
-            state.registerUsertype<Entity>("Entity",
+           /* state.registerUsertype<Entity>("Entity",
                                         "valid", &Entity::valid,
                                         "isSolid", &Entity::isSolid,
                                         "isStatic", &Entity::isStatic,
@@ -180,7 +180,7 @@ namespace ungod
                                             "MultiVisualAffetor",[] (Rem& e) { e.rem<MultiVisualAffectorComponent>(); },
                                             "TileMap",[] (Rem& e) { e.rem<TileMapComponent>(); },
                                             "Water",[] (Rem& e) { e.rem<WaterComponent>(); },
-                                            "ParticleSystem",[] (Rem& e) { e.rem<ParticleSystemComponent>(); });
+                                            "ParticleSystem",[] (Rem& e) { e.rem<ParticleSystemComponent>(); }); */
         }
     }
 }

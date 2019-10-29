@@ -394,11 +394,11 @@ namespace ungod
         inline void setPoint(Entity e, const sf::Vector2f& point, std::size_t pointIndex, std::size_t colliderIndex)  { setPoint(e.modify<MultiShadowEmitter>().getComponent(colliderIndex), e, point, pointIndex); }
 
         /** \brief Initializes a given number of edge-points. They have to be set via setPoint(..) */
-        inline void setPointCount(Entity e, std::size_t num) { setPointCount(e.modify<ShadowEmitterComponent>(), num); }
-        void setPointCount(ShadowEmitterComponent& se, std::size_t num);
+        inline void setPointCount(Entity e, std::size_t num) { setPointCount(e, e.modify<ShadowEmitterComponent>(), num); }
+        void setPointCount(Entity e, ShadowEmitterComponent& se, std::size_t num);
 
         /** \brief Initializes a given number of edge-points. They have to be set via setPoint(..) */
-        inline void setPointCount(Entity e, std::size_t num, std::size_t colliderIndex) { setPointCount(e.modify<MultiShadowEmitter>().getComponent(colliderIndex), num); }
+        inline void setPointCount(Entity e, std::size_t num, std::size_t colliderIndex) { setPointCount(e, e.modify<MultiShadowEmitter>().getComponent(colliderIndex), num); }
 
         /** \brief Sets the whole coordinate-set of the of the LightCollider. Requires ShadowEmitter component. */
         void setPoints(Entity e, const std::vector<sf::Vector2f>& points);
@@ -430,6 +430,8 @@ namespace ungod
 
         /** \brief Sets the affector for a MultiLightEmitter-component and MultiLightEmitter-component. */
         void setAffectorCallback(Entity e, std::size_t lightIndex, std::size_t affectorIndex, const std::function<void(float, LightEmitterComponent&)>& callback);
+
+        void setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, LightAffectorComponent& affector, LightEmitterComponent& emitter);
 
         /** \brief Loads a custom texture for the light emitter of the entity. */
         inline void loadLightTexture(Entity e, const std::string& textureID) { loadLightTexture(e.modify<LightEmitterComponent>(), textureID); }
@@ -471,7 +473,6 @@ namespace ungod
         owls::SignalLink<void, const sf::Vector2u&> mAppSignalLink;
 
     private:
-        void setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, LightAffectorComponent& affector, LightEmitterComponent& emitter);
         void renderLight(sf::RenderTarget& target, sf::RenderStates states, Entity e, TransformComponent& lightTransf, LightEmitterComponent& light);
     };
 }

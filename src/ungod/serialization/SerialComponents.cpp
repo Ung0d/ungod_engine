@@ -606,7 +606,7 @@ namespace ungod
     {
         auto result = deserializer.getAttributes<bool, std::size_t>( {"light_over_shape", false}, {"point_count", 0u});
         world.getLightSystem().setLightOverShape(data, std::get<0>(result));
-        world.getLightSystem().setPointCount(data, std::get<1>(result));
+        world.getLightSystem().setPointCount(e, data, std::get<1>(result));
         std::size_t i = 0;
         forEachSubnode(deserializer, [&] (MetaNode sub)
         {

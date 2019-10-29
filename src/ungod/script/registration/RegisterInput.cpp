@@ -35,7 +35,7 @@ namespace ungod
     {
         void registerInput(ScriptStateBase& state)
         {
-            state.registerEnum("InputType",
+            /*state.registerEnum("InputType",
                                      "MouseInput", InputHandler::MOUSE_INPUT,
                                      "KeyboardInput", InputHandler::KEYBOARD_INPUT);
 
@@ -68,7 +68,7 @@ namespace ungod
                                      "Right", sf::Keyboard::Right, "Left", sf::Keyboard::Left, "Up", sf::Keyboard::Up, "Down", sf::Keyboard::Down,
                                      "F1", sf::Keyboard::F1, "F2", sf::Keyboard::F2, "F3", sf::Keyboard::F3, "F4", sf::Keyboard::F4,
                                      "F5", sf::Keyboard::F5, "F6", sf::Keyboard::F6, "F7", sf::Keyboard::F7, "F8", sf::Keyboard::F8,
-                                     "F9", sf::Keyboard::F9, "F10", sf::Keyboard::F10, "F11", sf::Keyboard::F11, "F12", sf::Keyboard::F12 );
+                                     "F9", sf::Keyboard::F9, "F10", sf::Keyboard::F10, "F11", sf::Keyboard::F11, "F12", sf::Keyboard::F12 ); */
         }
     }
 }

@@ -32,7 +32,7 @@ namespace ungod
     {
         void registerTransform(ScriptStateBase& state)
         {
-            state.registerUsertype<TransformComponent>("Transform",
+            /*state.registerUsertype<TransformComponent>("Transform",
                                                     "isPlane", &TransformComponent::isPlane,
                                                     "getSize", &TransformComponent::getSize,
                                                     "getPosition", &TransformComponent::getPosition,
@@ -50,7 +50,7 @@ namespace ungod
                                                            "setScale", sol::overload( [] (TransformManager& tm, Entity e, float scale) { tm.setScale(e, scale); },
                                                                                       [] (TransformManager& tm, Entity e, const sf::Vector2f& scale) { tm.setScale(e, scale); }),
                                                            "move", sol::overload( [] (TransformManager& tm, Entity e, float x, float y) { tm.move(e, {x,y}); },
-                                                                                  [] (TransformManager& tm, Entity e, const sf::Vector2f& pos) { tm.move(e, pos); }));
+                                                                                  [] (TransformManager& tm, Entity e, const sf::Vector2f& pos) { tm.move(e, pos); })); */
         }
     }
 }
