@@ -36,7 +36,7 @@ namespace ungod
     {
         void registerApplication(ScriptStateBase& state, Application& app)
         {
-            /*state.registerUsertype<State>("State",
+            state.registerUsertype<State>("State",
                                    "isTransparent", &State::isTransparent,
                                    "isTranscendent", &State::isTranscendent,
                                    "setTransparency", &State::setTransparency,
@@ -95,7 +95,7 @@ namespace ungod
 
             state.registerFunction("randFloat", [&app](float bot, float top) { return ungod::NumberGenerator::getFloatRandBetw(bot, top); });
             state.registerFunction("randInt", [](int bot, int top) { return ungod::NumberGenerator::getRandBetw(bot, top); });
-            state.registerFunction("normRand", [](float mu, float rho) { return ungod::NumberGenerator::getNormRand(mu, rho); });*/
+            state.registerFunction("normRand", [](float mu, float rho) { return ungod::NumberGenerator::getNormRand(mu, rho); });
         }
     }
 }

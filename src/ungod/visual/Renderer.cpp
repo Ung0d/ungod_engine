@@ -31,7 +31,7 @@
 namespace ungod
 {
     Renderer::Renderer(World& world, VisualsManager& visualsmanager) :
-        mWorld(&world), mVisualsManager(&visualsmanager) {}
+        mWorld(&world), mVisualsManager(&visualsmanager), mFirstNonePlane(0) {}
 
 
     void Renderer::renewRenderlist(sf::RenderTarget& target, quad::PullResult<Entity>& pull) const
@@ -271,38 +271,97 @@ namespace ungod
         dom::Utility<Entity>::iterate<TransformComponent, VisualsComponent>(pull.getList(),
           [this, &target, &states] (Entity e, TransformComponent& transf, VisualsComponent& vis)
           {
-              if (vis.isHiddenForCamera())
+              if (!transf.isPlane())
               {
-                  sf::Vector2f camCenter = target.mapPixelToCoords( sf::Vector2i(target.getSize().x/2, target.getSize().y/2) );
-                  if (transf.getBounds().contains(camCenter))
+                  if (vis.isHiddenForCamera())
                   {
-                      sf::FloatRect innerRect = transf.getBounds();
-                      innerRect.left += transf.getSize().x*INNER_RECT_PERCENTAGE;
-                      innerRect.top += transf.getSize().y*INNER_RECT_PERCENTAGE;
-                      innerRect.width -= 2*transf.getSize().x*INNER_RECT_PERCENTAGE;
-                      innerRect.height -= 2*transf.getSize().y*INNER_RECT_PERCENTAGE;
-                      if (innerRect.contains(camCenter))
+                      sf::Vector2f camCenter = target.mapPixelToCoords( sf::Vector2i(target.getSize().x/2, target.getSize().y/2) );
+                      if (transf.getBounds().contains(camCenter))
                       {
-                        mVisualsManager->componentOpacitySet(e, 0.0f);
-                      }
-                      else
-                      {
-                          sf::Vector2f centerDist = transf.getCenterPosition() - camCenter;
-                          float dx = std::abs(centerDist.x) - transf.getSize().x*(1.0f-2*INNER_RECT_PERCENTAGE)*0.5f;
-                          float dy = std::abs(centerDist.y) - transf.getSize().y*(1.0f-2*INNER_RECT_PERCENTAGE)*0.5f;
-                          float reducedOpac = std::max( dx/(transf.getSize().x*INNER_RECT_PERCENTAGE), dy/(transf.getSize().y*INNER_RECT_PERCENTAGE) );
-                          ungod::Logger::info(reducedOpac);
-                          ungod::Logger::endl();
-                          mVisualsManager->componentOpacitySet(e, reducedOpac);
+                          sf::FloatRect innerRect = transf.getBounds();
+                          innerRect.left += transf.getSize().x*INNER_RECT_PERCENTAGE;
+                          innerRect.top += transf.getSize().y*INNER_RECT_PERCENTAGE;
+                          innerRect.width -= 2*transf.getSize().x*INNER_RECT_PERCENTAGE;
+                          innerRect.height -= 2*transf.getSize().y*INNER_RECT_PERCENTAGE;
+                          if (innerRect.contains(camCenter))
+                          {
+                            mVisualsManager->componentOpacitySet(e, 0.0f);
+                          }
+                          else
+                          {
+                              sf::Vector2f centerDist = transf.getCenterPosition() - camCenter;
+                              float dx = std::abs(centerDist.x) - transf.getSize().x*(1.0f-2*INNER_RECT_PERCENTAGE)*0.5f;
+                              float dy = std::abs(centerDist.y) - transf.getSize().y*(1.0f-2*INNER_RECT_PERCENTAGE)*0.5f;
+                              float reducedOpac = std::max( dx/(transf.getSize().x*INNER_RECT_PERCENTAGE), dy/(transf.getSize().y*INNER_RECT_PERCENTAGE) );
+                              ungod::Logger::info(reducedOpac);
+                              ungod::Logger::endl();
+                              mVisualsManager->componentOpacitySet(e, reducedOpac);
+                          }
                       }
                   }
+
+                  renderEntity(e, transf, vis, target, states);
+
+                  if (vis.isHiddenForCamera())
+                  {
+                      mVisualsManager->componentOpacitySet(e, vis.getOpacity());
+                  }
               }
+          });
 
-              renderEntity(e, transf, vis, target, states);
-
-              if (vis.isHiddenForCamera())
+        //iterate over all entities with both Transform and BigSprite-component
+        dom::Utility<Entity>::iterate<TransformComponent, BigSpriteComponent>(pull.getList(),
+          [this, &target, &states] (Entity e, TransformComponent& transf, BigSpriteComponent& bs)
+          {
+              if (bs.isVisible() && bs.isLoaded())
               {
-                  mVisualsManager->componentOpacitySet(e, vis.getOpacity());
+                states.transform *= transf.getTransform();
+                target.draw(bs.mBigSprite, states);
+              }
+          });
+    }
+
+    void Renderer::renderPlanes(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const
+    {
+        //iterate over all entities with both Transform and Visuals-component
+        dom::Utility<Entity>::iterate<TransformComponent, VisualsComponent>(pull.getList(),
+          [this, &target, &states] (Entity e, TransformComponent& transf, VisualsComponent& vis)
+          {
+              if (transf.isPlane())
+              {
+                  if (vis.isHiddenForCamera())
+                  {
+                      sf::Vector2f camCenter = target.mapPixelToCoords( sf::Vector2i(target.getSize().x/2, target.getSize().y/2) );
+                      if (transf.getBounds().contains(camCenter))
+                      {
+                          sf::FloatRect innerRect = transf.getBounds();
+                          innerRect.left += transf.getSize().x*INNER_RECT_PERCENTAGE;
+                          innerRect.top += transf.getSize().y*INNER_RECT_PERCENTAGE;
+                          innerRect.width -= 2*transf.getSize().x*INNER_RECT_PERCENTAGE;
+                          innerRect.height -= 2*transf.getSize().y*INNER_RECT_PERCENTAGE;
+                          if (innerRect.contains(camCenter))
+                          {
+                            mVisualsManager->componentOpacitySet(e, 0.0f);
+                          }
+                          else
+                          {
+                              sf::Vector2f centerDist = transf.getCenterPosition() - camCenter;
+                              float dx = std::abs(centerDist.x) - transf.getSize().x*(1.0f-2*INNER_RECT_PERCENTAGE)*0.5f;
+                              float dy = std::abs(centerDist.y) - transf.getSize().y*(1.0f-2*INNER_RECT_PERCENTAGE)*0.5f;
+                              float reducedOpac = std::max( dx/(transf.getSize().x*INNER_RECT_PERCENTAGE), dy/(transf.getSize().y*INNER_RECT_PERCENTAGE) );
+                              ungod::Logger::info(reducedOpac);
+                              ungod::Logger::endl();
+                              mVisualsManager->componentOpacitySet(e, reducedOpac);
+                          }
+                      }
+                  }
+
+                  renderEntity(e, transf, vis, target, states);
+
+                  if (vis.isHiddenForCamera())
+                  {
+                      mVisualsManager->componentOpacitySet(e, vis.getOpacity());
+                  }
               }
           });
 

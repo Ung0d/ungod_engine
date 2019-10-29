@@ -805,25 +805,25 @@ namespace ungod
         mLightOverShapeShader.setUniform("emissionTexture", mEmissionTexture.getTexture());
     }
 
-    void LightSystem::render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states)
+    void LightSystem::render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states, bool drawShadows)
     {
         mCompositionTexture.clear(mAmbientColor);
         mCompositionTexture.setView(mCompositionTexture.getDefaultView());
 
         //iterator over the one-light-components
         dom::Utility<Entity>::iterate<TransformComponent, LightEmitterComponent>(pull.getList(),
-          [this, &target, &states] (Entity e, TransformComponent& lightTransf, LightEmitterComponent& light)
+          [this, &target, &states, drawShadows] (Entity e, TransformComponent& lightTransf, LightEmitterComponent& light)
           {
-              renderLight(target, states, e, lightTransf, light);
+              renderLight(target, states, e, lightTransf, light, drawShadows);
           });
 
         //iterate over the multiple-light-components
         dom::Utility<Entity>::iterate<TransformComponent, MultiLightEmitter>(pull.getList(),
-          [this, &target, &states] (Entity e, TransformComponent& lightTransf, MultiLightEmitter& light)
+          [this, &target, &states, drawShadows] (Entity e, TransformComponent& lightTransf, MultiLightEmitter& light)
           {
               for (std::size_t i = 0; i < light.getComponentCount(); ++i)
               {
-                renderLight(target, states, e, lightTransf, light.getComponent(i));
+                renderLight(target, states, e, lightTransf, light.getComponent(i), drawShadows);
               }
           });
 
@@ -840,7 +840,7 @@ namespace ungod
     }
 
 
-    void LightSystem::renderLight(sf::RenderTarget& target, sf::RenderStates states, Entity e, TransformComponent& lightTransf, LightEmitterComponent& light)
+    void LightSystem::renderLight(sf::RenderTarget& target, sf::RenderStates states, Entity e, TransformComponent& lightTransf, LightEmitterComponent& light, bool drawShadows)
     {
         //pull all entities near the light
         quad::PullResult<Entity> shadowsPull;
@@ -850,29 +850,32 @@ namespace ungod
 
         std::vector< std::pair<LightCollider*, TransformComponent*> > colliders;
 
-        //find the entities with light-colliders that are on the screen
-        dom::Utility<Entity>::iterate<TransformComponent, ShadowEmitterComponent>(shadowsPull.getList(),
-        [this, &colliders, &light, &lightTransf] (Entity e, TransformComponent& colliderTransf, ShadowEmitterComponent& shadow)
+        if (drawShadows)
         {
-            sf::FloatRect colliderBounds = colliderTransf.getTransform().transformRect( shadow.mLightCollider.getBoundingBox() );
-            sf::FloatRect lightBounds = lightTransf.getTransform().transformRect( light.mLight.getBoundingBox() );
-            //test if the collider is "in range" of the light. Do not render penumbras otherwise
-            if ( colliderBounds.intersects(lightBounds) )
-                colliders.emplace_back( &shadow.mLightCollider, &colliderTransf );
-        });
-
-        dom::Utility<Entity>::iterate<TransformComponent, MultiShadowEmitter>(shadowsPull.getList(),
-        [this, &colliders, &light, &lightTransf] (Entity e, TransformComponent& colliderTransf, MultiShadowEmitter& shadow)
-        {
-            for (std::size_t i = 0; i < shadow.getComponentCount(); ++i)
+            //find the entities with light-colliders that are on the screen
+            dom::Utility<Entity>::iterate<TransformComponent, ShadowEmitterComponent>(shadowsPull.getList(),
+            [this, &colliders, &light, &lightTransf] (Entity e, TransformComponent& colliderTransf, ShadowEmitterComponent& shadow)
             {
-                sf::FloatRect colliderBounds = colliderTransf.getTransform().transformRect( shadow.getComponent(i).mLightCollider.getBoundingBox() );
+                sf::FloatRect colliderBounds = colliderTransf.getTransform().transformRect( shadow.mLightCollider.getBoundingBox() );
                 sf::FloatRect lightBounds = lightTransf.getTransform().transformRect( light.mLight.getBoundingBox() );
                 //test if the collider is "in range" of the light. Do not render penumbras otherwise
                 if ( colliderBounds.intersects(lightBounds) )
-                    colliders.emplace_back( &shadow.getComponent(i).mLightCollider, &colliderTransf );
-            }
-        });
+                    colliders.emplace_back( &shadow.mLightCollider, &colliderTransf );
+            });
+
+            dom::Utility<Entity>::iterate<TransformComponent, MultiShadowEmitter>(shadowsPull.getList(),
+            [this, &colliders, &light, &lightTransf] (Entity e, TransformComponent& colliderTransf, MultiShadowEmitter& shadow)
+            {
+                for (std::size_t i = 0; i < shadow.getComponentCount(); ++i)
+                {
+                    sf::FloatRect colliderBounds = colliderTransf.getTransform().transformRect( shadow.getComponent(i).mLightCollider.getBoundingBox() );
+                    sf::FloatRect lightBounds = lightTransf.getTransform().transformRect( light.mLight.getBoundingBox() );
+                    //test if the collider is "in range" of the light. Do not render penumbras otherwise
+                    if ( colliderBounds.intersects(lightBounds) )
+                        colliders.emplace_back( &shadow.getComponent(i).mLightCollider, &colliderTransf );
+                }
+            });
+        }
 
         //render the light and the colliders, draw umbras, penumbras + antumbras
         light.mLight.render(target.getView(), mLightTexture, mEmissionTexture, mAntumbraTexture,

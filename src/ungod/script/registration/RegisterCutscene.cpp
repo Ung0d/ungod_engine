@@ -32,7 +32,7 @@ namespace ungod
     {
         void registerCutscene(ScriptStateBase& state)
         {
-               /* state.registerUsertype<Cutscene>("Cutscene",
+                state.registerUsertype<Cutscene>("Cutscene",
                                                     "addScene", &Cutscene::addScene,
                                                     "play", &Cutscene::play,
                                                     "isPlaying", &Cutscene::isPlaying,
@@ -51,7 +51,7 @@ namespace ungod
                                                     "setTextFillColor", &Scene::setText,
                                                     "setTextOutlineColor", &Scene::setTextPosition,
                                                     "setTextSize", &Scene::setTextSize
-                                                    );*/
+                                                    );
         }
     }
 }

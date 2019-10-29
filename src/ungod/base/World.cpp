@@ -217,13 +217,20 @@ namespace ungod
     bool World::render(sf::RenderTarget& target, sf::RenderStates states)
     {
         mTileMapRenderer.render(target, states, *this);
+
+
         mRenderedEntities.getList().clear();
         mRenderer.renewRenderlist(target, mRenderedEntities);
+
+        mRenderer.renderPlanes(mRenderedEntities, target, states);
+
+        if (mRenderLight)
+            mLightSystem.render(mRenderedEntities, target, states);
 
         mRenderer.render(mRenderedEntities, target, states);
 
         if (mRenderLight)
-            mLightSystem.render(mRenderedEntities, target, states);
+            mLightSystem.render(mRenderedEntities, target, states, false);
 
         return true; //todo meaningful return value
     }

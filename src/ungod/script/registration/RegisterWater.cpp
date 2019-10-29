@@ -33,7 +33,7 @@ namespace ungod
     {
         void registerWater(ScriptStateBase& state, Application& app)
         {
-             /*state.registerUsertype<Water>("Water",
+             state.registerUsertype<Water>("Water",
                                           "setTiles", sol::overload(
                                            [] (Water& water, script::Environment tiles, script::Environment materials, std::size_t mapX, std::size_t mapY)
                                            {
@@ -73,7 +73,7 @@ namespace ungod
                                            "setReflections", &Water::setReflections,
                                            "setDistortionFactor", &Water::setDistortionFactor,
                                            "setFlowFactor", &Water::setFlowFactor,
-                                           "setReflectionOpacity", &Water::setReflectionOpacity); */
+                                           "setReflectionOpacity", &Water::setReflectionOpacity);
         }
     }
 }

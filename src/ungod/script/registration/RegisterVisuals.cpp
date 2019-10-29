@@ -36,7 +36,7 @@ namespace ungod
     {
         void registerVisuals(ScriptStateBase& state, Application& app)
         {
-            /*state.registerUsertype<VisualsComponent>("Visuals",
+            state.registerUsertype<VisualsComponent>("Visuals",
                                                   "isLoaded", &VisualsComponent::isLoaded,
                                                   "isVisible", &VisualsComponent::isVisible,
                                                   "getOpacity", &VisualsComponent::getOpacity);
@@ -159,7 +159,7 @@ namespace ungod
 
             state.registerFunction("screenShake", sol::overload( &Camera::makeScreenShake, []() { return Camera::makeScreenShake(750, 60, 10); } ));
 
-            state.registerFunction("smoothZoom", &Camera::makeSmoothZoom); */
+            state.registerFunction("smoothZoom", &Camera::makeSmoothZoom);
         }
     }
 }

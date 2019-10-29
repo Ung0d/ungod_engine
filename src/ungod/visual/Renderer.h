@@ -49,8 +49,11 @@ namespace ungod
         /** \brief Computes a new list of entities that are on the given given render target. */
         void renewRenderlist(sf::RenderTarget& target, quad::PullResult<Entity>& pull) const;
 
-        /** \brief Draws the internal list of entities that must have a Transform and a Visual component. */
+        /** \brief Draws the internal list of entities that must have a Transform and a Visual component and that are non-plane. */
         void render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const;
+
+        /** \brief Draws all plane entities in the internal render list. */
+        void renderPlanes(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const;
 
         /** \brief Draws the bounding boxes of all entities in the internal render-list. */
         void renderBounds(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const;
@@ -102,6 +105,7 @@ namespace ungod
     private:
         World* mWorld;
         VisualsManager* mVisualsManager;
+        unsigned mFirstNonePlane;
 
         static constexpr float INNER_RECT_PERCENTAGE = 0.1f;
 

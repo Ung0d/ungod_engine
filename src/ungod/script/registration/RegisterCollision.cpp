@@ -32,7 +32,7 @@ namespace ungod
     {
         void registerRigidbody(ScriptStateBase& state)
         {
-            /*
+
             state.registerUsertype<Collider>("Collider",
                                                    sol::constructors<Collider(const sf::Vector2f& upleft, const sf::Vector2f& downright), Collider(const sf::Vector2f& upleft, const sf::Vector2f& downright, float rotation)>(),
                                                    "getUpleft", &Collider::getUpleft,
@@ -62,7 +62,7 @@ namespace ungod
                                                            "setMovementCollisionActive", &RigidbodyManager::setActive<MOVEMENT_COLLISION_CONTEXT>,
                                                            "setSemanticsCollisionActive", &RigidbodyManager::setActive<SEMANTICS_COLLISION_CONTEXT>,
                                                            "getLowerBound", &RigidbodyManager::getLowerBound,
-                                                           "getUpperBound", &RigidbodyManager::getUpperBound );*/
+                                                           "getUpperBound", &RigidbodyManager::getUpperBound );
         }
     }
 }

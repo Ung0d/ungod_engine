@@ -337,7 +337,7 @@ namespace ungod
         void setImageSize(const sf::Vector2u &imageSize);
 
         /** \brief Renders lights and lightcolliders of a list of entities. */
-        void render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states);
+        void render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states, bool drawShadows = true);
 
         /** \brief Updates LightAffectors. */
         void update(const std::list<Entity>& entities, float delta);
@@ -473,7 +473,7 @@ namespace ungod
         owls::SignalLink<void, const sf::Vector2u&> mAppSignalLink;
 
     private:
-        void renderLight(sf::RenderTarget& target, sf::RenderStates states, Entity e, TransformComponent& lightTransf, LightEmitterComponent& light);
+        void renderLight(sf::RenderTarget& target, sf::RenderStates states, Entity e, TransformComponent& lightTransf, LightEmitterComponent& light, bool drawShadows);
     };
 }
 
