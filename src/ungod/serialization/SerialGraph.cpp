@@ -44,14 +44,10 @@ namespace ungod
     {
         context.serializeProperty("v", data.getVertexCount(), serializer);
         std::vector< graph::EdgeInstantiator > edges;
-        edges.resize(data.getEdgeCount());
+        edges.reserve(data.getEdgeCount());
         for (std::size_t i = 0; i < data.getVertexCount(); ++i)
-        {
             for (const auto& e : data.getNeighbors(i))
-            {
-                edges[e.index] = {i, e.destination};
-            }
-        }
+                edges.emplace_back(i, e.destination);
         context.serializeObjectContainer("e", edges, serializer);
     }
 

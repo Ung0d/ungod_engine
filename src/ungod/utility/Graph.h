@@ -30,8 +30,10 @@
 #include <vector>
 #include <queue>
 #include <limits>
+#include <list>
 
 #include "ungod/serialization/Serializable.h"
+#include "owls/Signal.h"
 
 namespace ungod
 {
@@ -48,10 +50,9 @@ namespace ungod
         struct ALEdge
         {
         public:
-            ALEdge(std::size_t cDestination, std::size_t cIndex) : destination(cDestination), index(cIndex) {}
+            ALEdge(std::size_t cDestination) : destination(cDestination) {}
 
             std::size_t destination;
-            std::size_t index;
         };
 
         /** \brief An undirected graph represented through adjacency lists. */
@@ -77,11 +78,60 @@ namespace ungod
             std::size_t getEdgeCount() const { return mNumEdges; }
 
             /** \brief Returns a vector of neighbors for the given vertex. */
-            const std::vector<ALEdge>& getNeighbors(std::size_t i) const { return mAdjacencies[i]; }
+            const std::list<ALEdge>& getNeighbors(std::size_t i) const { return mAdjacencies[i]; }
+
+            /** \brief Sets a new vertex count. If less than previous, all dead edges are also removed. */
+            void setVertexCount(unsigned n);
+
+            /** \brief Adds an edge between nodes i and j. */
+            void addEdge(unsigned i, unsigned j);
+
+            /** \brief Removes the edge between nodes i and j if existing. */
+            void removeEdge(unsigned i, unsigned j);
 
         private:
             std::size_t mNumEdges;
-            std::vector< std::vector<ALEdge> > mAdjacencies;
+            std::vector< std::list<ALEdge> > mAdjacencies;
+        };
+
+
+        /** \brief Algorithm object that invokes BFS on the given graph. */
+        class BFS
+        {
+        public:
+            struct VertexProperties
+            {
+                void reset(unsigned index);
+
+                bool visited;
+                unsigned prev;
+                unsigned distance;
+            };
+
+        public:
+            /** \brief Initializes the algorithm object with the data it operates on. */
+            BFS(const UndirectedAdjacencyLists& al)  :
+                mAdjacencyLists(al)
+            {
+                mVertexProperties.reserve(al.getVertexCount());
+            }
+
+            /** \brief Runs the algorithm. Overrides the results of the previous call to run. */
+            void run(unsigned start, unsigned distanceCap = std::numeric_limits<unsigned>::infinity());
+
+            /** \brief Accesses the calculated properties of the given vertex. */
+            const VertexProperties& getProperties(unsigned i) const { return mVertexProperties[i]; }
+
+            /** \brief Connects a callback to the "onNodeDiscovered" event. */
+            inline decltype(auto) onNodeDiscovered(const std::function<void(unsigned)>& callback)
+            {
+                return mOnNodeDiscovered.connect(callback);
+            }
+
+        private:
+            const UndirectedAdjacencyLists& mAdjacencyLists;
+            std::vector<VertexProperties> mVertexProperties;
+            owls::Signal<unsigned> mOnNodeDiscovered;
         };
 
 
@@ -143,14 +193,9 @@ namespace ungod
         {
             mAdjacencies.resize(numVertex);
             mNumEdges = std::distance(beginEdges, endEdges);
-            std::size_t edgeIndex = 0;
             for (;beginEdges != endEdges; ++beginEdges)
-            {
-                mAdjacencies[beginEdges->u].emplace_back(beginEdges->v, edgeIndex);
-                mAdjacencies[beginEdges->v].emplace_back(beginEdges->u, edgeIndex++);
-            }
+                addEdge(beginEdges->u, beginEdges->v);
         }
-
 
 
 

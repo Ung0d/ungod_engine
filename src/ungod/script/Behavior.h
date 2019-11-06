@@ -321,9 +321,12 @@ namespace ungod
 
         /** \brief Registers a new usertype. */
         template<typename CLASS, typename ... ARGS>
-        void registerUsertype(const std::string& name, ARGS&&... args);
+        script::Usertype<CLASS> registerUsertype(const std::string& name, ARGS&&... args);
 
         /** \brief Registers a new enum. */
+        template<typename T>
+        void registerEnum(const std::string& name, std::initializer_list<std::pair<sol::string_view, T>> items);
+
         template<typename ... ARGS>
         void registerEnum(const std::string& name, ARGS&&... args);
 
@@ -712,9 +715,15 @@ namespace ungod
 
 
     template<typename CLASS, typename ... ARGS>
-    void ScriptStateBase::registerUsertype(const std::string& name, ARGS&&... args)
+    script::Usertype<CLASS> ScriptStateBase::registerUsertype(const std::string& name, ARGS&&... args)
     {
-        mScriptState->new_usertype<CLASS>(name, std::forward<ARGS>(args)...);
+        return mScriptState->new_usertype<CLASS>(name, std::forward<ARGS>(args)...);
+    }
+
+    template<typename T>
+    void ScriptStateBase::registerEnum(const std::string& name, std::initializer_list<std::pair<sol::string_view, T>> items)
+    {
+        mMainEnv.new_enum<T>(name, std::forward<std::initializer_list<std::pair<sol::string_view, T>>>(items));
     }
 
     template<typename ... ARGS>

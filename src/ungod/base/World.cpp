@@ -161,6 +161,7 @@ namespace ungod
     void World::initSpace(float x, float y, float width, float height)
     {
         mQuadTree.setBoundary( {x,y,width, height} );
+        mOnSpaceChanged(sf::FloatRect{x,y,width,height});
     }
 
     void World::update(float delta, const sf::Vector2f& areaPosition, const sf::Vector2f& areaSize)
@@ -275,6 +276,12 @@ namespace ungod
     void World::handleCustomEvent(const CustomEvent& event)
     {
         mBehaviorManager.handleCustomEvent(event);
+    }
+
+    sf::FloatRect World::getBounds() const
+    {
+        quad::Bounds b = mQuadTree.getBoundary();
+        return sf::FloatRect{b.position.x, b.position.y, b.size.x, b.size.y};
     }
 
     dom::Universe<>& World::getUniverse()

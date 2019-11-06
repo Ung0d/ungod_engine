@@ -69,6 +69,12 @@ namespace ungod
         /** \brief Handles the given custom event. */
         virtual void handleCustomEvent(const CustomEvent& event) {}
 
+        /** \brief Returns the boundaries of the render layer not affected by render depth and transform. */
+        virtual sf::FloatRect getBounds() const = 0;
+
+        /** \brief Returns the boundaries of the render layer not affected by render depth. */
+        sf::FloatRect getTransformedBounds() const;
+
         virtual ~RenderLayer() {}
 
         /** \brief Sets the string identifier for the layer. */
@@ -101,6 +107,7 @@ namespace ungod
     friend class DeserialBehavior<RenderLayerContainer, const sf::RenderTarget&, ScriptedGameState&>;
     public:
         RenderLayerContainer(ungod::Camera& cam) : mCamera(cam) {}
+        RenderLayerContainer(const RenderLayerContainer&) = delete;
 
         bool render(sf::RenderTarget& target, sf::RenderStates states) const;
 
@@ -126,6 +133,8 @@ namespace ungod
         bool isActive(std::size_t i);
 
         RenderLayer* getLayer(const std::string& name) const;
+
+        void clearEverything();
 
     private:
         ungod::Camera& mCamera;

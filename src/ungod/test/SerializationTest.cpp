@@ -128,42 +128,41 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
         BOOST_CHECK_EQUAL(world.getEntityByName("cat").get<ungod::TransformComponent>().getPosition().x, 100.0f);
     }
     {
-        sf::RenderWindow window;
         ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 
-        ungod::World* world = state.addWorld();
+
+        ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "test_node", "test_output/renderlayers_sav.xml");
+
+        ungod::World* world = node.addWorld();
+        world->setName("test_node");
         world->instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
         world->initSpace(0,0,800,600);
 
-
-        ungod::World* world2 = state.addWorld();
+        ungod::World* world2 = node.addWorld();
         world2->instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
-        world2->initSpace(0,0,1000,800);
-        world2->setRenderDepth(4.0f);
+        world2->initSpace(800,600,1000,800);
 
-        ungod::SerializationContext context;
-        context.serializeRootObject(state);
-        context.save("test_output/renderlayers_sav.xml");
+        BOOST_CHECK(!node.isLoaded());
+        BOOST_CHECK(state.getWorldGraph().updateReferencePosition({1000.0f,1000.0f}));
+        BOOST_CHECK(node.isLoaded());
+
+        state.save("test_output/renderlayers_state_sav.xml", true);
     }
     {
-        sf::RenderWindow window;
         ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+        state.load("test_output/renderlayers_state_sav.xml");
 
-        ungod::DeserializationContext context;
-        context.read("test_output/renderlayers_sav.xml");
+        ungod::WorldGraphNode* node = state.getWorldGraph().getNode(sf::Vector2f{1000.0f,1000.0f});
+        BOOST_REQUIRE(node);
+        BOOST_CHECK(node->isLoaded());
 
-        context.deserializeRootObject(state);
-
-        BOOST_REQUIRE_EQUAL(state.getLayers().getVector().size(), 2u);
-
-        ungod::World* world = dynamic_cast<ungod::World*>(state.getLayers().getVector()[0].first.get());
+        ungod::World* world = node->getWorld(0);
         BOOST_REQUIRE(world);
-        ungod::World* world2 = dynamic_cast<ungod::World*>(state.getLayers().getVector()[1].first.get());
+        ungod::World* world2 = node->getWorld(1);
         BOOST_REQUIRE(world2);
 
-        BOOST_CHECK_EQUAL(800u, world->getQuadTree().getBoundary().size.x);
-        BOOST_CHECK_EQUAL(1000u, world2->getQuadTree().getBoundary().size.x);
-        BOOST_CHECK_EQUAL(world2->getRenderDepth(), 4.0f);
+        BOOST_CHECK_EQUAL(800u, world->getBounds().width);
+        BOOST_CHECK_EQUAL(1000u, world2->getBounds().width);
     }
 }
 
@@ -203,43 +202,15 @@ BOOST_AUTO_TEST_CASE( serial_graph_test )
         BOOST_CHECK_EQUAL(7u, graph.getVertexCount());
         BOOST_CHECK_EQUAL(8u, graph.getEdgeCount());
 
+
         for (const auto& e : graph.getNeighbors(0))
-        {
             BOOST_CHECK(e.destination == 1 || e.destination == 5);
-            switch (e.destination)
-            {
-            case 1:
-                BOOST_CHECK_EQUAL(0u, e.index);
-                break;
-            case 5:
-                BOOST_CHECK_EQUAL(4u, e.index);
-                break;
-            default:
-                break;
-            }
-        }
 
         for (const auto& e : graph.getNeighbors(2))
-        {
             BOOST_CHECK(e.destination == 1 || e.destination == 3);
-            switch (e.destination)
-            {
-            case 1:
-                BOOST_CHECK_EQUAL(1u, e.index);
-                break;
-            case 3:
-                BOOST_CHECK_EQUAL(2u, e.index);
-                break;
-            default:
-                break;
-            }
-        }
 
         for (const auto& e : graph.getNeighbors(4))
-        {
             BOOST_CHECK(e.destination == 3);
-            BOOST_CHECK_EQUAL(3u, e.index);
-        }
     }
 }
 

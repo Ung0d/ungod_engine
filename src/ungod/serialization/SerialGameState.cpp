@@ -32,14 +32,14 @@ namespace ungod
     void SerialBehavior<ScriptedGameState>::serialize(const ScriptedGameState& data, MetaNode serializer, SerializationContext& context)
     {
         context.serializeObject("c", data.mCamera, serializer);
-        context.serializeObject("l", data.mLayers, serializer, static_cast<const sf::RenderTarget&>(data.getApp()->getWindow()));
+        context.serializeObject("wg", data.mWorldGraph, serializer);
         context.serializeProperty("db", data.mRenderDebug, serializer);
     }
 
     void DeserialBehavior<ScriptedGameState>::deserialize(ScriptedGameState& data, MetaNode deserializer, DeserializationContext& context)
     {
         MetaAttribute attr = context.first(context.deserializeObject(data.mCamera, static_cast<sf::RenderTarget&>(data.getApp()->getWindow())), "c", deserializer);
-        attr = context.next(context.deserializeObject(data.mLayers, static_cast<const sf::RenderTarget&>(data.getApp()->getWindow()), data), "l", deserializer, attr);
+        attr = context.next(context.deserializeObject(data.mWorldGraph, data), "wg", deserializer, attr);
         context.next(context.deserializeProperty(data.mRenderDebug, false), "db", deserializer, attr);
     }
 }

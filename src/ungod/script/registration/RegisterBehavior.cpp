@@ -33,18 +33,19 @@ namespace ungod
     {
         void registerBehavior(ScriptStateBase& state)
         {
-            state.registerEnum("ScriptErrorCode",
-                                     "ScriptOK", ScriptErrorCode::SCRIPT_OK,
-                                     "ScriptNotFound", ScriptErrorCode::SCRIPT_NOT_FOUND,
-                                     "ScriptLoadError", ScriptErrorCode::SCRIPT_LOAD_ERROR,
-                                     "ScriptExecutionError", ScriptErrorCode::SCRIPT_EXECUTION_ERROR,
-                                     "ScriptAlreadyLoaded", ScriptErrorCode::SCRIPT_ALREADY_LOADED);
+            state.registerEnum<ScriptErrorCode>("ScriptErrorCode",
+                                     {{"ScriptOK", ScriptErrorCode::SCRIPT_OK},
+                                     {"ScriptNotFound", ScriptErrorCode::SCRIPT_NOT_FOUND},
+                                     {"ScriptLoadError", ScriptErrorCode::SCRIPT_LOAD_ERROR},
+                                     {"ScriptExecutionError", ScriptErrorCode::SCRIPT_EXECUTION_ERROR},
+                                     {"ScriptAlreadyLoaded", ScriptErrorCode::SCRIPT_ALREADY_LOADED}});
 
-           state.registerUsertype<EntityBehaviorComponent>("EntityBehavior",
-                                                         "hasValidEnvironment", &EntityBehaviorComponent::hasValidEnvironment,
-                                                         "hasValidStateEnvironment", &EntityBehaviorComponent::hasValidStateEnvironment,
-                                                         "getEnvironment", &EntityBehaviorComponent::getEnvironment,
-                                                         "getStateEnvironment", &EntityBehaviorComponent::getStateEnvironment);
+           script::Usertype<EntityBehaviorComponent> ebType = state.registerUsertype<EntityBehaviorComponent>("EntityBehavior");
+           ebType["hasValidEnvironment"] = &EntityBehaviorComponent::hasValidEnvironment,
+           ebType["hasValidStateEnvironment"] = &EntityBehaviorComponent::hasValidStateEnvironment,
+           ebType["getEnvironment"] = &EntityBehaviorComponent::getEnvironment,
+           ebType["getStateEnvironment"] = &EntityBehaviorComponent::getStateEnvironment;
+
 
             state.registerUsertype<EntityBehaviorManager>("EntityBehaviorManager",
                                                          "loadBehaviorScript", &EntityBehaviorManager::loadBehaviorScript,

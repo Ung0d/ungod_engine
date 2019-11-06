@@ -34,6 +34,8 @@ namespace ungod
     namespace script
     {
         using State = sol::state;
+        template<typename T>
+        using Usertype = sol::usertype<T>;
         using SharedState = std::shared_ptr<sol::state>;
         using StateRef = sol::state_view;
         using OptionalStateRef = sol::optional< StateRef >;

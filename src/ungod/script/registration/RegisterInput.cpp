@@ -35,9 +35,9 @@ namespace ungod
     {
         void registerInput(ScriptStateBase& state)
         {
-            state.registerEnum("InputType",
-                                     "MouseInput", InputHandler::MOUSE_INPUT,
-                                     "KeyboardInput", InputHandler::KEYBOARD_INPUT);
+            state.registerEnum<InputHandler::InputType>("InputType",
+                                     {{"MouseInput", InputHandler::InputType::MOUSE_INPUT},
+                                     {"KeyboardInput", InputHandler::InputType::KEYBOARD_INPUT}});
 
             state.registerUsertype<InputHandler>("InputHandler",
                                                        "loadBindings", &InputHandler::loadBindings,
@@ -47,28 +47,28 @@ namespace ungod
             state.registerUsertype<InputManager>("InputManager",
                                                        sol::base_classes, sol::bases<InputHandler>());
 
-            state.registerEnum("MouseButtons",
-                                     "Left", sf::Mouse::Left,
-                                     "Right", sf::Mouse::Right);
+            state.registerEnum<sf::Mouse::Button>("MouseButtons",
+                                     {{"Left", sf::Mouse::Button::Left},
+                                     {"Right", sf::Mouse::Button::Right}});
 
-            state.registerEnum("Keys",
-                                     "A", sf::Keyboard::A, "B", sf::Keyboard::B, "C", sf::Keyboard::C, "D", sf::Keyboard::D,
-                                     "E", sf::Keyboard::E, "F", sf::Keyboard::F, "G", sf::Keyboard::G, "H", sf::Keyboard::H,
-                                     "I", sf::Keyboard::I, "J", sf::Keyboard::J, "K", sf::Keyboard::K, "L", sf::Keyboard::L,
-                                     "M", sf::Keyboard::M, "N", sf::Keyboard::N, "P", sf::Keyboard::P, "Q", sf::Keyboard::Q,
-                                     "R", sf::Keyboard::R, "S", sf::Keyboard::S, "T", sf::Keyboard::T, "U", sf::Keyboard::U,
-                                     "V", sf::Keyboard::V, "W", sf::Keyboard::W, "X", sf::Keyboard::X, "Y", sf::Keyboard::Y,
-                                     "Z", sf::Keyboard::Z,
-                                     "0", sf::Keyboard::Num0, "1", sf::Keyboard::Num1, "2", sf::Keyboard::Num2, "3", sf::Keyboard::Num3,
-                                     "4", sf::Keyboard::Num4, "5", sf::Keyboard::Num5, "6", sf::Keyboard::Num6, "7", sf::Keyboard::Num7,
-                                     "8", sf::Keyboard::Num8, "9", sf::Keyboard::Num9,
-                                     "LAlt", sf::Keyboard::LAlt, "RAlt", sf::Keyboard::RAlt,
-                                     "Space", sf::Keyboard::Space, "Tab", sf::Keyboard::Tab,
-                                     "LControl", sf::Keyboard::LControl, "Rcontrol", sf::Keyboard::RControl,
-                                     "Right", sf::Keyboard::Right, "Left", sf::Keyboard::Left, "Up", sf::Keyboard::Up, "Down", sf::Keyboard::Down,
-                                     "F1", sf::Keyboard::F1, "F2", sf::Keyboard::F2, "F3", sf::Keyboard::F3, "F4", sf::Keyboard::F4,
-                                     "F5", sf::Keyboard::F5, "F6", sf::Keyboard::F6, "F7", sf::Keyboard::F7, "F8", sf::Keyboard::F8,
-                                     "F9", sf::Keyboard::F9, "F10", sf::Keyboard::F10, "F11", sf::Keyboard::F11, "F12", sf::Keyboard::F12 );
+            state.registerEnum<sf::Keyboard::Key>("Keys",
+                                     {{"A", sf::Keyboard::A}, {"B", sf::Keyboard::B}, {"C", sf::Keyboard::C}, {"D", sf::Keyboard::D},
+                                     {"E", sf::Keyboard::E}, {"F", sf::Keyboard::F}, {"G", sf::Keyboard::G}, {"H", sf::Keyboard::H},
+                                     {"I", sf::Keyboard::I}, {"J", sf::Keyboard::J}, {"K", sf::Keyboard::K}, {"L", sf::Keyboard::L},
+                                     {"M", sf::Keyboard::M}, {"N", sf::Keyboard::N}, {"P", sf::Keyboard::P}, {"Q", sf::Keyboard::Q},
+                                     {"R", sf::Keyboard::R}, {"S", sf::Keyboard::S}, {"T", sf::Keyboard::T}, {"U", sf::Keyboard::U},
+                                     {"V", sf::Keyboard::V}, {"W", sf::Keyboard::W}, {"X", sf::Keyboard::X}, {"Y", sf::Keyboard::Y},
+                                     {"Z", sf::Keyboard::Z},
+                                     {"0", sf::Keyboard::Num0}, {"1", sf::Keyboard::Num1}, {"2", sf::Keyboard::Num2}, {"3", sf::Keyboard::Num3},
+                                     {"4", sf::Keyboard::Num4}, {"5", sf::Keyboard::Num5}, {"6", sf::Keyboard::Num6}, {"7", sf::Keyboard::Num7},
+                                     {"8", sf::Keyboard::Num8}, {"9", sf::Keyboard::Num9},
+                                     {"LAlt", sf::Keyboard::LAlt}, {"RAlt", sf::Keyboard::RAlt},
+                                     {"Space", sf::Keyboard::Space}, {"Tab", sf::Keyboard::Tab},
+                                     {"LControl", sf::Keyboard::LControl}, {"Rcontrol", sf::Keyboard::RControl},
+                                     {"Right", sf::Keyboard::Right}, {"Left", sf::Keyboard::Left}, {"Up", sf::Keyboard::Up}, {"Down", sf::Keyboard::Down},
+                                     {"F1", sf::Keyboard::F1}, {"F2", sf::Keyboard::F2}, {"F3", sf::Keyboard::F3}, {"F4", sf::Keyboard::F4},
+                                     {"F5", sf::Keyboard::F5}, {"F6", sf::Keyboard::F6}, {"F7", sf::Keyboard::F7}, {"F8", sf::Keyboard::F8},
+                                     {"F9", sf::Keyboard::F9}, {"F10", sf::Keyboard::F10}, {"F11", sf::Keyboard::F11}, {"F12", sf::Keyboard::F12}} );
         }
     }
 }

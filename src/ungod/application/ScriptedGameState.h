@@ -31,6 +31,7 @@
 #include "ungod/visual/Camera.h"
 #include "ungod/serialization/SerialGameState.h"
 #include "ungod/visual/RenderLayer.h"
+#include "ungod/base/WorldGraph.h"
 
 namespace ungod
 {
@@ -49,10 +50,6 @@ namespace ungod
         /** \brief Runs the given script for the state. */
         void runScript(const std::string& gameScriptID);
 
-        /** \brief Creates a new world and adds it to the i-th position of the layer stack. */
-        World* addWorld(std::size_t i);
-        World* addWorld();
-
         /** \brief Handles an input event. */
         virtual void handleEvent(const sf::Event& curEvent) override;
 
@@ -64,6 +61,9 @@ namespace ungod
 
         /** \brief Processes a custom event. */
         virtual void onCustomEvent(const CustomEvent& event) override;
+
+        /** \brief Instantiates and returns a new world object. */
+        RenderLayerPtr makeWorld();
 
         /** \brief Access the camera. */
         Camera& getCamera() { return mCamera; }
@@ -106,14 +106,14 @@ namespace ungod
         void debugLightEmitters(bool lightemitters) { mDebugLightEmitters = lightemitters; }
 
         /** \brief Saves the game state and its contents to the given file if */
-        void save(const std::string& fileid);
+        void save(const std::string& fileid, bool saveNodes = true);
 
         /** \brief Loads the game state and its contents from the given file if */
         void load(const std::string& fileid);
 
         /** \brief Accesses the layer container. */
-        const RenderLayerContainer& getLayers() const { return mLayers; }
-        RenderLayerContainer& getLayers() { return mLayers; }
+        const WorldGraph& getWorldGraph() const { return mWorldGraph; }
+        WorldGraph& getWorldGraph() { return mWorldGraph; }
 
     public:
         virtual void init() override;
@@ -160,7 +160,7 @@ namespace ungod
         std::string mGameScriptID;
 
         Camera mCamera;
-        RenderLayerContainer mLayers;
+        WorldGraph mWorldGraph;
         bool mRenderDebug;
         bool mDebugBounds;
         bool mDebugTexrects;

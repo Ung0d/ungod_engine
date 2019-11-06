@@ -54,7 +54,7 @@ namespace ungod
     {
         context.instantiate<World>([&data, &gamestate] ()
             {
-                return gamestate.addWorld();
+                return data.registerLayer(gamestate.makeWorld(), data.mRenderLayers.size());
             }, target);
 
         context.first(context.deserializeInstantiationContainer<RenderLayer>(

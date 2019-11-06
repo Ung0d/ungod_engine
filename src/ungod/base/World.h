@@ -185,6 +185,10 @@ namespace ungod
         /** \brief Handles the given custom event. Forwards it to all entities with script components. */
         virtual void handleCustomEvent(const CustomEvent& event) override;
 
+
+        /** \brief Returns the boundaries of the render layer. */
+        virtual sf::FloatRect getBounds() const override;
+
         /** \brief Returns a reference to the internal universe. */
         dom::Universe<>& getUniverse();
 
@@ -294,6 +298,11 @@ namespace ungod
         void toggleLight(bool on);
         bool isLightToggled() const;
 
+        inline decltype(auto) onSpaceChanged(const std::function<void(const sf::FloatRect&)>& callback)
+        {
+            return mOnSpaceChanged.connect(callback);
+        }
+
     private:
         ScriptedGameState* mMaster;
         EntityBehaviorManager mBehaviorManager;
@@ -319,6 +328,7 @@ namespace ungod
         owls::Signal<Entity> mEntityDestructionSignal;
         owls::Signal<Entity, MetaNode, SerializationContext&> mEntitySerializedSignal;
         owls::Signal<Entity, MetaNode, DeserializationContext&> mEntityDeserializedSignal;
+        owls::Signal<const sf::FloatRect&> mOnSpaceChanged;
 
         quad::PullResult< Entity > mInUpdateRange;
         quad::PullResult< Entity > mRenderedEntities;
@@ -614,4 +624,3 @@ namespace ungod
 #include "ungod/serialization/CollisionSerial.inl"
 
 #endif // WORLD_H
-

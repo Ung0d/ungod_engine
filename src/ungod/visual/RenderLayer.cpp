@@ -40,6 +40,14 @@ namespace ungod
         return mRenderDepth;
     }
 
+    sf::FloatRect RenderLayer::getTransformedBounds() const
+    {
+        auto bounds = getBounds();
+        bounds.left *= getRenderDepth();
+        bounds.top *= getRenderDepth();
+        return bounds;
+    }
+
     void RenderLayer::setName(const std::string& name)
     {
         mName = name;
@@ -170,5 +178,12 @@ namespace ungod
             return res->first.get();
         else
             return nullptr;
+    }
+
+    void RenderLayerContainer::clearEverything()
+    {
+        mRenderLayers.clear();
+        while (!mToMove.empty())
+            mToMove.pop();
     }
 }

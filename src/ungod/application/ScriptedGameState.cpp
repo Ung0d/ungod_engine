@@ -40,7 +40,7 @@ namespace ungod
             mScriptCallbacks( app.getScriptState(), app.getGlobalScriptEnv(), { std::begin(GAME_CALLBACK_IDENTIFIERS), std::end(GAME_CALLBACK_IDENTIFIERS) } ),
             mGameScriptID(),
             mCamera(app.getWindow()),
-            mLayers(mCamera),
+            mWorldGraph(),
             mRenderDebug(false),
             mDebugBounds(true),
             mDebugTexrects(true),
@@ -56,7 +56,7 @@ namespace ungod
             mScriptCallbacks( app.getScriptState(), app.getGlobalScriptEnv(), { std::begin(GAME_CALLBACK_IDENTIFIERS), std::end(GAME_CALLBACK_IDENTIFIERS) } ),
             mGameScriptID(),
             mCamera(app.getWindow()),
-            mLayers(mCamera),
+            mWorldGraph(),
             mRenderDebug(false),
             mDebugBounds(true),
             mDebugTexrects(true),
@@ -84,9 +84,49 @@ namespace ungod
     }
 
 
-    World* ScriptedGameState::addWorld(std::size_t i)
+    void ScriptedGameState::handleEvent(const sf::Event& curEvent)
     {
-        World* world = new World( mApp->getScriptState(), mApp->getGlobalScriptEnv(), this);
+        mWorldGraph.handleInput(curEvent, mApp->getWindow());
+        mCamera.handleEvent(curEvent);
+    }
+
+
+    void ScriptedGameState::update(const float delta)
+    {
+        mCamera.update(delta);
+
+        mWorldGraph.updateReferencePosition(mCamera.getCenter());
+        mWorldGraph.update(delta);
+
+        mScriptCallbacks.execute(ON_UPDATE, this, delta);
+
+        //if (mIntervalTimer.getElapsedTime().asMilliseconds() >= UPDATE_INTERVAL)
+        //{
+            //mIntervalTimer.restart();
+
+           //mScriptCallbacks.execute(ON_UPDATE, this, UPDATE_INTERVAL);
+        //}
+    }
+
+
+    void ScriptedGameState::render(sf::RenderTarget& target, sf::RenderStates states)
+    {
+        mWorldGraph.render(target, states);
+        if (mRenderDebug)
+            mWorldGraph.renderDebug(target, states, mDebugBounds, mDebugTexrects, mDebugColliders, mDebugAudioEmitters, mDebugLightEmitters);
+    }
+
+
+    void ScriptedGameState::onCustomEvent(const CustomEvent& event)
+    {
+        mScriptCallbacks.execute(ON_CUSTOM_EVENT, this, event);
+        mWorldGraph.handleCustomEvent(event);
+    }
+
+
+    RenderLayerPtr ScriptedGameState::makeWorld()
+    {
+        World* world = new World( mApp->getScriptState(), mApp->getGlobalScriptEnv(), this );
 
         //instantate the world
         auto unshadowVertex = mApp->getConfig().get<std::string>("light/unshadow_vertex_shader");
@@ -133,61 +173,19 @@ namespace ungod
         //register instantiations for deseilization
         registerTypes(*world);
 
-        mLayers.registerLayer(RenderLayerPtr(world), i);
-
-        return world;
-    }
-
-    World* ScriptedGameState::addWorld()
-    {
-        return addWorld(mLayers.getVector().size());
+        return RenderLayerPtr{world};
     }
 
 
-    void ScriptedGameState::handleEvent(const sf::Event& curEvent)
-    {
-        mLayers.handleInput(curEvent, mApp->getWindow());
-        mCamera.handleEvent(curEvent);
-    }
-
-
-    void ScriptedGameState::update(const float delta)
-    {
-        mCamera.update(delta);
-
-        mLayers.update(delta);
-
-        mScriptCallbacks.execute(ON_UPDATE, this, delta);
-
-        //if (mIntervalTimer.getElapsedTime().asMilliseconds() >= UPDATE_INTERVAL)
-        //{
-            //mIntervalTimer.restart();
-
-           //mScriptCallbacks.execute(ON_UPDATE, this, UPDATE_INTERVAL);
-        //}
-    }
-
-
-    void ScriptedGameState::render(sf::RenderTarget& target, sf::RenderStates states)
-    {
-        mLayers.render(target, states);
-        if (mRenderDebug)
-            mLayers.renderDebug(target, states, mDebugBounds, mDebugTexrects, mDebugColliders, mDebugAudioEmitters, mDebugLightEmitters);
-    }
-
-
-    void ScriptedGameState::onCustomEvent(const CustomEvent& event)
-    {
-        mScriptCallbacks.execute(ON_CUSTOM_EVENT, this, event);
-        mLayers.handleCustomEvent(event);
-    }
-
-
-    void ScriptedGameState::save(const std::string& fileid)
+    void ScriptedGameState::save(const std::string& fileid, bool saveNodes)
     {
         SerializationContext context;
+        //saves world graph information
         context.serializeRootObject(*this);
         context.save(fileid);
+        //saves content of individual nodes
+        if (saveNodes)
+            mWorldGraph.save();
     }
 
 

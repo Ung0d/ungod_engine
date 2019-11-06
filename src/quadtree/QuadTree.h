@@ -153,18 +153,6 @@ namespace quad
         */
         const unsigned size() const;
 
-        /**
-        * \brief Instantiates new boundaries. As a result the tree is cleared, because
-        * existing content will become invalid in its placement.
-        */
-        void setBoundary(const Bounds& bounds);
-
-        /**
-        * \brief Returns the bounds of the quad tree node represented through
-        * a rect in 2D space.
-        */
-        const Bounds& getBoundary() const { return mBounds; }
-
         /** \brief Invokes the callback for every subnode of the tree. Stops, if callback returns false.
         * Useful for example, if you want to render the bounds of the tree for debugging purposes. */
         void traverse(std::function<bool(const QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>&)> callback) const;
@@ -183,7 +171,7 @@ namespace quad
         * This call the ElementTraits::setOwnerNode method for the inserted object
         * an maybe also for other objects in the tree.
         */
-        bool insert(QuadTree<T,MAX_CAPACITY,MAX_LEVEL>& root, T& insertThis);
+        bool insert(QuadTree<T,MAX_CAPACITY,MAX_LEVEL>& root, T insertThis);
 
         /**
         * \brief Test whether a object fits in this node.
@@ -196,10 +184,10 @@ namespace quad
         * This call the ElementTraits::setOwnerNode method for
         * the removed object. (new owner is nullptr)
         */
-        bool remove(QuadTree<T,MAX_CAPACITY,MAX_LEVEL>& root, T& deleteThis);
+        bool remove(QuadTree<T,MAX_CAPACITY,MAX_LEVEL>& root, T deleteThis);
 
         /** \brief Removes the given object from this subnode of the tree. */
-        std::tuple<bool, QuadTreeNode*> removeFromNode(QuadTree<T,MAX_CAPACITY,MAX_LEVEL>& root, T& deleteThis);
+        std::tuple<bool, QuadTreeNode*> removeFromNode(QuadTree<T,MAX_CAPACITY,MAX_LEVEL>& root, T deleteThis);
 
         ~QuadTreeNode() {}
 
@@ -208,7 +196,6 @@ namespace quad
 
         QuadTreeNode* mFather; ///<pointer to the father node or null if root (a node doesnt own its father)
         std::unique_ptr<QuadTreeNode> mChildren[4];  ///<pointer to the child nodes (a node ownes its children)
-        Bounds mBounds;
         std::vector< T > mContainer;
         unsigned mLevel; ///<indicates how deep we are
 
@@ -218,6 +205,9 @@ namespace quad
         /** \brief Helper method that removes empty nodes after element-removal.
         * Returns the lowest node with elements left. */
         QuadTreeNode* upwardsCleanup();
+
+    protected:
+        Bounds mBounds;
     };
 
     /**
@@ -236,7 +226,7 @@ namespace quad
         * Requires a working mapping of element <-> unique id through the ElementTraits<T>.
         * Returns true if the element was successfully removed.
         */
-        bool removeFromItsNode(T& removeThis);
+        bool removeFromItsNode(T removeThis);
 
         /**
         * \brief Function that can be used to notify the quadtree, the given object is inserted in,
@@ -261,11 +251,22 @@ namespace quad
         * Constant time. */
         QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>* getOwner(const T& t) const;
 
-        bool insert(T& insertThis);
+        bool insert(T insertThis);
 
-        bool remove(T& deleteThis);
+        bool remove(T deleteThis);
 
-        std::tuple<bool, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>*> removeFromNode(T& deleteThis);
+        std::tuple<bool, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>*> removeFromNode(T deleteThis);
+
+        /**
+        * \brief Instantiates new boundaries. The whole content of the tree is removed and reinserted.
+        */
+        void setBoundary(const Bounds& bounds);
+
+        /**
+        * \brief Returns the bounds of the quad tree node represented through
+        * a rect in 2D space.
+        */
+        const Bounds& getBoundary() const { return QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::mBounds; }
 
     private:
         std::unordered_map<uint64_t, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>*> mOwnerNodes; ///<maps element id to owner node
@@ -283,7 +284,7 @@ namespace quad
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
     QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::QuadTreeNode(const Bounds& bounds, const unsigned level, QuadTreeNode* father) :
-                          mFather(father), mBounds(bounds), mLevel(level)
+                          mFather(father), mLevel(level), mBounds(bounds)
     {
         mContainer.reserve(MAX_CAPACITY);
     }
@@ -345,14 +346,6 @@ namespace quad
 
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    void QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::setBoundary(const Bounds& bounds)
-    {
-        clear();
-        mBounds = bounds;
-    }
-
-
-    template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
     QuadTree<T,MAX_CAPACITY, MAX_LEVEL>& QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::getRoot()
     {
         QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>* curLvl = this;
@@ -394,7 +387,7 @@ namespace quad
 
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    bool QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::insert(QuadTree<T,MAX_CAPACITY,MAX_LEVEL>& root, T& insertThis)
+    bool QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::insert(QuadTree<T,MAX_CAPACITY,MAX_LEVEL>& root, T insertThis)
     {
         if ( isInsideBounds(insertThis) )
         {
@@ -457,7 +450,7 @@ namespace quad
     }
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    bool QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::remove(QuadTree<T,MAX_CAPACITY,MAX_LEVEL>& root, T& deleteThis)
+    bool QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::remove(QuadTree<T,MAX_CAPACITY,MAX_LEVEL>& root, T deleteThis)
     {
         if ( isInsideBounds(deleteThis) )
         {
@@ -479,7 +472,7 @@ namespace quad
 
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    std::tuple<bool, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>*> QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::removeFromNode(QuadTree<T,MAX_CAPACITY,MAX_LEVEL>& root, T& deleteThis)
+    std::tuple<bool, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>*> QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::removeFromNode(QuadTree<T,MAX_CAPACITY,MAX_LEVEL>& root, T deleteThis)
     {
         for(auto element = mContainer.begin(); element != mContainer.end(); ++element)
         {
@@ -545,7 +538,7 @@ namespace quad
 
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    bool QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::removeFromItsNode(T& removeThis)
+    bool QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::removeFromItsNode(T removeThis)
     {
         auto* owner = getOwner(removeThis);
         if(owner) return owner->remove(*this, removeThis);
@@ -616,7 +609,7 @@ namespace quad
 
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    bool QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::insert(T& insertThis)
+    bool QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::insert(T insertThis)
     {
         //make sure the object is not added twice
         removeFromItsNode(insertThis);
@@ -664,7 +657,7 @@ namespace quad
 
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    bool QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::remove(T& deleteThis)
+    bool QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::remove(T deleteThis)
     {
         using QN = QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>;
         //traverse down --- object must be in the deepest node, that contains its bounds
@@ -683,10 +676,11 @@ namespace quad
 
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    std::tuple<bool, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>*> QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::removeFromNode(T& deleteThis)
+    std::tuple<bool, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>*> QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::removeFromNode(T deleteThis)
     {
         return QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::removeFromNode(*this, deleteThis);
     }
+
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -887,6 +881,18 @@ namespace quad
             nonstaticIndex = nonStatics.begin();
         }
     };
+
+
+    template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
+    void QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::setBoundary(const Bounds& bounds)
+    {
+        PullResult<T,MAX_CAPACITY,MAX_LEVEL> pull;
+        QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::getContent(pull);
+        QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::clear();
+        QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::mBounds = bounds;
+        while (!pull.done())
+            insert(pull.poll());
+    }
 }
 
 #endif // _QUADTREE__
