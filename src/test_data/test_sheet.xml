@@ -1,0 +1,30 @@
+<meta>
+    <dude1 pos_x="0" pos_y="0" width="64" height="128"/>
+    <dude2 pos_x="64" pos_y="0" width="64" height="128"/>
+	<idle global_width="128" global_height="192" loop="1" one_time_only="0" global_duration="200">
+		<image pos_x="0" pos_y="0"/>
+		<image pos_x="128" pos_y="0"/>
+		<image pos_x="256" pos_y="0"/>
+	</idle>
+	<forward global_width="128" global_height="192" loop="1" one_time_only="0" global_duration="180">
+		<image pos_x="384" pos_y="0"/>
+		<image pos_x="512" pos_y="0"/>
+		<image pos_x="640" pos_y="0"/>
+	</forward>
+	<right global_width="128" global_height="192" loop="1" one_time_only="0" global_duration="190">
+		<image pos_x="0" pos_y="384"/>
+		<image pos_x="128" pos_y="384"/>
+		<image pos_x="256" pos_y="384"/>
+	</right>
+	<left global_width="128" global_height="192" loop="1" one_time_only="0" global_duration="190">
+		<image pos_x="384" pos_y="192"/>
+		<image pos_x="512" pos_y="192"/>
+		<image pos_x="640" pos_y="192"/>
+	</left>
+	<backward global_width="128" global_height="192" loop="1" one_time_only="0" global_duration="190">
+		<image pos_x="0" pos_y="192"/>
+		<image pos_x="128" pos_y="192"/>
+		<image pos_x="256" pos_y="192"/>
+	</backward>
+</meta>
+

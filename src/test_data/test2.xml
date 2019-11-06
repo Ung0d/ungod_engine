@@ -1,0 +1,13 @@
+<meta>
+    <t1>
+        <t11 some="2.5f" random="1" attributes="test"/>
+        <t12 other="2" attributes="test2"/>
+        <t13 other="50" attributes="foo"/>
+    </t1>
+    <t2>
+        <t21 some="2.5f" random="1" attributes="test"/>
+        <t22 other="2" attributes="test2"/>
+        <t23 other="50" attributes="foo"/>
+    </t2>
+</meta>
+

@@ -1,0 +1,21 @@
+<meta>
+	<normal global_width="1" global_height="1" loop="0" one_time_only="0" global_duration="20">
+		<image pos_x="0" pos_y="0"/>
+		<image pos_x="0" pos_y="0"/>
+		<image pos_x="0" pos_y="0"/>
+	</normal>
+	<looped global_width="1" global_height="1" loop="1" one_time_only="0" global_duration="20">
+		<image pos_x="0" pos_y="0"/>
+		<image pos_x="0" pos_y="0"/>
+		<image pos_x="0" pos_y="0"/>
+	</looped>
+	<oneTimeOnly global_width="1" global_height="1" loop="0" one_time_only="1" global_duration="20">
+		<image pos_x="0" pos_y="0"/>
+		<image pos_x="0" pos_y="0"/>
+	</oneTimeOnly>
+	<loopedOneTimeOnly global_width="1" global_height="1" loop="1" one_time_only="1" global_duration="20">
+		<image pos_x="0" pos_y="0"/>
+		<image pos_x="0" pos_y="0"/>
+	</loopedOneTimeOnly>
+</meta>
+

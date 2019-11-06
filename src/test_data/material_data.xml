@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta>
+    <planks modify_pitch="1">
+        <sound filepath="wood_1.wav"/>
+        <sound filepath="wood_2.wav"/>
+    </planks>
+    <stone modify_pitch="1">
+        <sound filepath="stone.wav"/>
+    </stone>
+    <dirt modify_pitch="1">
+        <sound filepath="dirt.wav"/>
+    </dirt>
+    <grass modify_pitch="1">
+        <sound filepath="grass.wav"/>
+    </grass>
+</meta>

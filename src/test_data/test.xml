@@ -1,0 +1,6 @@
+<meta>
+    <key1 some="2.5f" random="1" attributes="test"/>
+    <key2 other="2" attributes="test2"/>
+    <key3 other="50" attributes="foo"/>
+</meta>
+
