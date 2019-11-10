@@ -44,6 +44,14 @@ namespace ungod
             return;
 
         context.deserializeRootObject(mLayers, static_cast<const sf::RenderTarget&>(mGamestate.getApp()->getWindow()), mGamestate);
+
+		for (const auto& layer : mLayers.getVector())
+			layer.first->onSpaceChanged([this, &layer](const sf::FloatRect& space)
+			{
+				updateBounds(layer.first.get());
+				mWorldGraph.notifyBoundsChanged(this);
+			});
+
         mIsLoaded = true;
     }
 
@@ -53,24 +61,29 @@ namespace ungod
         mIsLoaded = false;
     }
 
-    sf::FloatRect WorldGraphNode::getBounds() const
-    {
-        sf::FloatRect globalBounds{};
-        for (const auto& p : mLayers.getVector())
-        {
-            sf::FloatRect layerBounds = p.first->getTransformedBounds();
-            globalBounds.left = std::min(globalBounds.left, layerBounds.left);
-            globalBounds.top = std::min(globalBounds.top, layerBounds.top);
-            globalBounds.width = std::max(globalBounds.width, layerBounds.left+layerBounds.width - globalBounds.left+globalBounds.width);
-            globalBounds.height = std::max(globalBounds.height, layerBounds.left+layerBounds.height - globalBounds.left+globalBounds.height);
-        }
-        return globalBounds;
-    }
+	const sf::FloatRect& WorldGraphNode::getBounds() const
+	{
+		return mBounds;
+	}
+    
+	void WorldGraphNode::updateBounds(RenderLayer* layer)
+	{
+		sf::FloatRect layerBounds = layer->getTransformedBounds();
+		sf::FloatRect nodeBounds = mBounds;
+		mBounds.left = std::min(nodeBounds.left, layerBounds.left);
+		mBounds.top = std::min(nodeBounds.top, layerBounds.top);
+		mBounds.width = std::max(nodeBounds.width, layerBounds.left + layerBounds.width - nodeBounds.left);
+		mBounds.height = std::max(nodeBounds.height, layerBounds.top + layerBounds.height - nodeBounds.top);
+	}
 
     World* WorldGraphNode::addWorld(unsigned i)
     {
         World* world = static_cast<World*>(mLayers.registerLayer(mGamestate.makeWorld(), i));
-        world->onSpaceChanged([this] (const sf::FloatRect& space) {mWorldGraph.notifyBoundsChanged(this);});
+        world->onSpaceChanged([this, world] (const sf::FloatRect& space) 
+			{
+				updateBounds(world);
+				mWorldGraph.notifyBoundsChanged(this);
+			});
         return world;
     }
 
@@ -118,14 +131,25 @@ namespace ungod
     {
         context.serializeProperty("id", data.mIdentifier, serializer);
         context.serializeProperty("file", data.mDataFile, serializer);
+		//serialize bounds
+		context.serializeProperty("left", data.mBounds.left, serializer);
+		context.serializeProperty("top", data.mBounds.top, serializer);
+		context.serializeProperty("width", data.mBounds.width, serializer);
+		context.serializeProperty("height", data.mBounds.height, serializer);
+
     }
 
     void DeserialBehavior<WorldGraphNode>::deserialize(WorldGraphNode& data, MetaNode deserializer, DeserializationContext& context)
     {
         //world graph nodes are deserialized in sleeping state
-        auto result = deserializer.getAttributes<std::string, std::string>( {"id", ""}, {"file", ""} );
+        auto result = deserializer.getAttributes<std::string, std::string, float, float, float, float>( 
+						{"id", ""}, {"file", ""}, { "left", 0.0f }, { "top", 0.0f }, { "width", 0.0f }, { "height", 0.0f });
         data.mIdentifier = std::get<0>(result);
         data.mDataFile = std::get<1>(result);
+		data.mBounds.left = std::get<2>(result);
+		data.mBounds.top = std::get<3>(result);
+		data.mBounds.width = std::get<4>(result);
+		data.mBounds.height = std::get<5>(result);
     }
 }
 
@@ -274,12 +298,12 @@ namespace ungod
         return *mNodes.back();
     }
 
-    void WorldGraph::save() const
+    void WorldGraph::save(const ScriptedGameState& gamestate) const
     {
         for (const auto& n : mNodes)
         {
             SerializationContext context;
-            context.serializeRootObject(*n);
+            context.serializeRootObject(n->getLayers(), static_cast<const sf::RenderTarget&>(gamestate.getApp()->getWindow()));
             context.save(n->getDataFile());
         }
     }
@@ -289,12 +313,12 @@ namespace ungod
         mWorldQT.removeFromItsNode(node);
         quad::Bounds qtBounds = mWorldQT.getBoundary();
         sf::FloatRect nodeBounds = node->getBounds();
-        float bx = std::min(qtBounds.position.x, nodeBounds.left);
-        float by = std::min(qtBounds.position.y, nodeBounds.top);
-        float bx2 = std::max(qtBounds.position.x + qtBounds.size.x, nodeBounds.left + nodeBounds.width);
-        float by2 = std::max(qtBounds.position.y + qtBounds.size.y, nodeBounds.top + nodeBounds.height);
-        if (bx != qtBounds.position.x || by != qtBounds.position.y || bx2 != qtBounds.position.x + qtBounds.size.x || by2 != qtBounds.position.y + qtBounds.size.y)
-            mWorldQT.setBoundary({bx, by, bx2-bx, by2-by});
+		float left = std::min(qtBounds.position.x, nodeBounds.left);
+		float top = std::min(qtBounds.position.y, nodeBounds.top);
+		float width = std::max(qtBounds.size.x, nodeBounds.left + nodeBounds.width - qtBounds.position.x);
+		float height = std::max(qtBounds.size.y, nodeBounds.top + nodeBounds.height - qtBounds.position.y);
+        if (left != qtBounds.position.x || top != qtBounds.position.y || width != qtBounds.size.x || height != qtBounds.size.y)
+            mWorldQT.setBoundary({left, top, width, height});
         mWorldQT.insert(node);
     }
 
@@ -303,10 +327,7 @@ namespace ungod
     void SerialBehavior<WorldGraph>::serialize(const WorldGraph& data, MetaNode serializer, SerializationContext& context)
     {
         context.serializeObjectContainer<WorldGraphNode>("nodes", [&data] (std::size_t i) -> const WorldGraphNode& { return *data.mNodes[i]; }, data.mNodes.size(), serializer);
-        context.serializeProperty("active", data.mActive, serializer);
         context.serializeObject("graph", data.mAdjacencies, serializer);
-        context.serializeProperty("pos_x", data.mReferencePosition.x, serializer);
-        context.serializeProperty("pos_y", data.mReferencePosition.y, serializer);
     }
 
 
@@ -321,10 +342,8 @@ namespace ungod
                         },
                         [&data](std::size_t i) ->WorldGraphNode& {return *data.mNodes[i];}),
                             "nodes", deserializer);
-        attr = context.next(context.deserializeProperty(data.mActive), "active", deserializer, attr);
+		for (const auto& n : data.mNodes)
+			data.notifyBoundsChanged(n.get());
         attr = context.next(context.deserializeObject(data.mAdjacencies), "graph", deserializer, attr);
-        attr = context.next(context.deserializeProperty(data.mReferencePosition.x, 0.0f), "pos_x", deserializer, attr);
-        attr = context.next(context.deserializeProperty(data.mReferencePosition.y, 0.0f), "pos_y", deserializer, attr);
-        data.updateReferencePosition({data.mReferencePosition.x, data.mReferencePosition.y});
     }
 }

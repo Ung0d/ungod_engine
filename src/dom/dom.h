@@ -78,6 +78,7 @@ namespace dom
     class BaseChunkedArray
     {
     public:  virtual void destroy(ChunkedArrayHandle h) = 0;
+		  virtual ~BaseChunkedArray() {}
     };
 
     /**
@@ -1341,7 +1342,7 @@ namespace dom
     {
       static bool check(const EN& e)
       {
-          return e.template has<C1>() && Utility<EN, CINDEX, COMP_TOTAL>::ComponentChecker<C...>::check(e);
+          return e.template has<C1>() && Utility<EN, CINDEX, COMP_TOTAL>::template ComponentChecker<C...>::check(e);
       }
     };
 

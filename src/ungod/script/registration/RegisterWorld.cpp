@@ -26,6 +26,7 @@
 #include "ungod/script/registration/RegisterWorld.h"
 #include "ungod/content/EntityTypes.h"
 #include "ungod/script/registration/RegistrationDetail.h"
+#include "ungod/script/registration/RegisterWorldGraph.h"
 #include "ungod/script/registration/RegisterAsset.h"
 #include "ungod/script/registration/RegisterAudio.h"
 #include "ungod/script/registration/RegisterBehavior.h"
@@ -49,101 +50,95 @@ namespace ungod
     {
         void registerWorld(ScriptStateBase& state, Application& app)
         {
-            state.registerUsertype<World>("World",
-                                       "init", &World::initSpace,
-                                       // Factory methods to produce single entities.
-                                       "createEntity", sol::overload([](World& world) { return world.create(EntityBaseComponents(), EntityOptionalComponents()); },
-                                                                     [](World& world, const std::string& script)
-                                                                    { return world.create(EntityBaseComponents(), EntityOptionalComponents(), script); },
-                                                                    [](World& world, const std::string& script, script::Environment param)
-                                                                    { return world.create(EntityBaseComponents(), EntityOptionalComponents(), script, param); }),
-                                       "createActor", sol::overload([](World& world) { return world.create(ActorBaseComponents(), ActorOptionalComponents()); },
-                                                                    [](World& world, const std::string& script) { return world.create(ActorBaseComponents(), ActorOptionalComponents(), script); },
-                                                                    [](World& world, const std::string& script, script::Environment param) { return world.create(ActorBaseComponents(), ActorOptionalComponents(), script, param); }),
-                                       "createMetaObject", sol::overload([](World& world) { return world.create(MetaObjectBaseComponents(), MetaObjectOptionalComponents()); },
-                                                                        [](World& world, const std::string& script)
-                                                                        { return world.create(MetaObjectBaseComponents(), MetaObjectOptionalComponents(), script); },
-                                                                        [](World& world, const std::string& script, script::Environment param)
-                                                                        { return world.create(MetaObjectBaseComponents(), MetaObjectOptionalComponents(), script, param); }),
-                                       "createLight", [](World& world) { return world.create(LightBaseComponents(), LightOptionalComponents()); },
-                                       "createTrigger", sol::overload([](World& world) { return world.create(TriggerBaseComponents(), TriggerOptionalComponents()); },
-                                                                      [](World& world, const std::string& script)
-                                                                        { return world.create(TriggerBaseComponents(), TriggerOptionalComponents(), script); },
-                                                                      [](World& world, const std::string& script, script::Environment param)
-                                                                        { return world.create(TriggerBaseComponents(), TriggerOptionalComponents(), script, param); }),
-                                       "createWorldObject", sol::overload([](World& world) { return world.create(WorldObjectBaseComponents(), WorldObjectOptionalComponents()); },
-                                                                        [](World& world, const std::string& script)
-                                                                        { return world.create(WorldObjectBaseComponents(), WorldObjectOptionalComponents(), script); },
-                                                                        [](World& world, const std::string& script, script::Environment param)
-                                                                        { return world.create(WorldObjectBaseComponents(), WorldObjectOptionalComponents(), script, param); }),
-                                       "createTileMap", sol::overload([](World& world) { return world.create(TileMapBaseComponents(), TileMapOptionalComponents()); },
-                                                                        [](World& world, const std::string& script)
-                                                                        { return world.create(TileMapBaseComponents(), TileMapOptionalComponents(), script); },
-                                                                        [](World& world, const std::string& script, script::Environment param)
-                                                                        { return world.create(TileMapBaseComponents(), TileMapOptionalComponents(), script, param); }),
-                                       "createWater", sol::overload([](World& world) { return world.create(WaterBaseComponents(), WaterOptionalComponents()); },
-                                                                        [](World& world, const std::string& script)
-                                                                        { return world.create(WaterBaseComponents(), WaterOptionalComponents(), script); },
-                                                                        [](World& world, const std::string& script, script::Environment param)
-                                                                        { return world.create(WaterBaseComponents(), WaterOptionalComponents(), script, param); }),
-                                       "createParticleSystem", [](World& world) { return world.create(ParticleSystemBaseComponents(), ParticleSystemOptionalComponents()); },
-                                       "createAudioEmitter", [](World& world) { return world.create(AudioEmitterBaseComponents(), AudioEmitterOptionalComponents()); },
-                                       // Factory methods to produce sets of entities.
-                                       "createEntitys", &detail::entityCreator<EntityBaseComponents, EntityOptionalComponents>,
-                                       "createActors", &detail::entityCreator<ActorBaseComponents, ActorOptionalComponents>,
-                                       "createMetaObjects", &detail::entityCreator<MetaObjectBaseComponents, MetaObjectOptionalComponents>,
-                                       "createLights", &detail::entityCreator<LightBaseComponents, LightOptionalComponents>,
-                                       "createTriggers", &detail::entityCreator<TriggerBaseComponents, TriggerOptionalComponents>,
-                                       "createWorldObjects", &detail::entityCreator<WorldObjectBaseComponents, WorldObjectOptionalComponents>,
-                                       "createParticleSystems", &detail::entityCreator<ParticleSystemBaseComponents, ParticleSystemOptionalComponents>,
-                                       "createAudioEmitters", &detail::entityCreator<AudioEmitterBaseComponents, AudioEmitterOptionalComponents>,
-                                       // Entity control methods.
-                                       "destroy", &World::destroy,
-                                       "destroyNamed", &World::destroyNamed,
-                                       "makeCopy", &World::makeCopy,
-                                       "add", [] (World& world, Entity e)  { world.getQuadTree().insert(e); },
-                                       "addNearby", [] (World& world, Entity e, Entity hint)  { world.getQuadTree().insertNearby(e, hint); },
-                                       //Component manipulation.
-                                       "transform", &World::getTransformManager,
-                                       "movement", &World::getMovementManager,
-                                       "steering", &World::getSteeringManager,
-                                       "pathplanner", &World::getPathPlanner,
-                                       "visuals", &World::getVisualsManager,
-                                       "collisionMov", &World::getMovementCollisionManager,
-                                       "collisionSem", &World::getSemanticsCollisionManager,
-                                       "rigidbody", &World::getRigidbodyManager,
-                                       "input", &World::getInputManager,
-                                       "audio", &World::getAudioManager,
-                                       "light", [](World& world) -> LightSystem& {return world.getLightSystem();},
-                                       "behavior", &World::getBehaviorManager,
-                                       "tilemap", &World::getTileMapRenderer,
-                                       "particles", &World::getParticleSystemManager,
-                                       "partentChild", &World::getParentChildManager,
-                                       "setRenderDepth", &World::setRenderDepth,
-                                       "setName", &World::setName,
-                                       "getName", &World::getName,
-                                       "gamestate", &World::getState,
-                                       "tagWithName", &World::tagWithName,
-                                       "getEntityByName", &World::getEntityByName,
-                                       "getName", &World::getName);
+			script::Usertype<World> worldType = state.registerUsertype<World>("World");
+            // Factory methods to produce single entities.
+			worldType["createEntity"] = sol::overload([](World& world) { return world.create(EntityBaseComponents(), EntityOptionalComponents()); },
+				[](World& world, const std::string& script) { return world.create(EntityBaseComponents(), EntityOptionalComponents(), script); },
+				[](World& world, const std::string& script, script::Environment param) { return world.create(EntityBaseComponents(), EntityOptionalComponents(), script, param); });
+			worldType["createActor"] = sol::overload([](World& world) { return world.create(ActorBaseComponents(), ActorOptionalComponents()); },
+				[](World& world, const std::string& script) { return world.create(ActorBaseComponents(), ActorOptionalComponents(), script); },
+				[](World& world, const std::string& script, script::Environment param) { return world.create(ActorBaseComponents(), ActorOptionalComponents(), script, param); });
+			worldType["createMetaObject"] = sol::overload([](World& world) { return world.create(MetaObjectBaseComponents(), MetaObjectOptionalComponents()); },
+				[](World& world, const std::string& script)
+				{ return world.create(MetaObjectBaseComponents(), MetaObjectOptionalComponents(), script); },
+				[](World& world, const std::string& script, script::Environment param)
+				{ return world.create(MetaObjectBaseComponents(), MetaObjectOptionalComponents(), script, param); });
+			worldType["createLight"] = [](World& world) { return world.create(LightBaseComponents(), LightOptionalComponents()); },
+			worldType["createTrigger"] = sol::overload([](World& world) { return world.create(TriggerBaseComponents(), TriggerOptionalComponents()); },
+				[](World& world, const std::string& script)
+				{ return world.create(TriggerBaseComponents(), TriggerOptionalComponents(), script); },
+				[](World& world, const std::string& script, script::Environment param)
+				{ return world.create(TriggerBaseComponents(), TriggerOptionalComponents(), script, param); });
+			worldType["createWorldObject"] = sol::overload([](World& world) { return world.create(WorldObjectBaseComponents(), WorldObjectOptionalComponents()); },
+				[](World& world, const std::string& script)
+				{ return world.create(WorldObjectBaseComponents(), WorldObjectOptionalComponents(), script); },
+				[](World& world, const std::string& script, script::Environment param)
+				{ return world.create(WorldObjectBaseComponents(), WorldObjectOptionalComponents(), script, param); });
+			worldType["createTileMap"] = sol::overload([](World& world) { return world.create(TileMapBaseComponents(), TileMapOptionalComponents()); },
+				[](World& world, const std::string& script)
+				{ return world.create(TileMapBaseComponents(), TileMapOptionalComponents(), script); },
+				[](World& world, const std::string& script, script::Environment param)
+				{ return world.create(TileMapBaseComponents(), TileMapOptionalComponents(), script, param); });
+			worldType["createParticleSystem"] = [](World& world) { return world.create(ParticleSystemBaseComponents(), ParticleSystemOptionalComponents()); };
+			worldType["createAudioEmitter"] = [](World& world) { return world.create(AudioEmitterBaseComponents(), AudioEmitterOptionalComponents()); };
+			// Factory methods to produce sets of entities.
+			worldType["createEntitys"] = &detail::entityCreator<EntityBaseComponents, EntityOptionalComponents>;
+			worldType["createActors"] = &detail::entityCreator<ActorBaseComponents, ActorOptionalComponents>;
+			worldType["createMetaObjects"] = &detail::entityCreator<MetaObjectBaseComponents, MetaObjectOptionalComponents>;
+			worldType["createLights"] = &detail::entityCreator<LightBaseComponents, LightOptionalComponents>;
+			worldType["createTriggers"] = &detail::entityCreator<TriggerBaseComponents, TriggerOptionalComponents>;
+			worldType["createWorldObjects"] = &detail::entityCreator<WorldObjectBaseComponents, WorldObjectOptionalComponents>;
+			worldType["createParticleSystems"] = &detail::entityCreator<ParticleSystemBaseComponents, ParticleSystemOptionalComponents>;
+			worldType["createAudioEmitters"] = &detail::entityCreator<AudioEmitterBaseComponents, AudioEmitterOptionalComponents>;
+			// Entity control methods.
+			worldType["destroy"] = &World::destroy;
+			worldType["destroyNamed"] = &World::destroyNamed;
+			worldType["makeCopy"] = &World::makeCopy;
+			worldType["add"] = &World::addEntity;
+			worldType["addNearby"] = &World::addEntityNearby;
+			//Component manipulation.
+			worldType["transform"] = &World::getTransformManager;
+			worldType["movement"] = &World::getMovementManager;
+			worldType["steering"] = &World::getSteeringManager;
+			worldType["pathplanner"] = &World::getPathPlanner;
+			worldType["visuals"] = &World::getVisualsManager;
+			worldType["collisionMov"] = &World::getMovementCollisionManager;
+			worldType["collisionSem"] = &World::getSemanticsCollisionManager;
+			worldType["rigidbody"] = &World::getRigidbodyManager;
+			worldType["input"] = &World::getInputManager;
+			worldType["audio"] = &World::getAudioManager;
+			worldType["light"] = static_cast<LightSystem& (World::*)() >(&World::getLightSystem);
+			worldType["behavior"] = &World::getBehaviorManager;
+			worldType["tilemap"] = &World::getTileMapRenderer;
+			worldType["particles"] = &World::getParticleSystemManager;
+			worldType["partentChild"] = &World::getParentChildManager;
+			worldType["setRenderDepth"] = &World::setRenderDepth;
+			worldType["setName"] = &World::setName;
+			worldType["getName"] = &World::getName;
+			worldType["gamestate"] = &World::getState;
+			worldType["tagWithName"] = &World::tagWithName;
+			worldType["getEntityByName"] = &World::getEntityByName;
+			//world setup
+			worldType["initSpace"] = &World::initSpace;
 
-                        //if you register world, you rely on all the other stuff, so this is registered automatically
-                        registerEntity(state);
-                        registerUtility(state);
-                        registerAudio(state);
-                        registerSerialization(state);
-                        registerInput(state);
-                        registerTransform(state);
-                        registerMovement(state);
-                        registerAssets(state);
-                        registerVisuals(state, app);
-                        registerCollision<MOVEMENT_COLLISION_CONTEXT>(state);
-                        registerCollision<SEMANTICS_COLLISION_CONTEXT>(state);
-                        registerRigidbody(state);
-                        registerLight(state);
-                        registerBehavior(state);
-                        registerParticleSystem(state);
-                        registerParentChild(state);
+            //if you register world, you rely on all the other stuff, so this is registered automatically
+			registerWorldGraph(state);
+            registerEntity(state);
+            registerUtility(state);
+            registerAudio(state);
+            registerSerialization(state);
+            registerInput(state);
+            registerTransform(state);
+            registerMovement(state);
+            registerAssets(state);
+            registerVisuals(state, app);
+            registerCollision<MOVEMENT_COLLISION_CONTEXT>(state);
+            registerCollision<SEMANTICS_COLLISION_CONTEXT>(state);
+            registerRigidbody(state);
+            registerLight(state);
+            registerBehavior(state);
+            registerParticleSystem(state);
+            registerParentChild(state);
         }
     }
 }

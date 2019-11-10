@@ -78,6 +78,10 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
         ungod::SerializationContext context;
         context.serializeRootObject(world, static_cast<const sf::RenderTarget&>(window));
         context.save("test_output/world_sav.xml");
+
+		world.destroy(e); //queue entity for 
+		world.destroy(e2); //queue entity for destruction
+		world.update(20.0f, {}, {}); //destroys entity in queue
     }
     {
         sf::RenderWindow window;
@@ -101,18 +105,20 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
 
         context.deserializeRootObject(world, static_cast<const sf::RenderTarget&>(window));
 
+		std::this_thread::sleep_for(std::chrono::milliseconds(500)); //make sure image data can be loaded async in time
+
         BOOST_CHECK_EQUAL(2u, world.getQuadTree().size());
 
         quad::PullResult<ungod::Entity> pull;
         world.getQuadTree().getContent(pull);
         for (const auto& e : pull.getList())
         {
-            if ( e.getInstantiation()->getIdentifier() ==
+            if ( e.getInstantiation()->getSerialIdentifier() ==
                  ungod::SerialIdentifier< ungod::EntityInstantiation< ungod::BaseComponents<ungod::SoundEmitterComponent, ungod::TransformComponent>, ungod::OptionalComponents<> > >::get())
             {
                 BOOST_CHECK_EQUAL(10.0f, e.get<ungod::TransformComponent>().getPosition().x);
             }
-            else if ( e.getInstantiation()->getIdentifier() ==
+            else if ( e.getInstantiation()->getSerialIdentifier() ==
                  ungod::SerialIdentifier< ungod::EntityInstantiation< ungod::BaseComponents<ungod::VisualsComponent, ungod::TransformComponent>, ungod::OptionalComponents<ungod::RigidbodyComponent<>> > >::get())
              {
                  BOOST_CHECK(e.has<ungod::RigidbodyComponent<>>());
@@ -126,34 +132,35 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
         BOOST_CHECK(world.getEntityByName("cat"));
         BOOST_CHECK_EQUAL(world.getEntityByName("dog").get<ungod::TransformComponent>().getPosition().x, 10.0f);
         BOOST_CHECK_EQUAL(world.getEntityByName("cat").get<ungod::TransformComponent>().getPosition().x, 100.0f);
+
+		world.destroyNamed(world.getEntityByName("dog")); //queue entity for 
+		world.destroyNamed(world.getEntityByName("cat")); //queue entity for destruction
+		world.update(20.0f, {}, {}); //destroys entity in queue
     }
     {
         ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 
-
         ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "test_node", "test_output/renderlayers_sav.xml");
 
-        ungod::World* world = node.addWorld();
-        world->setName("test_node");
-        world->instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
-        world->initSpace(0,0,800,600);
+		ungod::World* world1 = node.addWorld();
+		world1->initSpace(0, 0, 800, 600);
 
-        ungod::World* world2 = node.addWorld();
-        world2->instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
-        world2->initSpace(800,600,1000,800);
+		ungod::World* world2 = node.addWorld();
+		world2->initSpace(800, 600, 800, 600);
 
         BOOST_CHECK(!node.isLoaded());
         BOOST_CHECK(state.getWorldGraph().updateReferencePosition({1000.0f,1000.0f}));
         BOOST_CHECK(node.isLoaded());
 
-        state.save("test_output/renderlayers_state_sav.xml", true);
+        //state.save("test_output/renderlayers_state_sav.xml", true);
     }
     {
         ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
         state.load("test_output/renderlayers_state_sav.xml");
 
-        ungod::WorldGraphNode* node = state.getWorldGraph().getNode(sf::Vector2f{1000.0f,1000.0f});
-        BOOST_REQUIRE(node);
+		BOOST_CHECK(state.getWorldGraph().updateReferencePosition({ 1000.0f,1000.0f }));
+		ungod::WorldGraphNode* node = state.getWorldGraph().getNode(sf::Vector2f{ 1000.0f,1000.0f });
+		BOOST_REQUIRE(node);
         BOOST_CHECK(node->isLoaded());
 
         ungod::World* world = node->getWorld(0);
@@ -161,8 +168,10 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
         ungod::World* world2 = node->getWorld(1);
         BOOST_REQUIRE(world2);
 
-        BOOST_CHECK_EQUAL(800u, world->getBounds().width);
-        BOOST_CHECK_EQUAL(1000u, world2->getBounds().width);
+        BOOST_CHECK_EQUAL(800, world->getBounds().width);
+		BOOST_CHECK_EQUAL(0, world->getBounds().left);
+        BOOST_CHECK_EQUAL(800, world2->getBounds().width);
+		BOOST_CHECK_EQUAL(600, world2->getBounds().top);
     }
 }
 

@@ -33,6 +33,7 @@
 #include "ungod/serialization/Serializable.h"
 #include "ungod/serialization/SerialRenderLayer.h"
 #include "ungod/script/CustomEvent.h"
+#include "owls/Signal.h"
 
 namespace ungod
 {
@@ -83,16 +84,25 @@ namespace ungod
         /** \brief Returns the string identifier for the layer. */
         const std::string& getName() const;
 
+		/** \brief Registers a callback for the on space changed event. */
+		inline decltype(auto) onSpaceChanged(const std::function<void(const sf::FloatRect&)>& callback)
+		{
+			return mOnSpaceChanged.connect(callback);
+		}
+
     private:
         float mRenderDepth;
         std::string mName;
+
+	protected:
+		owls::Signal<const sf::FloatRect&> mOnSpaceChanged;
 
     public:
         virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, const sf::RenderTarget& target) const override
         {
             deferredSerialize<RenderLayer>(*this, serializer, context, target);
         }
-        virtual std::string getIdentifier() const override
+        virtual std::string getSerialIdentifier() const override
         {
             return deferredGetIdentifier<RenderLayer>();
         }

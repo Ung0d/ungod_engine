@@ -73,7 +73,7 @@ namespace ungod
 
     private:
         std::unordered_map< std::string, std::shared_ptr<AssetData<T, PARAM...>> > mAssetData;  ///<stores loaded assets under fileID as key
-        std::list< AssetData<T, PARAM...>* > mPending; ///<stores asset data that is loading asyc and invokes callbacks on main thread if finished
+        std::list< std::weak_ptr<AssetData<T, PARAM...>> > mPending; ///<stores asset data that is loading asyc and invokes callbacks on main thread if finished
 
         /**
         * \brief Tells the handler that an asset requires AssetData refering to the given path.
@@ -97,6 +97,8 @@ namespace ungod
 
         /** \brief Sync load utility method. */
         void syncLoad(std::shared_ptr<AssetData<T, PARAM...>> data, const std::string filepath, PARAM&& ... param);
+
+		~AssetHandler();
     };
 
     /** \brief Manages und bundles together the assetshandlers of all types.
@@ -145,21 +147,27 @@ namespace ungod
     template<typename T, typename ... PARAM>
     void AssetHandler<T, PARAM...>::update()
     {
-        for (auto data = mPending.begin(); data != mPending.end();)
-        {
-            if ((*data)->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-            {
-                while(!(*data)->callbackStack.empty()) //invoke callbacks
-                {
-                    //pair contains a pointer to the requesting asset(first) and the callback(second)
-                    auto callback = std::move((*data)->callbackStack.front());
-                    (*data)->callbackStack.pop_front();
-                    callback.second(*((*data)->asset));
-                }
-                data = mPending.erase(data);
-            }
-            else
-                data++;
+		for (auto data = mPending.begin(); data != mPending.end();)
+		{
+			if (data->expired())
+				data = mPending.erase(data);
+			else
+			{
+				auto shared = data->lock();
+				if (shared->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+				{
+					while (!shared->callbackStack.empty()) //invoke callbacks
+					{
+						//pair contains a pointer to the requesting asset(first) and the callback(second)
+						auto callback = std::move(shared->callbackStack.front());
+						shared->callbackStack.pop_front();
+						callback.second(*(shared->asset));
+					}
+					data = mPending.erase(data);
+				}
+				else
+					data++;
+			}
         }
     }
 
@@ -192,9 +200,9 @@ namespace ungod
                 Logger::endl();
 
                 data->future = std::async(std::launch::async, &AssetHandler<T, PARAM...>::asyncLoad,
-                                          this, data, path, std::forward<PARAM>(param)...);
+					this, std::weak_ptr<AssetData<T, PARAM...>>{data}, path, std::forward<PARAM>(param)...);
 
-                mPending.emplace_back(data.get());
+                mPending.emplace_back(data);
             }
         }
         else
@@ -221,6 +229,7 @@ namespace ungod
             Logger::info("Now dropping asset ");
             Logger::info(data->filepath);
             Logger::endl();
+			data->future.wait();
             mAssetData.erase(data->filepath);
         }
     }
@@ -234,10 +243,11 @@ namespace ungod
     template<typename T, typename ... PARAM>
     void AssetHandler<T, PARAM...>::asyncLoad(std::weak_ptr<AssetData<T, PARAM...>> weakData, const std::string filepath, PARAM&& ... param)
     {
-        auto emptyPtr = acquireAsset();
+		auto emptyPtr = acquireAsset();
         bool success = LoadBehavior<T, PARAM...>::loadFromFile(filepath, *emptyPtr, std::forward<PARAM>(param)...);
-        if (weakData.expired()) return; //all refering assets dropped before loading was complete
-        auto sharedData = weakData.lock();
+        //todo: can this be dropped?
+		if (weakData.expired()) return; //all refering assets dropped before loading was complete
+		auto sharedData = weakData.lock();
         std::lock_guard<std::mutex> lg(sharedData->mutex);
         sharedData->asset = std::move(emptyPtr);
         sharedData->isLoaded = success;
@@ -262,6 +272,15 @@ namespace ungod
             Logger::endl();
         }
     }
+
+	template<typename T, typename ... PARAM>
+	AssetHandler<T, PARAM...>::~AssetHandler()
+	{
+		//wait for every pending futures to avoid memory leaks
+		for (const auto& data : mPending)
+			if (!data.expired())
+				data.lock()->future.wait();
+	}
 }
 
 #endif // ASSET_HANDLER_H

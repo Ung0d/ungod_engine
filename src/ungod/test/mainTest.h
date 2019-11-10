@@ -6,16 +6,16 @@
 //wrap a global ungod::Application object that is constructed for all tests and that sets up all neccessary stuff
 struct EmbeddedTestApp
 {
-    EmbeddedTestApp()
-    {
-        embeddedApp = std::make_unique<ungod::Application>("testapp");
-        embeddedApp->initApplication();
+	EmbeddedTestApp()
+	{
+		embeddedApp = new ungod::Application("test_app");
+		embeddedApp->initApplication();
         ungod::Logger::info("Test application object constructed...");
         ungod::Logger::endl();
     }
-    ~EmbeddedTestApp()
+	~EmbeddedTestApp()
     {
-        embeddedApp.release();
+		delete embeddedApp;
         ungod::Logger::info("Test application object destroyed...");
         ungod::Logger::endl();
     }
@@ -23,7 +23,7 @@ struct EmbeddedTestApp
     static ungod::Application& getApp() { return *embeddedApp; }
 
 private:
-    static std::unique_ptr<ungod::Application> embeddedApp;
+    static ungod::Application* embeddedApp;
 };
 
 #endif // MAIN_TEST_H

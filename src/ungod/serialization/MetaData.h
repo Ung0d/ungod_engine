@@ -59,8 +59,8 @@ namespace ungod
     class MetaMap : public Asset<MetaDataMap>
     {
     public:
-        MetaMap(const std::string uID)  :
-            Asset<MetaDataMap>(uID) {}
+        MetaMap(const std::string uID, LoadPolicy policy = SYNC)  :
+            Asset<MetaDataMap>(uID, policy) {}
         MetaMap() : Asset<MetaDataMap>() {}
 
         /**
@@ -77,8 +77,8 @@ namespace ungod
     class MetaList : public Asset<MetaDataList>
     {
     public:
-        MetaList(const std::string uID)  :
-            Asset<MetaDataList>(uID) {}
+        MetaList(const std::string uID, LoadPolicy policy = SYNC)  :
+            Asset<MetaDataList>(uID, policy) {}
         MetaList() : Asset<MetaDataList>() {}
 
         /**
@@ -98,8 +98,8 @@ namespace ungod
     class MetaTable : public Asset<MetaDataTable>
     {
     public:
-        MetaTable(const std::string uID)  :
-            Asset<MetaDataTable>(uID) {}
+        MetaTable(const std::string uID, LoadPolicy policy = SYNC)  :
+            Asset<MetaDataTable>(uID, policy) {}
         MetaTable() : Asset<MetaDataTable>() {}
 
         /**

@@ -52,7 +52,7 @@ namespace ungod
         AssetData<T, PARAM...>* mData;
 
     protected:
-        static T sDefault;
+		static T& getDefault();
 
     public:
         /** \brief Load constructor. */
@@ -127,8 +127,13 @@ namespace ungod
         virtual ~Asset();
     };
 
-    template <typename T, typename ... PARAM>
-    T Asset<T, PARAM...>::sDefault;
+
+	template <typename T, typename ... PARAM>
+	T& Asset<T, PARAM...>::getDefault()
+	{
+		static T defT;
+		return defT;
+	}
 
     template <typename T, typename ... PARAM>
     Asset<T, PARAM...>& Asset<T, PARAM...>::operator=(const Asset<T, PARAM...>& rightSide)
@@ -204,7 +209,7 @@ namespace ungod
         {
             return mData->asset.get();
         }
-        else return &sDefault;
+        else return &getDefault();
     }
 
     template<typename T, typename ... PARAM>
@@ -215,7 +220,7 @@ namespace ungod
             mData->future.wait();
             return mData->asset.get();
         }
-        else return &sDefault;
+        else return &getDefault();
     }
 
     template<typename T, typename ... PARAM>
@@ -228,7 +233,7 @@ namespace ungod
                 if (mData->isLoaded)
                     callback(*mData->asset);
                 else
-                    callback(sDefault);
+                    callback(getDefault());
             }
             else
             {
@@ -250,7 +255,7 @@ namespace ungod
     template <typename T, typename ... PARAM>
     bool Asset<T, PARAM...>::loadDefault(const std::string& filepath)
     {
-        return LoadBehavior<T, PARAM...>::loadFromFile(filepath, sDefault);
+        return LoadBehavior<T, PARAM...>::loadFromFile(filepath, getDefault());
     }
 
     template <typename T, typename ... PARAM>

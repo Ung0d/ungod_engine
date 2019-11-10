@@ -58,10 +58,17 @@ namespace ungod
             Add(Entity e) : entity(e) {}
 
             template<typename C>
-            void add(dom::ComponentInstantiator<C> c) const { entity.add<C>(c); }
+            void addWithInstantiator(dom::ComponentInstantiator<C> c) const { entity.add<C>(c); }
 
             template<typename C>
             void add() const { entity.add<C>(); }
+
+			template<typename C>
+			void addMulti(std::size_t num) const 
+			{
+				add<C>();
+				entity.initMulti<C>(num);
+			}
 
             Entity entity;
         };
@@ -75,6 +82,11 @@ namespace ungod
 
             Entity entity;
         };
+
+		Has hasser(Entity e);
+		Get getter(Entity e);
+		Add adder(Entity e);
+		Rem remmer(Entity e);
 
         /** \brief Registers entity functionality for scripts. */
         void registerEntity(ScriptStateBase& state);

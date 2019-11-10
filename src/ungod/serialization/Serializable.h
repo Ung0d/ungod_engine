@@ -131,7 +131,7 @@ namespace ungod
         void serialize(MetaNode serializer, SerializationContext& context, PARAM&& ... additionalParam) const;
 
         /** \brief Returns the class identifier of this object. */
-        std::string getIdentifier() const;
+        std::string getSerialIdentifier() const;
     };
 
     /**
@@ -146,7 +146,7 @@ namespace ungod
         virtual void serialize(MetaNode serializer, SerializationContext& context, PARAM&& ... additionalParam) const = 0;
 
         /** \brief Returns the class identifier of this object. */
-        virtual std::string getIdentifier() const = 0;
+        virtual std::string getSerialIdentifier() const = 0;
     };
 
     /**
@@ -161,7 +161,7 @@ namespace ungod
         typedef typename std::remove_cv<typename std::remove_reference<decltype(*this)>::type>::type UPT; \
         deferredSerialize<UPT>(*this, serializer, context); \
     } \
-    virtual std::string getIdentifier() const override \
+    virtual std::string getSerialIdentifier() const override \
     { \
         typedef typename std::remove_cv<typename std::remove_reference<decltype(*this)>::type>::type UPT; \
         return deferredGetIdentifier<UPT>(); \
@@ -281,7 +281,7 @@ namespace ungod
         */
         template<typename T, typename ... PARAM>
         inline void serializeObject(const std::string& objIdentifier, const T& data, MetaNode serializer, PARAM&& ... additionalParam)
-        { serializeObject(objIdentifier, data, data.getIdentifier(), serializer, std::forward<PARAM>(additionalParam)...); }
+        { serializeObject(objIdentifier, data, data.getSerialIdentifier(), serializer, std::forward<PARAM>(additionalParam)...); }
 
         /** \brief Same as serialize unique, but with the option the explicitly specify the type identifier for the object. */
         template<typename T, typename ... PARAM>
@@ -324,7 +324,7 @@ namespace ungod
         inline void serializeObjectContainer(const std::string& identifier, const CONTAINER<T>& data, MetaNode serializer, PARAM&& ... additionalParam)
         {
             if (!data.empty())
-                serializeObjectContainer(identifier, std::begin(data)->getIdentifier(), data, serializer, std::forward<PARAM>(additionalParam)...);
+                serializeObjectContainer(identifier, std::begin(data)->getSerialIdentifier(), data, serializer, std::forward<PARAM>(additionalParam)...);
         }
         template <typename T, template <typename...> typename CONTAINER, typename ... PARAM>
         void serializeObjectContainer(const std::string& identifier, const std::string& typeIdentifier, const CONTAINER<T>& data, MetaNode serializer, PARAM&& ... additionalParam);
@@ -334,7 +334,7 @@ namespace ungod
         void serializeObjectContainer(const std::string& identifier, const std::function<const T&(std::size_t)>& getter, std::size_t num, MetaNode serializer, PARAM&& ... additionalParam)
         {
             if (num > 0)
-                serializeObjectContainer(identifier, getter(0).getIdentifier(), getter, num, serializer, std::forward<PARAM>(additionalParam)...);
+                serializeObjectContainer(identifier, getter(0).getSerialIdentifier(), getter, num, serializer, std::forward<PARAM>(additionalParam)...);
         }
         template <typename T, typename ... PARAM>
         void serializeObjectContainer(const std::string& identifier, const std::string& typeIdentifier, const std::function<const T&(std::size_t)>& getter, std::size_t num, MetaNode serializer, PARAM&& ... additionalParam);

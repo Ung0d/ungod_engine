@@ -96,6 +96,9 @@ BOOST_AUTO_TEST_CASE( animation_test )
     world.getRenderer().update(entities, 21);
 
     BOOST_CHECK(!e.get<ungod::AnimationComponent>().getAnimation().isRunning());
+
+	world.destroy(e); //queue entity for destruction
+	world.update(20.0f, {}, {}); //destroys entity in queue
 }
 
 BOOST_AUTO_TEST_CASE( multivisual_test )
@@ -110,6 +113,9 @@ BOOST_AUTO_TEST_CASE( multivisual_test )
     BOOST_CHECK_EQUAL( e.get<ungod::MultiSpriteComponent>().getComponent(0).getSprite().getScale().x, 1.0f );
     BOOST_CHECK_EQUAL( e.get<ungod::MultiSpriteComponent>().getComponent(1).getSprite().getRotation(), 0.0f );
     BOOST_CHECK_EQUAL( e.get<ungod::MultiSpriteComponent>().getComponent(2).getSprite().getOrigin().x, 0.0f );
+
+	world.destroy(e); //queue entity for destruction
+	world.update(20.0f, {}, {}); //destroys entity in queue
 }
 
 BOOST_AUTO_TEST_CASE( render_order_test )
@@ -161,9 +167,13 @@ BOOST_AUTO_TEST_CASE( render_order_test )
     std::advance(iter, 1);
     BOOST_CHECK(e[3] == *(iter));
     std::advance(iter, 1);
-    BOOST_CHECK(e[5] == *(iter));
-    std::advance(iter, 1);
     BOOST_CHECK(e[4] == *(iter));
+    std::advance(iter, 1);
+    BOOST_CHECK(e[5] == *(iter));
+
+	for (int i = 0; i < 6; i++)
+		world.destroy(e[i]); //queue entity for destruction
+	world.update(20.0f, {}, {}); //destroys entity in queue
 }
 
 BOOST_AUTO_TEST_SUITE_END()

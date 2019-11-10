@@ -75,6 +75,9 @@ BOOST_AUTO_TEST_CASE( entity_mouse_events_test )
     world.handleInput(event, window);
 
     BOOST_CHECK(mouseExit);
+
+	world.destroy(e); //queue entity for destruction
+	world.update(20.0f, {}, {}); //destroys entity in queue
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -135,7 +135,7 @@ namespace ungod
         {
             deferredSerialize<UniversalEmitter, ParticleFunctorMaster*>(*this, serializer, context, std::move(master));
         }
-        virtual std::string getIdentifier() const override
+        virtual std::string getSerialIdentifier() const override
         {
             return deferredGetIdentifier<UniversalEmitter>();
         }

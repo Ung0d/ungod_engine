@@ -45,6 +45,8 @@ namespace ungod
 
             template<typename T>
             T const* as() const { return static_cast<T const*>(this); }
+
+			virtual ~FunctorDataDeepBase() {}
         };
     }
 

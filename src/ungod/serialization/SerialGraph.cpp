@@ -55,13 +55,16 @@ namespace ungod
     {
         std::size_t numvertex;
         auto attr = context.first(context.deserializeProperty<std::size_t>(numvertex, 0u), "v", deserializer);
-
+		if (numvertex == 0) return;
         std::vector< graph::EdgeInstantiator > edges;
         context.next(context.deserializeObjectContainer<graph::EdgeInstantiator>(
                                                         [&edges] (std::size_t init) { edges.resize(init); },
                                                         [&edges] (std::size_t i) -> graph::EdgeInstantiator& { return edges[i]; }), "e", deserializer, attr);
 
-        if (numvertex > 0)
-            data.init(numvertex, edges.begin(), edges.end());
+
+		data.mAdjacencies.resize(numvertex);
+		data.mNumEdges = edges.size()/2;
+		for (const auto& e : edges)
+			data.mAdjacencies[e.u].emplace_back(e.v);
     }
 }

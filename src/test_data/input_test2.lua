@@ -7,8 +7,9 @@ function input_test2.onInit(global, state)
     global.release = false
 
     --create a world
-    global.world = state:addWorld()
-    global.world:init(-2000,-2000,4000,4000)
+    global.node = state:worldGraph():createNode(state, "test", "test")
+    global.world = global.node:addWorld()
+    global.world:initSpace(-2000,-2000,4000,4000)
 
     global.e = global.world:createEntity()
     global.e:add():MovementRigidbody()

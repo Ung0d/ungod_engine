@@ -57,7 +57,11 @@ namespace ungod
 
     private:
         /** \brief A base class for component signal emitters. */
-        class EmitterBase {};
+        class EmitterBase 
+		{
+		public:
+			virtual ~EmitterBase() {}
+		};
 
         /** \brief Definitive class to emit added and removed signals for a component type C. */
         template<typename C>

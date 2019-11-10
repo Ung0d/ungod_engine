@@ -255,6 +255,16 @@ namespace ungod
         return true;
     }
 
+	void World::addEntity(Entity e)
+	{
+		mQuadTree.insert(e);
+	}
+
+	void World::addEntityNearby(Entity e, Entity hint)
+	{
+		mQuadTree.insertNearby(e, hint);
+	}
+
     void World::destroy(Entity e)
     {
         mEntitiesToDestroy.push_front(e);

@@ -145,6 +145,12 @@ namespace ungod
         template<typename... OPTIONAL>
         Entity create(OptionalComponents<OPTIONAL...> co, const std::string& script, script::Environment param);
 
+		/** \brief adds an entity to the world. */
+		void addEntity(Entity e);
+
+		/** \brief adds an entity to the world using an existing entity in this world as a hint for fast insertion. */
+		void addEntityNearby(Entity e, Entity hint);
+
         /** \brief Destroys the given entity. Automatically invalidates all other handles.
         * Emits entity destruction event. */
         void destroy(Entity e);
@@ -298,11 +304,6 @@ namespace ungod
         void toggleLight(bool on);
         bool isLightToggled() const;
 
-        inline decltype(auto) onSpaceChanged(const std::function<void(const sf::FloatRect&)>& callback)
-        {
-            return mOnSpaceChanged.connect(callback);
-        }
-
     private:
         ScriptedGameState* mMaster;
         EntityBehaviorManager mBehaviorManager;
@@ -328,7 +329,6 @@ namespace ungod
         owls::Signal<Entity> mEntityDestructionSignal;
         owls::Signal<Entity, MetaNode, SerializationContext&> mEntitySerializedSignal;
         owls::Signal<Entity, MetaNode, DeserializationContext&> mEntityDeserializedSignal;
-        owls::Signal<const sf::FloatRect&> mOnSpaceChanged;
 
         quad::PullResult< Entity > mInUpdateRange;
         quad::PullResult< Entity > mRenderedEntities;
@@ -349,7 +349,7 @@ namespace ungod
         {
             deferredSerialize<World>(*this, serializer, context, target);
         }
-        virtual std::string getIdentifier() const override
+        virtual std::string getSerialIdentifier() const override
         {
             return deferredGetIdentifier<World>();
         }

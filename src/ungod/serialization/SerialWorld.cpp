@@ -52,7 +52,7 @@ namespace ungod
         while (!contentPull.done())
         {
             Entity e = contentPull.poll();
-            auto v = sorted.emplace(e.getInstantiation()->getIdentifier(), std::vector<Entity>{});
+            auto v = sorted.emplace(e.getInstantiation()->getSerialIdentifier(), std::vector<Entity>{});
             v.first->second.emplace_back(e);
         }
 
@@ -60,13 +60,13 @@ namespace ungod
             context.serializeObjectContainer(v.first, v.first, v.second, serializer, data, static_cast<const Application&>(*data.mMaster->getApp()));
 
         if (!data.mTileMapRenderer.getTileMapEntities().empty())
-            context.serializeObjectContainer(data.mTileMapRenderer.getTileMapEntities().back().getInstantiation()->getIdentifier(),
-                                             data.mTileMapRenderer.getTileMapEntities().back().getInstantiation()->getIdentifier(),
+            context.serializeObjectContainer(data.mTileMapRenderer.getTileMapEntities().back().getInstantiation()->getSerialIdentifier(),
+                                             data.mTileMapRenderer.getTileMapEntities().back().getInstantiation()->getSerialIdentifier(),
                                              data.mTileMapRenderer.getTileMapEntities(), serializer, data, static_cast<const Application&>(*data.mMaster->getApp()));
 
         if (!data.mTileMapRenderer.getWaterEntities().empty())
-            context.serializeObjectContainer(data.mTileMapRenderer.getWaterEntities().back().getInstantiation()->getIdentifier(),
-                                             data.mTileMapRenderer.getWaterEntities().back().getInstantiation()->getIdentifier(),
+            context.serializeObjectContainer(data.mTileMapRenderer.getWaterEntities().back().getInstantiation()->getSerialIdentifier(),
+                                             data.mTileMapRenderer.getWaterEntities().back().getInstantiation()->getSerialIdentifier(),
                                              data.mTileMapRenderer.getWaterEntities(), serializer, data, static_cast<const Application&>(*data.mMaster->getApp()));
 
         MetaNode nameMapNode = context.appendSubnode(serializer, "name_map");

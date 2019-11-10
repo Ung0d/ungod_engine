@@ -52,6 +52,11 @@ BOOST_AUTO_TEST_CASE( collision_events_test )
     world.update(0.1f, {0,0}, {800, 600});
 
     BOOST_CHECK(collisionDetectedEnd);
+
+	world.destroy(e1); //queue entity for destruction
+	world.destroy(e2); //queue entity for destruction
+	world.destroy(e3); //queue entity for destruction
+	world.update(20.0f, {}, {}); //destroys entity in queue
 }
 
 BOOST_AUTO_TEST_CASE( point_inside_collider_test )

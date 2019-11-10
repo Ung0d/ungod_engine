@@ -41,12 +41,16 @@ namespace ungod
         {
             mAdjacencies[i].emplace_back(j);
             mAdjacencies[j].emplace_back(i);
+			mNumEdges++;
         }
 
         void UndirectedAdjacencyLists::removeEdge(unsigned i, unsigned j)
         {
+			std::size_t lenprev = mAdjacencies[i].size();
             mAdjacencies[i].remove_if([j] (const ALEdge& e) { return e.destination == j; });
             mAdjacencies[j].remove_if([i] (const ALEdge& e) { return e.destination == i; });
+			if (lenprev > mAdjacencies[i].size())
+				mNumEdges--;
         }
 
          void BFS::VertexProperties::reset(unsigned index)

@@ -185,7 +185,7 @@ namespace ungod
         context.save(fileid);
         //saves content of individual nodes
         if (saveNodes)
-            mWorldGraph.save();
+            mWorldGraph.save(*this);
     }
 
 

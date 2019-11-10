@@ -45,7 +45,7 @@ namespace ungod
     }
 
     template<typename T>
-    std::string Serializable<T>::getIdentifier() const
+    std::string Serializable<T>::getSerialIdentifier() const
     {
         return deferredGetIdentifier<T>();
     }
@@ -103,7 +103,7 @@ namespace ungod
     template<typename T, typename ... PARAM>
     void SerializationContext::serializeRootObject(const T& data, PARAM&& ... additionalParam)
     {
-        serializeObject(ROOT_REF.c_str(), data, data.getIdentifier(), rootObj, std::forward<PARAM>(additionalParam)...);
+        serializeObject(ROOT_REF.c_str(), data, data.getSerialIdentifier(), rootObj, std::forward<PARAM>(additionalParam)...);
     }
 
     template <typename T>

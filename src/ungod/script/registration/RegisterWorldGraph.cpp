@@ -23,26 +23,22 @@
 *    source distribution.
 */
 
-#include "ungod/script/registration/RegisterGameState.h"
-#include "ungod/application/ScriptedGameState.h"
+#include "ungod/script/registration/RegisterWorldGraph.h"
 #include "ungod/base/World.h"
 
 namespace ungod
 {
     namespace scriptRegistration
     {
-        void registerGameState(ScriptStateBase& state)
+        void registerWorldGraph(ScriptStateBase& state)
         {
-            script::Usertype<ScriptedGameState> stateType = state.registerUsertype<ScriptedGameState>("ScriptedGameState", sol::base_classes, sol::bases<State>());
-            stateType["camera"] = [] (ScriptedGameState& state) -> Camera& { return state.getCamera(); };
-            stateType["toggleDebugmode"] = &ScriptedGameState::toggleDebugmode;
-            stateType["debugEntityBounds"] = &ScriptedGameState::debugEntityBounds;
-            stateType["debugTexrects"] = &ScriptedGameState::debugTexrects;
-            stateType["debugColliders"] = &ScriptedGameState::debugColliders;
-            stateType["debugAudioEmitters"] = &ScriptedGameState::debugAudioEmitters;
-            stateType["load"] = &ScriptedGameState::load;
-            stateType["save"] = &ScriptedGameState::save;
-            stateType["worldGraph"] = [] (ScriptedGameState& state) -> WorldGraph& {return state.getWorldGraph();};
+			script::Usertype<WorldGraphNode> worldGraphNodeType = state.registerUsertype<WorldGraphNode>("WorldGraphNode");
+			worldGraphNodeType["addWorld"] = static_cast<World * (WorldGraphNode::*)()>(&WorldGraphNode::addWorld);
+			worldGraphNodeType["getWorld"] = &WorldGraphNode::getWorld;
+
+			script::Usertype<WorldGraph> worldGraphType = state.registerUsertype<WorldGraph>("WorldGraph");
+			worldGraphType["createNode"] = &WorldGraph::createNode;
         }
     }
 }
+

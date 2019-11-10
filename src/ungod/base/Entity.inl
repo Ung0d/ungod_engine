@@ -132,7 +132,7 @@ void Entity::rem() const
 }
 
 template<typename MULTI, typename ... PARAM>
-void Entity::initMulti(std::size_t num, PARAM&&... param)
+void Entity::initMulti(std::size_t num, PARAM&&... param) const
 {
     modify<MULTI>().init( num, mHandle.getUniverse(), std::forward<PARAM>(param)... );
 }

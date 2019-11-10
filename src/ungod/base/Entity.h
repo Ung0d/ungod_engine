@@ -130,7 +130,7 @@ namespace ungod
 
         /** \brief Initializes a given number of multicomponents. A Multicomponent of given type must be attached. */
         template<typename MULTI, typename ... PARAM>
-        void initMulti(std::size_t num, PARAM&&... param);
+        void initMulti(std::size_t num, PARAM&&... param) const;
 
         /** \brief Returns the unique id of the entity. */
         EntityID getID() const;
@@ -187,6 +187,8 @@ namespace ungod
 
         //performs cleanup, when the entitys is destroyed
         virtual void cleanup(Entity e) const = 0;
+
+		virtual ~InstantiationBase() {}
     };
 
     /**
@@ -227,7 +229,7 @@ namespace ungod
             deferredSerialize<EntityInstantiation< BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >, Entity, const World&, const Application&>(*this, serializer, context, Entity(e), world, app);
         }
 
-        virtual std::string getIdentifier() const override
+        virtual std::string getSerialIdentifier() const override
         {
             return deferredGetIdentifier<EntityInstantiation< BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >>();
         }

@@ -54,7 +54,7 @@ namespace ungod
         /** \brief Sets the node into a sleeping state with a very small footprint. Removes all contents from memory. */
         void unload();
 
-        sf::FloatRect getBounds() const;
+        const sf::FloatRect& getBounds() const;
 
         /** \brief Adds a new world to position i of the layer stack. */
         World* addWorld(unsigned i);
@@ -89,6 +89,8 @@ namespace ungod
 
         const std::string& getDataFile() const {return mDataFile;}
 
+		const RenderLayerContainer& getLayers() const { return mLayers; }
+
     private:
 
         WorldGraph& mWorldGraph;
@@ -98,6 +100,10 @@ namespace ungod
         RenderLayerContainer mLayers;
         std::string mIdentifier;
         std::string mDataFile;
+		sf::FloatRect mBounds;
+
+	private:
+		void updateBounds(RenderLayer* layer);
     };
 
 
@@ -189,7 +195,7 @@ namespace ungod
         void setDistance(unsigned distance) { mDistance = distance; }
 
         /** \brief Saves state of all loaded graph nodes to memory using their respective file IDs. */
-        void save() const;
+        void save(const ScriptedGameState& gamestate) const;
 
         /** \brief Update the internals if the bounds of a given node have changed. */
         void notifyBoundsChanged(WorldGraphNode* node);

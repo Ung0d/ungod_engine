@@ -10,6 +10,16 @@
 
 BOOST_AUTO_TEST_SUITE(BaseTest)
 
+struct T
+{
+	std::future<void> f;
+};
+
+void load(std::weak_ptr<T> w)
+{
+
+};
+
 BOOST_AUTO_TEST_CASE( asset_image_test )
 {
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
@@ -17,7 +27,11 @@ BOOST_AUTO_TEST_CASE( asset_image_test )
     world.instantiate(EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
     world.initSpace(0,0,800,600);
     ungod::Entity e = world.create(ungod::BaseComponents<ungod::TransformComponent, ungod::VisualsComponent>(), ungod::OptionalComponents<>());
+	BOOST_CHECK(e);
     world.getVisualsManager().loadTexture(e, "test_data/test_sheet.png", ungod::ASYNC);
+	//BOOST_CHECK(e.get<ungod::VisualsComponent>().isLoaded());
+	world.destroy(e); //queue entity for destruction
+	world.update(20.0f, {}, {}); //destroys entity in queue
 }
 
 BOOST_AUTO_TEST_CASE( transform_system_test )
@@ -48,6 +62,9 @@ BOOST_AUTO_TEST_CASE( transform_system_test )
     world.getTransformManager().move(e1, {10,10});
     BOOST_CHECK_EQUAL(e2.get<ungod::TransformComponent>().getPosition().x, 120);
     BOOST_CHECK_EQUAL(e2.get<ungod::TransformComponent>().getPosition().y, 20);
+	world.destroy(e1); //queue entity for destruction
+	world.destroy(e2); //queue entity for destruction
+	world.update(20.0f, {}, {}); //destroys entity in queue
 }
 
 BOOST_AUTO_TEST_CASE( movement_system_test )
@@ -61,6 +78,8 @@ BOOST_AUTO_TEST_CASE( movement_system_test )
     world.getMovementManager().accelerate(e1, {1,1});
     world.getMovementManager().update({e1}, 20);
     BOOST_CHECK(  e1.get<ungod::TransformComponent>().getPosition().x > 0);
+	world.destroy(e1); //queue entity for destruction
+	world.update(20.0f, {}, {}); //destroys entity in queue
 }
 
 BOOST_AUTO_TEST_CASE( render_system_test )
@@ -72,6 +91,8 @@ BOOST_AUTO_TEST_CASE( render_system_test )
     ungod::Entity e = world.create(ungod::BaseComponents<ungod::TransformComponent, ungod::VisualsComponent>(), ungod::OptionalComponents<>());
     world.getVisualsManager().loadTexture(e, "test_data/test.png", ungod::SYNC);
     BOOST_REQUIRE( e.get<ungod::VisualsComponent>().isLoaded() );
+	world.destroy(e); //queue entity for destruction
+	world.update(20.0f, {}, {}); //destroys entity in queue
 }
 
 BOOST_AUTO_TEST_CASE( config_property_test )
@@ -178,28 +199,6 @@ BOOST_AUTO_TEST_CASE( metadata_test )
     val3 = node.getAttribute<std::string>("attributes");
     BOOST_CHECK_EQUAL(val3, "test");
 }
-/*
-void InitMe(ungod::Entity e, ungod::World& world)
-{
-    world.getTransformManager().setPosition(e, {10.0f, 10.0f});
-}
-
-BOOST_AUTO_TEST_CASE( initialization_test )
-{
-    enum Inits { INIT_ME, NUM  };
-
-    ungod::World world;
-
-    ungod::Entity e = world.create(ungod::BaseComponents<ungod::Transform, ungod::Initializer>());
-
-    world.getInitializerManager().initialize(e, INIT_ME, world);
-
-    BOOST_CHECK_EQUAL(0.0f, e.get<ungod::Transform>().getPosition().x);
-
-    world.getInitializerManager().performInitialization<&InitMe>(world);
-
-    BOOST_CHECK_EQUAL(10.0f, e.get<ungod::Transform>().getPosition().x);
-} */
 
 
 
@@ -320,57 +319,72 @@ BOOST_AUTO_TEST_CASE( component_signal_test )
     e.rem<ungod::MovementComponent>();
 
     BOOST_CHECK(mvmRemoved);
+
+	world.destroy(e); //queue entity for destruction
+	world.update(20.0f, {}, {}); //destroys entity in queue
 }
 
 BOOST_AUTO_TEST_CASE( entity_copy_test )
 {
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
-    ungod::World world(&state);
-    world.instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
-    world.initSpace(0,0,8000,6000);
-    ungod::Entity e = world.create(ungod::BaseComponents<ungod::VisualsComponent, ungod::TransformComponent, ungod::SpriteMetadataComponent>(), ungod::OptionalComponents<ungod::SpriteComponent, ungod::MovementComponent>());
+	auto rlptr = state.makeWorld();
+	ungod::World* world = static_cast<ungod::World*>(rlptr.get());
+    world->instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
+    world->initSpace(0,0,8000,6000);
+    ungod::Entity e = world->create(ungod::BaseComponents<ungod::VisualsComponent, ungod::TransformComponent, ungod::SpriteMetadataComponent>(), ungod::OptionalComponents<ungod::SpriteComponent, ungod::MovementComponent>());
     e.add<ungod::SpriteComponent>();
-    world.getTransformManager().setPosition(e, {150,40});
-    world.getVisualsManager().loadTexture(e, "resource/penumbraTexture.png");
-    world.getVisualsManager().setSpriteTextureRect(e, sf::FloatRect{60,60,60,60});
+    world->getTransformManager().setPosition(e, {150,40});
+    world->getVisualsManager().loadTexture(e, "resource/penumbraTexture.png");
+    world->getVisualsManager().setSpriteTextureRect(e, sf::FloatRect{60,60,60,60});
     ungod::Entity ecopy = e.getWorld().makeCopy(e);
-    world.getQuadTree().insert(e);
-    world.getQuadTree().insert(ecopy);
-    world.getTransformManager().setPosition(ecopy, {150,770});
+    world->getQuadTree().insert(e);
+    world->getQuadTree().insert(ecopy);
+    world->getTransformManager().setPosition(ecopy, {150,770});
 
     BOOST_CHECK(ecopy.has<ungod::TransformComponent>());
     BOOST_CHECK(ecopy.has<ungod::VisualsComponent>());
     BOOST_CHECK(ecopy.has<ungod::SpriteMetadataComponent>());
     BOOST_CHECK(ecopy.has<ungod::SpriteComponent>());
     BOOST_CHECK(!ecopy.has<ungod::MovementComponent>());
-    BOOST_CHECK_EQUAL(2u, world.getQuadTree().size());
+    BOOST_CHECK_EQUAL(2u, world->getQuadTree().size());
     BOOST_CHECK_EQUAL(ecopy.get<ungod::TransformComponent>().getPosition().x, e.get<ungod::TransformComponent>().getPosition().x);
     BOOST_CHECK(ecopy.get<ungod::TransformComponent>().getPosition().y != e.get<ungod::TransformComponent>().getPosition().y);
     BOOST_CHECK_EQUAL(ecopy.get<ungod::VisualsComponent>().getFilePath(), e.get<ungod::VisualsComponent>().getFilePath());
     BOOST_CHECK_EQUAL(ecopy.get<ungod::SpriteComponent>().getSprite().getTextureRect().left, e.get<ungod::SpriteComponent>().getSprite().getTextureRect().left);
+
+	world->destroy(e); //queue entity for destruction
+	world->destroy(ecopy); //queue entity for destruction
+	world->update(20.0f, {}, {}); //destroys entity in queue
 }
 
 BOOST_AUTO_TEST_CASE( entity_instantiation_test )
 {
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
-    ungod::World world(&state);
-    world.instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
-    world.initSpace(0,0,800,600);
+	auto rlptr = state.makeWorld(); 
+	ungod::World* world = static_cast<ungod::World*>(rlptr.get());
+    world->instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
+    world->initSpace(0,0,800,600);
 
-    ungod::Entity wo = world.create(ungod::WorldObjectBaseComponents(), ungod::WorldObjectOptionalComponents());
-    ungod::Entity ac = world.create(ungod::ActorBaseComponents(), ungod::ActorOptionalComponents());
-    ungod::Entity me = world.create(ungod::AudioEmitterBaseComponents(), ungod::AudioEmitterOptionalComponents());
-    ungod::Entity ps = world.create(ungod::ParticleSystemBaseComponents(), ungod::ParticleSystemOptionalComponents());
+    ungod::Entity wo = world->create(ungod::WorldObjectBaseComponents(), ungod::WorldObjectOptionalComponents());
+    ungod::Entity ac = world->create(ungod::ActorBaseComponents(), ungod::ActorOptionalComponents());
+    ungod::Entity me = world->create(ungod::AudioEmitterBaseComponents(), ungod::AudioEmitterOptionalComponents());
+    ungod::Entity ps = world->create(ungod::ParticleSystemBaseComponents(), ungod::ParticleSystemOptionalComponents());
 
-    BOOST_CHECK_EQUAL(world.getComponentCount<ungod::TransformComponent>(), 4u);
-    BOOST_CHECK_EQUAL(world.getComponentCount<ungod::VisualsComponent>(), 3u);
-    BOOST_CHECK_EQUAL(world.getComponentCount<ungod::ParticleSystemComponent>(), 1u);
-    BOOST_CHECK_EQUAL(world.getComponentCount<ungod::MusicEmitterComponent>(), 1u);
-    BOOST_CHECK_EQUAL(world.getComponentCount<ungod::MovementComponent>(), 1u);
+    BOOST_CHECK_EQUAL(world->getComponentCount<ungod::TransformComponent>(), 4u);
+    BOOST_CHECK_EQUAL(world->getComponentCount<ungod::VisualsComponent>(), 3u);
+    BOOST_CHECK_EQUAL(world->getComponentCount<ungod::ParticleSystemComponent>(), 1u);
+    BOOST_CHECK_EQUAL(world->getComponentCount<ungod::MusicEmitterComponent>(), 1u);
+    BOOST_CHECK_EQUAL(world->getComponentCount<ungod::MovementComponent>(), 1u);
 
     BOOST_CHECK(!wo.get<ungod::VisualsComponent>().isLoaded());
     BOOST_CHECK(!ac.get<ungod::VisualsComponent>().isLoaded());
     BOOST_CHECK(!ps.get<ungod::VisualsComponent>().isLoaded());
+
+	world->destroy(wo); //queue entity for destruction
+	world->destroy(ac); //queue entity for destruction
+	world->destroy(me); //queue entity for destruction
+	world->destroy(ps); //queue entity for destruction
+	world->update(20.0f, {}, {}); //destroys entity in queue
 }
 
 
@@ -393,9 +407,13 @@ BOOST_AUTO_TEST_CASE( parent_child_test )
     world.getParentChildManager().setChildPosition(child, {20.0f, 20.0f});
 
     BOOST_CHECK_EQUAL(child.get<ungod::TransformComponent>().getPosition().x , 120.0f);
+
+	world.destroy(parent); //queue entity for destruction
+	world.destroy(child); //queue entity for destruction
+	world.update(20.0f, {}, {}); //destroys entity in queue
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() 
 
 
 

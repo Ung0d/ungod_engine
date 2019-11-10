@@ -113,11 +113,12 @@ namespace ungod
             BFS(const UndirectedAdjacencyLists& al)  :
                 mAdjacencyLists(al)
             {
-                mVertexProperties.reserve(al.getVertexCount());
+                mVertexProperties.resize(al.getVertexCount());
             }
 
             /** \brief Runs the algorithm. Overrides the results of the previous call to run. */
             void run(unsigned start, unsigned distanceCap = std::numeric_limits<unsigned>::infinity());
+
 
             /** \brief Accesses the calculated properties of the given vertex. */
             const VertexProperties& getProperties(unsigned i) const { return mVertexProperties[i]; }
@@ -192,7 +193,6 @@ namespace ungod
         void UndirectedAdjacencyLists::init(std::size_t numVertex, INPUT_ITER beginEdges, INPUT_ITER endEdges)
         {
             mAdjacencies.resize(numVertex);
-            mNumEdges = std::distance(beginEdges, endEdges);
             for (;beginEdges != endEdges; ++beginEdges)
                 addEdge(beginEdges->u, beginEdges->v);
         }

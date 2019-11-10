@@ -1,0 +1,7 @@
+<config>
+	<resolution width="800" height="600" fullscreen="0" framerate_limit="120" vsync="0"/>
+	<light unshadow_vertex_shader="resource/unshadowShader.vert" unshadow_frag_shader="resource/unshadowShader.frag" light_vertex_shader="resource/lightOverShapeShader.vert" light_frag_shader="resource/lightOverShapeShader.frag" default_penumbra_texture="resource/penumbraTexture.png"/>
+	<graphics_settings image_quality="0"/>
+	<testgroup floatTest="12.000000" boolTest="0" stringTest="bye" intTest="199"/>
+</config>
+

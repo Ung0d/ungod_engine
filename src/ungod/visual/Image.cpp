@@ -38,7 +38,7 @@ namespace ungod
     bool LoadBehavior<sf::Texture>::loadFromFile(const std::string& filepath, sf::Texture& data)
     {
         //sf::Context context;
-        bool success;
+        bool success=false;
         if (Image::quality == IMAGE_QUALITY_NORMAL)
         {
             success = data.loadFromFile(filepath);
@@ -52,7 +52,6 @@ namespace ungod
             else
                 success = data.loadFromFile(filepath);  //give the normal version a try
         }
-        //glFlush();
         return success;
     }
 
