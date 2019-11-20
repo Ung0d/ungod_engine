@@ -33,72 +33,69 @@ namespace ungod
     {
         void registerSerialization(ScriptStateBase& state)
         {
-            state.registerUsertype<MetaAttribute>("MetaAttribute",
-                                                 "next", sol::overload([] (MetaAttribute& attr) { return attr.next(); },
-                                                                       [] (MetaAttribute& attr, const std::string& name) { return attr.next(name.c_str()); }),
-                                                 "name", &MetaAttribute::name,
-                                                 "value", &MetaAttribute::value,
-                                                 "valueAsBool", [] (MetaAttribute& attr) { return attr.convertValue<bool>(); },
-                                                 "valueAsInt", [] (MetaAttribute& attr) { return attr.convertValue<int>(); },
-                                                 "valueAsFloat", [] (MetaAttribute& attr) { return attr.convertValue<float>(); },
-                                                 "valueAsString", [] (MetaAttribute& attr) { return attr.convertValue<std::string>(); },
-                                                 "valueAsUnsigned", [] (MetaAttribute& attr) { return attr.convertValue<unsigned>(); });
+			script::Usertype<MetaAttribute> metaAttrType = state.registerUsertype<MetaAttribute>("MetaAttribute");
+			metaAttrType["next"] = sol::overload([](MetaAttribute& attr) { return attr.next(); },
+				[](MetaAttribute& attr, const std::string& name) { return attr.next(name.c_str()); });
+			metaAttrType["name"] = & MetaAttribute::name;
+			metaAttrType["value"] = & MetaAttribute::value;
+			metaAttrType["valueAsBool"] = [](MetaAttribute& attr) { return attr.convertValue<bool>(); };
+			metaAttrType["valueAsInt"] = [](MetaAttribute& attr) { return attr.convertValue<int>(); };
+			metaAttrType["valueAsFloat"] = [](MetaAttribute& attr) { return attr.convertValue<float>(); };
+			metaAttrType["valueAsString"] = [](MetaAttribute& attr) { return attr.convertValue<std::string>(); };
+			metaAttrType["valueAsUnsigned"] = [](MetaAttribute& attr) { return attr.convertValue<unsigned>(); };
 
 
-            state.registerUsertype<MetaNode>("MetaNode",
-                                             "firstNode", sol::overload([] (MetaNode& node) { return node.firstNode(); },
-                                                                        [] (MetaNode& node, const std::string& name) { return node.firstNode(name.c_str()); }),
-                                             "firstAttribute", sol::overload([] (MetaNode& node) { return node.firstAttribute(); },
-                                                                        [] (MetaNode& node, const std::string& name) { return node.firstAttribute(name.c_str()); }),
-                                             "next", sol::overload([] (MetaNode& node) { return node.next(); },
-                                                                        [] (MetaNode& node, const std::string& name) { return node.next(name.c_str()); }),
-                                             "prev", sol::overload([] (MetaNode& node) { return node.prev(); },
-                                                                        [] (MetaNode& node, const std::string& name) { return node.prev(name.c_str()); }),
-                                             "parent", &MetaNode::parent,
-                                             "name", &MetaNode::name,
-                                             "value", &MetaNode::value,
-                                             "appendSubnode", &MetaNode::appendSubnode);
+			script::Usertype<MetaNode> metaNodeType = state.registerUsertype<MetaNode>("MetaNode");
+			metaNodeType["firstNode"] = sol::overload([](MetaNode& node) { return node.firstNode(); },
+					[](MetaNode& node, const std::string& name) { return node.firstNode(name.c_str()); });
+			metaNodeType["firstAttribute"] = sol::overload([](MetaNode& node) { return node.firstAttribute(); },
+				[](MetaNode& node, const std::string& name) { return node.firstAttribute(name.c_str()); });
+			metaNodeType["next"] = sol::overload([](MetaNode& node) { return node.next(); },
+				[](MetaNode& node, const std::string& name) { return node.next(name.c_str()); });
+			metaNodeType["prev"] = sol::overload([](MetaNode& node) { return node.prev(); },
+				[](MetaNode& node, const std::string& name) { return node.prev(name.c_str()); });
+			metaNodeType["parent"] = & MetaNode::parent;
+			metaNodeType["name"] = & MetaNode::name;
+			metaNodeType["value"] = & MetaNode::value;
+			metaNodeType["appendSubnode"] = & MetaNode::appendSubnode;
 
 
-            state.registerUsertype<SerializationContext>("SerializationContext",
-                                                         "appendSubnode", [] (SerializationContext& context, MetaNode node, const std::string& name)
-                                                                            { return context.appendSubnode(node, name); },
-                                                         "serializeProperty", sol::overload(
-                                                                     [] (SerializationContext& context, const std::string& id, bool data, MetaNode serializer)
-                                                                        { context.serializeProperty(id.c_str(), data, serializer); },
-                                                                     [] (SerializationContext& context, const std::string& id, int data, MetaNode serializer)
-                                                                        { context.serializeProperty(id.c_str(), data, serializer); },
-                                                                     [] (SerializationContext& context, const std::string& id, float data, MetaNode serializer)
-                                                                        { context.serializeProperty(id.c_str(), data, serializer); },
-                                                                     [] (SerializationContext& context, const std::string& id, const std::string& data, MetaNode serializer)
-                                                                        { context.serializeProperty(id.c_str(), data, serializer); },
-                                                                     [] (SerializationContext& context, const std::string& id, unsigned data, MetaNode serializer)
-                                                                        { context.serializeProperty(id.c_str(), data, serializer); } ));
+			script::Usertype<SerializationContext> serializationContextType = state.registerUsertype<SerializationContext>("SerializationContext");
+			serializationContextType["appendSubnode"] = [](SerializationContext& context, MetaNode node, const std::string& name)
+				{ return context.appendSubnode(node, name); };
+			serializationContextType["serializeProperty"] = sol::overload(
+				[](SerializationContext& context, const std::string& id, bool data, MetaNode serializer)
+				{ context.serializeProperty(id.c_str(), data, serializer); },
+				[](SerializationContext& context, const std::string& id, int data, MetaNode serializer)
+				{ context.serializeProperty(id.c_str(), data, serializer); },
+				[](SerializationContext& context, const std::string& id, float data, MetaNode serializer)
+				{ context.serializeProperty(id.c_str(), data, serializer); },
+				[](SerializationContext& context, const std::string& id, const std::string& data, MetaNode serializer)
+				{ context.serializeProperty(id.c_str(), data, serializer); },
+				[](SerializationContext& context, const std::string& id, unsigned data, MetaNode serializer)
+				{ context.serializeProperty(id.c_str(), data, serializer); });
 
 
             state.registerUsertype<DeserializationContext>("DeserializationContext");
 
 
-            state.registerUsertype<MetaMap>("MetaMap",
-                                                sol::constructors<MetaMap(), MetaMap(const std::string id)>(),
-                                                  "load", [] (MetaMap& metamap, const std::string& id) { metamap.load(id); },
-                                                  "isLoaded", &MetaMap::isLoaded,
-                                                  "getNodeWithKey", &MetaMap::getNodeWithKey);
+			script::Usertype<MetaMap> metaMapType = state.registerUsertype<MetaMap>("MetaMap", sol::constructors<MetaMap(), MetaMap(const std::string id)>());
+			metaMapType["load"] = [](MetaMap& metamap, const std::string& id) { metamap.load(id); };
+			metaMapType["isLoaded"] = &MetaMap::isLoaded;
+			metaMapType["getNodeWithKey"] = &MetaMap::getNodeWithKey;
 
-            state.registerUsertype<MetaList>("MetaList",
-                                                sol::constructors<MetaList(), MetaList(const std::string id)>(),
-                                                   "load", [] (MetaList& metalist, const std::string& id) { metalist.load(id); },
-                                                   "isLoaded", &MetaList::isLoaded,
-                                                   "getNodeAt", &MetaList::getNodeAt,
-                                                   "getNodeCount", &MetaList::getNodeCount);
+			script::Usertype<MetaList> metaListType = state.registerUsertype<MetaList>("MetaList", sol::constructors<MetaList(), MetaList(const std::string id)>());
+			metaListType["load"] = [](MetaList& metalist, const std::string& id) { metalist.load(id); };
+			metaListType["isLoaded"] = & MetaList::isLoaded;
+			metaListType["getNodeAt"] = & MetaList::getNodeAt;
+			metaListType["getNodeCount"] = & MetaList::getNodeCount;
 
-            state.registerUsertype<MetaTable>("MetaTable",
-                                                sol::constructors<MetaTable(), MetaTable(const std::string id)>(),
-                                                   "load", [] (MetaTable& metatable, const std::string& id) { metatable.load(id); },
-                                                   "isLoaded", &MetaTable::isLoaded,
-                                                   "getNodeAt", &MetaTable::getNodeAt,
-                                                   "getInnerSize", &MetaTable::getInnerSize,
-                                                   "getOuterSize", &MetaTable::getOuterSize);
+			script::Usertype<MetaTable> metaTableType = state.registerUsertype<MetaTable>("MetaTable", sol::constructors<MetaTable(), MetaTable(const std::string id)>());
+			metaTableType["load"] = [](MetaTable& metatable, const std::string& id) { metatable.load(id); };
+			metaTableType["isLoaded"] = & MetaTable::isLoaded;
+			metaTableType["getNodeAt"] = & MetaTable::getNodeAt;
+			metaTableType["getInnerSize"] = & MetaTable::getInnerSize;
+			metaTableType["getOuterSize"] = & MetaTable::getOuterSize;
 
 
         }

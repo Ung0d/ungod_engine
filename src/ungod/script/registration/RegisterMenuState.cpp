@@ -32,11 +32,10 @@ namespace ungod
     {
         void registerMenuState(ScriptStateBase& state)
         {
-            state.registerUsertype<ScriptedMenuState>("ScriptedMenuState",
-                                                            "gui", &ScriptedMenuState::getGui,
-                                                            "audioManager", &ScriptedMenuState::getAudioManager,
-                                                            "inputHandler", &ScriptedMenuState::getInputHandler,
-                                                            sol::base_classes, sol::bases<State>());
+            script::Usertype<ScriptedMenuState> menuStateType = state.registerUsertype<ScriptedMenuState>("ScriptedMenuState", sol::base_classes, sol::bases<State>());
+			menuStateType["gui"] = &ScriptedMenuState::getGui;
+			menuStateType["audioManager"] = &ScriptedMenuState::getAudioManager;
+			menuStateType["inputHandler"] = &ScriptedMenuState::getInputHandler;
         }
     }
 }

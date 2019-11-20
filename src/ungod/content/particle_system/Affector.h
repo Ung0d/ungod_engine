@@ -67,7 +67,7 @@ namespace ungod
     /** \brief Data for the DirectionalForce affector. */
     struct DisplaceForce : public BaseFunctorData<>
     {
-        DisplaceForce() = default;
+        DisplaceForce() : speed(0), circle(0), angle(0) {}
 
         inline void init(float s, float c, float a) { speed = s; circle = c; angle = a; }
 
@@ -170,7 +170,7 @@ namespace ungod
     /** \brief Data for the color shift affector. */
     struct RotateParticle : public BaseFunctorData<>
     {
-    RotateParticle() = default;
+    RotateParticle() : speed(0) {}
 
     inline void init(float s) { speed = s; }
 

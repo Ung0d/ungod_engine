@@ -47,7 +47,7 @@ namespace ungod
 			vertexArrayCompType["getTextureRect"] = [](const VertexArrayComponent& vert, std::size_t index) {return vert.getVertices().getTextureRect(index); };
 			vertexArrayCompType["getBounds"] = [](const VertexArrayComponent& vert) {return vert.getVertices().getBounds(); };
 
-			script::Usertype < VertexArrayComponent> spriteCompType = state.registerUsertype<SpriteComponent>("SpriteComponent");
+			script::Usertype < SpriteComponent> spriteCompType = state.registerUsertype<SpriteComponent>("SpriteComponent");
 			spriteCompType["getPosition"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getPosition(); };
 			spriteCompType["getScale"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getScale(); };
 			spriteCompType["getRotation"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getRotation(); };
@@ -58,8 +58,8 @@ namespace ungod
 
             detail::registerMultiComponent<SpriteComponent>(state, "MultiSpriteComponent");
 
-			script::Usertype < VisualAffectorComponent> affectorCompType = state.registerUsertype<VisualAffectorComponent>("VisualAffectorComponent"] =
-			affectorCompType[setActive"] = &VisualAffectorComponent::setActive;
+			script::Usertype < VisualAffectorComponent> affectorCompType = state.registerUsertype<VisualAffectorComponent>("VisualAffectorComponent");
+			affectorCompType["setActive"] = &VisualAffectorComponent::setActive;
 			affectorCompType["isActive"] = & VisualAffectorComponent::isActive;
 
             detail::registerMultiComponent<VisualAffectorComponent>(state, "MultiVisualAffectorComponent");
@@ -155,9 +155,9 @@ namespace ungod
 			camType["setNoise"] = & Camera::setNoise;
 			camType["getNoise"] = & Camera::getNoise;
 
-            state.registerFunction("screenShake"] = sol::overload( &Camera::makeScreenShake, []() { return Camera::makeScreenShake(750, 60, 10); } ));
+            state.registerFunction("screenShake", sol::overload( &Camera::makeScreenShake, []() { return Camera::makeScreenShake(750, 60, 10); } ));
 
-            state.registerFunction("smoothZoom"] = &Camera::makeSmoothZoom);
+            state.registerFunction("smoothZoom", &Camera::makeSmoothZoom);
         }
     }
 }

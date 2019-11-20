@@ -33,47 +33,42 @@ namespace ungod
     {
         void registerWater(ScriptStateBase& state, Application& app)
         {
-             state.registerUsertype<Water>("Water",
-                                          "setTiles", sol::overload(
-                                           [] (Water& water, script::Environment tiles, script::Environment materials, std::size_t mapX, std::size_t mapY)
-                                           {
-                                                water.getTileMap().setTiles(env2vec<int>(tiles), env2vec<unsigned>(materials), mapX, mapY);
-                                           },
-                                           [] (Water& water, script::Environment tiles, script::Environment materials, script::Environment active, std::size_t mapX, std::size_t mapY)
-                                           {
-                                                water.getTileMap().setTiles(env2vec<int>(tiles), env2vec<unsigned>(materials), env2vec<bool>(active), mapX, mapY);
-                                           }),
-                                           "reserveTileCount", [] (Water& water, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY)
-                                           {
-                                               water.getTileMap().reserveTileCount(num, mapSizeX, mapSizeY);
-                                           },
-                                           "addTile", sol::overload(
-                                           [] (Water& water, int id, unsigned material)
-                                           {
-                                               water.getTileMap().addTile(id, material);
-                                           },
-                                           [] (Water& water, int id, unsigned material, bool active)
-                                           {
-                                               water.getTileMap().addTile(id, material, active);
-                                           }),
-                                           "loadTiles", [] (Water& water,
-                                                           const std::string& texFilepath, const std::string& metaFilepath,
-                                                           std::size_t tileWidth, std::size_t tileHeight,
-                                                           script::Environment keymap)
-                                           {
-                                                water.loadTiles(texFilepath, metaFilepath, tileWidth, tileHeight, env2vec<std::string>(keymap));
-                                           },
-                                           "loadShaders", [&app] (Water& water,
-                                                           const std::string& distortionMap,
-                                                           const std::string& fragmentShader, const std::string& vertexShader)
-                                           {
-                                                water.loadShaders(distortionMap, fragmentShader, vertexShader, app.getWindow());
-                                           },
-                                           "setShaders", &Water::setShaders,
-                                           "setReflections", &Water::setReflections,
-                                           "setDistortionFactor", &Water::setDistortionFactor,
-                                           "setFlowFactor", &Water::setFlowFactor,
-                                           "setReflectionOpacity", &Water::setReflectionOpacity);
+			script::Usertype<Water> waterType = state.registerUsertype<Water>("Water");
+			waterType["setTiles"] = sol::overload(
+								[](Water& water, script::Environment tiles, script::Environment materials, std::size_t mapX, std::size_t mapY)
+								{
+									water.getTileMap().setTiles(env2vec<int>(tiles), env2vec<unsigned>(materials), mapX, mapY);
+								},
+								[](Water& water, script::Environment tiles, script::Environment materials, script::Environment active, std::size_t mapX, std::size_t mapY)
+								{
+									water.getTileMap().setTiles(env2vec<int>(tiles), env2vec<unsigned>(materials), env2vec<bool>(active), mapX, mapY);
+								});
+			waterType["reserveTileCount"] = [](Water& water, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY)
+								{
+									water.getTileMap().reserveTileCount(num, mapSizeX, mapSizeY);
+								};
+			waterType["addTile"] =	[](Water& water, int id, unsigned material, bool active)
+								{
+									water.getTileMap().addTile(id, material, active);
+								};
+			waterType["loadTiles"] = [](Water& water,
+				const std::string& texFilepath, const std::string& metaFilepath,
+				std::size_t tileWidth, std::size_t tileHeight,
+				script::Environment keymap)
+			{
+				water.loadTiles(texFilepath, metaFilepath, tileWidth, tileHeight, env2vec<std::string>(keymap));
+			};
+			waterType["loadShaders"] = [&app](Water& water,
+				const std::string& distortionMap,
+				const std::string& fragmentShader, const std::string& vertexShader)
+			{
+				water.loadShaders(distortionMap, fragmentShader, vertexShader, app.getWindow());
+			};
+			waterType["setShaders"] = &Water::setShaders;
+			waterType["setReflections"] = &Water::setReflections;
+			waterType["setDistortionFactor"] = &Water::setDistortionFactor;
+			waterType["setFlowFactor"] = & Water::setFlowFactor;
+			waterType["setReflectionOpacity"] = &Water::setReflectionOpacity;
         }
     }
 }

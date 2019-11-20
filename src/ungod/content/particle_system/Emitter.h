@@ -45,7 +45,7 @@ namespace ungod
      friend struct SerialBehavior<UniversalEmitter, ParticleFunctorMaster*>;
     friend struct DeserialBehavior<UniversalEmitter, ParticleFunctorMaster*>;
     public:
-        UniversalEmitter() = default;
+        UniversalEmitter() : mMaster(nullptr) {}
 
         /** \brief Initializes the emitter. */
         void init(ParticleFunctorMaster* master);

@@ -33,38 +33,37 @@ namespace ungod
     {
         void registerMovement(ScriptStateBase& state)
         {
-            state.registerEnum("Direction",
-                                     "idle", MovementComponent::Direction::IDLE,
-                                     "left", MovementComponent::Direction::LEFT,
-                                     "right", MovementComponent::Direction::RIGHT,
-                                     "up", MovementComponent::Direction::UP,
-                                     "down", MovementComponent::Direction::DOWN);
+            state.registerEnum< MovementComponent::Direction>("Direction",
+				{ {"idle", MovementComponent::Direction::IDLE},
+				{"left", MovementComponent::Direction::LEFT},
+				{"right", MovementComponent::Direction::RIGHT},
+				{"up", MovementComponent::Direction::UP},
+				{"down", MovementComponent::Direction::DOWN}});
 
-            state.registerUsertype<MovementComponent>("Movement",
-                                                   "getVelocity", &MovementComponent::getVelocity,
-                                                   "getAcceleration", &MovementComponent::getAcceleration,
-                                                   "getDirection", &MovementComponent::getDirection,
-                                                   "getMaxVelocity", &MovementComponent::getMaxVelocity,
-                                                   "getMaxForce", &MovementComponent::getMaxForce,
-                                                   "getBaseSpeed", &MovementComponent::getBaseSpeed);
+			script::Usertype<MovementComponent> movementCompType = state.registerUsertype<MovementComponent>("Movement");
+			movementCompType["getVelocity"] = &MovementComponent::getVelocity;
+			movementCompType["getAcceleration"] = &MovementComponent::getAcceleration;
+			movementCompType["getDirection"] = &MovementComponent::getDirection;
+			movementCompType["getMaxVelocity"] = &MovementComponent::getMaxVelocity;
+			movementCompType["getMaxForce"] = &MovementComponent::getMaxForce;
+			movementCompType["getBaseSpeed"] = &MovementComponent::getBaseSpeed;
 
-            state.registerUsertype<MovementManager>("MovementManager",
-                                                          "setMaximumVelocity", &MovementManager::setMaximumVelocity,
-                                                          "setBaseSpeed", &MovementManager::setBaseSpeed,
-                                                          "setMaximumForce", &MovementManager::setMaximumForce,
-                                                          "accelerate", &MovementManager::accelerate,
-                                                          "resetAcceleration", &MovementManager::resetAcceleration,
-                                                          "flee", &MovementManager::flee,
-                                                          "arrival", &MovementManager::arrival,
-                                                          "pursuit", &MovementManager::pursuit,
-                                                          "evade", &MovementManager::evade,
-                                                          "stop", &MovementManager::stop,
-                                                          "displace", &MovementManager::displace,
-                                                          "avoidObstacles", &MovementManager::avoidObstacles,
-                                                          "directMovement", &MovementManager::directMovement,
-                                                          "slowDown", &MovementManager::slowDown,
-                                                          "resetAcceleration", &MovementManager::resetAcceleration
-                                                          );
+			script::Usertype<MovementManager> movementManagerType = state.registerUsertype<MovementManager>("MovementManager");
+			movementManagerType["setMaximumVelocity"] = & MovementManager::setMaximumVelocity;
+			movementManagerType["setBaseSpeed"] = & MovementManager::setBaseSpeed;
+			movementManagerType["setMaximumForce"] = & MovementManager::setMaximumForce;
+			movementManagerType["accelerate"] = & MovementManager::accelerate;
+			movementManagerType["resetAcceleration"] = & MovementManager::resetAcceleration;
+			movementManagerType["flee"] = & MovementManager::flee;
+			movementManagerType["arrival"] = & MovementManager::arrival;
+			movementManagerType["pursuit"] = & MovementManager::pursuit;
+			movementManagerType["evade"] = & MovementManager::evade;
+			movementManagerType["stop"] = & MovementManager::stop;
+			movementManagerType["displace"] = & MovementManager::displace;
+			movementManagerType["avoidObstacles"] = & MovementManager::avoidObstacles;
+			movementManagerType["directMovement"] = & MovementManager::directMovement;
+			movementManagerType["slowDown"] = & MovementManager::slowDown;
+			movementManagerType["resetAcceleration"] = & MovementManager::resetAcceleration;
 
             state.registerUsertype<SteeringComponent<script::Environment>>("Steering",
                                                    "isActive", &SteeringComponent<script::Environment>::isActive);
@@ -86,17 +85,17 @@ namespace ungod
                                                                                    [] (SteeringManager<script::Environment>& sm, SteeringPattern<script::Environment>* s, const SteeringFunc<script::Environment>& steering) { sm.attachSteering(s, steering); })*/ );
 
 
-            state.registerEnum("PathFollowingPolicy",
-                               "OneShot", PathFollowingPolicy::ONE_SHOT,
-                               "Cycle", PathFollowingPolicy::CYCLE,
-                               "Patrol", PathFollowingPolicy::PATROL);
+            state.registerEnum< PathFollowingPolicy>("PathFollowingPolicy",
+				{ {"OneShot", PathFollowingPolicy::ONE_SHOT},
+				{"Cycle", PathFollowingPolicy::CYCLE},
+				{"Patrol", PathFollowingPolicy::PATROL} });
 
-            state.registerUsertype<PathPlanner>("PathPlanner",
-                                                "setPath", sol::overload(
-                                                [] (PathPlanner& pathplanner, Entity e, script::Environment points)
-                                                { pathplanner.setPath(e, env2vec<sf::Vector2f>(points)); },
-                                                [] (PathPlanner& pathplanner, Entity e, script::Environment points, PathFollowingPolicy policy, float speed, float radius)
-                                                { pathplanner.setPath(e, env2vec<sf::Vector2f>(points), policy, speed, radius); }));
+			script::Usertype<PathPlanner> pathplannerType = state.registerUsertype<PathPlanner>("PathPlanner");
+			pathplannerType["setPath"] = sol::overload(
+                                            [] (PathPlanner& pathplanner, Entity e, script::Environment points)
+                                            { pathplanner.setPath(e, env2vec<sf::Vector2f>(points)); },
+                                            [] (PathPlanner& pathplanner, Entity e, script::Environment points, PathFollowingPolicy policy, float speed, float radius)
+                                            { pathplanner.setPath(e, env2vec<sf::Vector2f>(points), policy, speed, radius); });
 
 
             //steerings are added as a fixed-parameter and a modificable-parameter version

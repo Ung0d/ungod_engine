@@ -185,7 +185,7 @@ namespace ungod
     /** \brief Data for the DirectionalForce affector. */
     struct IntervalTick : public BaseFunctorData<>
     {
-        IntervalTick() = default;
+        IntervalTick() : msmin(0), msmax(0), numparticle(0), timer(0), timermax(0) {}
 
         inline void init(float imsmin, float imsmax, int inumparticle)
         {
@@ -217,7 +217,7 @@ namespace ungod
     /** \brief Data for the DirectionalForce affector. */
     struct OneShotTick : public BaseFunctorData<>
     {
-        OneShotTick() = default;
+        OneShotTick() : numparticle(0), shot(false) {}
 
         inline void init(int inumparticle)
         {
@@ -246,7 +246,7 @@ namespace ungod
     /** \brief Data for the DirectionalForce affector. */
     struct IntervalLifetime : public BaseFunctorData<>
     {
-        IntervalLifetime() = default;
+        IntervalLifetime() : msmin(0), msmax(0) {}
 
         inline void init(float imsmin, float imsmax)
         {
