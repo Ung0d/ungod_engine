@@ -161,13 +161,13 @@ namespace ungod
                 sf::RenderTexture& lightTexture,
                 sf::RenderTexture& emissionTexture,
                 sf::RenderTexture& antumbraTexture,
+				sf::RenderStates states,
                 const std::vector< std::pair<LightCollider*, TransformComponent*> >& colliders,
                 sf::Shader& unshadowShader,
                 sf::Shader& lightOverShapeShader,
                 const TransformComponent& transf) const
     {
-        sf::RenderStates states;
-        states.transform = transf.getTransform();
+        states.transform *= transf.getTransform();
 
         // Render on Emission Texture : used by lightOverShapeShader
         emissionTexture.clear();
@@ -201,7 +201,8 @@ namespace ungod
         {
             LightCollider* lc = colliders[i].first;
             TransformComponent* colliderTransf = colliders[i].second;
-            sf::Transform colliderFinalTransf = colliderTransf->getTransform();
+			sf::Transform colliderFinalTransf = states.transform;
+            colliderFinalTransf *= colliderTransf->getTransform();
             colliderFinalTransf *= lc->getTransform();
             if (lc->isActive())
             {
@@ -878,11 +879,11 @@ namespace ungod
         }
 
         //render the light and the colliders, draw umbras, penumbras + antumbras
-        light.mLight.render(target.getView(), mLightTexture, mEmissionTexture, mAntumbraTexture,
+        light.mLight.render(target.getView(), mLightTexture, mEmissionTexture, mAntumbraTexture, states,
                             colliders, mUnshadowShader, mLightOverShapeShader, lightTransf);
 
         //draw the resulting texture in the application window
-        sf::RenderStates compoRenderStates = states;
+        sf::RenderStates compoRenderStates;
         compoRenderStates.blendMode = sf::BlendAdd;
         mDisplaySprite.setTexture(mLightTexture.getTexture(), true);
         mCompositionTexture.draw(mDisplaySprite, compoRenderStates);

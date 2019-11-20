@@ -43,7 +43,7 @@ namespace ungod
     * container. The bounds of this "main" world are used to determine position and size of the node. */
     class WorldGraphNode : public Serializable<WorldGraphNode>
     {
-    friend class SerialBehavior<WorldGraphNode>;
+     friend struct SerialBehavior<WorldGraphNode>;
     friend class DeserialBehavior<WorldGraphNode>;
     public:
         WorldGraphNode(WorldGraph& wg, unsigned index, ScriptedGameState& gamestate, const std::string& identifier = {}, const std::string& datafile = {});
@@ -54,7 +54,10 @@ namespace ungod
         /** \brief Sets the node into a sleeping state with a very small footprint. Removes all contents from memory. */
         void unload();
 
-        const sf::FloatRect& getBounds() const;
+		/** \brief Saves the states of the node on hard drive using the registered datafile path.*/
+		void save();
+
+        sf::FloatRect getBounds() const;
 
         /** \brief Adds a new world to position i of the layer stack. */
         World* addWorld(unsigned i);
@@ -89,7 +92,23 @@ namespace ungod
 
         const std::string& getDataFile() const {return mDataFile;}
 
+		/** \brief Sets the position of the node (and of all internal layers). */
+		void setPosition(const sf::Vector2f& pos);
+
+		/** \brief Moves the node (and all internal layers) along an offset. */
+		void move(const sf::Vector2f& offset);
+
+		/** \brief Resizes the node (and all internal layers). This may be a costly operation if the layers 
+		* are nonempty. */
+		void setSize(const sf::Vector2f& size);
+
 		const RenderLayerContainer& getLayers() const { return mLayers; }
+
+		void moveLayerUp(unsigned i);
+
+		void moveLayerDown(unsigned i);
+
+		void setActive(unsigned i, bool active = true);
 
     private:
 
@@ -100,10 +119,6 @@ namespace ungod
         RenderLayerContainer mLayers;
         std::string mIdentifier;
         std::string mDataFile;
-		sf::FloatRect mBounds;
-
-	private:
-		void updateBounds(RenderLayer* layer);
     };
 
 
@@ -148,7 +163,7 @@ namespace ungod
     * (default 1) into memory and unloads worlds accordingly, if the active world has changed. */
     class WorldGraph : public Serializable<WorldGraph>
     {
-    friend class SerialBehavior<WorldGraph>;
+     friend struct SerialBehavior<WorldGraph>;
     friend class DeserialBehavior<WorldGraph, ScriptedGameState&>;
     public:
         WorldGraph(unsigned distance = 1) : mActive(-1), mDistance(distance) {}
@@ -178,6 +193,9 @@ namespace ungod
         /** \brief Slow retrieval by name (O(#nodes)); nullptr if not found. */
         WorldGraphNode* getNode(const std::string& identifier);
 
+		/** \brief Slow retrieval by index. */
+		WorldGraphNode* getNode(unsigned i);
+
         /** \brief Get active. */
         WorldGraphNode* getActiveNode();
 
@@ -200,6 +218,14 @@ namespace ungod
         /** \brief Update the internals if the bounds of a given node have changed. */
         void notifyBoundsChanged(WorldGraphNode* node);
 
+		const graph::UndirectedAdjacencyLists& getALlists() const { return mAdjacencies; }
+
+		/** \brief Connects a callback to the reference position changed event, which is emitted, if a new graph 
+		* node is set as a new center node during some update. Parameter is the new reference position in world coodinates. */
+		inline decltype(auto) onReferencePositionChanged(const std::function<void(sf::Vector2f)>& callback)
+		{
+			return mReferencePositionChanged.connect(callback);
+		}
 
     private:
         int mActive;
@@ -209,6 +235,7 @@ namespace ungod
         graph::UndirectedAdjacencyLists mAdjacencies;
         std::set<unsigned> mCurrentNeighborhood;
         sf::Vector2f mReferencePosition;
+		owls::Signal<sf::Vector2f> mReferencePositionChanged;
     };
 
 

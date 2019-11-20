@@ -38,6 +38,7 @@ namespace ungod
     {
         //first step: retrieve the entities that may collide with the window
         sf::Vector2f windowPosition = target.mapPixelToCoords(sf::Vector2i(0,0), target.getView());
+		windowPosition = mWorld->getContainer()->mapToLocalPosition(windowPosition);
         sf::Vector2f windowSize = target.getView().getSize();
         mWorld->getQuadTree().retrieve(pull, {windowPosition.x, windowPosition.y, windowSize.x, windowSize.y} );
 
@@ -267,15 +268,16 @@ namespace ungod
 
     void Renderer::render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const
     {
+		sf::Vector2f camCenter = target.mapPixelToCoords(sf::Vector2i(target.getSize().x / 2, target.getSize().y / 2));
+		camCenter = mWorld->getContainer()->mapToLocalPosition(camCenter);
         //iterate over all entities with both Transform and Visuals-component
         dom::Utility<Entity>::iterate<TransformComponent, VisualsComponent>(pull.getList(),
-          [this, &target, &states] (Entity e, TransformComponent& transf, VisualsComponent& vis)
+          [this, &target, &states, camCenter] (Entity e, TransformComponent& transf, VisualsComponent& vis)
           {
               if (!transf.isPlane())
               {
                   if (vis.isHiddenForCamera())
                   {
-                      sf::Vector2f camCenter = target.mapPixelToCoords( sf::Vector2i(target.getSize().x/2, target.getSize().y/2) );
                       if (transf.getBounds().contains(camCenter))
                       {
                           sf::FloatRect innerRect = transf.getBounds();

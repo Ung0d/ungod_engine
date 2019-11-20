@@ -61,7 +61,7 @@ namespace ungod
     friend class AudioManager;
     friend class SoundSlot;
     friend class ProfileHandle;
-    friend class SerialBehavior<AudioManager>;
+     friend struct SerialBehavior<AudioManager>;
     private:
         std::vector< std::unique_ptr<SoundBundle> > mSounds;
         bool mExpired;
@@ -97,7 +97,7 @@ namespace ungod
     class SoundEmitterComponent : public Serializable<SoundEmitterComponent>
     {
     friend class AudioManager;
-    friend class SerialBehavior<SoundEmitterComponent, Entity, const World&, const Application&>;
+     friend struct SerialBehavior<SoundEmitterComponent, Entity, const World&, const Application&>;
     friend class DeserialBehavior<SoundEmitterComponent, Entity, World&, const Application&>;
 
     static constexpr float DEFAULT_DISTANCE_CAP = 500.0f;
@@ -141,7 +141,7 @@ namespace ungod
     class AudioManager : public Serializable<AudioManager>
     {
     friend class SoundEmitterComponent;
-    friend class SerialBehavior<AudioManager>;
+     friend struct SerialBehavior<AudioManager>;
     friend class DeserialBehavior<AudioManager>;
     private:
         static constexpr std::size_t SOUND_PLAY_CAP = 32;  ///maximum number of sounds playable concurrently
@@ -165,7 +165,7 @@ namespace ungod
 
     public:
         AudioManager();
-        AudioManager(ScriptedGameState* master);
+		AudioManager(ScriptedGameState* master, const World& world);
         AudioManager(AudioManager const&) = delete;
         AudioManager& operator=(AudioManager const&) = delete;
 

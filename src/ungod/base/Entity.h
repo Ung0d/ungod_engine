@@ -58,7 +58,7 @@ namespace ungod
     class Entity : public Serializable<Entity>
     {
     friend class World;
-    friend class SerialBehavior< Entity, const World&, const Application& >;
+     friend struct SerialBehavior< Entity, const World&, const Application& >;
     friend class DeserialBehavior< Entity, World&, const Application& >;
 
     public:

@@ -35,10 +35,6 @@ namespace ungod
         SerialBehavior<RenderLayer, const sf::RenderTarget&>::serialize(data, serializer, context, target);
 
         quad::Bounds bounds = data.mQuadTree.getBoundary();
-        context.serializeProperty("left_bound", bounds.position.x, serializer);
-        context.serializeProperty("upper_bound", bounds.position.y, serializer);
-        context.serializeProperty("world_size_x", bounds.size.x, serializer);
-        context.serializeProperty("world_size_y", bounds.size.y, serializer);
         context.serializeProperty("ambient_light_r", data.getLightSystem().getAmbientColor().r, serializer);
         context.serializeProperty("ambient_light_g", data.getLightSystem().getAmbientColor().g, serializer);
         context.serializeProperty("ambient_light_b", data.getLightSystem().getAmbientColor().b, serializer);
@@ -84,11 +80,9 @@ namespace ungod
         initDeserial(context, data);
 
         //get the most basic parameters of the worlds
-        auto result = deserializer.getAttributes<float, float, float, float, uint8_t, uint8_t, uint8_t, uint8_t>
-                            ( {"left_bound", 0.0f}, {"upper_bound", 0.0f}, {"world_size_x", 0.0f}, {"world_size_y", 0.0f},
-                             {"ambient_light_r", 255}, {"ambient_light_g", 255}, {"ambient_light_b", 255}, {"ambient_light_a", 255} );
-        data.initSpace(std::get<0>(result), std::get<1>(result), std::get<2>(result), std::get<3>(result));
-        data.getLightSystem().setAmbientColor(sf::Color{ std::get<4>(result), std::get<5>(result), std::get<6>(result), std::get<7>(result) });
+        auto result = deserializer.getAttributes<uint8_t, uint8_t, uint8_t, uint8_t>
+                            ( {"ambient_light_r", 255}, {"ambient_light_g", 255}, {"ambient_light_b", 255}, {"ambient_light_a", 255} );
+        data.getLightSystem().setAmbientColor(sf::Color{ std::get<0>(result), std::get<1>(result), std::get<2>(result), std::get<3>(result) });
 
         //retrieve all entities and add them to the quadtree
         for (const auto& instantiation : data.mDeserialMap)

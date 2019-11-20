@@ -59,6 +59,7 @@ namespace ungod
         refineSize((unsigned)target.getView().getSize().x, (unsigned)target.getView().getSize().y);
 
         sf::Vector2f windowPosition = target.mapPixelToCoords(sf::Vector2i(0,0));
+		windowPosition = states.transform.getInverse().transformPoint(windowPosition);
 
         bool active = false;
         if (mVertices.getVertexCount() && mImage.get()->getSize().x > 0)

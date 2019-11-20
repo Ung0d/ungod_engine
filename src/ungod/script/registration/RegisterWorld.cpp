@@ -118,8 +118,6 @@ namespace ungod
 			worldType["gamestate"] = &World::getState;
 			worldType["tagWithName"] = &World::tagWithName;
 			worldType["getEntityByName"] = &World::getEntityByName;
-			//world setup
-			worldType["initSpace"] = &World::initSpace;
 
             //if you register world, you rely on all the other stuff, so this is registered automatically
 			registerWorldGraph(state);

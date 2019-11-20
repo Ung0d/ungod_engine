@@ -38,7 +38,7 @@ namespace ungod
     /** \brief A state that handles a menu (main-menu, options-menu ect). The contents can be defined in scripts. */
     class ScriptedGameState : public State, public Serializable<ScriptedGameState>
     {
-    friend class SerialBehavior<ScriptedGameState>;
+     friend struct SerialBehavior<ScriptedGameState>;
     friend class DeserialBehavior<ScriptedGameState>;
     public:
         /** \brief Constructor. */

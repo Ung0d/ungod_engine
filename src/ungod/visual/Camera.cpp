@@ -27,6 +27,7 @@
 #include "ungod/base/Transform.h"
 #include "ungod/physics/Physics.h"
 #include "ungod/base/Utility.h"
+#include "ungod/base/World.h"
 
 namespace ungod
 {
@@ -80,7 +81,7 @@ namespace ungod
         if (!mLocked)
             return;  //nothing to do anymore
 
-        sf::Vector2f lockedCenter = mLocked.get<TransformComponent>().getCenterPosition();
+        sf::Vector2f lockedCenter = mLocked.getWorld().getContainer()->mapToGlobalPosition(mLocked.get<TransformComponent>().getCenterPosition());
 
         float dist = distance(lockedCenter, mView.getCenter());
 

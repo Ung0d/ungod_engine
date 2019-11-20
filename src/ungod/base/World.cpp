@@ -46,7 +46,7 @@ namespace ungod
         mSteeringManager(),
         mPathPlanner(),
         mInputManager(mQuadTree),
-        mAudioManager(master),
+        mAudioManager(master, *this),
         mLightSystem(),
         mTileMapRenderer(*master->getApp()),
         mParentChildManager(*this),
@@ -67,7 +67,7 @@ namespace ungod
         mSteeringManager(),
         mPathPlanner(),
         mInputManager(mQuadTree),
-        mAudioManager(master),
+        mAudioManager(master, *this),
         mLightSystem(),
         mTileMapRenderer(*master->getApp()),
         mParentChildManager(*this),
@@ -158,11 +158,16 @@ namespace ungod
         mBehaviorManager.init(*this, global, app);
     }
 
-    void World::initSpace(float x, float y, float width, float height)
-    {
-        mQuadTree.setBoundary( {x,y,width, height} );
-        mOnSpaceChanged(sf::FloatRect{x,y,width,height});
-    }
+	sf::Vector2f World::getSize() const
+	{
+		auto bounds = mQuadTree.getBoundary();
+		return { bounds.size.x, bounds.size.y };
+	}
+
+	void World::setSize(const sf::Vector2f& layersize) 
+	{
+		mQuadTree.setBoundary({ 0.0f,0.0f,layersize.x,layersize.y });
+	}
 
     void World::update(float delta, const sf::Vector2f& areaPosition, const sf::Vector2f& areaSize)
     {
@@ -286,12 +291,6 @@ namespace ungod
     void World::handleCustomEvent(const CustomEvent& event)
     {
         mBehaviorManager.handleCustomEvent(event);
-    }
-
-    sf::FloatRect World::getBounds() const
-    {
-        quad::Bounds b = mQuadTree.getBoundary();
-        return sf::FloatRect{b.position.x, b.position.y, b.size.x, b.size.y};
     }
 
     dom::Universe<>& World::getUniverse()

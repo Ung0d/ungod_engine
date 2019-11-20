@@ -26,6 +26,7 @@
 #include "ungod/audio/Listener.h"
 #include "ungod/visual/Camera.h"
 #include "ungod/physics/Physics.h"
+#include "ungod/base/World.h"
 
 namespace ungod
 {
@@ -42,11 +43,11 @@ namespace ungod
 
     float CameraListener::getScaling(const sf::Vector2f audioEmission, float cap) const
     {
-        return 1 - std::min( 1.0f , distance( mCamera.getCenter(), audioEmission )/cap );
+		return 1 - std::min(1.0f, distance(mCamera.getCenter() - mWorld.getContainer()->getPosition(), audioEmission) / cap);
     }
 
     sf::Vector2f CameraListener::getWorldPosition() const
     {
-        return mCamera.getCenter();
+		return mCamera.getCenter() - mWorld.getContainer()->getPosition();
     }
 }

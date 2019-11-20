@@ -76,7 +76,7 @@ namespace ungod
 
     //define how to load
     template<>
-    struct LoadBehavior<script::ScriptData, script::StateRef>
+    class LoadBehavior<script::ScriptData, script::StateRef>
     {
         static bool loadFromFile(const std::string& filepath, script::ScriptData& data, script::StateRef state);
         static std::string getIdentifier() { return "ScriptData"; }

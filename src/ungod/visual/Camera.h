@@ -39,7 +39,7 @@ namespace ungod
     * transform component in order to follow it. */
     class Camera : public Serializable<Camera>
     {
-    friend class SerialBehavior<Camera>;
+    friend struct SerialBehavior<Camera>;
     public:
         /** \brief Default constructs a camera for later initialization. Note that using an unitilialized camera
         * is undefined bahavior. */

@@ -73,7 +73,7 @@ namespace ungod
     * A single particle system can have multiple affectors. */
     class ParticleSystem : public Serializable<ParticleSystem>
     {
-    friend class SerialBehavior<ParticleSystem>;
+     friend struct SerialBehavior<ParticleSystem>;
     friend class DeserialBehavior<ParticleSystem>;
     public:
         static constexpr float MAX_FORCE_DEFAULT = 1.0f;

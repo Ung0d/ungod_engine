@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serialroot>
+	<root_obj ref="UndirectedAdjacencyLists@0"/>
+	<pool>
+		<UndirectedAdjacencyLists object_count="1">
+			<s v="7" e="16 EdgeInstantiator@0 EdgeInstantiator@1 EdgeInstantiator@2 EdgeInstantiator@3 EdgeInstantiator@4 EdgeInstantiator@5 EdgeInstantiator@6 EdgeInstantiator@7 EdgeInstantiator@8 EdgeInstantiator@9 EdgeInstantiator@10 EdgeInstantiator@11 EdgeInstantiator@12 EdgeInstantiator@13 EdgeInstantiator@14 EdgeInstantiator@15"/>
+		</UndirectedAdjacencyLists>
+		<EdgeInstantiator object_count="16">
+			<s u="0" v="1"/>
+			<s u="0" v="5"/>
+			<s u="1" v="0"/>
+			<s u="1" v="2"/>
+			<s u="1" v="6"/>
+			<s u="2" v="1"/>
+			<s u="2" v="3"/>
+			<s u="3" v="2"/>
+			<s u="3" v="4"/>
+			<s u="3" v="6"/>
+			<s u="4" v="3"/>
+			<s u="5" v="0"/>
+			<s u="5" v="6"/>
+			<s u="6" v="1"/>
+			<s u="6" v="5"/>
+			<s u="6" v="3"/>
+		</EdgeInstantiator>
+	</pool>
+</serialroot>
+

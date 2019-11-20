@@ -62,7 +62,7 @@ namespace ungod
     */
     class World : public RenderLayer, public ComponentSignalBase
     {
-    friend class SerialBehavior<World, const sf::RenderTarget&>;
+     friend struct SerialBehavior<World, const sf::RenderTarget&>;
     friend class DeserialBehavior<World, const sf::RenderTarget&>;
 
     public:
@@ -87,8 +87,8 @@ namespace ungod
                             const std::string& penumbraTex,
                             script::Environment global);
 
-        /** \brief Must be called to give the world "space". */
-        void initSpace(float x, float y, float width, float height);
+		/** \brief Returns width and height of the world. */
+		virtual sf::Vector2f getSize() const override;
 
         /** \brief Updates the world for the given delta-time amount. */
         virtual void update(float delta, const sf::Vector2f& areaPosition, const sf::Vector2f& areaSize) override;
@@ -190,10 +190,6 @@ namespace ungod
 
         /** \brief Handles the given custom event. Forwards it to all entities with script components. */
         virtual void handleCustomEvent(const CustomEvent& event) override;
-
-
-        /** \brief Returns the boundaries of the render layer. */
-        virtual sf::FloatRect getBounds() const override;
 
         /** \brief Returns a reference to the internal universe. */
         dom::Universe<>& getUniverse();
@@ -353,6 +349,10 @@ namespace ungod
         {
             return deferredGetIdentifier<World>();
         }
+
+	private:
+		/** \brief Sets the world to a new size. */
+		virtual void setSize(const sf::Vector2f& layersize) override;
     };
 
 

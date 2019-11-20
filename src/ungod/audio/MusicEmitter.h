@@ -47,7 +47,7 @@ namespace ungod
     class MusicEmitterComponent : public Serializable<MusicEmitterComponent>
     {
     friend class MusicEmitterMixer;
-    friend class SerialBehavior<MusicEmitterComponent, Entity, const World&, const Application&>;
+     friend struct SerialBehavior<MusicEmitterComponent, Entity, const World&, const Application&>;
     friend class DeserialBehavior<MusicEmitterComponent, Entity, World&, const Application&>;
 
     public:

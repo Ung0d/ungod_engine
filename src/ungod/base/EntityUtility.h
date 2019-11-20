@@ -55,7 +55,7 @@ namespace ungod
     class Initializer : public Serializable<Initializer>
     {
     friend class InitializerManager;
-    friend class SerialBehavior<Initializer, Entity, const World&, const Application&>;
+     friend struct SerialBehavior<Initializer, Entity, const World&, const Application&>;
     friend class DeserialBehavior<Initializer, Entity, World&, const Application&>;
     public:
         Initializer();

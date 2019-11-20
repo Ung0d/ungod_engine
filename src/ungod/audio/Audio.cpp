@@ -74,10 +74,10 @@ namespace ungod
     }
 
 
-    AudioManager::AudioManager(ScriptedGameState* master) : mMuteMusic(false), mMuteSound(false), mMusicEmitterMixer()
+    AudioManager::AudioManager(ScriptedGameState* master, const World& world) : mMuteMusic(false), mMuteSound(false), mMusicEmitterMixer()
     {
         mVolumeSettings.resize(1, 1.0f);
-        mListener = std::unique_ptr<AudioListener>( new CameraListener(master->getCamera()) );
+		mListener = std::unique_ptr<AudioListener>( new CameraListener(master->getCamera(), world) );
     }
 
 

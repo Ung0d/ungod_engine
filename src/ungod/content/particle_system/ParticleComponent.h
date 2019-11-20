@@ -42,7 +42,7 @@ namespace ungod
     {
         friend class ParticleSystemManager;
         friend class Renderer;
-        friend class SerialBehavior<ParticleSystemComponent, Entity, const World&, const Application&>;
+         friend struct SerialBehavior<ParticleSystemComponent, Entity, const World&, const Application&>;
         friend class DeserialBehavior<ParticleSystemComponent, Entity, World&, const Application&>;
 
     public:

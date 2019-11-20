@@ -165,6 +165,7 @@ namespace ungod
             return false;  //nothing is drawn, no water tile is visible on the screen
 
         sf::Vector2f windowPosition = target.mapPixelToCoords(sf::Vector2i(0,0));
+		windowPosition = states.transform.getInverse().transformPoint(windowPosition);
 
         //render reflections
         if (mShowReflections)

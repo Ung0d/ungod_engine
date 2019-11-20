@@ -121,6 +121,7 @@ namespace ungod
                     sf::RenderTexture& lightTexture,
                     sf::RenderTexture& emissionTexture,
                     sf::RenderTexture& antumbraTexture,
+					sf::RenderStates states,
                     const std::vector< std::pair<LightCollider*, TransformComponent*> >& colliders,
                     sf::Shader& unshadowShader,
                     sf::Shader& lightOverShapeShader,
@@ -211,7 +212,7 @@ namespace ungod
     class ShadowEmitterComponent : public Serializable<ShadowEmitterComponent>
     {
     friend class LightSystem;
-    friend class SerialBehavior<ShadowEmitterComponent, Entity, const World&, const Application&>;
+     friend struct SerialBehavior<ShadowEmitterComponent, Entity, const World&, const Application&>;
     private:
         LightCollider mLightCollider;
 
@@ -234,7 +235,7 @@ namespace ungod
     friend class LightSystem;
     friend class LightFlickering;
     friend class RandomizedFlickering;
-    friend class SerialBehavior<LightEmitterComponent, Entity, const World&, const Application&>;
+     friend struct SerialBehavior<LightEmitterComponent, Entity, const World&, const Application&>;
     private:
         PointLight mLight;
     public:

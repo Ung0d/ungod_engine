@@ -41,7 +41,7 @@ namespace ungod
             return;
         mFilepath = filepath;
         mContent.clear();
-        for (std::size_t i = 0; i < metalist.getNodeCount(); i++)
+        for (unsigned i = 0; i < metalist.getNodeCount(); i++)
         {
             auto node = metalist.getNodeAt(i);
             auto res = mContent.emplace(node.name(), configDetail::ConfigGroup{});

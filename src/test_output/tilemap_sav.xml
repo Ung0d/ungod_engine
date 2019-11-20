@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serialroot>
+	<root_obj ref="TileMap@0"/>
+	<pool>
+		<TileMap object_count="1">
+			<s tiles_id="tilemap_tiles.png" meta_id="tilemap_tiles.xml" tile_width="128" tile_height="128" map_width="5" map_height="6" keys="4 planks stones dirt grass" ids="30 0 1 2 3 0 0 0 1 2 3 0 0 0 1 2 3 0 0 0 1 2 3 0 0 0 1 2 3 0 0" materials="30 0 1 2 3 0 0 0 1 2 3 0 0 0 1 2 3 0 0 0 1 2 3 0 0 0 1 2 3 0 0" active="30 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1" blocked="30 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"/>
+		</TileMap>
+	</pool>
+</serialroot>
+

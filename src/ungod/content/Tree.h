@@ -39,7 +39,7 @@ namespace ungod
     * as a result of a random generation. */
     class TreeGenerator : public Serializable<TreeGenerator>
     {
-    friend class SerialBehavior< TreeGenerator >;
+     friend struct SerialBehavior< TreeGenerator >;
     friend class DeserialBehavior< TreeGenerator >;
 
     public:

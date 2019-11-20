@@ -171,7 +171,7 @@ namespace ungod
     /**
     * \brief Base class for context objects.
     */
-    struct Context
+    class Context
     {
     protected:
         static const std::string ROOT_NAME;
@@ -202,7 +202,7 @@ namespace ungod
     /**
     * \brief An object to maintain a serialization performance.
     */
-    struct SerializationContext : public Context
+    class SerializationContext : public Context
     {
     private:
         //contains a metanode and the current number of subnodes

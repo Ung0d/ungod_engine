@@ -166,7 +166,7 @@ namespace ungod
     {
     static_assert( CONTEXT <= RigidbodyManager::MAX_CONTEXTS, "Attempt to create too much collision contexts." );
     friend class RigidbodyManager;
-    friend class SerialBehavior<RigidbodyComponent<CONTEXT>, Entity, const World&, const Application&>;
+     friend struct SerialBehavior<RigidbodyComponent<CONTEXT>, Entity, const World&, const Application&>;
     private:
         std::vector< Collider > mColliders;
         bool mActive;

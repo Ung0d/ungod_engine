@@ -32,25 +32,25 @@ namespace ungod
     {
         void registerTransform(ScriptStateBase& state)
         {
-            state.registerUsertype<TransformComponent>("Transform",
-                                                    "isPlane", &TransformComponent::isPlane,
-                                                    "getSize", &TransformComponent::getSize,
-                                                    "getPosition", &TransformComponent::getPosition,
-                                                    "getCenterPosition", &TransformComponent::getCenterPosition,
-                                                    "getUpperBounds", &TransformComponent::getUpperBounds,
-                                                    "getLowerBounds", &TransformComponent::getLowerBounds,
-                                                    "getScale", &TransformComponent::getScale);
+			script::Usertype<TransformComponent> transfType = state.registerUsertype<TransformComponent>("Transform"); 
+			transfType["isPlane"] = &TransformComponent::isPlane;
+			transfType["getSize"] = &TransformComponent::getSize;
+			transfType["getPosition"] = &TransformComponent::getPosition;
+			transfType["getCenterPosition"] = &TransformComponent::getCenterPosition;
+			transfType["getUpperBounds"] = &TransformComponent::getUpperBounds;
+			transfType["getLowerBounds"] = &TransformComponent::getLowerBounds;
+			transfType["getScale"] = &TransformComponent::getScale;
 
-            state.registerUsertype<TransformManager>("TransformManager",
-                                                           "setPlane", [] (TransformManager& tm, Entity e, bool plane) {tm.setPlane(e, plane);},
-                                                           "setPosition", sol::overload( [] (TransformManager& tm, Entity e, float x, float y) { tm.setPosition(e, {x,y}); },
-                                                                                         [] (TransformManager& tm, Entity e, const sf::Vector2f& pos) { tm.setPosition(e, pos); }),
-                                                           "setBaseLineOffsets", sol::overload( [] (TransformManager& tm, Entity e, float x, float y) { tm.setBaseLineOffsets(e, {x,y}); },
-                                                                                         [] (TransformManager& tm, Entity e, const sf::Vector2f& pos) { tm.setBaseLineOffsets(e, pos); }),
-                                                           "setScale", sol::overload( [] (TransformManager& tm, Entity e, float scale) { tm.setScale(e, scale); },
-                                                                                      [] (TransformManager& tm, Entity e, const sf::Vector2f& scale) { tm.setScale(e, scale); }),
-                                                           "move", sol::overload( [] (TransformManager& tm, Entity e, float x, float y) { tm.move(e, {x,y}); },
-                                                                                  [] (TransformManager& tm, Entity e, const sf::Vector2f& pos) { tm.move(e, pos); }));
+			script::Usertype<TransformManager> transfManagerType = state.registerUsertype<TransformManager>("TransformManager");
+			transfManagerType["setPlane"] = [](TransformManager& tm, Entity e, bool plane) {tm.setPlane(e, plane); };
+			transfManagerType["setPosition"] = sol::overload([](TransformManager& tm, Entity e, float x, float y) { tm.setPosition(e, { x,y }); },
+				[](TransformManager& tm, Entity e, const sf::Vector2f& pos) { tm.setPosition(e, pos); });
+			transfManagerType["setBaseLineOffsets"] = sol::overload([](TransformManager& tm, Entity e, float x, float y) { tm.setBaseLineOffsets(e, { x,y }); },
+				[](TransformManager& tm, Entity e, const sf::Vector2f& pos) { tm.setBaseLineOffsets(e, pos); });
+			transfManagerType["setScale"] = sol::overload([](TransformManager& tm, Entity e, float scale) { tm.setScale(e, scale); },
+				[](TransformManager& tm, Entity e, const sf::Vector2f& scale) { tm.setScale(e, scale); });
+			transfManagerType["move"] = sol::overload( [] (TransformManager& tm, Entity e, float x, float y) { tm.move(e, {x,y}); },
+                                                      [] (TransformManager& tm, Entity e, const sf::Vector2f& pos) { tm.move(e, pos); });
         }
     }
 }

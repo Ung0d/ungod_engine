@@ -71,7 +71,7 @@ namespace ungod
     */
     class TileMap : public sf::Transformable, public Serializable<TileMap>
     {
-    friend class SerialBehavior<TileMap>;
+     friend struct SerialBehavior<TileMap>;
     friend class DeserialBehavior<TileMap>;
 
     private:
@@ -146,7 +146,7 @@ namespace ungod
     * for different materials of ground tiles. */
     class FootstepSoundProfile
     {
-    friend class SerialBehavior<FootstepSoundProfile>;
+     friend struct SerialBehavior<FootstepSoundProfile>;
     friend class DeserialBehavior<FootstepSoundProfile>;
     public:
         FootstepSoundProfile();

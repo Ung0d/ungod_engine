@@ -222,31 +222,31 @@ namespace ungod
     inline int MetaAttribute::convertValue<int>()
     {
         try { return std::stoi(value()); }
-        catch (const std::exception& e) { return int(); }
+        catch (const std::exception&) { return int(); }
     }
     template<>
     inline unsigned MetaAttribute::convertValue<unsigned>()
     {
         try { return std::stoi(value()); }
-        catch (const std::exception& e) { return int(); }
+        catch (const std::exception&) { return int(); }
     }
     template<>
     inline float MetaAttribute::convertValue<float>()
     {
         try { return std::stof(value()); }
-        catch (const std::exception& e) { return int(); }
+        catch (const std::exception&) { return int(); }
     }
     template<>
     inline bool MetaAttribute::convertValue<bool>()
     {
         try { return std::stoi(value()); }
-        catch (const std::exception& e) { return int(); }
+        catch (const std::exception&) { return int(); }
     }
     template<>
     inline uint8_t MetaAttribute::convertValue<uint8_t>()
     {
         try { return std::stoi(value()); }
-        catch (const std::exception& e) { return uint8_t(); }
+        catch (const std::exception&) { return uint8_t(); }
     }
     template<>
     inline std::string MetaAttribute::convertValue<std::string>()

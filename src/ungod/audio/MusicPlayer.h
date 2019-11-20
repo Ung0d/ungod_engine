@@ -39,7 +39,7 @@ namespace ungod
     class MusicPlayerBase
     {
     friend class AudioManager;
-    friend class SerialBehavior<AudioManager>;
+     friend struct SerialBehavior<AudioManager>;
     public:
         MusicPlayerBase();
 

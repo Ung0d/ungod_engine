@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serialroot>
+	<root_obj ref="RenderLayerContainer@0"/>
+	<pool>
+		<RenderLayerContainer object_count="1">
+			<s l="2 World@0 World@1"/>
+		</RenderLayerContainer>
+		<World object_count="2">
+			<s d="1.000000" n="" left_bound="0.000000" upper_bound="0.000000" world_size_x="800.000000" world_size_y="600.000000" ambient_light_r="255" ambient_light_g="255" ambient_light_b="255" ambient_light_a="255">
+				<name_map/>
+			</s>
+			<s d="1.000000" n="" left_bound="800.000000" upper_bound="600.000000" world_size_x="800.000000" world_size_y="600.000000" ambient_light_r="255" ambient_light_g="255" ambient_light_b="255" ambient_light_a="255">
+				<name_map/>
+			</s>
+		</World>
+	</pool>
+</serialroot>
+

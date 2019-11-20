@@ -28,7 +28,7 @@
 
 namespace ungod
 {
-    RenderLayer::RenderLayer(float renderdepth) : mRenderDepth(renderdepth) {}
+    RenderLayer::RenderLayer(float renderdepth) : mRenderDepth(renderdepth), mContainer(nullptr) {}
 
     void RenderLayer::setRenderDepth(float renderdepth)
     {
@@ -40,12 +40,12 @@ namespace ungod
         return mRenderDepth;
     }
 
-    sf::FloatRect RenderLayer::getTransformedBounds() const
+    sf::Vector2f RenderLayer::getTransformedSize() const
     {
-        auto bounds = getBounds();
-        bounds.left *= getRenderDepth();
-        bounds.top *= getRenderDepth();
-        return bounds;
+        auto layersize = getSize();
+		layersize.x *= getRenderDepth();
+		layersize.y *= getRenderDepth();
+        return layersize;
     }
 
     void RenderLayer::setName(const std::string& name)
@@ -58,16 +58,16 @@ namespace ungod
         return mName;
     }
 
-
     bool RenderLayerContainer::render(sf::RenderTarget& target, sf::RenderStates states) const
     {
+		states.transform.translate({mBounds.left, mBounds.top});
         bool check = true;
         for (const auto& layer : mRenderLayers)
         {
             if (layer.second)
             {
                 mCamera.renderBegin(layer.first->getRenderDepth());
-                check = check && layer.first->render(target, states);
+				check = check && layer.first->render(target, states);
                 mCamera.renderEnd();
             }
         }
@@ -76,12 +76,13 @@ namespace ungod
 
     bool RenderLayerContainer::renderDebug(sf::RenderTarget& target, sf::RenderStates states, bool bounds, bool texrects, bool colliders, bool audioemitters, bool lights) const
     {
+		states.transform.translate({ mBounds.left, mBounds.top });
         bool check = true;
         for (const auto& layer : mRenderLayers)
         {
             if (layer.second)
             {
-                mCamera.renderBegin(layer.first->getRenderDepth());
+				mCamera.renderBegin(layer.first->getRenderDepth());
                 check = check && layer.first->renderDebug(target, states, bounds, texrects, colliders, audioemitters, lights);
                 mCamera.renderEnd();
             }
@@ -112,7 +113,8 @@ namespace ungod
             if (layer.second)
             {
                 sf::View camview = mCamera.getView(layer.first->getRenderDepth());
-                layer.first->update(delta, sf::Vector2f{camview.getCenter().x - camview.getSize().x/2,camview.getCenter().y - camview.getSize().y/2}, camview.getSize());
+				sf::Vector2f viewpos = mapToLocalPosition(sf::Vector2f{ camview.getCenter().x - camview.getSize().x / 2,camview.getCenter().y - camview.getSize().y / 2 });
+				layer.first->update(delta, viewpos, camview.getSize());
             }
         }
     }
@@ -140,6 +142,8 @@ namespace ungod
     RenderLayer* RenderLayerContainer::registerLayer(RenderLayerPtr&& layer, std::size_t i)
     {
         RenderLayer* rl = layer.get();
+		rl->setSize(getSize());
+		rl->mContainer = this;
         if (i < mRenderLayers.size())
         {
             mRenderLayers.emplace(mRenderLayers.begin() + i, std::move(layer), true);
@@ -166,7 +170,7 @@ namespace ungod
         mRenderLayers[i].second = active;
     }
 
-    bool RenderLayerContainer::isActive(std::size_t i)
+    bool RenderLayerContainer::isActive(std::size_t i) const
     {
         return mRenderLayers[i].second;
     }
@@ -186,4 +190,28 @@ namespace ungod
         while (!mToMove.empty())
             mToMove.pop();
     }
+
+	void RenderLayerContainer::setPosition(const sf::Vector2f& position)
+	{
+		mBounds.left = position.x;
+		mBounds.top = position.y;
+	}
+
+	void RenderLayerContainer::setSize(const sf::Vector2f& size)
+	{
+		mBounds.width = size.x;
+		mBounds.height = size.y;
+		for (const auto& layer : mRenderLayers)
+			layer.first->setSize(size);
+	}
+
+	sf::Vector2f RenderLayerContainer::mapToGlobalPosition(const sf::Vector2f& position) const
+	{
+		return { position.x + mBounds.left, position.y + mBounds.top };
+	}
+
+	sf::Vector2f RenderLayerContainer::mapToLocalPosition(const sf::Vector2f& position) const
+	{
+		return { position.x - mBounds.left, position.y - mBounds.top };
+	}
 }

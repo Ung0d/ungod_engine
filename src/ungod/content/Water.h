@@ -37,7 +37,7 @@ namespace ungod
     /** \brief A manager class for water-fields and their rendering. */
     class Water : public sf::Transformable, public Serializable<Water>
     {
-    friend class SerialBehavior<Water, const sf::RenderTarget&>;
+     friend struct SerialBehavior<Water, const sf::RenderTarget&>;
     friend class DeserialBehavior<Water, const sf::RenderTarget&>;
 
     public:

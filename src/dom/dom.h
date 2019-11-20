@@ -55,7 +55,7 @@ namespace dom
         SubID block;
         SubID index;
 
-        ChunkedArrayHandle() {}
+        ChunkedArrayHandle() : block(0), index(0) {}
         ChunkedArrayHandle(unsigned short b, unsigned short i) : block(b), index(i) {}
 
         /** \brief Returns a handle that compares false to every other handle. */

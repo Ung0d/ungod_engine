@@ -33,7 +33,7 @@ namespace ungod
     void SerialBehavior<RenderLayer, const sf::RenderTarget&>::serialize(const RenderLayer& data, MetaNode serializer, SerializationContext& context, const sf::RenderTarget&)
     {
         context.serializeProperty("d", data.getRenderDepth(), serializer);
-        context.serializeProperty("n", data.getName(), serializer);
+		context.serializeProperty("n", data.getName(), serializer);
     }
 
     void DeserialBehavior<RenderLayer, const sf::RenderTarget&>::deserialize(RenderLayer& data, MetaNode deserializer, DeserializationContext& context, const sf::RenderTarget&)
@@ -46,12 +46,16 @@ namespace ungod
     void SerialBehavior<RenderLayerContainer, const sf::RenderTarget&>::serialize(const RenderLayerContainer& data, MetaNode serializer,
                                                                                   SerializationContext& context, const sf::RenderTarget& target)
     {
+		context.serializeProperty("w", data.getSize().x, serializer);
+		context.serializeProperty("h", data.getSize().y, serializer);
         context.serializeObjectContainer<RenderLayer>("l", [&data] (std::size_t i) -> const RenderLayer& { return *data.getVector()[i].first.get(); }, data.getVector().size(), serializer, target);
     }
 
     void DeserialBehavior<RenderLayerContainer, const sf::RenderTarget&, ScriptedGameState&>::deserialize(RenderLayerContainer& data, MetaNode deserializer,
                                                                                       DeserializationContext& context, const sf::RenderTarget& target, ScriptedGameState& gamestate)
     {
+		auto result = deserializer.getAttributes<float, float>({ "w", 0.0f }, { "h", 0.0f });
+		data.setSize({ std::get<0>(result), std::get<1>(result) });
         context.instantiate<World>([&data, &gamestate] ()
             {
                 return data.registerLayer(gamestate.makeWorld(), data.mRenderLayers.size());

@@ -42,7 +42,7 @@ namespace ungod
     /** \brief Data for the DirectionalForce affector. */
     class UniversalEmitter : public BaseFunctorData<ParticleFunctorMaster*>
     {
-    friend class SerialBehavior<UniversalEmitter, ParticleFunctorMaster*>;
+     friend struct SerialBehavior<UniversalEmitter, ParticleFunctorMaster*>;
     friend class DeserialBehavior<UniversalEmitter, ParticleFunctorMaster*>;
     public:
         UniversalEmitter() = default;

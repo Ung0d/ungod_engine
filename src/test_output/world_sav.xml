@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serialroot>
+	<root_obj ref="World@0"/>
+	<pool>
+		<World object_count="1">
+			<s d="1.000000" n="" left_bound="0.000000" upper_bound="0.000000" world_size_x="800.000000" world_size_y="600.000000" ambient_light_r="255" ambient_light_g="255" ambient_light_b="255" ambient_light_a="255" Base::V_T::Optional::RB0::="1 Base::V_T::Optional::RB0::@0" Base::SE_T::Optional::::="1 Base::SE_T::Optional::::@0">
+				<name_map dog="Base::SE_T::Optional::::@0" cat="Base::V_T::Optional::RB0::@0"/>
+			</s>
+		</World>
+		<Base::V_T::Optional::RB0:: object_count="1">
+			<s>
+				<b V="V@0" T="T@0"/>
+				<o RB0="RB0@0"/>
+			</s>
+		</Base::V_T::Optional::RB0::>
+		<V object_count="1">
+			<s filepath="test_data/test.png"/>
+		</V>
+		<T object_count="2">
+			<s t_x="100.000000" t_y="100.000000" plane="205"/>
+			<s t_x="10.000000" t_y="10.000000" plane="205"/>
+		</T>
+		<RB0 object_count="1">
+			<s>
+				<c left="0.000000" top="0.000000" right="10.000000" bottom="10.000000" rotation="0.000000"/>
+			</s>
+		</RB0>
+		<Base::SE_T::Optional:::: object_count="1">
+			<s>
+				<b SE="SE@0" T="T@1"/>
+				<o/>
+			</s>
+		</Base::SE_T::Optional::::>
+		<SE object_count="1">
+			<s key="test"/>
+		</SE>
+	</pool>
+</serialroot>
+

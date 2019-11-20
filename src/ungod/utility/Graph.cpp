@@ -84,7 +84,7 @@ namespace ungod
                         mVertexProperties[e.destination].visited = true;
                         mVertexProperties[e.destination].prev = cur;
                         mVertexProperties[e.destination].distance = mVertexProperties[cur].distance+1;
-                        if (mVertexProperties[e.destination].distance < distanceCap)
+                        if (mVertexProperties[e.destination].distance <= distanceCap)
                             nodeQ.push(e.destination);
                     }
                 }

@@ -40,7 +40,7 @@ namespace ungod
     class TransformComponent : public Serializable<TransformComponent>
     {
     friend class TransformManager;
-    friend class SerialBehavior<TransformComponent, Entity, const World&, const Application&>;
+     friend struct SerialBehavior<TransformComponent, Entity, const World&, const Application&>;
     friend class DeserialBehavior<TransformComponent, Entity, World&, const Application&>;
     public:
         TransformComponent() : mTransform(), mUpperBound(0, 0), mLowerBound(0, 0), mBaseLineOffsets(0.0f, 0.0f) {}
@@ -58,11 +58,17 @@ namespace ungod
         /** \brief Returns the bounding box/size of the transform. */
         sf::Vector2f getSize() const;
 
-        /** \brief Returns the world position of the transform. */
+        /** \brief Returns the world-intrinsic position of the transform. */
         sf::Vector2f getPosition() const;
 
-        /** \brief Returns the world position of the transforms center. */
+        /** \brief Returns the world-intrinsic position of the transforms center. */
         sf::Vector2f getCenterPosition() const;
+
+		/** \brief Returns the global position of the transform. */
+		sf::Vector2f getGlobalPosition(const World& world) const;
+
+		/** \brief Returns the global position of the transforms center. */
+		sf::Vector2f getGlobalCenterPosition(const World& world) const;
 
         /** \brief Returns the local upper bounds of the transform. */
         const sf::Vector2f& getUpperBounds() const;

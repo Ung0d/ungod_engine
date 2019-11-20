@@ -67,7 +67,7 @@ namespace quad
         * The tree will (based on the return value of this method) separate static and non-static objects if
         * a pullRequest is started with QuadTree::DistinctPullResult type.
         */
-        static bool isStatic(const T&)
+        static bool isStatic(T)
         {
             static_assert(AlwaysFalse<T>::value, "No explicit specialization for this type found!");
             return false;
@@ -76,7 +76,7 @@ namespace quad
         /**
         * \brief Give the quad-tree information about the position of the inherited object.
         */
-        static Vector2f getPosition(const T&)
+        static Vector2f getPosition(T)
         {
             static_assert(AlwaysFalse<T>::value, "No explicit specialization for this type found!");
             return Vector2f();
@@ -85,7 +85,7 @@ namespace quad
         /**
         * \brief Give the quad-tree information about the size of the inherited object.
         */
-        static Vector2f getSize(const T&)
+        static Vector2f getSize(T)
         {
             static_assert(AlwaysFalse<T>::value, "No explicit specialization for this type found!");
             return Vector2f();
@@ -97,7 +97,7 @@ namespace quad
         * must naturally map to the same id.
         * This is optional and only nessecary for the free functions.
         */
-        static std::size_t getID(const T& t)
+        static uint64_t getID(T)
         {
             static_assert(AlwaysFalse<T>::value, "No explicit specialization for this type found!");
             return 0;
@@ -176,7 +176,7 @@ namespace quad
         /**
         * \brief Test whether a object fits in this node.
         */
-        bool isInsideBounds(const T& element) const;
+        bool isInsideBounds(T element) const;
 
         /**
         * \brief Removes the given element from the tree.
@@ -237,7 +237,7 @@ namespace quad
         * Requires a working mapping of element <-> unique id through the ElementTraits<T>.
         * Returns true if the operation was successful.
         */
-        bool changedProperties(T& t);
+        bool changedProperties(T t);
 
         /**
         * \brief Function that can be used to insert an element into the same quadtree as another element "hint".
@@ -245,11 +245,11 @@ namespace quad
         * If it doesnt fit within this node, its successivly tried to be inserted into the father and so on.
         * Requires a working mapping of element <-> unique id through the ElementTraits<T>.
         */
-        bool insertNearby(T& insertThis, const T& hint);
+        bool insertNearby(T insertThis, T hint);
 
         /** \brief Returns the owner node of the given object, if it is in the tree.
         * Constant time. */
-        QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>* getOwner(const T& t) const;
+        QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>* getOwner(T t) const;
 
         bool insert(T insertThis);
 
@@ -272,7 +272,7 @@ namespace quad
         std::unordered_map<uint64_t, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>*> mOwnerNodes; ///<maps element id to owner node
 
         /** \brief Registers a new owner node for element t. */
-        void setOwner(const T& t, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>* owner);
+        void setOwner(T t, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>* owner);
     };
 
 
@@ -439,7 +439,7 @@ namespace quad
 
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    bool QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::isInsideBounds(const T& element) const
+    bool QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::isInsideBounds(T element) const
     {
         return ElementTraits<T,MAX_CAPACITY,MAX_LEVEL>::getPosition(element).x +
                     ElementTraits<T,MAX_CAPACITY,MAX_LEVEL>::getSize(element).x <= mBounds.position.x + mBounds.size.x &&
@@ -547,7 +547,7 @@ namespace quad
 
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    bool QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::changedProperties(T& t)
+    bool QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::changedProperties(T t)
     {
         auto* owner = getOwner(t);
         if (owner)
@@ -571,7 +571,7 @@ namespace quad
 
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    bool QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::insertNearby(T& insertThis, const T& hint)
+    bool QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::insertNearby(T insertThis, T hint)
     {
         auto* hintNode = getOwner(hint);
         if (hintNode)
@@ -589,7 +589,7 @@ namespace quad
 
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    void QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::setOwner(const T& t, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>* owner)
+    void QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::setOwner(T t, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>* owner)
     {
         uint64_t id = ElementTraits<T,MAX_CAPACITY,MAX_LEVEL>::getID(t);
         mOwnerNodes[id] = owner;
@@ -597,7 +597,7 @@ namespace quad
 
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>* QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::getOwner(const T& t) const
+    QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>* QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::getOwner(T t) const
     {
         uint64_t id = ElementTraits<T,MAX_CAPACITY,MAX_LEVEL>::getID(t);
         auto res = mOwnerNodes.find(id);

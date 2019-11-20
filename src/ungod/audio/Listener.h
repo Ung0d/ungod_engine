@@ -31,6 +31,7 @@
 namespace ungod
 {
     class Camera;
+	class World;
 
     /** \brief Defines a listener object that is used by sound effects to determine the world position of a listener.
     * The volume of these sounds is then adapted according to the distance to the listener. */
@@ -61,7 +62,7 @@ namespace ungod
     class CameraListener : public AudioListener
     {
     public:
-        CameraListener(const Camera& camera) : mCamera(camera) {}
+		CameraListener(const Camera& camera, const World& world) : mCamera(camera), mWorld(world) {}
 
         /** \brief Returns a volume scaling in range [0,1] according to the given audio emission point. */
         virtual float getScaling(const sf::Vector2f audioEmission, float cap) const override;
@@ -71,6 +72,7 @@ namespace ungod
 
     private:
         const Camera& mCamera;
+		const World& mWorld;
     };
 }
 
