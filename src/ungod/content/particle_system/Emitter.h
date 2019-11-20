@@ -43,7 +43,7 @@ namespace ungod
     class UniversalEmitter : public BaseFunctorData<ParticleFunctorMaster*>
     {
      friend struct SerialBehavior<UniversalEmitter, ParticleFunctorMaster*>;
-    friend class DeserialBehavior<UniversalEmitter, ParticleFunctorMaster*>;
+    friend struct DeserialBehavior<UniversalEmitter, ParticleFunctorMaster*>;
     public:
         UniversalEmitter() = default;
 

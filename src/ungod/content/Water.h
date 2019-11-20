@@ -38,7 +38,7 @@ namespace ungod
     class Water : public sf::Transformable, public Serializable<Water>
     {
      friend struct SerialBehavior<Water, const sf::RenderTarget&>;
-    friend class DeserialBehavior<Water, const sf::RenderTarget&>;
+    friend struct DeserialBehavior<Water, const sf::RenderTarget&>;
 
     public:
         /** \brief Default constructs the water object for later initialization. */

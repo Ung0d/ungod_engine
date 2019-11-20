@@ -62,7 +62,7 @@ namespace ungod
     {
         static const std::size_t COMP_COUNT_BIG = 9u;
         prepare(e, world, COMP_COUNT_BIG);
-        const auto& bigstumb = mKeyset.bigStumbKeys.at( NumberGenerator::getRandBetw(0, mKeyset.bigStumbKeys.size()-1) );
+        const auto& bigstumb = mKeyset.bigStumbKeys.at( NumberGenerator::getRandBetw(0, (unsigned)mKeyset.bigStumbKeys.size()-1) );
         build(e, world, bigstumb.first, bigstumb.second, 1, 3, 4);
     }
 
@@ -70,7 +70,7 @@ namespace ungod
     {
         static const std::size_t COMP_COUNT_MEDIUM = 6u;
         prepare(e, world, COMP_COUNT_MEDIUM);
-        const auto& mediumstumb = mKeyset.mediumStumbKeys.at( NumberGenerator::getRandBetw(0, mKeyset.mediumStumbKeys.size()-1) );
+        const auto& mediumstumb = mKeyset.mediumStumbKeys.at( NumberGenerator::getRandBetw(0, (unsigned)mKeyset.mediumStumbKeys.size()-1) );
         build(e, world, mediumstumb.first, mediumstumb.second, 0, 2, 3);
     }
 
@@ -78,7 +78,7 @@ namespace ungod
     {
         static const std::size_t COMP_COUNT_SMALL = 4u;
         prepare(e, world, COMP_COUNT_SMALL);
-        const auto& smallstumb = mKeyset.smallStumbKeys.at( NumberGenerator::getRandBetw(0, mKeyset.smallStumbKeys.size()-1) );
+        const auto& smallstumb = mKeyset.smallStumbKeys.at( NumberGenerator::getRandBetw(0, (unsigned)mKeyset.smallStumbKeys.size()-1) );
         build(e, world, smallstumb.first, smallstumb.second, 0, 1, 2);
     }
 
@@ -92,25 +92,25 @@ namespace ungod
         //select big leaves
         for (unsigned i = 0; i < bigCount; ++i)
         {
-            leaves.push_back( mKeyset.bigLeavesKeys.at( NumberGenerator::getRandBetw(0, mKeyset.bigLeavesKeys.size()-1) ) );
-            offsets.emplace_back ( std::max(-0.6f, std::min(0.5f, NumberGenerator::getNormRand(0,0.3))),
-                                     std::max(-0.5f, std::min(0.3f, NumberGenerator::getNormRand(0,0.15))) );
+            leaves.push_back( mKeyset.bigLeavesKeys.at( NumberGenerator::getRandBetw(0, (unsigned)mKeyset.bigLeavesKeys.size()-1) ) );
+            offsets.emplace_back ( std::max(-0.6f, std::min(0.5f, NumberGenerator::getNormRand(0,0.3f))),
+                                     std::max(-0.5f, std::min(0.3f, NumberGenerator::getNormRand(0,0.15f))) );
         }
 
         //select medium leaves
         for (unsigned i = 0; i < mediumCount; ++i)
         {
-            leaves.push_back( mKeyset.mediumLeavesKeys.at( NumberGenerator::getRandBetw(0, mKeyset.mediumLeavesKeys.size()-1) ) );
-            offsets.emplace_back ( std::max(-0.6f, std::min(0.5f, NumberGenerator::getNormRand(0,0.3))),
-                                     std::max(-0.5f, std::min(0.3f, NumberGenerator::getNormRand(0,0.15))) );
+            leaves.push_back( mKeyset.mediumLeavesKeys.at( NumberGenerator::getRandBetw(0, (unsigned)mKeyset.mediumLeavesKeys.size()-1) ) );
+            offsets.emplace_back ( std::max(-0.6f, std::min(0.5f, NumberGenerator::getNormRand(0,0.3f))),
+                                     std::max(-0.5f, std::min(0.3f, NumberGenerator::getNormRand(0,0.15f))) );
         }
 
         //select small leaves
         for (unsigned i = 0; i < smallCount; ++i)
         {
-            leaves.push_back( mKeyset.smallLeavesKeys.at( NumberGenerator::getRandBetw(0, mKeyset.smallLeavesKeys.size()-1) ) );
-            offsets.emplace_back ( std::max(-0.6f, std::min(0.5f, NumberGenerator::getNormRand(0,0.3))),
-                                     std::max(-0.5f, std::min(0.3f, NumberGenerator::getNormRand(0,0.15))) );
+            leaves.push_back( mKeyset.smallLeavesKeys.at( NumberGenerator::getRandBetw(0, (unsigned)mKeyset.smallLeavesKeys.size()-1) ) );
+            offsets.emplace_back ( std::max(-0.6f, std::min(0.5f, NumberGenerator::getNormRand(0,0.3f))),
+                                     std::max(-0.5f, std::min(0.3f, NumberGenerator::getNormRand(0,0.15f))) );
         }
 
         //build whole tree
@@ -119,8 +119,8 @@ namespace ungod
         for (unsigned i = 0; i < leaves.size(); ++i)
         {
             sf::Vector2f defPos{ pivotPos.x + bounds.width * offsets[i].x, pivotPos.y + bounds.height * offsets[i].y };
-            world.getVisualsManager().setSpriteTextureRect(e, leaves[i], i+1);
-            world.getVisualsManager().setSpritePosition(e, defPos, i+1);
+            world.getVisualsManager().setSpriteTextureRect(e, leaves[i], i);
+            world.getVisualsManager().setSpritePosition(e, defPos, i);
             sf::FloatRect leavesbounds = e.get<MultiSpriteComponent>().getComponent(i+1).getSprite().getTextureRect();
             world.getVisualsManager().setOrigin(e, {leavesbounds.width*0.5f, leavesbounds.height*0.5f}, i+1);
             if (mRandomColor)
@@ -141,9 +141,9 @@ namespace ungod
     void TreeGenerator::setRandomBaseColor(const sf::Color& color, float randVariance)
     {
         mRandomColor = true;
-        mVarianceColor.r = color.r*randVariance;
-        mVarianceColor.g = color.g*randVariance;
-        mVarianceColor.b = color.b*randVariance;
+        mVarianceColor.r = (sf::Uint8)(color.r*randVariance);
+        mVarianceColor.g = (sf::Uint8)(color.g*randVariance);
+        mVarianceColor.b = (sf::Uint8)(color.b*randVariance);
         mBaseColor = color;
     }
 
@@ -153,7 +153,7 @@ namespace ungod
         e.initMulti<MultiSpriteComponent>(compCount);
         e.initMulti<MultiVisualAffectorComponent>(compCount-1); //strump
 
-        world.getVisualsManager().loadTexture(e, mKeyset.texture, ASYNC);
+        world.getVisualsManager().loadTexture(e, mKeyset.texture, LoadPolicy::ASYNC);
         world.getVisualsManager().loadMetadata(e, mKeyset.meta);
 
         //world.getRigidbodyManager().addCollider(e, )

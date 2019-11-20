@@ -244,7 +244,7 @@ namespace ungod
         auto split = splitAdress(strhash, '@');
 
         std::size_t index;
-        try { index = stoi(split.second); } catch (const std::exception& e) { return nullptr; }
+        try { index = stoi(split.second); } catch (const std::exception&) { return nullptr; }
         auto res = typeMap.find(split.first);
         if (res != typeMap.end() && res->second.nodes.size() > index)
         {

@@ -101,7 +101,7 @@ namespace ungod
                 mMusic[i].get()->setLoop(false);
         }
         if (random)
-            mCurrentlyPlaying = NumberGenerator::getRandBetw(0, mMusic.size()-1);
+            mCurrentlyPlaying = (std::size_t)NumberGenerator::getRandBetw(0, (unsigned)mMusic.size()-1);
         else
             mCurrentlyPlaying = mMusic.size()-1;
     }
@@ -161,7 +161,7 @@ namespace ungod
                 mSilence = false;
                 if (mRandom)
                 {
-                    mCurrentlyPlaying = NumberGenerator::getRandBetw(0, mMusic.size()-1);
+                    mCurrentlyPlaying = NumberGenerator::getRandBetw(0, (unsigned)mMusic.size()-1);
                 }
                 else
                 {

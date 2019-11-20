@@ -72,7 +72,7 @@ namespace ungod
     class TileMap : public sf::Transformable, public Serializable<TileMap>
     {
      friend struct SerialBehavior<TileMap>;
-    friend class DeserialBehavior<TileMap>;
+    friend struct DeserialBehavior<TileMap>;
 
     private:
         sf::VertexArray mVertices;
@@ -117,10 +117,10 @@ namespace ungod
         void addKey(const std::string& key);
 
         //getters
-        const unsigned getTileWidth() const {return getScale().x*mTileWidth;}
-        const unsigned getTileHeight() const {return getScale().y*mTileHeight;}
-        const unsigned getMapSizeX() const {return mMapSizeX;}
-        const unsigned getMapSizeY() const {return mMapSizeY;}
+        float getTileWidth() const {return getScale().x*mTileWidth;}
+        float getTileHeight() const {return getScale().y*mTileHeight;}
+        unsigned getMapSizeX() const {return mMapSizeX;}
+        unsigned getMapSizeY() const {return mMapSizeY;}
 
         /** \brief Maps a world position to tiledata. */
         Tile const* getTiledata(const sf::Vector2f& position) const;
@@ -147,7 +147,7 @@ namespace ungod
     class FootstepSoundProfile
     {
      friend struct SerialBehavior<FootstepSoundProfile>;
-    friend class DeserialBehavior<FootstepSoundProfile>;
+    friend struct DeserialBehavior<FootstepSoundProfile>;
     public:
         FootstepSoundProfile();
         FootstepSoundProfile(const std::string& materialdata, ungod::AudioManager& audiomanager, ungod::TileMap& ground);

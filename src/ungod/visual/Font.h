@@ -33,7 +33,7 @@ namespace ungod
 {
     struct Font : public Asset<sf::Font>
     {
-        Font(const std::string& filePath, const LoadPolicy policy = SYNC);
+        Font(const std::string& filePath, const LoadPolicy policy = LoadPolicy::SYNC);
 
         Font();
     };

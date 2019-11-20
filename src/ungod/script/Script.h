@@ -46,7 +46,7 @@ namespace ungod
         /** \brief Wraps data concerning a single script. */
         class ScriptData
         {
-        friend class LoadBehavior<ScriptData, StateRef>;
+        friend struct LoadBehavior<ScriptData, StateRef>;
         private:
             ProtectedFunc mCallback;
             OptionalStateRef mState;
@@ -76,7 +76,7 @@ namespace ungod
 
     //define how to load
     template<>
-    class LoadBehavior<script::ScriptData, script::StateRef>
+    struct LoadBehavior<script::ScriptData, script::StateRef>
     {
         static bool loadFromFile(const std::string& filepath, script::ScriptData& data, script::StateRef state);
         static std::string getIdentifier() { return "ScriptData"; }

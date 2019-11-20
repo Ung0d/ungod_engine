@@ -44,7 +44,7 @@ namespace ungod
     class WorldGraphNode : public Serializable<WorldGraphNode>
     {
      friend struct SerialBehavior<WorldGraphNode>;
-    friend class DeserialBehavior<WorldGraphNode>;
+    friend struct DeserialBehavior<WorldGraphNode>;
     public:
         WorldGraphNode(WorldGraph& wg, unsigned index, ScriptedGameState& gamestate, const std::string& identifier = {}, const std::string& datafile = {});
 
@@ -164,7 +164,7 @@ namespace ungod
     class WorldGraph : public Serializable<WorldGraph>
     {
      friend struct SerialBehavior<WorldGraph>;
-    friend class DeserialBehavior<WorldGraph, ScriptedGameState&>;
+    friend struct DeserialBehavior<WorldGraph, ScriptedGameState&>;
     public:
         WorldGraph(unsigned distance = 1) : mActive(-1), mDistance(distance) {}
 

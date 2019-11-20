@@ -76,16 +76,20 @@ namespace ungod
                 if (mTiles[j].isActive())
                 {
                     // define the 4 corners
-                    quad[0].position = sf::Vector2f(x * mTileWidth, y * mTileHeight);
-                    quad[1].position = sf::Vector2f((x + 1) * mTileWidth, y * mTileHeight);
-                    quad[2].position = sf::Vector2f((x + 1) * mTileWidth, (y + 1) * mTileHeight);
-                    quad[3].position = sf::Vector2f(x * mTileWidth, (y + 1) * mTileHeight);
+                    quad[0].position = sf::Vector2f((float)(x * mTileWidth), (float)(y * mTileHeight));
+                    quad[1].position = sf::Vector2f((float)((x + 1) * mTileWidth), (float)(y * mTileHeight));
+                    quad[2].position = sf::Vector2f((float)((x + 1) * mTileWidth), (float)((y + 1) * mTileHeight));
+                    quad[3].position = sf::Vector2f((float)(x * mTileWidth), (float)((y + 1) * mTileHeight));
 
                     // define the 4 texture coordinates
-                    quad[0].texCoords = sf::Vector2f(mTilePositions[mTiles[j].getTileID()].x, mTilePositions[mTiles[j].getTileID()].y);
-                    quad[1].texCoords = sf::Vector2f(mTilePositions[mTiles[j].getTileID()].x + mTileWidth, mTilePositions[mTiles[j].getTileID()].y);
-                    quad[2].texCoords = sf::Vector2f(mTilePositions[mTiles[j].getTileID()].x + mTileWidth, mTilePositions[mTiles[j].getTileID()].y + mTileHeight);
-                    quad[3].texCoords = sf::Vector2f(mTilePositions[mTiles[j].getTileID()].x, mTilePositions[mTiles[j].getTileID()].y + mTileHeight);
+                    quad[0].texCoords = sf::Vector2f((float)(mTilePositions[mTiles[j].getTileID()].x), 
+														(float)(mTilePositions[mTiles[j].getTileID()].y));
+                    quad[1].texCoords = sf::Vector2f((float)(mTilePositions[mTiles[j].getTileID()].x + mTileWidth), 
+						(float)(mTilePositions[mTiles[j].getTileID()].y));
+                    quad[2].texCoords = sf::Vector2f((float)(mTilePositions[mTiles[j].getTileID()].x + mTileWidth), 
+						(float)(mTilePositions[mTiles[j].getTileID()].y + mTileHeight));
+                    quad[3].texCoords = sf::Vector2f((float)(mTilePositions[mTiles[j].getTileID()].x), 
+													(float)(mTilePositions[mTiles[j].getTileID()].y + mTileHeight));
 
                     quad[0].color = sf::Color::White;
                     quad[1].color = sf::Color::White;
@@ -222,7 +226,7 @@ namespace ungod
                            unsigned tileWidth, unsigned tileHeight,
                            const std::vector<std::string>& keymap)
     {
-        mImage.load(tileID, ASYNC);
+        mImage.load(tileID, LoadPolicy::ASYNC);
         mTileWidth = tileWidth;
         mTileHeight = tileHeight;
 
@@ -270,9 +274,9 @@ namespace ungod
 
     Tile const* TileMap::getTiledata(std::size_t x, std::size_t y) const
     {
-        int estimatedPos = x*mMapSizeY + y;
+        unsigned estimatedPos = x*mMapSizeY + y;
 
-        if (estimatedPos < 0 || (unsigned)estimatedPos >= mTiles.size())
+        if (estimatedPos < 0 || estimatedPos >= mTiles.size())
             return nullptr;
 
        return &mTiles[estimatedPos];
@@ -303,8 +307,8 @@ namespace ungod
 
     void TileMap::refineSize(unsigned width, unsigned height)
     {
-        mHorizontalSize = ceil( width / (getScale().x*mTileWidth) ) + 1;
-        mVerticalSize = ceil( height / (getScale().y*mTileHeight) ) + 1;
+        mHorizontalSize = (unsigned)ceil( width / (getScale().x*mTileWidth) ) + 1;
+        mVerticalSize = (unsigned)ceil( height / (getScale().y*mTileHeight) ) + 1;
         if (mVertices.getVertexCount() != mHorizontalSize*mVerticalSize*4)
             mVertices.resize(mHorizontalSize*mVerticalSize*4);
     }

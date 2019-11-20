@@ -256,7 +256,7 @@ namespace ungod
     void DeserialBehavior<VisualsComponent, Entity, World&, const Application&>::deserialize(VisualsComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&)
     {
         auto result = deserializer.getAttributes<std::string, bool, bool>({"filepath", ""}, {"visible", true}, {"hide4cam", false});
-        world.getVisualsManager().loadTexture(data, std::get<0>(result), ASYNC);
+        world.getVisualsManager().loadTexture(data, std::get<0>(result), LoadPolicy::ASYNC);
         world.getVisualsManager().setVisible(e, std::get<1>(result));
         world.getVisualsManager().setHideForCamera(e, std::get<2>(result));
     }
@@ -544,7 +544,7 @@ namespace ungod
                     {"filepath", ""}, {"visible", true},
                      {"pos_x", 0.0f},  {"pos_y", 0.0f}, {"scale_x", 1.0f}, {"scale_y", 1.0f}, {"rotation", 0.0f},
                      {"origin_x", 0.0f}, {"origin_y", 0.0f}  );
-        world.getVisualsManager().loadBigTexture(e, data, std::get<0>(result), ASYNC);
+        world.getVisualsManager().loadBigTexture(e, data, std::get<0>(result), LoadPolicy::ASYNC);
         world.getVisualsManager().setBigSpriteVisibility(data, std::get<1>(result));
         world.getVisualsManager().setBigSpritePosition(e, data, sf::Vector2f(std::get<2>(result), std::get<3>(result)));
         world.getVisualsManager().setBigSpriteScale(e, data, {std::get<4>(result), std::get<5>(result)});

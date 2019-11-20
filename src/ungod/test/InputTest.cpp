@@ -16,23 +16,23 @@ BOOST_AUTO_TEST_CASE( entity_mouse_events_test )
     sf::RenderWindow window;
     window.create(sf::VideoMode(640, 640), "test");
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
-    ungod::World world(&state);
-    world.instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
-    world.initSpace(0, 0, 800, 600);
+	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+	node.setSize({ 800,600 });
+	ungod::World* world = node.addWorld();
 
     //create an entity with a collider that shall trigger some events
-    ungod::Entity e = world.create(ungod::BaseComponents<ungod::TransformComponent, ungod::RigidbodyComponent<>>());
-    world.getTransformManager().setPosition(e, {25, 25});
-    world.getRigidbodyManager().addCollider(e, {10,10}, {50, 50});
-    world.getQuadTree().insert(e);
+    ungod::Entity e = world->create(ungod::BaseComponents<ungod::TransformComponent, ungod::RigidbodyComponent<>>());
+    world->getTransformManager().setPosition(e, {25, 25});
+    world->getRigidbodyManager().addCollider(e, {10,10}, {50, 50});
+    world->getQuadTree().insert(e);
 
     //shift the windows view to be sure things still work with a non default view
     window.setView( sf::View( sf::FloatRect( {20, 20}, {640, 640} ) ) );
 
     //catch and evaluate signals
-    world.getInputManager().onMouseEnter( [&mouseEnter] (ungod::Entity e) { mouseEnter = true; } );
-    world.getInputManager().onMouseClick( [&mouseClick] (ungod::Entity e) { mouseClick = true; } );
-    world.getInputManager().onMouseExit( [&mouseExit] (ungod::Entity e) { mouseExit = true; } );
+    world->getInputManager().onMouseEnter( [&mouseEnter] (ungod::Entity e) { mouseEnter = true; } );
+    world->getInputManager().onMouseClick( [&mouseClick] (ungod::Entity e) { mouseClick = true; } );
+    world->getInputManager().onMouseExit( [&mouseExit] (ungod::Entity e) { mouseExit = true; } );
 
     ungod::Logger::info(window.mapPixelToCoords({50,50}).x);
     ungod::Logger::endl();
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE( entity_mouse_events_test )
     event.mouseMove.x = 50;
     event.mouseMove.y = 50;
 
-    world.handleInput(event, window);
+    world->handleInput(event, window);
 
     BOOST_CHECK(mouseEnter);
 
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( entity_mouse_events_test )
     event.mouseMove.x = 375;
     event.mouseMove.y = 375;
 
-    world.handleInput(event, window);
+    world->handleInput(event, window);
 
     BOOST_CHECK(!mouseClick);
 
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE( entity_mouse_events_test )
     event.mouseButton.x = 50;
     event.mouseButton.y = 50;
 
-    world.handleInput(event, window);
+    world->handleInput(event, window);
 
     BOOST_CHECK(mouseClick);
 
@@ -72,12 +72,12 @@ BOOST_AUTO_TEST_CASE( entity_mouse_events_test )
     event.mouseMove.x = 775;
     event.mouseMove.y = 775;
 
-    world.handleInput(event, window);
+    world->handleInput(event, window);
 
     BOOST_CHECK(mouseExit);
 
-	world.destroy(e); //queue entity for destruction
-	world.update(20.0f, {}, {}); //destroys entity in queue
+	world->destroy(e); //queue entity for destruction
+	world->update(20.0f, {}, {}); //destroys entity in queue
 }
 
 BOOST_AUTO_TEST_SUITE_END()

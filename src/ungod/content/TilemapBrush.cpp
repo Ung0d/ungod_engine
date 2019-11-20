@@ -288,7 +288,7 @@ namespace ungod
     }
 
 
-    void TilemapBrush::paintTile(std::size_t ix, std::size_t iy, bool connect)
+    void TilemapBrush::paintTile(unsigned ix, unsigned iy, bool connect)
     {
         if (!mTilemap)
             return;

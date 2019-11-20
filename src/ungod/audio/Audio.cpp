@@ -287,7 +287,7 @@ namespace ungod
         mSoundslots[free].mSound.setPitch(pitch);
 
         mSoundslots[free].mPlaying = true;
-        mSoundslots[free].mPlayTimer = mSoundslots[free].mSound.getBuffer()->getDuration().asMilliseconds();
+        mSoundslots[free].mPlayTimer = (float)mSoundslots[free].mSound.getBuffer()->getDuration().asMilliseconds();
         mSoundslots[free].mSound.play();
 
         mSoundBegin(profile.mIter->first, index);

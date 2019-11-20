@@ -60,7 +60,7 @@ namespace ungod
     {
     friend class SteeringManager<GETTER>;
      friend struct SerialBehavior<SteeringComponent<GETTER>, Entity, const World&, const Application&>;
-    friend class DeserialBehavior<SteeringComponent<GETTER>, Entity, World&, const Application&>;
+    friend struct DeserialBehavior<SteeringComponent<GETTER>, Entity, World&, const Application&>;
     public:
         SteeringComponent() : mActive(false), mInit(false), mSteeringPattern(nullptr) {}
 

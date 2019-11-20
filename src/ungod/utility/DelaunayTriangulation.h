@@ -63,7 +63,7 @@ namespace ungod
         /** \brief Bundles a triangle along with precoputed properties. */
         struct TriangleData
         {
-            TriangleData(Triangle t) : triangle(t) {}
+            TriangleData(Triangle t) : triangle(t), circumX(0), circumY(0), circumRadius(0) {}
 
             template<typename POINT, typename GETTER>
             void init(const GETTER& pointGetter);

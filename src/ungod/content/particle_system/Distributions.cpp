@@ -75,7 +75,7 @@ namespace ungod
 
         int intervalTick(IntervalTick& data, float delta)
         {
-            std::size_t num = 0;
+            int num = 0;
             data.timer += delta;
             while (data.timer >= data.timermax)
             {

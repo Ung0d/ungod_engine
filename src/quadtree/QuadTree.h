@@ -151,7 +151,7 @@ namespace quad
         /**
         * \brief Returns the number of elements in the nodes subtree.
         */
-        const unsigned size() const;
+		std::size_t size() const;
 
         /** \brief Invokes the callback for every subnode of the tree. Stops, if callback returns false.
         * Useful for example, if you want to render the bounds of the tree for debugging purposes. */
@@ -336,7 +336,7 @@ namespace quad
 
 
     template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    const unsigned QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::size() const
+    std::size_t QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::size() const
     {
         if(mChildren[NORTHWEST])
             return mContainer.size() + mChildren[NORTHWEST]->size() + mChildren[NORTHEAST]->size() + mChildren[SOUTHEAST]->size() + mChildren[SOUTHWEST]->size();

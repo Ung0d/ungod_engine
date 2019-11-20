@@ -172,12 +172,12 @@ namespace ungod
     }
 
 
-    void TransformManager::handleContentsChanged(Entity e, const sf::IntRect& rect)
+    void TransformManager::handleContentsChanged(Entity e, const sf::FloatRect& rect)
     {
         TransformComponent& transf = e.modify<TransformComponent>();
 
-        int origLeft = rect.left;
-        int origTop = rect.top;
+        float origLeft = rect.left;
+		float origTop = rect.top;
 
         bool rightExceed = origLeft + rect.width > transf.mLowerBound.x;
         bool bottomExceed = origTop + rect.height > transf.mLowerBound.y;

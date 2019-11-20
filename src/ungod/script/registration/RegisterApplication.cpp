@@ -36,16 +36,16 @@ namespace ungod
     {
         void registerApplication(ScriptStateBase& state, Application& app)
         {
-            state.registerUsertype<State>("State",
-                                   "isTransparent", &State::isTransparent,
-                                   "isTranscendent", &State::isTranscendent,
-                                   "setTransparency", &State::setTransparency,
-                                   "setTranscendency", &State::setTranscendency,
-                                   "isExpired", &State::isExpired,
-                                   "expire", &State::expire,
-                                   "getID", &State::getID,
-                                   "initState", &State::initState,
-                                   "closeState", &State::closeState);
+			script::Usertype<State> stateType = state.registerUsertype<State>("State");
+			stateType["isTransparent"] = &State::isTransparent;
+			stateType["isTranscendent"] = &State::isTranscendent;
+			stateType["setTransparency"] = &State::setTransparency;
+			stateType["setTranscendency"] = &State::setTranscendency;
+			stateType["isExpired"] = &State::isExpired;
+			stateType["expire"] = &State::expire;
+			stateType["getID"] = &State::getID;
+			stateType["initState"] = &State::initState;
+			stateType["closeState"] = &State::closeState;
 
             state.registerFunction("quitApplication", [&app] () { app.quitApplication(); });
             state.registerFunction("buildVersion", [&app] () { return app.getBuildVersion(); });

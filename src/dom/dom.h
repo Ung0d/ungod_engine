@@ -230,7 +230,7 @@ namespace dom
 
     /** \brief A Utility struct used to construct a component with parameters. */
     template<typename C>
-    struct ComponentInstantiator
+    class ComponentInstantiator
     {
     public:
         using COMP_TYPE = C;
@@ -401,6 +401,8 @@ namespace dom
     class EntityData
     {
     friend class Universe<CINDEX, COMP_TOTAL>;
+	public: 
+		EntityData() : mMetaData(nullptr) {}
     private:
         MetaData<CINDEX, COMP_TOTAL>* mMetaData; ///<points to metadata that all entities with the same bitset share
         std::vector< ComponentHandle > mComponentHandles; ///<stores indices of assigned component in their managers
@@ -684,13 +686,13 @@ namespace dom
             T* hint = mBlocks.back().ptr + BLOCK_SIZE;
             mBlocks.emplace_back();
             mBlocks.back().ptr = std::allocator_traits<std::allocator<T>>::allocate(alloc, BLOCK_SIZE, hint); //allocate new memory possibly near the existing blocks
-            h.block = mBlocks.size() -1;
-            h.index = mBlocks.back().endIndex++;
+            h.block = (SubID)(mBlocks.size() -1); //assumption: number of blocks is small enough
+            h.index = (SubID)mBlocks.back().endIndex++;
         }
         else
         {
-            h.block = mBlocks.size() -1;
-            h.index = mBlocks.back().endIndex++;
+            h.block = (SubID)(mBlocks.size() -1); //assumption: number of blocks is small enough
+            h.index = (SubID)mBlocks.back().endIndex++;
         }
         ++(mBlocks[h.block].contentCount);
         std::allocator_traits<std::allocator<T>>::construct(
@@ -1142,7 +1144,7 @@ namespace dom
     template<typename CINDEX, CINDEX COMP_TOTAL>
     EntityID Universe<CINDEX, COMP_TOTAL>::getID( const EntityHandle<CINDEX, COMP_TOTAL>& e )
     {
-        constexpr EntityID MAX_UNGEN_ID = detail::ipow(2,31)*2 - 1;
+        constexpr EntityID MAX_UNGEN_ID = EntityID(detail::ipow(2,31)*2) - 1;
         return MAX_UNGEN_ID*e.mGeneration + ENTITY_BLOCK_SIZE*e.mHandle.block + e.mHandle.index;
     }
 

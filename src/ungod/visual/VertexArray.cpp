@@ -98,7 +98,7 @@ namespace ungod
 
     void VertexArray::setTextureRect(MetaNode node, std::size_t index)
     {
-        auto result = node.getAttributes<int, int, int, int, float, float>(
+        auto result = node.getAttributes<float, float, float, float, float, float>(
                     {"pos_x", 0}, {"pos_y", 0}, {"width", 0}, {"height", 0}, {"offset_x", 0}, {"offset_y", 0} );
         setTextureRect(sf::FloatRect(std::get<0>(result), std::get<1>(result), std::get<2>(result), std::get<3>(result)), index);
         setRectPosition({std::get<4>(result), std::get<5>(result)}, index);
@@ -108,8 +108,8 @@ namespace ungod
     {
         sf::Vector2f rounded{std::round(pos.x), std::round(pos.y)};
 
-        int width = mVertices[index*4+1].texCoords.x - mVertices[index*4].texCoords.x;
-        int height = mVertices[index*4+2].texCoords.y - mVertices[index*4+1].texCoords.y;
+        float width = mVertices[index*4+1].texCoords.x - mVertices[index*4].texCoords.x;
+		float height = mVertices[index*4+2].texCoords.y - mVertices[index*4+1].texCoords.y;
         //set the new position
         mVertices[index*4].position = rounded;
         mVertices[index*4+1].position = sf::Vector2f(rounded.x + width, rounded.y);
@@ -136,7 +136,7 @@ namespace ungod
     void VertexArray::setRectOpacity(float opacity, std::size_t index)
     {
         for (unsigned i = 0; i < 4; ++i)
-            mVertices[index*4 + i].color.a = 255*opacity;
+            mVertices[index*4 + i].color.a = (sf::Uint8)(255*opacity);
     }
 
     std::size_t VertexArray::newTextureRect(const sf::FloatRect& rect)
@@ -169,7 +169,7 @@ namespace ungod
     {
         for (unsigned i = 0; i < textureRectCount(); i++)
         {
-            sf::Vertex* quad = &mVertices[i*4];
+            sf::Vertex* quad = &mVertices[(std::size_t)i*4];
             std::swap(quad[0].texCoords, quad[3].texCoords);
             std::swap(quad[1].texCoords, quad[2].texCoords);
         }

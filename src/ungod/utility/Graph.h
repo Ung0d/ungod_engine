@@ -58,7 +58,7 @@ namespace ungod
         /** \brief An undirected graph represented through adjacency lists. */
         class UndirectedAdjacencyLists : public Serializable<UndirectedAdjacencyLists>
         {
-        friend class DeserialBehavior<UndirectedAdjacencyLists>;
+        friend struct DeserialBehavior<UndirectedAdjacencyLists>;
         public:
             /** \brief Default constructor. */
             UndirectedAdjacencyLists() : mNumEdges(0) {}

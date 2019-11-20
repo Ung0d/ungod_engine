@@ -32,9 +32,9 @@ namespace ungod
     {
         void registerCutsceneState(ScriptStateBase& state)
         {
-            state.registerUsertype<CutsceneState>("CutsceneState",
-                                                            "getCutscene", [] (CutsceneState& state) -> Cutscene& { return state.getCutscene(); },
-                                                            sol::base_classes, sol::bases<State>());
+			script::Usertype<CutsceneState> csstate = state.registerUsertype<CutsceneState>("CutsceneState",
+																					sol::base_classes, sol::bases<State>());
+			csstate["getCutscene"] = [](CutsceneState& state) -> Cutscene& { return state.getCutscene(); };
         }
     }
 }

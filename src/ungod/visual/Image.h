@@ -38,7 +38,7 @@ namespace ungod
     {
         static ImageQuality quality;
 
-        Image(const std::string& filePath, const LoadPolicy policy = SYNC);
+        Image(const std::string& filePath, const LoadPolicy policy = LoadPolicy::SYNC);
 
         Image();
     };
@@ -54,7 +54,7 @@ namespace ungod
     /** \brief For images that do not fit into the hardwares internal texture size. */
     struct BigImage : public Asset<sf::BigTexture>
     {
-        BigImage(const std::string& filePath, const LoadPolicy policy = SYNC);
+        BigImage(const std::string& filePath, const LoadPolicy policy = LoadPolicy::SYNC);
 
         BigImage();
     };

@@ -216,7 +216,7 @@ namespace ungod
             mRunning = false;
     }
 
-    sf::IntRect Animation::getBounds() const
+    sf::FloatRect Animation::getBounds() const
     {
         MetaNode parent = mCurrentNode.parent();
         auto global = parent.getAttributes<int, int, float, float>(
@@ -238,6 +238,6 @@ namespace ungod
                 lowerBounds.y = std::max(lowerBounds.y, std::get<3>(local) + std::get<1>(local));
            });
 
-        return sf::IntRect {(int)upperBounds.x, (int)upperBounds.y, (int)(lowerBounds.x - upperBounds.x), (int)(lowerBounds.y - upperBounds.y)};
+        return {upperBounds.x, upperBounds.y, lowerBounds.x - upperBounds.x, lowerBounds.y - upperBounds.y};
     }
 }

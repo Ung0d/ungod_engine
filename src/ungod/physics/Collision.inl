@@ -180,9 +180,9 @@ void RigidbodyManager::contextLowerBounds(Entity e, sf::Vector2f& vec) const
         const RigidbodyComponent<CONTEXT>& body = e.get<RigidbodyComponent<CONTEXT>>();
         for (auto& collider : body.mColliders)
         {
-            sf::IntRect bbox = collider.getBoundingBox();
-            vec.x = std::max((float)(bbox.left + bbox.width), vec.x);
-            vec.y = std::max((float)(bbox.top + bbox.height), vec.y);
+            auto bbox = collider.getBoundingBox();
+            vec.x = std::max(bbox.left + bbox.width, vec.x);
+            vec.y = std::max(bbox.top + bbox.height, vec.y);
         }
     }
 }
@@ -195,9 +195,9 @@ void RigidbodyManager::contextUpperBounds(Entity e, sf::Vector2f& vec) const
         const RigidbodyComponent<CONTEXT>& body = e.get<RigidbodyComponent<CONTEXT>>();
         for (auto& collider : body.mColliders)
         {
-            sf::IntRect bbox = collider.getBoundingBox();
-            vec.x = std::min((float)(bbox.left), vec.x);
-            vec.y = std::min((float)(bbox.top), vec.y);
+            auto bbox = collider.getBoundingBox();
+            vec.x = std::min(bbox.left, vec.x);
+            vec.y = std::min(bbox.top, vec.y);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace ungod
 {
     unsigned ParentComponent::getNumberOfChildren() const
     {
-        return mChildren.size();
+        return (unsigned)mChildren.size();
     }
 
 

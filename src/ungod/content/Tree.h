@@ -40,7 +40,7 @@ namespace ungod
     class TreeGenerator : public Serializable<TreeGenerator>
     {
      friend struct SerialBehavior< TreeGenerator >;
-    friend class DeserialBehavior< TreeGenerator >;
+    friend struct DeserialBehavior< TreeGenerator >;
 
     public:
         TreeGenerator() : mRandomColor(false), mBaseColor(sf::Color::White) {}

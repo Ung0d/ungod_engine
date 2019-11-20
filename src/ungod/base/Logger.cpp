@@ -30,27 +30,27 @@ namespace ungod
     bool Logger::lEnableLogfileOutput = true;
     std::ofstream Logger::lFile;
     bool Logger::lEmptyLine = true;
-    Logger::Priority_Level Logger::lCurrentLevel = PRIORITY_INFO;
+    Logger::Priority_Level Logger::lCurrentLevel = Priority_Level::PRIORITY_INFO;
 
     void Logger::login()
     {
         lFile.open("log.txt");
 
-        log("____________________________________________________", "", PRIORITY_HEADER);
+        log("____________________________________________________", "", Priority_Level::PRIORITY_HEADER);
         endl();
-        log("Ungod-Engine log.", "", PRIORITY_HEADER);
+        log("Ungod-Engine log.", "", Priority_Level::PRIORITY_HEADER);
         endl();
-        log("____________________________________________________", "", PRIORITY_HEADER);
+        log("____________________________________________________", "", Priority_Level::PRIORITY_HEADER);
         endl();
     }
 
     void Logger::logout()
     {
-        log("____________________________________________________", "", PRIORITY_HEADER);
+        log("____________________________________________________", "", Priority_Level::PRIORITY_HEADER);
         endl();
-        log("Log closed.", "", PRIORITY_HEADER);
+        log("Log closed.", "", Priority_Level::PRIORITY_HEADER);
         endl();
-        log("____________________________________________________", "", PRIORITY_HEADER);
+        log("____________________________________________________", "", Priority_Level::PRIORITY_HEADER);
         endl();
 
         lFile.close();
@@ -59,7 +59,7 @@ namespace ungod
     bool Logger::assertion(bool expr, const std::string& message)
     {
         if (!expr)
-            log(message, "Assertion failed", PRIORITY_ERROR);
+            log(message, "Assertion failed", Priority_Level::PRIORITY_ERROR);
         return expr;
     }
 

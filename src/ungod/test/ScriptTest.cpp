@@ -199,17 +199,17 @@ BOOST_AUTO_TEST_CASE( script_test )
 
     {
         ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
-        ungod::World world(&state);
-        world.instantiate( EmbeddedTestApp::getApp(), "resource/unshadowShader.vert", "resource/unshadowShader.frag", "resource/lightOverShapeShader.vert", "resource/lightOverShapeShader.frag", "resource/penumbraTexture.png");
-        world.initSpace(-5000,-5000,10000,10000);
-        world.getBehaviorManager().loadBehaviorScript("test_data/entity_behavior.lua");
-        world.getBehaviorManager().loadBehaviorScript("test_data/entity_behavior2.lua");
-        Entity e = world.create(BaseComponents<TransformComponent, EntityBehaviorComponent, EntityUpdateTimer>(), "entity_behavior");
-        Entity e2 = world.create(BaseComponents<TransformComponent, EntityBehaviorComponent, EntityUpdateTimer>(), "entity_behavior2");
-        world.getQuadTree().insert(e);
-        world.getQuadTree().insert(e2);
+		ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+		node.setSize({ 15000, 15000 });
+		ungod::World* world = node.addWorld();
+        world->getBehaviorManager().loadBehaviorScript("test_data/entity_behavior.lua");
+        world->getBehaviorManager().loadBehaviorScript("test_data/entity_behavior2.lua");
+        Entity e = world->create(BaseComponents<TransformComponent, EntityBehaviorComponent, EntityUpdateTimer>(), "entity_behavior");
+        Entity e2 = world->create(BaseComponents<TransformComponent, EntityBehaviorComponent, EntityUpdateTimer>(), "entity_behavior2");
+        world->getQuadTree().insert(e);
+        world->getQuadTree().insert(e2);
 
-        auto globaltest = world.getBehaviorManager().getGlobalVariable<int>("test");
+        auto globaltest = world->getBehaviorManager().getGlobalVariable<int>("test");
         BOOST_REQUIRE(globaltest);
         BOOST_CHECK_EQUAL(2, *globaltest);
 
@@ -224,15 +224,15 @@ BOOST_AUTO_TEST_CASE( script_test )
 
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
-        world.update(20.0f, {0,0}, {800,600});
+        world->update(20.0f, {0,0}, {800,600});
 
         check_update = e.get<EntityBehaviorComponent>().getStateVariable<bool>("normal", "check_update");
 
         BOOST_REQUIRE(check_update);
         BOOST_REQUIRE(*check_update);
-		world.destroy(e); //queue entity for destruction
-		world.destroy(e2); //queue entity for destruction
-		world.update(20.0f, {}, {}); //destroys entity in queue
+		world->destroy(e); //queue entity for destruction
+		world->destroy(e2); //queue entity for destruction
+		world->update(20.0f, {}, {}); //destroys entity in queue
     }
 }
 

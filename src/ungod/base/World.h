@@ -63,7 +63,7 @@ namespace ungod
     class World : public RenderLayer, public ComponentSignalBase
     {
      friend struct SerialBehavior<World, const sf::RenderTarget&>;
-    friend class DeserialBehavior<World, const sf::RenderTarget&>;
+    friend struct DeserialBehavior<World, const sf::RenderTarget&>;
 
     public:
         /** \brief Default constructs a "void". */

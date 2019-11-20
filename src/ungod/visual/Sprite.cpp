@@ -135,12 +135,12 @@ namespace ungod
     void Sprite::setOpacity(float opacity)
     {
         for (unsigned i = 0; i < 4; ++i)
-            mVertices[i].color.a = 255*opacity;
+            mVertices[i].color.a = (sf::Uint8)(255*opacity);
     }
 
     void Sprite::setTextureRect(MetaNode node)
     {
-        auto result = node.getAttributes<int, int, int, int, float, float>(
+        auto result = node.getAttributes<float, float, float, float, float, float>(
                     {"pos_x", 0}, {"pos_y", 0}, {"width", 0}, {"height", 0}, {"offset_x", 0}, {"offset_y", 0} );
         setTextureRect(sf::FloatRect(std::get<0>(result), std::get<1>(result), std::get<2>(result), std::get<3>(result)));
         setPosition({std::get<4>(result), std::get<5>(result)});

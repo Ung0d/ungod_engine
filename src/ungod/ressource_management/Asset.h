@@ -84,28 +84,28 @@ namespace ungod
 
         /**
         * \brief Returns a ptr to the loaded asset or the default asset if the asset is empty.
-        * If the LoadPolicy was ASYNC, than this method will return the default asset as long as
+        * If the LoadPolicy was ALoadPolicy::SYNC, than this method will return the default asset as long as
         * the loading thread is working.
         */
         T* get() const;
 
         /**
         * \brief Returns a ptr to the loaded asset or the default asset if the asset is empty.
-        * If the LoadPolicy was ASYNC, than this method will wait if the thread loading the
+        * If the LoadPolicy was ALoadPolicy::SYNC, than this method will wait if the thread loading the
         * asset is not ready yet. The return value is NEVER NULL.
         */
         T* getDeferred() const;
 
         /** \brief Invokes a callback on the loaded asset. Invokes only if loading was successfully.
         * Will invoke the callback with the default asset if the asset is empty or broken.
-        * If the LoadPolicy was ASYNC the callback is stored and invoked once the loading-thread has done its job.
+        * If the LoadPolicy was ALoadPolicy::SYNC the callback is stored and invoked once the loading-thread has done its job.
         */
         void get(std::function<void(T&)> callback) const;
 
         /**
         * \brief Returns true if and only if the asset is loaded and ready to use. Will return false if
         * it was default constructed and load-method was never called, if the asset was dropped somehow or
-        * if the asset is currently loading async.
+        * if the asset is currently loading aLoadPolicy::SYNC.
         */
         bool isLoaded() const;
 
@@ -174,7 +174,7 @@ namespace ungod
     template <typename T, typename ... PARAM>
     void Asset<T, PARAM...>::load(const std::string filePath)
     {
-        load(filePath, SYNC);
+        load(filePath, LoadPolicy::SYNC);
     }
 
     template <typename T, typename ... PARAM>

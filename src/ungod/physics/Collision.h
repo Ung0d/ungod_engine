@@ -57,8 +57,8 @@ namespace ungod
         sf::Vector2f getCenter() const;
 
         /** \brief Returns the bounding box in the "default" coordinate system of the collider. */
-        sf::IntRect getBoundingBox(const TransformComponent& t) const;
-        sf::IntRect getBoundingBox(sf::Transform t = sf::Transform()) const;
+        sf::FloatRect getBoundingBox(const TransformComponent& t) const;
+        sf::FloatRect getBoundingBox(sf::Transform t = sf::Transform()) const;
 
         /** \brief Returns a polygon that is translated according to the given transform. */
         Collider translate(const TransformComponent& t) const;
@@ -127,7 +127,7 @@ namespace ungod
         void setActive(Entity e, bool active);
 
         /** \brief Registers new callback for the ContentsChanged signal. */
-        void onContentsChanged(const std::function<void(Entity, const sf::IntRect&)>& callback);
+        void onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback);
 
         /** \brief Registers new callback for the ContentsRemoved signal. */
         void onContentRemoved(const std::function<void(Entity)>& callback);
@@ -143,7 +143,7 @@ namespace ungod
         void moveColliders(Entity e, const sf::Vector2f& vec);
 
     private:
-        owls::Signal<Entity, const sf::IntRect&> mContentsChangedSignal;
+        owls::Signal<Entity, const sf::FloatRect&> mContentsChangedSignal;
         owls::Signal<Entity> mContentRemoved;
 
         template <std::size_t CONTEXT>

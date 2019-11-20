@@ -39,7 +39,7 @@ namespace ungod
     class ScriptedGameState : public State, public Serializable<ScriptedGameState>
     {
      friend struct SerialBehavior<ScriptedGameState>;
-    friend class DeserialBehavior<ScriptedGameState>;
+    friend struct DeserialBehavior<ScriptedGameState>;
     public:
         /** \brief Constructor. */
         ScriptedGameState(Application& app, StateID id, const std::string& gameScriptID);

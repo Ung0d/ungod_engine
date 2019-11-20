@@ -79,7 +79,7 @@ namespace ungod
 
         /** \brief Returns the bounds of the animation, that is the minimal rect, that totally contains
         * all of the frames. */
-        sf::IntRect getBounds() const;
+        sf::FloatRect getBounds() const;
 
     private:
         void setupFrame(MetaNode previous, sf::Vertex* vertices);

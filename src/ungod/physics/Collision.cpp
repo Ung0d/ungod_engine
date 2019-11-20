@@ -49,12 +49,12 @@ namespace ungod
         return mUpleft + 0.5f*(mDownright-mUpleft);
     }
 
-    sf::IntRect Collider::getBoundingBox(const TransformComponent& t) const
+    sf::FloatRect Collider::getBoundingBox(const TransformComponent& t) const
     {
         return getBoundingBox(t.getTransform());
     }
 
-    sf::IntRect Collider::getBoundingBox(sf::Transform transf) const
+    sf::FloatRect Collider::getBoundingBox(sf::Transform transf) const
     {
         transf.rotate(mRotation, getCenter());
         sf::Vector2f p1 = transf.transformPoint(mUpleft);
@@ -87,7 +87,7 @@ namespace ungod
         miny = std::min(miny, p4.y);
         maxy = std::max(maxy, p4.y);
 
-        return {(int)minx, (int)miny, (int)(maxx-minx), (int)(maxy-miny)};
+        return {minx, miny, maxx-minx, maxy-miny};
     }
 
     Collider Collider::translate(const TransformComponent& t) const
@@ -206,7 +206,7 @@ namespace ungod
                transfPoint.x <= collider.getDownright().x && transfPoint.y <= collider.getDownright().y;
     }
 
-    void RigidbodyManager::onContentsChanged(const std::function<void(Entity, const sf::IntRect&)>& callback)
+    void RigidbodyManager::onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback)
     {
         mContentsChangedSignal.connect(callback);
     }

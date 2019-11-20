@@ -32,26 +32,24 @@ namespace ungod
     {
         void registerCutscene(ScriptStateBase& state)
         {
-                state.registerUsertype<Cutscene>("Cutscene",
-                                                    "addScene", &Cutscene::addScene,
-                                                    "play", &Cutscene::play,
-                                                    "isPlaying", &Cutscene::isPlaying,
-                                                    "getSceneIndex", &Cutscene::getSceneIndex,
-                                                    "getAudioManager", [] (Cutscene& cs) -> AudioManager& { return cs.getAudioManager(); },
-                                                    "loadFont", &Cutscene::loadFont,
-                                                    "setSceneFading", &Cutscene::setSceneFading
-                                                    );
+			script::Usertype<Cutscene> cutsceneType = state.registerUsertype<Cutscene>("Cutscene");
+			cutsceneType["addScene"] = & Cutscene::addScene;
+			cutsceneType["play"] = & Cutscene::play;
+			cutsceneType["isPlaying"] = & Cutscene::isPlaying;
+			cutsceneType["getSceneIndex"] = & Cutscene::getSceneIndex;
+			cutsceneType["getAudioManager"] = [](Cutscene& cs) -> AudioManager& { return cs.getAudioManager(); };
+			cutsceneType["loadFont"] = & Cutscene::loadFont;
+			cutsceneType["setSceneFading"] = & Cutscene::setSceneFading;
 
-                state.registerUsertype<Scene>("Scene",
-                                                    "addLayer", &Scene::addLayer,
-                                                    "addLayerTransitionEffect", [] (Scene& scene, unsigned index, const sf::Vector2f& direction, const sf::Vector2f& startingPos, float speed)
-                                                                                    { scene.addEffectToLayer<CutsceneEffects::LayerTransition>(index, direction, startingPos, speed); },
-                                                    "setText", &Scene::setText,
-                                                    "setTextPosition", &Scene::setTextPosition,
-                                                    "setTextFillColor", &Scene::setText,
-                                                    "setTextOutlineColor", &Scene::setTextPosition,
-                                                    "setTextSize", &Scene::setTextSize
-                                                    );
+			script::Usertype<Scene> sceneType = state.registerUsertype<Scene>("Scene");
+			sceneType["addLayer"] = & Scene::addLayer;
+			sceneType["addLayerTransitionEffect"] = [](Scene& scene, unsigned index, const sf::Vector2f& direction, const sf::Vector2f& startingPos, float speed)
+			{ scene.addEffectToLayer<CutsceneEffects::LayerTransition>(index, direction, startingPos, speed); };
+			sceneType["setText"] = & Scene::setText;
+			sceneType["setTextPosition"] = & Scene::setTextPosition;
+			sceneType["setTextFillColor"] = & Scene::setText;
+			sceneType["setTextOutlineColor"] = & Scene::setTextPosition;
+			sceneType["setTextSize"] = & Scene::setTextSize;
         }
     }
 }

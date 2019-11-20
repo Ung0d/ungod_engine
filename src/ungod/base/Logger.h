@@ -18,7 +18,7 @@ namespace ungod
     class Logger
     {
     //_____________________________________________________
-    enum Priority_Level
+    enum class Priority_Level
     {
         PRIORITY_NOLOG       = -1,
         PRIORITY_INFO        = 0,
@@ -94,19 +94,19 @@ namespace ungod
     template <class T>
     void Logger::info(const T& message)
     {
-        log(message, "Info: ", PRIORITY_INFO);
+        log(message, "Info: ", Priority_Level::PRIORITY_INFO);
     }
 
     template <class T>
     void Logger::warning(const T& message)
     {
-        log(message, "Warning: ", PRIORITY_WARNING);
+        log(message, "Warning: ", Priority_Level::PRIORITY_WARNING);
     }
 
     template <class T>
     void Logger::error(const T& message)
     {
-        log(message, "Error: ", PRIORITY_ERROR);
+        log(message, "Error: ", Priority_Level::PRIORITY_ERROR);
     }
 }
 

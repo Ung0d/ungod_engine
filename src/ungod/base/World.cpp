@@ -94,11 +94,11 @@ namespace ungod
                             script::Environment global)
     {
         //connect signals
-        mVisualsManager.onContentsChanged( [this] (Entity e, const sf::IntRect& rect)
+        mVisualsManager.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
                                           {
                                                 mTransformManager.handleContentsChanged(e, rect);
                                           });
-        mRigidbodyManager.onContentsChanged( [this] (Entity e, const sf::IntRect& rect)
+        mRigidbodyManager.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
                                           {
                                                 mTransformManager.handleContentsChanged(e, rect);
                                           });
@@ -106,11 +106,11 @@ namespace ungod
                                           {
                                                 mTransformManager.handleContentsRemoved(e);
                                           });
-        mLightSystem.onContentsChanged( [this] (Entity e, const sf::IntRect& rect)
+        mLightSystem.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
                                           {
                                                 mTransformManager.handleContentsChanged(e, rect);
                                           });
-        mParticleSystemManager.onContentsChanged( [this] (Entity e, const sf::IntRect& rect)
+        mParticleSystemManager.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
                                           {
                                                 mTransformManager.handleContentsChanged(e, rect);
                                           });

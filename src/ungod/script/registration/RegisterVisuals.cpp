@@ -36,130 +36,128 @@ namespace ungod
     {
         void registerVisuals(ScriptStateBase& state, Application& app)
         {
-            state.registerUsertype<VisualsComponent>("Visuals",
-                                                  "isLoaded", &VisualsComponent::isLoaded,
-                                                  "isVisible", &VisualsComponent::isVisible,
-                                                  "getOpacity", &VisualsComponent::getOpacity);
+			script::Usertype<VisualsComponent> visualsCompType = state.registerUsertype<VisualsComponent>("Visuals");
+			visualsCompType["isLoaded"] = & VisualsComponent::isLoaded;
+			visualsCompType["isVisible"] = & VisualsComponent::isVisible;
+			visualsCompType["getOpacity"] = & VisualsComponent::getOpacity;
 
-            state.registerUsertype<VertexArrayComponent>("VertexArrayComponent",
-                                                  "textureRectCount", [] (const VertexArrayComponent& vert) {return vert.getVertices().textureRectCount();},
-                                                  "getPosition", [] (const VertexArrayComponent& vert, std::size_t index) {return vert.getVertices().getPosition(index);},
-                                                  "getTextureRect",[] (const VertexArrayComponent& vert, std::size_t index) {return vert.getVertices().getTextureRect(index);},
-                                                  "getBounds", [] (const VertexArrayComponent& vert) {return vert.getVertices().getBounds();});
+			script::Usertype < VertexArrayComponent> vertexArrayCompType = state.registerUsertype<VertexArrayComponent>("VertexArrayComponent");
+			vertexArrayCompType["textureRectCount"] = [](const VertexArrayComponent& vert) {return vert.getVertices().textureRectCount(); };
+			vertexArrayCompType["getPosition"] = [](const VertexArrayComponent& vert, std::size_t index) {return vert.getVertices().getPosition(index); };
+			vertexArrayCompType["getTextureRect"] = [](const VertexArrayComponent& vert, std::size_t index) {return vert.getVertices().getTextureRect(index); };
+			vertexArrayCompType["getBounds"] = [](const VertexArrayComponent& vert) {return vert.getVertices().getBounds(); };
 
-            state.registerUsertype<SpriteComponent>("SpriteComponent",
-                                                  "getPosition", [] (const SpriteComponent& sprite) {return sprite.getSprite().getPosition();},
-                                                  "getScale", [] (const SpriteComponent& sprite) {return sprite.getSprite().getScale();},
-                                                  "getRotation", [] (const SpriteComponent& sprite) {return sprite.getSprite().getRotation();},
-                                                  "getOrigin", [] (const SpriteComponent& sprite) {return sprite.getSprite().getOrigin();},
-                                                  "getTextureRect", [] (const SpriteComponent& sprite) {return sprite.getSprite().getTextureRect();},
-                                                  "getBounds", [] (const SpriteComponent& sprite) {return sprite.getSprite().getBounds();},
-                                                  "getUntransformedBounds", [] (const SpriteComponent& sprite) {return sprite.getSprite().getUntransformedBounds();});
+			script::Usertype < VertexArrayComponent> spriteCompType = state.registerUsertype<SpriteComponent>("SpriteComponent");
+			spriteCompType["getPosition"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getPosition(); };
+			spriteCompType["getScale"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getScale(); };
+			spriteCompType["getRotation"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getRotation(); };
+			spriteCompType["getOrigin"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getOrigin(); };
+			spriteCompType["getTextureRect"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getTextureRect(); };
+			spriteCompType["getBounds"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getBounds(); };
+			spriteCompType["getUntransformedBounds"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getUntransformedBounds(); };
 
             detail::registerMultiComponent<SpriteComponent>(state, "MultiSpriteComponent");
 
-            state.registerUsertype<VisualAffectorComponent>("VisualAffectorComponent",
-                                                  "setActive", &VisualAffectorComponent::setActive,
-                                                  "isActive", &VisualAffectorComponent::isActive);
+			script::Usertype < VisualAffectorComponent> affectorCompType = state.registerUsertype<VisualAffectorComponent>("VisualAffectorComponent"] =
+			affectorCompType[setActive"] = &VisualAffectorComponent::setActive;
+			affectorCompType["isActive"] = & VisualAffectorComponent::isActive;
 
             detail::registerMultiComponent<VisualAffectorComponent>(state, "MultiVisualAffectorComponent");
 
             state.registerUsertype<SpriteMetadataComponent>("SpriteMetadataComponent");
 
-            state.registerUsertype<AnimationComponent>("AnimationComponent",
-                                                  "isLooping", [] (const AnimationComponent& anim) {return anim.getAnimation().isLooping();},
-                                                  "isRunning", [] (const AnimationComponent& anim) {return anim.getAnimation().isRunning();},
-                                                  "getKey", [] (const AnimationComponent& anim) {return anim.getAnimation().getKey();},
-                                                  "getCurrentIndex", [] (const AnimationComponent& anim) {return anim.getAnimation().getCurrentIndex();},
-                                                  "getSpeed", [] (const AnimationComponent& anim) {return anim.getAnimation().getSpeed();});
+			script::Usertype < AnimationComponent> animCompType = state.registerUsertype<AnimationComponent>("AnimationComponent");
+			animCompType["isLooping"] = [](const AnimationComponent& anim) {return anim.getAnimation().isLooping(); };
+			animCompType["isRunning"] = [](const AnimationComponent& anim) {return anim.getAnimation().isRunning(); };
+			animCompType["getKey"] = [](const AnimationComponent& anim) {return anim.getAnimation().getKey(); };
+			animCompType["getCurrentIndex"] = [](const AnimationComponent& anim) {return anim.getAnimation().getCurrentIndex(); };
+			animCompType["getSpeed"] = [](const AnimationComponent& anim) {return anim.getAnimation().getSpeed(); };
 
             detail::registerMultiComponent<AnimationComponent>(state, "MultiAnimationComponent");
 
-            state.registerUsertype<BigSpriteComponent>("BigSpriteComponent",
-                                                  "isLoaded", &BigSpriteComponent::isLoaded,
-                                                  "isVisible", &BigSpriteComponent::isVisible,
-                                                  "getFilepath", &BigSpriteComponent::getFilePath,
-                                                  "getPosition", [] (const BigSpriteComponent& sprite) {return sprite.getBigSprite().getPosition();},
-                                                  "getScale", [] (const BigSpriteComponent& sprite) {return sprite.getBigSprite().getScale();},
-                                                  "getRotation", [] (const BigSpriteComponent& sprite) {return sprite.getBigSprite().getRotation();},
-                                                  "getOrigin", [] (const BigSpriteComponent& sprite) {return sprite.getBigSprite().getOrigin();},
-                                                  "getBounds", [] (const BigSpriteComponent& sprite) {return sprite.getBigSprite().getGlobalBounds();},
-                                                  "getColor", [] (const BigSpriteComponent& sprite) {return sprite.getBigSprite().getColor();}
-                                                  );
+			script::Usertype <BigSpriteComponent> bigspriteCompType = state.registerUsertype<BigSpriteComponent>("BigSpriteComponent");
+			bigspriteCompType["isLoaded"] = & BigSpriteComponent::isLoaded;
+			bigspriteCompType["isVisible"] = & BigSpriteComponent::isVisible;
+			bigspriteCompType["getFilepath"] = & BigSpriteComponent::getFilePath;
+			bigspriteCompType["getPosition"] = [](const BigSpriteComponent& sprite) {return sprite.getBigSprite().getPosition(); };
+			bigspriteCompType["getScale"] = [](const BigSpriteComponent& sprite) {return sprite.getBigSprite().getScale(); };
+			bigspriteCompType["getRotation"] = [](const BigSpriteComponent& sprite) {return sprite.getBigSprite().getRotation(); };
+			bigspriteCompType["getOrigin"] = [](const BigSpriteComponent& sprite) {return sprite.getBigSprite().getOrigin(); };
+			bigspriteCompType["getBounds"] = [](const BigSpriteComponent& sprite) {return sprite.getBigSprite().getGlobalBounds(); };
+			bigspriteCompType["getColor"] = [](const BigSpriteComponent& sprite) {return sprite.getBigSprite().getColor(); };
 
-            state.registerUsertype<VisualsManager>("VisualsManager",
-                                                         "initTextureRects", &VisualsManager::initTextureRects,
-                                                         "setSpriteTextureRect", sol::overload([] (VisualsManager& vm, Entity e, const sf::FloatRect& rect) { vm.setSpriteTextureRect(e, rect); },
-                                                                                               [] (VisualsManager& vm, Entity e, const sf::FloatRect& rect, std::size_t index) { vm.setSpriteTextureRect(e, rect, index); },
-                                                                                               [] (VisualsManager& vm, Entity e, const std::string& key) { vm.setSpriteTextureRect(e, key); },
-                                                                                               [] (VisualsManager& vm, Entity e, const std::string& key, std::size_t index) { vm.setSpriteTextureRect(e, key, index); }),
-                                                         "setSpritePosition", sol::overload([] (VisualsManager& vm, Entity e, const sf::Vector2f& pos) { vm.setSpritePosition(e, pos); },
-                                                                                            [] (VisualsManager& vm, Entity e, const sf::Vector2f& pos, std::size_t index) { vm.setSpritePosition(e, pos, index); }),
-                                                         "setArrayTextureRect", sol::overload( [] (VisualsManager& vm, Entity e, const sf::FloatRect& rect, std::size_t index) { vm.setArrayTextureRect(e, rect, index); },
-                                                                                               [] (VisualsManager& vm, Entity e, std::size_t index, const std::string& key) { vm.setArrayTextureRect(e, index, key); }),
-                                                         "setTextureRectPosition", &VisualsManager::setTextureRectPosition,
-                                                         "setPoints", [] (VisualsManager& vm, Entity e, std::size_t index, const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4)
-                                                            { vm.setPoints(e, index, p1, p2, p3, p4); },
-                                                         "getPoint", &VisualsManager::getPoint,
-                                                         "newTextureRect", sol::overload([] (VisualsManager& vm, Entity e, const sf::FloatRect& rect) { return vm.newTextureRect(e, rect); },
-                                                                                            [] (VisualsManager& vm, Entity e) { return vm.newTextureRect(e); },
-                                                                                            [] (VisualsManager& vm, Entity e, const std::string& key) { return vm.newTextureRect(e, key); }),
-                                                         "loadTexture", sol::overload([] (VisualsManager& vm, Entity e, const std::string& imageID, const script::ProtectedFunc& func) { return vm.loadTexture(e, imageID, [func] (VisualsComponent& vis) { func(vis); }); },
-                                                                                      [] (VisualsManager& vm, Entity e, const std::string& imageID, LoadPolicy policy) { vm.loadTexture(e, imageID, policy); },
-                                                                                      [] (VisualsManager& vm, Entity e, const std::string& imageID) { vm.loadTexture(e, imageID); }),
-                                                         "loadMetadata", &VisualsManager::loadMetadata,
-                                                         "setVisible", &VisualsManager::setVisible,
-                                                         "bindSpriteToAnimation", sol::overload( [] (VisualsManager& vm, Entity e) { vm.bindSpriteToAnimation(e); },
-                                                                                               [] (VisualsManager& vm, Entity e, std::size_t multiSpriteIndex, std::size_t multiAnimationIndex) { vm.bindSpriteToAnimation(e, multiSpriteIndex, multiAnimationIndex); }),
-                                                         "bindArrayToAnimation", sol::overload( [] (VisualsManager& vm, Entity e, std::size_t index) { vm.bindArrayToAnimation(e, index); },
-                                                                                               [] (VisualsManager& vm, Entity e, std::size_t index, std::size_t multiAnimationIndex) { vm.bindArrayToAnimation(e, index, multiAnimationIndex); }),
-                                                         "setAnimationState", sol::overload( [] (VisualsManager& vm, Entity e, const std::string& key) { return vm.setAnimationState(e, key); },
-                                                                                               [] (VisualsManager& vm, Entity e, const std::string& key, std::size_t multiAnimationIndex) { return vm.setAnimationState(e, key, multiAnimationIndex); }),
-                                                         "newAnimationState", &VisualsManager::newAnimationState,
-                                                         "setRunning", sol::overload([] (VisualsManager& vm, Entity e, bool running) { return vm.setRunning(e, running); },
-                                                                                     [] (VisualsManager& vm, Entity e, bool running, std::size_t animationIndex) { return vm.setRunning(e, running, animationIndex); }),
-                                                         "setAnimationSpeed", sol::overload([] (VisualsManager& vm, Entity e, float speed) { return vm.setAnimationSpeed(e, speed); },
-                                                                                     [] (VisualsManager& vm, Entity e, float speed, std::size_t animationIndex) { return vm.setAnimationSpeed(e, speed, animationIndex); }),
-                                                         "getLowerBound", &VisualsManager::getLowerBound,
-                                                         "getUpperBound", &VisualsManager::getUpperBound,
-                                                         "getUntransformedLowerBound", &VisualsManager::getUntransformedLowerBound,
-                                                         "getUntransformedUpperBound", &VisualsManager::getUntransformedUpperBound,
-                                                         "setRotation", sol::overload([] (VisualsManager& vm, Entity e, float rotation) { return vm.setRotation(e, rotation); },
-                                                                                     [] (VisualsManager& vm, Entity e, float rotation, std::size_t multiindex) { return vm.setRotation(e, rotation, multiindex); }),
-                                                         "setScale", sol::overload([] (VisualsManager& vm, Entity e, float scalex, float scaley) { return vm.setScale(e, scalex, scaley); },
-                                                                                     [] (VisualsManager& vm, Entity e, float scalex, float scaley, std::size_t multiindex) { return vm.setScale(e, scalex, scaley, multiindex); }),
-                                                         "setOrigin", sol::overload([] (VisualsManager& vm, Entity e, const sf::Vector2f& origin) { return vm.setOrigin(e, origin); },
-                                                                                     [] (VisualsManager& vm, Entity e, const sf::Vector2f& origin, std::size_t multiindex) { return vm.setOrigin(e, origin, multiindex); }),
-                                                         "setSpriteColor", sol::overload([] (VisualsManager& vm, Entity e, const sf::Color& color) { return vm.setSpriteColor(e, color); },
-                                                                                     [] (VisualsManager& vm, Entity e, const sf::Color& color, std::size_t multiindex) { return vm.setSpriteColor(e, color, multiindex); }),
-                                                         "setArrayRectColor", [] (VisualsManager& vm, Entity e, const sf::Color& color, std::size_t index) { vm.setArrayRectColor(e, color, index); },
-                                                         "setOpacity", &VisualsManager::setOpacity,
-                                                         "loadBigTexture", sol::overload([] (VisualsManager& vm, Entity e, const std::string& imageID, LoadPolicy policy) { vm.loadBigTexture(e, imageID, policy); },
-                                                                                      [] (VisualsManager& vm, Entity e, const std::string& imageID) { vm.loadBigTexture(e, imageID); }),
-                                                         "setBigSpriteVisibility",  [] (VisualsManager& vm, Entity e, bool visible) { vm.setBigSpriteVisibility(e, visible); },
-                                                         "setBigSpritePosition",  [] (VisualsManager& vm, Entity e, const sf::Vector2f& position) { vm.setBigSpritePosition(e, position); },
-                                                         "setBigSpriteColor",  [] (VisualsManager& vm, Entity e, const sf::Color& color) { vm.setBigSpriteColor(e, color); },
-                                                         "setBigSpriteScale",  [] (VisualsManager& vm, Entity e, const sf::Vector2f& scale) { vm.setBigSpriteScale(e, scale); },
-                                                         "setBigSpriteOrigin",  [] (VisualsManager& vm, Entity e, const sf::Vector2f& origin) { vm.setBigSpriteOrigin(e, origin); },
-                                                         "setBigSpriteRotation",  [] (VisualsManager& vm, Entity e, float rotation) { vm.setBigSpriteRotation(e, rotation); }
-                                                         );
+			script::Usertype <VisualsManager> visualsmngrType = state.registerUsertype<VisualsManager>("VisualsManager");
+			visualsmngrType["initTextureRects"] = & VisualsManager::initTextureRects;
+			visualsmngrType["setSpriteTextureRect"] = sol::overload([](VisualsManager& vm, Entity e, const sf::FloatRect& rect) { vm.setSpriteTextureRect(e, rect); },
+				[](VisualsManager& vm, Entity e, const sf::FloatRect& rect, std::size_t index) { vm.setSpriteTextureRect(e, rect, index); },
+				[](VisualsManager& vm, Entity e, const std::string& key) { vm.setSpriteTextureRect(e, key); },
+				[](VisualsManager& vm, Entity e, const std::string& key, std::size_t index) { vm.setSpriteTextureRect(e, key, index); });
+			visualsmngrType["setSpritePosition"] = sol::overload([](VisualsManager& vm, Entity e, const sf::Vector2f& pos) { vm.setSpritePosition(e, pos); },
+				[](VisualsManager& vm, Entity e, const sf::Vector2f& pos, std::size_t index) { vm.setSpritePosition(e, pos, index); });
+			visualsmngrType["setArrayTextureRect"] = sol::overload([](VisualsManager& vm, Entity e, const sf::FloatRect& rect, std::size_t index) { vm.setArrayTextureRect(e, rect, index); },
+				[](VisualsManager& vm, Entity e, std::size_t index, const std::string& key) { vm.setArrayTextureRect(e, index, key); });
+			visualsmngrType["setTextureRectPosition"] = & VisualsManager::setTextureRectPosition;
+			visualsmngrType["setPoints"] = [](VisualsManager& vm, Entity e, std::size_t index, const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4)
+			{ vm.setPoints(e, index, p1, p2, p3, p4); };
+			visualsmngrType["getPoint"] = & VisualsManager::getPoint;
+			visualsmngrType["newTextureRect"] = sol::overload([](VisualsManager& vm, Entity e, const sf::FloatRect& rect) { return vm.newTextureRect(e, rect); },
+				[](VisualsManager& vm, Entity e) { return vm.newTextureRect(e); },
+				[](VisualsManager& vm, Entity e, const std::string& key) { return vm.newTextureRect(e, key); });
+			visualsmngrType["loadTexture"] = sol::overload([](VisualsManager& vm, Entity e, const std::string& imageID, const script::ProtectedFunc& func) { return vm.loadTexture(e, imageID, [func](VisualsComponent& vis) { func(vis); }); },
+				[](VisualsManager& vm, Entity e, const std::string& imageID, LoadPolicy policy) { vm.loadTexture(e, imageID, policy); },
+				[](VisualsManager& vm, Entity e, const std::string& imageID) { vm.loadTexture(e, imageID); });
+			visualsmngrType["loadMetadata"] = & VisualsManager::loadMetadata;
+			visualsmngrType["setVisible"] = & VisualsManager::setVisible;
+			visualsmngrType["bindSpriteToAnimation"] = sol::overload([](VisualsManager& vm, Entity e) { vm.bindSpriteToAnimation(e); },
+				[](VisualsManager& vm, Entity e, std::size_t multiSpriteIndex, std::size_t multiAnimationIndex) { vm.bindSpriteToAnimation(e, multiSpriteIndex, multiAnimationIndex); });
+			visualsmngrType["bindArrayToAnimation"] = sol::overload([](VisualsManager& vm, Entity e, std::size_t index) { vm.bindArrayToAnimation(e, index); },
+				[](VisualsManager& vm, Entity e, std::size_t index, std::size_t multiAnimationIndex) { vm.bindArrayToAnimation(e, index, multiAnimationIndex); });
+			visualsmngrType["setAnimationState"] = sol::overload([](VisualsManager& vm, Entity e, const std::string& key) { return vm.setAnimationState(e, key); },
+				[](VisualsManager& vm, Entity e, const std::string& key, std::size_t multiAnimationIndex) { return vm.setAnimationState(e, key, multiAnimationIndex); });
+			visualsmngrType["newAnimationState"] = & VisualsManager::newAnimationState;
+			visualsmngrType["setRunning"] = sol::overload([](VisualsManager& vm, Entity e, bool running) { return vm.setRunning(e, running); },
+				[](VisualsManager& vm, Entity e, bool running, std::size_t animationIndex) { return vm.setRunning(e, running, animationIndex); });
+			visualsmngrType["setAnimationSpeed"] = sol::overload([](VisualsManager& vm, Entity e, float speed) { return vm.setAnimationSpeed(e, speed); },
+				[](VisualsManager& vm, Entity e, float speed, std::size_t animationIndex) { return vm.setAnimationSpeed(e, speed, animationIndex); });
+			visualsmngrType["getLowerBound"] = & VisualsManager::getLowerBound;
+			visualsmngrType["getUpperBound"] = & VisualsManager::getUpperBound;
+			visualsmngrType["getUntransformedLowerBound"] = & VisualsManager::getUntransformedLowerBound;
+			visualsmngrType["getUntransformedUpperBound"] = & VisualsManager::getUntransformedUpperBound;
+			visualsmngrType["setRotation"] = sol::overload([](VisualsManager& vm, Entity e, float rotation) { return vm.setRotation(e, rotation); },
+			[](VisualsManager& vm, Entity e, float rotation, std::size_t multiindex) { return vm.setRotation(e, rotation, multiindex); });
+			visualsmngrType["setScale"] = sol::overload([](VisualsManager& vm, Entity e, float scalex, float scaley) { return vm.setScale(e, scalex, scaley); },
+				[](VisualsManager& vm, Entity e, float scalex, float scaley, std::size_t multiindex) { return vm.setScale(e, scalex, scaley, multiindex); });
+			visualsmngrType["setOrigin"] = sol::overload([](VisualsManager& vm, Entity e, const sf::Vector2f& origin) { return vm.setOrigin(e, origin); },
+				[](VisualsManager& vm, Entity e, const sf::Vector2f& origin, std::size_t multiindex) { return vm.setOrigin(e, origin, multiindex); });
+			visualsmngrType["setSpriteColor"] = sol::overload([](VisualsManager& vm, Entity e, const sf::Color& color) { return vm.setSpriteColor(e, color); },
+				[](VisualsManager& vm, Entity e, const sf::Color& color, std::size_t multiindex) { return vm.setSpriteColor(e, color, multiindex); });
+			visualsmngrType["setArrayRectColor"] = [](VisualsManager& vm, Entity e, const sf::Color& color, std::size_t index) { vm.setArrayRectColor(e, color, index); };
+			visualsmngrType["setOpacity"] = & VisualsManager::setOpacity;
+			visualsmngrType["loadBigTexture"] = sol::overload([](VisualsManager& vm, Entity e, const std::string& imageID, LoadPolicy policy) { vm.loadBigTexture(e, imageID, policy); },
+				[](VisualsManager& vm, Entity e, const std::string& imageID) { vm.loadBigTexture(e, imageID); });
+			visualsmngrType["setBigSpriteVisibility"] = [](VisualsManager& vm, Entity e, bool visible) { vm.setBigSpriteVisibility(e, visible); };
+			visualsmngrType["setBigSpritePosition"] = [](VisualsManager& vm, Entity e, const sf::Vector2f& position) { vm.setBigSpritePosition(e, position); };
+			visualsmngrType["setBigSpriteColor"] = [](VisualsManager& vm, Entity e, const sf::Color& color) { vm.setBigSpriteColor(e, color); };
+			visualsmngrType["setBigSpriteScale"] = [](VisualsManager& vm, Entity e, const sf::Vector2f& scale) { vm.setBigSpriteScale(e, scale); };
+			visualsmngrType["setBigSpriteOrigin"] = [](VisualsManager& vm, Entity e, const sf::Vector2f& origin) { vm.setBigSpriteOrigin(e, origin); };
+			visualsmngrType["setBigSpriteRotation"] = [](VisualsManager& vm, Entity e, float rotation) { vm.setBigSpriteRotation(e, rotation); };
 
-            state.registerUsertype<Camera>("Camera",
-                                           "lockToEntity", &Camera::lockToEntity,
-                                           "lookAt", &Camera::lookAt,
-                                           "setZoom", &Camera::setZoom,
-                                           "getZoom", &Camera::getZoom,
-                                           "reset", &Camera::reset,
-                                           "setDeadZoneRadius", &Camera::setDeadZoneRadius,
-                                           "setScrollSpeed", &Camera::setScrollSpeed,
-                                           "getCenter", &Camera::getCenter,
-                                           "attachAffector", &Camera::attachAffector,
-                                           "setNoise", &Camera::setNoise,
-                                           "getNoise", &Camera::getNoise);
+			script::Usertype<Camera> camType = state.registerUsertype<Camera>("Camera");
+			camType["lockToEntity"] = & Camera::lockToEntity;
+			camType["lookAt"] = & Camera::lookAt;
+			camType["setZoom"] = & Camera::setZoom;
+			camType["getZoom"] = & Camera::getZoom;
+			camType["reset"] =  & Camera::reset;
+			camType["setDeadZoneRadius"] =  & Camera::setDeadZoneRadius;
+			camType["setScrollSpeed"] =  & Camera::setScrollSpeed;
+			camType["getCenter"] = & Camera::getCenter;
+			camType["attachAffector"] = & Camera::attachAffector;
+			camType["setNoise"] = & Camera::setNoise;
+			camType["getNoise"] = & Camera::getNoise;
 
-            state.registerFunction("screenShake", sol::overload( &Camera::makeScreenShake, []() { return Camera::makeScreenShake(750, 60, 10); } ));
+            state.registerFunction("screenShake"] = sol::overload( &Camera::makeScreenShake, []() { return Camera::makeScreenShake(750, 60, 10); } ));
 
-            state.registerFunction("smoothZoom", &Camera::makeSmoothZoom);
+            state.registerFunction("smoothZoom"] = &Camera::makeSmoothZoom);
         }
     }
 }

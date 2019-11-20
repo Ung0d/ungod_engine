@@ -104,17 +104,17 @@ namespace tgui
         float horizontalTileCount = size.x.getValue() / texwidth;
         float verticalTileCount = size.y.getValue() / texheight;
         float cpyvert = verticalTileCount;
-        unsigned ceilHoriz = std::ceil(horizontalTileCount);
-        unsigned ceilVert = std::ceil(verticalTileCount);
+        unsigned ceilHoriz = (unsigned)std::ceil(horizontalTileCount);
+        unsigned ceilVert = (unsigned)std::ceil(verticalTileCount);
 
-        m_vertices.resize(4*ceilHoriz*ceilVert);
+        m_vertices.resize(4*(std::size_t)ceilHoriz*(std::size_t)ceilVert);
 
         for (unsigned i = 0; i < ceilHoriz; ++i)
         {
             verticalTileCount = cpyvert;
             for (unsigned j = 0; j < ceilVert; ++j)
             {
-                sf::Vertex* quad = &m_vertices[4*(i+ j*ceilHoriz)];
+                sf::Vertex* quad = &m_vertices[4*((std::size_t)i+(std::size_t)j*(std::size_t)ceilHoriz)];
 
                 //indicate "how much" of the texture the next tile covers
                 float gapx;

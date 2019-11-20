@@ -24,7 +24,6 @@
 */
 
 #include "ungod/application/ConfigFile.h"
-#include "ungod/serialization/MetaData.h"
 
 namespace ungod
 {
@@ -56,20 +55,19 @@ namespace ungod
 
     void Configuration::save()
     {
-        MetaDocument doc;
-        auto root = doc.setupRoot("config");
+        auto root = mDoc.setupRoot("config");
         for (const auto& group : mContent)
         {
-            auto node = doc.allocateNode(group.first);
+            auto node = mDoc.allocateNode(group.first);
             root.appendSubnode( node );
             for (const auto& item : group.second.mParam)
             {
-                node.appendAttribute( doc.allocateAttribute(item.first, item.second.mValue) );
+                node.appendAttribute( mDoc.allocateAttribute(item.first, item.second.mValue) );
             }
         }
 
         std::ofstream file(mFilepath);
-        file << doc;
+        file << mDoc;
         file.close();
     }
 

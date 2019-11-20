@@ -94,11 +94,11 @@ namespace ungod
                              "materials", deserializer, attr );
         attr = context.next(
             context.deserializeContainer<bool>([&active] (std::size_t num) { active.reserve(num); },
-                             [&active] (bool a) { active.emplace_back(a); }),
+                             [&active] (bool a) { active.push_back(a); }),
                              "active", deserializer, attr );
         attr = context.next(
             context.deserializeContainer<bool>([&blocked] (std::size_t num) { blocked.reserve(num); },
-                             [&blocked] (bool b) { blocked.emplace_back(b); }),
+                             [&blocked] (bool b) { blocked.push_back(b); }),
                              "blocked", deserializer, attr );
 
         data.setTiles(tiles, materials, active, blocked, mapWidth, mapHeight);

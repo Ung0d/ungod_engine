@@ -30,7 +30,7 @@
 
 namespace ungod
 {
-    class FunctorHandle;
+    struct FunctorHandle;
 
     template<>
     struct SerialIdentifier<FunctorHandle>

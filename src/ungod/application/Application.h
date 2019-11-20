@@ -37,7 +37,7 @@
 namespace ungod
 {
 
-    enum ErrorCode          {QUIT_STATUS_OK = 0,
+    enum class ErrorCode  : int   {QUIT_STATUS_OK = 0,
                              QUIT_STATUS_NO_ACTIVE_STATE_FOUND = 1,
                              ERROR_DATA_MISSING = 100,
                              COULD_NOT_CREATE_CONFIG_FILE = 101,
@@ -68,7 +68,7 @@ namespace ungod
         bool isRunning() const;
 
         /** \brief Terminates the application with the given error code. */
-        void quitApplication(ErrorCode error = QUIT_STATUS_OK);
+        void quitApplication(ErrorCode error = ErrorCode::QUIT_STATUS_OK);
 
         /** \brief Loads a new cursor and tags it with a key. */
         void initCursor(const std::string& id, sf::Texture& texture);

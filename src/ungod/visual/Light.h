@@ -446,7 +446,7 @@ namespace ungod
 
 
         /** \brief Registers new callback for the ContentsChanged signal. */
-        void onContentsChanged(const std::function<void(Entity, const sf::IntRect&)>& callback);
+        void onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback);
 
         /** \brief Returns the lower bound of the bounding rect around all contents of the given entity. */
         sf::Vector2f getLowerBound(Entity e);
@@ -470,7 +470,7 @@ namespace ungod
         sf::Color mAmbientColor;
         sf::Sprite mDisplaySprite;
         sf::Vector3f mColorShift;
-        owls::Signal<Entity, const sf::IntRect&> mContentsChangedSignal;
+        owls::Signal<Entity, const sf::FloatRect&> mContentsChangedSignal;
         owls::SignalLink<void, const sf::Vector2u&> mAppSignalLink;
 
     private:

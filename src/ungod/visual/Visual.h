@@ -113,8 +113,9 @@ namespace ungod
     {
     friend class VisualsManager;
     friend class Renderer;
-     friend struct SerialBehavior<SpriteComponent, Entity, const World&, const Application&>;
-    friend class DeserialBehavior<SpriteComponent, Entity, World&, const Application&>;
+    friend struct
+		 SerialBehavior<SpriteComponent, Entity, const World&, const Application&>;
+    friend struct DeserialBehavior<SpriteComponent, Entity, World&, const Application&>;
     public:
         SpriteComponent() : mFlipX(false), mFlipY(false) {}
 
@@ -303,9 +304,9 @@ namespace ungod
         void loadTexture(VisualsComponent& visuals, const std::string& imageID, std::function<void(VisualsComponent&)> callback);
 
         /** \brief Initializes sync or async loading of the internal texture. */
-        inline void loadTexture(Entity e, const std::string& imageID, const LoadPolicy policy = SYNC)
+        inline void loadTexture(Entity e, const std::string& imageID, const LoadPolicy policy = LoadPolicy::SYNC)
         { loadTexture(e.modify<VisualsComponent>(), imageID, policy); }
-        void loadTexture(VisualsComponent& visuals, const std::string& imageID, const LoadPolicy policy = SYNC);
+        void loadTexture(VisualsComponent& visuals, const std::string& imageID, const LoadPolicy policy = LoadPolicy::SYNC);
 
         /** \brief Loads a new metadata for the given entity. Requires a SpriteMetadataComponent-component. */
         void loadMetadata(Entity e, const std::string& metaID);
@@ -373,7 +374,7 @@ namespace ungod
 
 
         /** \brief Registers new callback for the ContentsChanged signal. */
-        void onContentsChanged(const std::function<void(Entity, const sf::IntRect&)>& callback);
+        void onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback);
 
         /** \brief Registers new callback for the VisibilityChanged signal. */
         void onVisibilityChanged(const std::function<void(Entity, bool)>& callback);
@@ -456,7 +457,7 @@ namespace ungod
 
 
         /** \brief Loads a texture that can be bigger than the hardware limitations into memory and displays it in a BigSpriteComponent. */
-        inline void loadBigTexture(Entity e, const std::string& filepath, LoadPolicy policy = ASYNC) { loadBigTexture(e, e.modify<BigSpriteComponent>(), filepath, policy); }
+        inline void loadBigTexture(Entity e, const std::string& filepath, LoadPolicy policy = LoadPolicy::ASYNC) { loadBigTexture(e, e.modify<BigSpriteComponent>(), filepath, policy); }
         void loadBigTexture(Entity e, BigSpriteComponent& bigSprite, const std::string& filepath, LoadPolicy policy);
 
         /** \brief Loads a texture that can be bigger than the hardware limitations into memory and displays it in a BigSpriteComponent. */
@@ -493,7 +494,7 @@ namespace ungod
         static void componentOpacitySet(Entity e, float opacity);
 
     private:
-        owls::Signal<Entity, const sf::IntRect&> mContentsChangedSignal;
+        owls::Signal<Entity, const sf::FloatRect&> mContentsChangedSignal;
         owls::Signal<Entity, bool> mVisibilityChangedSignal;
         owls::Signal<Entity, const std::string&> mAnimationStartSignal;
         owls::Signal<Entity, const std::string&> mAnimationStopSignal;

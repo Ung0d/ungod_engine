@@ -128,7 +128,7 @@ namespace ungod
     /**
     * \ingroup Components
     * \brief A component that holds a script-defined behavior for an entity. The triggers for that behavior are
-    * asyncronous gameplay- and input-events or update calls within fixed intervals. */
+    * aLoadPolicy::SYNCronous gameplay- and input-events or update calls within fixed intervals. */
     class EntityBehaviorComponent : public Serializable<EntityBehaviorComponent>
     {
     friend class EntityBehaviorManager;

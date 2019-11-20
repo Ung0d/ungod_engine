@@ -43,7 +43,7 @@ namespace ungod
         friend class ParticleSystemManager;
         friend class Renderer;
          friend struct SerialBehavior<ParticleSystemComponent, Entity, const World&, const Application&>;
-        friend class DeserialBehavior<ParticleSystemComponent, Entity, World&, const Application&>;
+        friend struct DeserialBehavior<ParticleSystemComponent, Entity, World&, const Application&>;
 
     public:
         ParticleSystemComponent() = default;
@@ -164,7 +164,7 @@ namespace ungod
         inline void setParticleSpeed(Entity e, float speed);
 
         /** \brief Registers new callback for the ContentsChanged signal. */
-        void onContentsChanged(const std::function<void(Entity, const sf::IntRect&)>& callback);
+        void onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback);
 
         /** \brief Registers new callback for the emitter changed signal. This signal if emitted if the emitter is changed or
         * one of the distributions of the emitter is altered in any way. The signal provides the key of the altered content, along with
@@ -216,7 +216,7 @@ namespace ungod
         ParticleFunctorMaster mParticleFunctorMaster;
         sf::Clock mAABBUpdate;
         int mRectUpdateTimer;
-        owls::Signal< Entity, const sf::IntRect& > mContentsChangedSignal;
+        owls::Signal< Entity, const sf::FloatRect& > mContentsChangedSignal;
         owls::Signal< Entity, const std::string&, const PSData& > mEmitterChangedSignal;
         owls::Signal< Entity, const std::string&, const PSData& > mTexRectInitChangedSignal;
         owls::Signal< Entity, const std::string&, const PSData& > mAffectorChangedSignal;

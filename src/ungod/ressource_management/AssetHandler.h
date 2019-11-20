@@ -34,7 +34,7 @@
 namespace ungod
 {
     /** \brief Defines how an asset should be loaded. */
-    enum LoadPolicy : bool {  SYNC = true, ///<asset is loaded syncronously and can be used directly afterwarts
+    enum class LoadPolicy : bool {  SYNC = true, ///<asset is loaded syncronously and can be used directly afterwarts
                               ASYNC = false ///<asset is loaded in another thread. If another thread tries to use that assets while its still loading, it will wait.
                             };
 
@@ -183,7 +183,7 @@ namespace ungod
             data->isLoaded = false;
             data->filepath = path;
 
-            if (policy == SYNC)
+            if (policy == LoadPolicy::SYNC)
             {
                 Logger::info("Now sync loading asset ");
                 Logger::info(path);

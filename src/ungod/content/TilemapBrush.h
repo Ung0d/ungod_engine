@@ -58,7 +58,8 @@ namespace ungod
     {
         public:
             /** \brief default constructor for later initialization. */
-            TilemapBrush() : mLast(false), mBasic(-1), mIso(-1), mCross(-1), mPathH(-1), mPathV(-1), mDiag1(-1), mDiag2(-1),
+            TilemapBrush() : mLast(false), mLastX(0u), mLastY(0u), mTilemap(nullptr),
+							 mBasic(-1), mIso(-1), mCross(-1), mPathH(-1), mPathV(-1), mDiag1(-1), mDiag2(-1),
                              mPathEnd{-1,-1,-1,-1}, mCorner{-1,-1,-1,-1}, mInnerCorner{-1,-1,-1,-1}, mTShape{-1,-1,-1,-1},
                              mTrans2path{-1,-1,-1,-1}, mCorner2pathA{-1,-1,-1,-1}, mCorner2pathB{-1,-1,-1,-1}, mCorner2pathC{-1,-1,-1,-1},
                              mTrans{-1,-1,-1,-1}, mPathCurve{-1,-1,-1,-1}, mChangeNotificator{new detail::TilemapChangeNotificator()} {}
@@ -80,7 +81,7 @@ namespace ungod
             * depending on adjacent tiles.
             * If connect is true, all connections to adjacent border tiles are automatically created.
             * If it is false, automatic connections to adjacent tiles are only connected to the previously set tile. */
-            void paintTile(std::size_t ix, std::size_t iy, bool connect = true);
+            void paintTile(unsigned ix, unsigned iy, bool connect = true);
             void paintTile(const sf::Vector2f& pos, bool connect = true);
 
             /** \brief Erases the given tile using the given foreign tile. Adjacent tiles are automatically fixed. */

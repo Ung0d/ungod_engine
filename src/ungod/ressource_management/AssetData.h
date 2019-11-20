@@ -42,14 +42,16 @@ namespace ungod
     template<typename T, typename ... PARAM>
     struct AssetData
     {
+		AssetData() : referenceCount(0u), isLoaded(false) {}
+
         //members
         std::unique_ptr<T> asset; ///< a unique-ownership ptr that stores the asset
         std::string filepath; ///< the path of the asset that functions as identifier
         unsigned referenceCount; ///< counter for the assets that refer to the data
         bool isLoaded; ///< is true when the asset was successfully loaded
-        std::future<void> future; ///< holds the result of a std::async call
+        std::future<void> future; ///< holds the result of a std::aLoadPolicy::SYNC call
         std::list< std::pair< const Asset<T, PARAM...>*, std::function <void (T&)> > > callbackStack; ///<stores callbacks while asset is loading
-        std::mutex mutex; ///< used for syncronization
+        std::mutex mutex; ///< used for LoadPolicy::SYNCronization
     };
 }
 

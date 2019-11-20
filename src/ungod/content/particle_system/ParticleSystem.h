@@ -74,7 +74,7 @@ namespace ungod
     class ParticleSystem : public Serializable<ParticleSystem>
     {
      friend struct SerialBehavior<ParticleSystem>;
-    friend class DeserialBehavior<ParticleSystem>;
+    friend struct DeserialBehavior<ParticleSystem>;
     public:
         static constexpr float MAX_FORCE_DEFAULT = 1.0f;
         static constexpr float MAX_VELOCITY_DEFAULT = 2.0f;
@@ -162,7 +162,7 @@ namespace ungod
         float getParticleSpeed() const { return mSpeed; }
 
         /** \brief Returns the number of states a particle is in. */
-        float getStateNum() const { return mStateNum; }
+        std::size_t getStateNum() const { return mStateNum; }
 
         /** \brief Returns the current number of emitted particles. */
         std::size_t getParticleCount() const { return mParticleCount; }

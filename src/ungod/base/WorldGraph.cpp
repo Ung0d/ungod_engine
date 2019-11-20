@@ -71,7 +71,7 @@ namespace ungod
 
     World* WorldGraphNode::addWorld()
     {
-        return addWorld(mLayers.getVector().size());
+        return addWorld((unsigned)mLayers.getVector().size());
     }
 
     World* WorldGraphNode::getWorld(unsigned i) const
@@ -316,7 +316,7 @@ namespace ungod
     {
         mNodes.emplace_back(std::make_unique<WorldGraphNode>(*this, mNodes.size(), gamestate, identifier, datafile));
         notifyBoundsChanged(mNodes.back().get());
-        mAdjacencies.setVertexCount(mAdjacencies.getVertexCount()+1);
+        mAdjacencies.setVertexCount((unsigned)mAdjacencies.getVertexCount()+1);
         return *mNodes.back();
     }
 

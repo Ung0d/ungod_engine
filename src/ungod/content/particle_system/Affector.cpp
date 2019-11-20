@@ -100,9 +100,9 @@ namespace ungod
             for (std::size_t i = 0; i < particles.getParticleCount(); i++)
             {
                 float rel = particles.getParticleData(i).lifetime / particles.getParticleData(i).maxlifetime;
-                particles.getParticleData(i).color.r = data.colorBegin.r*rel + data.colorEnd.r*(1-rel);
-                particles.getParticleData(i).color.g = data.colorBegin.g*rel + data.colorEnd.g*(1-rel);
-                particles.getParticleData(i).color.b = data.colorBegin.b*rel + data.colorEnd.b*(1-rel);
+                particles.getParticleData(i).color.r = sf::Uint8(data.colorBegin.r*rel + data.colorEnd.r*(1-rel));
+                particles.getParticleData(i).color.g = sf::Uint8(data.colorBegin.g*rel + data.colorEnd.g*(1-rel));
+                particles.getParticleData(i).color.b = sf::Uint8(data.colorBegin.b*rel + data.colorEnd.b*(1-rel));
             }
         }
 
@@ -131,7 +131,7 @@ namespace ungod
         {
             for (std::size_t i = 0; i < particles.getParticleCount(); i++)
             {
-                particles.getParticleData(i).rotation = std::acos( (-particles.getParticleData(i).mov.velocity.y)/magnitude(particles.getParticleData(i).mov.velocity) ) * 180.0 / PI;
+                particles.getParticleData(i).rotation = std::acos( (-particles.getParticleData(i).mov.velocity.y)/magnitude(particles.getParticleData(i).mov.velocity) ) * 180.0f / PI;
             }
         }
 
@@ -178,7 +178,7 @@ namespace ungod
         {
             if (data.keys.empty())
                 return {};
-            unsigned keyid = NumberGenerator::getRandBetw(0, data.keys.size()-1);
+            unsigned keyid = (unsigned)NumberGenerator::getRandBetw(0, (unsigned)data.keys.size()-1);
             if (!data.nodes[keyid])
                 return {};
             auto result = data.nodes[keyid].getAttributes<int, int, int, int>(

@@ -80,11 +80,11 @@ namespace ungod
     Script::Script() : Asset<script::ScriptData, script::StateRef>() {}
 
     Script::Script(const std::string& filepath, script::StateRef state)
-         : Asset<script::ScriptData, script::StateRef>(filepath, SYNC, std::forward<script::StateRef>(state)) {}
+         : Asset<script::ScriptData, script::StateRef>(filepath, LoadPolicy::SYNC, std::forward<script::StateRef>(state)) {}
 
     void Script::load(const std::string& filepath, script::StateRef state)
     {
-        Asset<script::ScriptData, script::StateRef>::load(filepath, SYNC, std::forward<script::StateRef>(state));
+        Asset<script::ScriptData, script::StateRef>::load(filepath, LoadPolicy::SYNC, std::forward<script::StateRef>(state));
     }
 
     script::ScriptData* Script::get() const { return Asset<script::ScriptData, script::StateRef>::get(); }

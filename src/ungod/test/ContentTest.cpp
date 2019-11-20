@@ -92,14 +92,15 @@ BOOST_AUTO_TEST_CASE( tilemap_test )
 BOOST_AUTO_TEST_CASE( attach_on_create_test )
 {
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
-    ungod::World world(&state);
-    world.instantiate(EmbeddedTestApp::getApp(), "", "", "", "", "");
-    ungod::Entity e = world.create(ungod::TileMapBaseComponents(), ungod::TileMapOptionalComponents());
+	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+	node.setSize({ 8000,6000 });
+	ungod::World* world = node.addWorld();
+    ungod::Entity e = world->create(ungod::TileMapBaseComponents(), ungod::TileMapOptionalComponents());
 
-    BOOST_CHECK_EQUAL(1u, world.getTileMapRenderer().getTileMapEntities().size());
+    BOOST_CHECK_EQUAL(1u, world->getTileMapRenderer().getTileMapEntities().size());
 
-	world.destroy(e); //queue entity for destruction
-	world.update(20.0f, {}, {}); //destroys entity in queue
+	world->destroy(e); //queue entity for destruction
+	world->update(20.0f, {}, {}); //destroys entity in queue
 }
 
 BOOST_AUTO_TEST_CASE( tilemap_brush_test )

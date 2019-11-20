@@ -44,7 +44,7 @@ namespace ungod
 
         void SceneDataLoader::loadFirst(const Scene* scene)
         {
-            //sync load the data
+            //LoadPolicy::SYNC load the data
             mBufferingSwitch = false;
             load(scene, mBufferingSwitch);
         }
@@ -216,7 +216,7 @@ namespace ungod
         else if ((unsigned)mTimer.getElapsedTime().asMilliseconds() > mScenes[mCurrent].mDuration - mFadingDuration)
             alpha = ((float)mScenes[mCurrent].mDuration - (float)mTimer.getElapsedTime().asMilliseconds())/mFadingDuration;
         sf::Color blackScreenCol = sf::Color::Black;
-        blackScreenCol.a = (uint8_t)255*(1-alpha);
+        blackScreenCol.a = (sf::Uint8)(255*(1-alpha));
         mBlackScreen.setFillColor(blackScreenCol);
 
         return status;

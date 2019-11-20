@@ -32,29 +32,29 @@ namespace ungod
 {
     class ParticleSystem;
     class ParticleFunctorMaster;
-    class DirectionalForce;
-    class DisplaceForce;
-    class FadeOut;
-    class ColorShift;
-    class RotateParticle;
-    class ScaleParticle;
-    class VelocityBasedRotation;
-    class AnimatedParticles;
-    class ExplicitTexrect;
-    class TexrectByKey;
-    class MultipleTexrectsByKey;
-    class AnimationTexrectData;
-    class FixedPosition;
-    class EllipseDist;
-    class RectangleDist;
-    class LineSegmentDist;
-    class FixedVelocity;
-    class ConeDist;
-    class IntervalTick;
-    class OneShotTick;
-    class IntervalLifetime;
+    struct DirectionalForce;
+	struct DisplaceForce;
+	struct FadeOut;
+	struct ColorShift;
+	struct RotateParticle;
+	struct ScaleParticle;
+	struct VelocityBasedRotation;
+	struct AnimatedParticles;
+	struct ExplicitTexrect;
+	struct TexrectByKey;
+	struct MultipleTexrectsByKey;
+	struct AnimationTexrectData;
+	struct FixedPosition;
+	struct EllipseDist;
+	struct RectangleDist;
+	struct LineSegmentDist;
+	struct FixedVelocity;
+	struct ConeDist;
+	struct IntervalTick;
+	struct OneShotTick;
+	struct IntervalLifetime;
     class UniversalEmitter;
-    class UniversalEstimator;
+    struct UniversalEstimator;
 
     template <>
     struct SerialIdentifier<ParticleSystem>

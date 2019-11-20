@@ -115,13 +115,13 @@ namespace ungod
                 return {-1,-1};
             return {std::stoi(tiedBind[0]), std::stoi(tiedBind[1])};
         }
-        catch(const std::invalid_argument& ia)
+        catch(const std::invalid_argument&)
         {
             Logger::info("Invalid argument occured during key-binding-validation. Cant perform action.");
             Logger::endl();
                 return {-1,-1};
         }
-        catch(const std::out_of_range& oor)
+        catch(const std::out_of_range&)
         {
                 return {-1,-1};
         }

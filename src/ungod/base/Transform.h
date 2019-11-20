@@ -40,8 +40,8 @@ namespace ungod
     class TransformComponent : public Serializable<TransformComponent>
     {
     friend class TransformManager;
-     friend struct SerialBehavior<TransformComponent, Entity, const World&, const Application&>;
-    friend class DeserialBehavior<TransformComponent, Entity, World&, const Application&>;
+    friend struct SerialBehavior<TransformComponent, Entity, const World&, const Application&>;
+    friend struct DeserialBehavior<TransformComponent, Entity, World&, const Application&>;
     public:
         TransformComponent() : mTransform(), mUpperBound(0, 0), mLowerBound(0, 0), mBaseLineOffsets(0.0f, 0.0f) {}
 
@@ -144,7 +144,7 @@ namespace ungod
         /** \brief Callback if the "contents" (for example a sprite rect) of a entity has changed.
         * The TransformManager does not care about what kind of content that was, it just processes
         * the bounding rect of the altered content and checks if it is still inside the transform-bounds. */
-        void handleContentsChanged(Entity e, const sf::IntRect& rect);
+        void handleContentsChanged(Entity e, const sf::FloatRect& rect);
 
         /** \brief Callback if contents of an entity are removed.
         * The TransformManager does not care about what kind of content that was, it just updates the entity bounds accordingly. */

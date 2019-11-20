@@ -55,7 +55,7 @@ namespace ungod
         mConfig(),
         mIsInit(false),
         mRunning(false),
-        mExitcode(QUIT_STATUS_OK),
+        mExitcode(ErrorCode::QUIT_STATUS_OK),
         mDebugModeToggled(false),
         mUpdateCounter(0),
         mAccumulator(0),
@@ -126,7 +126,7 @@ namespace ungod
                 file.close();
                 mConfig.load(CONFIG_LOAD_PATH);
             }
-            else quitApplication(COULD_NOT_CREATE_CONFIG_FILE);
+            else quitApplication(ErrorCode::COULD_NOT_CREATE_CONFIG_FILE);
         }
     }
 
@@ -307,7 +307,7 @@ namespace ungod
     {
         mWindow.clear(mBackgroundColor);
         mStatemanager.render(mWindow, sf::RenderStates());
-        mActiveCursor.setPosition(sf::Mouse::getPosition(mWindow).x, sf::Mouse::getPosition(mWindow).y);
+        mActiveCursor.setPosition((float)sf::Mouse::getPosition(mWindow).x, (float)sf::Mouse::getPosition(mWindow).y);
         mWindow.draw(mActiveCursor);
         mWindow.display();
     }

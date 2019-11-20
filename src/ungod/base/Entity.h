@@ -59,11 +59,11 @@ namespace ungod
     {
     friend class World;
      friend struct SerialBehavior< Entity, const World&, const Application& >;
-    friend class DeserialBehavior< Entity, World&, const Application& >;
+     friend struct DeserialBehavior< Entity, World&, const Application& >;
 
     public:
         /** \brief Default constructs a invalid entity. */
-        Entity() = default;
+		Entity() : mInstantiation(nullptr) {}
         Entity(const Entity& e) = default;
         Entity& operator=(const Entity& e) = default;
 

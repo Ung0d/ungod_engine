@@ -165,7 +165,7 @@ namespace ungod
     {
     friend class PathPlanner;
     public:
-        PathFinderComponent() : mPath(), mActive(false), mSpeed(1.0f), mRadius(1.0f) {}
+        PathFinderComponent() : mPath(), mTimePast(0.0f), mActive(false), mPolicy(PathFollowingPolicy::ONE_SHOT), mSpeed(1.0f), mRadius(1.0f) {}
 
     private:
         PathPtr mPath; //< the current path to follow, may be empty

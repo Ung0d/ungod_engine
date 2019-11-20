@@ -54,7 +54,7 @@ namespace ungod
     class TileMapComponent : public Serializable<TileMapComponent>
     {
     friend class TileMapRenderer;
-    friend class DeserialBehavior<TileMapComponent, Entity, World&, const Application&>;
+    friend struct DeserialBehavior<TileMapComponent, Entity, World&, const Application&>;
     public:
         TileMapComponent() = default;
 
@@ -72,7 +72,7 @@ namespace ungod
     class WaterComponent : public Serializable<WaterComponent>
     {
     friend class TileMapRenderer;
-    friend class DeserialBehavior<WaterComponent, Entity, World&, const Application&>;
+    friend struct DeserialBehavior<WaterComponent, Entity, World&, const Application&>;
 
     public:
         WaterComponent() = default;

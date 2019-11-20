@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( state_test )
 
         ErrorCode err = EmbeddedTestApp::getApp().runApplication();
 
-        BOOST_CHECK_EQUAL(err, QUIT_STATUS_OK);
+        BOOST_CHECK(err == ungod::ErrorCode::QUIT_STATUS_OK);
 
         BOOST_CHECK(EmbeddedTestApp::getApp().getStateManager().getState<TestState>(3)->updateCounter >= 3u);
         BOOST_CHECK(EmbeddedTestApp::getApp().getStateManager().getState<TestState>(3)->renderCounter > 0u);
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( state_test )
         EmbeddedTestApp::getApp().getStateManager().addState<ScriptedMenuState>(0, "test_data/menu_state_test.lua");
         ErrorCode err = EmbeddedTestApp::getApp().runApplication();
 
-        BOOST_CHECK_EQUAL(err, QUIT_STATUS_OK);
+        BOOST_CHECK(err == ungod::ErrorCode::QUIT_STATUS_OK);
         BOOST_REQUIRE(EmbeddedTestApp::getApp().getStateManager().getState(0));
 
         auto check_init = EmbeddedTestApp::getApp().getStateManager().getState<ScriptedMenuState>(0)->getEnvironment().get<Optional<bool>>("check_init");
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( state_test )
         EmbeddedTestApp::getApp().getStateManager().addState<ScriptedGameState>(0, "test_data/game_state_test.lua");
         ErrorCode err = EmbeddedTestApp::getApp().runApplication();
 
-        BOOST_CHECK_EQUAL(err, QUIT_STATUS_OK);
+        BOOST_CHECK(err == ungod::ErrorCode::QUIT_STATUS_OK);
 
         BOOST_REQUIRE(EmbeddedTestApp::getApp().getStateManager().getState(0));
 

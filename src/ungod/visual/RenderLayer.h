@@ -44,7 +44,7 @@ namespace ungod
     class RenderLayer : public PolymorphicSerializable<RenderLayer, const sf::RenderTarget&>
     {
      friend struct SerialBehavior<RenderLayer, const sf::RenderTarget&>;
-    friend class DeserialBehavior<RenderLayer, const sf::RenderTarget&>;
+    friend struct DeserialBehavior<RenderLayer, const sf::RenderTarget&>;
 
     friend class RenderLayerContainer;
 
@@ -113,7 +113,7 @@ namespace ungod
     /** \brief A utility class that bundles a set of RenderLayer-pointers and provides convenient operations on them. */
     class RenderLayerContainer : public Serializable<RenderLayerContainer>
     {
-    friend class DeserialBehavior<RenderLayerContainer, const sf::RenderTarget&, ScriptedGameState&>;
+    friend struct DeserialBehavior<RenderLayerContainer, const sf::RenderTarget&, ScriptedGameState&>;
     public:
         RenderLayerContainer(ungod::Camera& cam) : mCamera(cam), mBounds(0.0f, 0.0f, 0.0f, 0.0f) {}
         RenderLayerContainer(const RenderLayerContainer&) = delete;

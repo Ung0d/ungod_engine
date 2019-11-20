@@ -47,7 +47,7 @@ namespace ungod
     {
     friend class MovementManager;
      friend struct SerialBehavior<MovementComponent, Entity, const World&, const Application&>;
-    friend class DeserialBehavior<MovementComponent, Entity, World&, const Application&>;
+    friend struct DeserialBehavior<MovementComponent, Entity, World&, const Application&>;
     public:
         enum class Direction { IDLE,
                                UP, DOWN, LEFT, RIGHT };

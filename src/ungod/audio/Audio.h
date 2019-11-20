@@ -98,7 +98,7 @@ namespace ungod
     {
     friend class AudioManager;
      friend struct SerialBehavior<SoundEmitterComponent, Entity, const World&, const Application&>;
-    friend class DeserialBehavior<SoundEmitterComponent, Entity, World&, const Application&>;
+    friend struct DeserialBehavior<SoundEmitterComponent, Entity, World&, const Application&>;
 
     static constexpr float DEFAULT_DISTANCE_CAP = 500.0f;
 
@@ -114,13 +114,13 @@ namespace ungod
     /**
     * \brief Helper struct. Acts as a sound output slot.
     */
-    struct SoundSlot
+    class SoundSlot
     {
     friend class AudioManager;
     private:
         sf::Sound mSound;
         bool mPlaying;
-        int mPlayTimer;
+        float mPlayTimer;
         ProfileHandle mProfile;
         std::size_t mIndex;
         std::string mCurrentKey;
@@ -142,7 +142,7 @@ namespace ungod
     {
     friend class SoundEmitterComponent;
      friend struct SerialBehavior<AudioManager>;
-    friend class DeserialBehavior<AudioManager>;
+    friend struct DeserialBehavior<AudioManager>;
     private:
         static constexpr std::size_t SOUND_PLAY_CAP = 32;  ///maximum number of sounds playable concurrently
         static constexpr float DEFAULT_SILENCE_MIN = 0.0f;

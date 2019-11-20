@@ -142,7 +142,7 @@ namespace ungod
             mParticleData[i].rotation = 0.0f;
             mParticleData[i].color = sf::Color::White;
             if (mAnims > 0)
-                mParticleData[i].animIndex = NumberGenerator::getRandBetw(0u, mAnims-1);
+                mParticleData[i].animIndex = (unsigned)NumberGenerator::getRandBetw(0u, mAnims-1);
 
             sf::IntRect texturerect;
             if (mTexrectInit)

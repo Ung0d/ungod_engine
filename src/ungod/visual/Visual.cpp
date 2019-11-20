@@ -129,13 +129,13 @@ namespace ungod
     {
         sprite.mSprite.setTextureRect(rect);
         sprite.mKey = std::string{};
-        mContentsChangedSignal.emit(e, static_cast<sf::IntRect>(sprite.getSprite().getBounds()));
+        mContentsChangedSignal.emit(e, sprite.getSprite().getBounds());
     }
 
     void VisualsManager::setSpritePosition(Entity e, SpriteComponent& sprite, const sf::Vector2f& position)
     {
         sprite.mSprite.setPosition(position);
-        mContentsChangedSignal.emit(e, static_cast<sf::IntRect>(sprite.getSprite().getBounds()));
+        mContentsChangedSignal.emit(e, sprite.getSprite().getBounds());
     }
 
     void VisualsManager::setArrayTextureRect(VertexArrayComponent& vertices, const sf::FloatRect& rect, std::size_t index)
@@ -150,7 +150,7 @@ namespace ungod
         VertexArrayComponent& vertices = e.modify<VertexArrayComponent>();
         vertices.mVertices.setRectPosition(position, index);
         //emit signal
-        mContentsChangedSignal.emit(e, static_cast<sf::IntRect>(vertices.mVertices.getBounds()));
+        mContentsChangedSignal.emit(e, vertices.mVertices.getBounds());
     }
 
     void VisualsManager::setPoints(Entity e, VertexArrayComponent& vertices, std::size_t index, const sf::Vector2f& p1,
@@ -158,7 +158,7 @@ namespace ungod
     {
         vertices.mVertices.setPoints(p1, p2, p3, p4, index);
         //emit signal
-        mContentsChangedSignal.emit(e, static_cast<sf::IntRect>(vertices.mVertices.getBounds()));
+        mContentsChangedSignal.emit(e, vertices.mVertices.getBounds());
     }
 
 
@@ -186,7 +186,7 @@ namespace ungod
 
     void VisualsManager::loadTexture(VisualsComponent& visuals, const std::string& imageID, std::function<void(VisualsComponent&)> callback)
     {
-        visuals.mImage.load(imageID, ASYNC);
+        visuals.mImage.load(imageID, LoadPolicy::ASYNC);
         visuals.mVisible = true;
         visuals.mImage.get([this, &visuals, callback](sf::Texture& texture)
           {
@@ -203,7 +203,7 @@ namespace ungod
     void VisualsManager::loadMetadata(Entity e, const std::string& metaID)
     {
         SpriteMetadataComponent& data = e.modify<SpriteMetadataComponent>();
-        data.mMeta.load(metaID, SYNC);
+        data.mMeta.load(metaID, LoadPolicy::SYNC);
     }
 
     void VisualsManager::setSpriteTextureRect(Entity e, SpriteComponent& sprite, const SpriteMetadataComponent& data, const std::string& key)
@@ -213,7 +213,7 @@ namespace ungod
         {
             sprite.mSprite.setTextureRect(node);
             sprite.mKey = key;
-            mContentsChangedSignal.emit(e, static_cast<sf::IntRect>(sprite.mSprite.getBounds()));
+            mContentsChangedSignal.emit(e, sprite.mSprite.getBounds());
         }
         else
         {
@@ -236,7 +236,7 @@ namespace ungod
                 e.modify<VertexArrayComponent>().mKeys.resize(index+1);
             }
             e.modify<VertexArrayComponent>().mKeys[index] = key;
-            mContentsChangedSignal.emit(e, static_cast<sf::IntRect>(e.modify<VertexArrayComponent>().mVertices.getBounds()));
+            mContentsChangedSignal.emit(e, e.modify<VertexArrayComponent>().mVertices.getBounds());
         }
         else
         {
@@ -383,7 +383,7 @@ namespace ungod
     }
 
 
-    void VisualsManager::onContentsChanged(const std::function<void(Entity, const sf::IntRect&)>& callback)
+    void VisualsManager::onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback)
     {
         mContentsChangedSignal.connect(callback);
     }
@@ -523,19 +523,19 @@ namespace ungod
     void VisualsManager::setRotation(Entity e, SpriteComponent& sprite, float rotation)
     {
         sprite.mSprite.setRotation(rotation);
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(sprite.mSprite.getBounds()));
+        mContentsChangedSignal(e, sprite.mSprite.getBounds());
     }
 
     void VisualsManager::setScale(Entity e, SpriteComponent& sprite, const sf::Vector2f& scale)
     {
         sprite.mSprite.setScale(scale);
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(sprite.mSprite.getBounds()));
+        mContentsChangedSignal(e, sprite.mSprite.getBounds());
     }
 
     void VisualsManager::setOrigin(Entity e, SpriteComponent& sprite, const sf::Vector2f& origin)
     {
         sprite.mSprite.setOrigin(origin);
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(sprite.mSprite.getBounds()));
+        mContentsChangedSignal(e, sprite.mSprite.getBounds());
     }
 
 
@@ -587,7 +587,7 @@ namespace ungod
         if (bigSprite.mBigSprite.getBigTexture() == bigSprite.mBigImage.get())
             return;
         bigSprite.mBigSprite.setTexture(*bigSprite.mBigImage.get());
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(bigSprite.mBigSprite.getGlobalBounds()));
+        mContentsChangedSignal(e, bigSprite.mBigSprite.getGlobalBounds());
     }
 
     void VisualsManager::setBigSpriteVisibility(BigSpriteComponent& bigSprite, bool visible)
@@ -598,7 +598,7 @@ namespace ungod
     void VisualsManager::setBigSpritePosition(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& position)
     {
         bigSprite.mBigSprite.setPosition(position);
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(bigSprite.mBigSprite.getGlobalBounds()));
+        mContentsChangedSignal(e, bigSprite.mBigSprite.getGlobalBounds());
     }
 
     void VisualsManager::setBigSpriteColor(BigSpriteComponent& bigSprite, const sf::Color& color)
@@ -609,18 +609,18 @@ namespace ungod
     void VisualsManager::setBigSpriteScale(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& scale)
     {
         bigSprite.mBigSprite.setScale(scale);
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(bigSprite.mBigSprite.getGlobalBounds()));
+        mContentsChangedSignal(e, bigSprite.mBigSprite.getGlobalBounds());
     }
 
     void VisualsManager::setBigSpriteOrigin(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& origin)
     {
         bigSprite.mBigSprite.setOrigin(origin);
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(bigSprite.mBigSprite.getGlobalBounds()));
+        mContentsChangedSignal(e, bigSprite.mBigSprite.getGlobalBounds());
     }
 
     void VisualsManager::setBigSpriteRotation(Entity e, BigSpriteComponent& bigSprite, const float angle)
     {
         bigSprite.mBigSprite.setRotation(angle);
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(bigSprite.mBigSprite.getGlobalBounds()));
+        mContentsChangedSignal(e, bigSprite.mBigSprite.getGlobalBounds());
     }
 }

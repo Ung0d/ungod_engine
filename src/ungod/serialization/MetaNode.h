@@ -263,7 +263,7 @@ namespace ungod
         if (attr)
         {
             try { data = attr.convertValue<DT>(); }
-            catch (const std::exception& e)
+            catch (const std::exception&)
             {
                 data = defaultValue;
                 Logger::error("Error while deserializing attribute ");
@@ -287,7 +287,7 @@ namespace ungod
         if(attrIter)
         {
             try { data = attrIter.convertValue<DT>(); }
-            catch (const std::exception& e)
+            catch (const std::exception&)
             {
                 data = defaultValue;
                 Logger::error("Error while deserializing attribute ");

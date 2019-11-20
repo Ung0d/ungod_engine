@@ -31,7 +31,7 @@ namespace ungod
     void floodFill(TileMap& tilemap, std::size_t ix, std::size_t iy, const std::vector<int>& replacementIDs, bool activate)
     {
         Tile* target = tilemap.getTiledata(ix, iy);
-        std::vector<bool> visited(tilemap.getMapSizeX()*tilemap.getMapSizeY(), false);
+        std::vector<bool> visited((std::size_t)tilemap.getMapSizeX()* (std::size_t)tilemap.getMapSizeY(), false);
         if (!target)
             return;
         int targetID = target->getTileID();
@@ -62,7 +62,7 @@ namespace ungod
                 Tile* curTile = tilemap.getTiledata(i, cur.second);
                 if (!curTile->isActive())
                     curTile->setActive(activate);
-                curTile->setTileID( replacementIDs[ NumberGenerator::getRandBetw(0, replacementIDs.size()-1) ] );
+                curTile->setTileID( replacementIDs[ NumberGenerator::getRandBetw(0, (unsigned)replacementIDs.size()-1) ] );
 
                 if (cur.second > 0 && tilemap.getTiledata(i, cur.second-1)->getTileID() == targetID)
                     nodestack.emplace(i,cur.second-1);

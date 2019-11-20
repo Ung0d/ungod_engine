@@ -63,7 +63,7 @@ namespace ungod
         std::size_t id;
         std::unique_ptr<detail::FunctorDataDeepBase> data;
 
-        FunctorHandle() = default;
+        FunctorHandle() : id(0) {}
         FunctorHandle(const FunctorHandle& other);
         FunctorHandle& operator=(const FunctorHandle& other);
 

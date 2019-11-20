@@ -31,6 +31,7 @@
 #include <optional>
 #include "owls/Signal.h"
 #include "ungod/base/Logger.h"
+#include "ungod/serialization/MetaData.h"
 
 namespace ungod
 {
@@ -112,6 +113,7 @@ namespace ungod
         std::tuple<std::string, std::string> split(const std::string& item);
 
     private:
+		MetaDocument mDoc;
         std::string mFilepath;
         std::unordered_map<std::string, configDetail::ConfigGroup> mContent;
         owls::Signal<Configuration&, const std::string&> mConfigChanged;

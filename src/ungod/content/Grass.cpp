@@ -144,7 +144,7 @@ namespace ungod
         gp.mTrampledKey = trampeledKey;
 
         //init texture rects and visuals
-        mWorld->getVisualsManager().loadTexture(grass, imagePath, ASYNC);
+        mWorld->getVisualsManager().loadTexture(grass, imagePath, LoadPolicy::ASYNC);
         mWorld->getVisualsManager().initTextureRects(grass, grassDensity);
     }
 }

@@ -658,6 +658,8 @@ namespace rapidxml
             : m_name(0)
             , m_value(0)
             , m_parent(0)
+			, m_name_size(0)            
+			, m_value_size(0)           
         {
         }
 
@@ -902,6 +904,10 @@ namespace rapidxml
             : m_type(type)
             , m_first_node(0)
             , m_first_attribute(0)
+			, m_last_node(nullptr)              
+			, m_last_attribute(nullptr)   
+			, m_prev_sibling(nullptr)          
+			, m_next_sibling(nullptr)
         {
         }
 

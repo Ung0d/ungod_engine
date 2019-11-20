@@ -36,7 +36,7 @@ namespace ungod
               [this, delta] (Entity e, TransformComponent&, ParticleSystemComponent& ps)
               {
                   ps.mParticleSystem->update(delta);
-                  mContentsChangedSignal(e, sf::IntRect{ e.modify<ParticleSystemComponent>().mParticleSystem->getBounds() });
+                  mContentsChangedSignal(e, e.modify<ParticleSystemComponent>().mParticleSystem->getBounds());
               });
         }
         else
@@ -55,7 +55,7 @@ namespace ungod
         e.modify<ParticleSystemComponent>().mParticleSystem = p;
     }
 
-    void ParticleSystemManager::onContentsChanged(const std::function<void(Entity, const sf::IntRect&)>& callback)
+    void ParticleSystemManager::onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback)
     {
         mContentsChangedSignal.connect(callback);
     }

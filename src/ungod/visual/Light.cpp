@@ -457,7 +457,7 @@ namespace ungod
         {
             if (facingFrontBothEdges[i] != facingFrontBothEdges[i - 1])
             {
-                innerBoundaryIndices.push_back(i);
+                innerBoundaryIndices.push_back((int)i);
                 bothEdgesBoundaryWindings.push_back(facingFrontBothEdges[i]);
             }
         }
@@ -470,7 +470,7 @@ namespace ungod
         }
 
         // Go through front/back facing list. Where the facing direction switches, there is a boundary
-        for (std::size_t i = 1; i < numPoints; ++i)
+        for (int i = 1; i < (int)numPoints; ++i)
         {
             if (facingFrontOneEdge[i] != facingFrontOneEdge[i - 1])
             {
@@ -535,7 +535,7 @@ namespace ungod
                 sf::Vector2f nextPoint = colliderLocalTranform.transformPoint(collider.getPoint(nextPointIndex));
                 sf::Vector2f pointToNextPoint = nextPoint - point;
 
-                int prevPointIndex = (penumbraIndex > 0) ? penumbraIndex - 1 : numPoints - 1;
+                int prevPointIndex = (penumbraIndex > 0) ? penumbraIndex - 1 : (int)(numPoints) - 1;
                 sf::Vector2f prevPoint = colliderLocalTranform.transformPoint(collider.getPoint(prevPointIndex));
                 sf::Vector2f pointToPrevPoint = prevPoint - point;
 
@@ -961,19 +961,19 @@ namespace ungod
     void LightSystem::setLocalLightPosition(LightEmitterComponent& le, Entity e, const sf::Vector2f& position)
     {
         le.mLight.mSprite.setPosition(position);
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(le.mLight.getBoundingBox()));
+        mContentsChangedSignal(e, le.mLight.getBoundingBox());
     }
 
     void LightSystem::setLightScale(LightEmitterComponent& le, Entity e, const sf::Vector2f& scale)
     {
         le.mLight.mSprite.setScale(scale);
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(le.mLight.getBoundingBox()));
+        mContentsChangedSignal(e, le.mLight.getBoundingBox());
     }
 
     void LightSystem::setLightOrigin(LightEmitterComponent& le, Entity e, const sf::Vector2f& origin)
     {
         le.mLight.setSourcePoint(origin);
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(le.mLight.getBoundingBox()));
+        mContentsChangedSignal(e, le.mLight.getBoundingBox());
     }
 
      void LightSystem::setLightColor(LightEmitterComponent& le, const sf::Color& color)
@@ -984,13 +984,13 @@ namespace ungod
     void LightSystem::setPoint(ShadowEmitterComponent& se, Entity e, const sf::Vector2f& point, std::size_t i)
     {
         se.mLightCollider.setPoint(i, point);
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(se.mLightCollider.getBoundingBox()));
+        mContentsChangedSignal(e, se.mLightCollider.getBoundingBox());
     }
 
     void LightSystem::setPointCount(Entity e, ShadowEmitterComponent& se, std::size_t num)
     {
         se.mLightCollider.setPointCount(num);
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(se.mLightCollider.getBoundingBox()));
+        mContentsChangedSignal(e, se.mLightCollider.getBoundingBox());
     }
 
     void LightSystem::setPoints(Entity e, const std::vector<sf::Vector2f>& points)
@@ -999,7 +999,7 @@ namespace ungod
         shadow.mLightCollider.setPointCount(points.size());
         for (std::size_t i = 0; i < points.size(); ++i)
             shadow.mLightCollider.setPoint(i, points[i]);
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(shadow.mLightCollider.getBoundingBox()));
+        mContentsChangedSignal(e, shadow.mLightCollider.getBoundingBox());
     }
 
     void LightSystem::setPoints(Entity e, const std::vector<sf::Vector2f>& points, std::size_t colliderIndex)
@@ -1008,7 +1008,7 @@ namespace ungod
         multi.getComponent(colliderIndex).mLightCollider.setPointCount(points.size());
         for (std::size_t i = 0; i < points.size(); ++i)
             multi.getComponent(colliderIndex).mLightCollider.setPoint(i, points[i]);
-        mContentsChangedSignal(e, static_cast<sf::IntRect>(multi.getComponent(colliderIndex).mLightCollider.getBoundingBox()));
+        mContentsChangedSignal(e, multi.getComponent(colliderIndex).mLightCollider.getBoundingBox());
     }
 
     void LightSystem::setLightOverShape(ShadowEmitterComponent& se, bool lightOverShape)
@@ -1057,7 +1057,7 @@ namespace ungod
         le.mLight.setActive(active);
     }
 
-    void LightSystem::onContentsChanged(const std::function<void(Entity, const sf::IntRect&)>& callback)
+    void LightSystem::onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback)
     {
         mContentsChangedSignal.connect(callback);
     }

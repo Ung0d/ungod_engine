@@ -156,7 +156,8 @@ namespace ungod
     friend class Camera;
     private:
         ScreenShake(float duration, float frequency, float amplitude) :
-            CameraAffector(duration), mFrequency(frequency), mAmplitude(amplitude) {}
+            CameraAffector(duration), mFrequency(frequency), mAmplitude(amplitude),
+			mSampleCount(0) {}
 
         virtual void init(Camera& camera) override;
         virtual void update(Camera& camera, float delta) override;

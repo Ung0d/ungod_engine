@@ -153,7 +153,7 @@ namespace ungod
     * Each scene has a user defined duration until the next scene occurs.
     * Scene transitions can be customized with special effects (fading).
     * Scenes are streamed. On play, only the first scene is loaded into memory and subsequent scenes
-    * are loaded async during the runtime of the current scene.
+    * are loaded aLoadPolicy::SYNC during the runtime of the current scene.
     */
     class Cutscene
     {

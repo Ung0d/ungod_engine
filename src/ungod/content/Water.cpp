@@ -57,7 +57,7 @@ namespace ungod
             if (other.mGround.getImage().isLoaded() && other.mGround.getMetaMap().isLoaded())
             {
                 loadTiles(other.mGround.getImage().getFilePath(), other.mGround.getMetaMap().getFilePath(),
-                          other.mGround.getTileWidth(), other.mGround.getTileHeight(), other.mGround.getKeyMap());
+                          (unsigned)other.mGround.getTileWidth(), (unsigned)other.mGround.getTileHeight(), other.mGround.getKeyMap());
             }
             if (other.mDistortionTexID != "" && other.mVertexShaderID != "" && other.mFragmentShaderID != "")
             {

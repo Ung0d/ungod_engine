@@ -47,14 +47,14 @@ namespace ungod
            ebType["getStateEnvironment"] = &EntityBehaviorComponent::getStateEnvironment;
 
 
-            state.registerUsertype<EntityBehaviorManager>("EntityBehaviorManager",
-                                                         "loadBehaviorScript", &EntityBehaviorManager::loadBehaviorScript,
-                                                         "assignBehavior", sol::overload(
-                                                          [] (EntityBehaviorManager& em, Entity e, const std::string& name)
-                                                          { em.assignBehavior(e, name); },
-                                                          [] (EntityBehaviorManager& em, Entity e, const std::string& name, script::Environment param)
-                                                          { em.assignBehavior(e, name, param); } ),
-                                                         "setUpdateInterval", [] (EntityBehaviorManager& ebm, Entity e, float interval) { ebm.setUpdateInterval(e, interval); });
+		   script::Usertype<EntityBehaviorManager> ebmanagerType = state.registerUsertype<EntityBehaviorManager>("EntityBehaviorManager");
+		   ebmanagerType["loadBehaviorScript"] = &EntityBehaviorManager::loadBehaviorScript;
+		   ebmanagerType["assignBehavior"] = sol::overload(
+			   [](EntityBehaviorManager& em, Entity e, const std::string& name)
+			   { em.assignBehavior(e, name); },
+			   [](EntityBehaviorManager& em, Entity e, const std::string& name, script::Environment param)
+			   { em.assignBehavior(e, name, param); });
+		   ebmanagerType["setUpdateInterval"] = [] (EntityBehaviorManager& ebm, Entity e, float interval) { ebm.setUpdateInterval(e, interval); };
         }
     }
 }

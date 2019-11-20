@@ -33,7 +33,7 @@ namespace ungod
 {
     struct Shader : public Asset<sf::Shader>
     {
-        Shader(const std::string& filePath, const LoadPolicy policy = SYNC);
+        Shader(const std::string& filePath, const LoadPolicy policy = LoadPolicy::SYNC);
 
         Shader();
     };
