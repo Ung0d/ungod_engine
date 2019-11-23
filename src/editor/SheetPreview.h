@@ -35,7 +35,7 @@ namespace uedit
         std::string mKey;
         bool mShowAnimation;
         ungod::Animation mAnimation;
-        sf::IntRect mContentBounds;
+        sf::FloatRect mContentBounds;
     };
 
     class SheetPreview : public wxWindow, public ungod::Serializable<SheetPreview>

@@ -95,7 +95,6 @@ namespace ungod
     {
         mCamera.update(delta);
 
-        mWorldGraph.updateReferencePosition(mCamera.getCenter());
         mWorldGraph.update(delta);
 
         mScriptCallbacks.execute(ON_UPDATE, this, delta);

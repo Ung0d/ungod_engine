@@ -35,6 +35,7 @@
 namespace ungod
 {
     class Camera;
+	class Renderer;
 
 
     namespace detail
@@ -54,6 +55,7 @@ namespace ungod
     class TileMapComponent : public Serializable<TileMapComponent>
     {
     friend class TileMapRenderer;
+	friend class Renderer;
     friend struct DeserialBehavior<TileMapComponent, Entity, World&, const Application&>;
     public:
         TileMapComponent() = default;
@@ -72,6 +74,7 @@ namespace ungod
     class WaterComponent : public Serializable<WaterComponent>
     {
     friend class TileMapRenderer;
+	friend class Renderer;
     friend struct DeserialBehavior<WaterComponent, Entity, World&, const Application&>;
 
     public:
@@ -86,16 +89,7 @@ namespace ungod
     class TileMapRenderer
     {
     public:
-        TileMapRenderer(Application& app);
-
-        //renders tilemaps and water
-        void render(sf::RenderTarget& target, sf::RenderStates states, World& world);
-
-        /** \brief Public static method to render a tilemap entity. */
-        static void renderTileMap(Entity e, sf::RenderTarget& target, sf::RenderStates states);
-
-        /** \brief Public static method to render a water entity. */
-        static void renderWater(Entity e, sf::RenderTarget& target, sf::RenderStates states, World& world);
+        TileMapRenderer(Application& app, World& world);
 
         /** \brief Reserves the given number of tiles for an entity that has a tilemap component attached. */
         bool reserveTileCount(Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY);
@@ -206,18 +200,10 @@ namespace ungod
         static void floodFillWater(WaterComponent& water, std::size_t ix, std::size_t iy, const std::vector<int>& replacementIDs, bool activate);
 
         /** \brief Sets a new tilemap for the given entity with a tilemap component. */
-        inline static void setTileMap(Entity e, const TileMap& tilemap)
-        { setTileMap(e.modify<TileMapComponent>(),tilemap); }
-        static void setTileMap(TileMapComponent& tilemapc, const TileMap& tilemap);
+		void setTileMap(Entity e, const TileMap& tilemap);
 
         /** \brief Sets a new water for the given entity with a water component. */
-        inline static void setWater(Entity e, const Water& water)
-        { setWater(e.modify<WaterComponent>(), water); }
-        static void setWater(WaterComponent& waterc, const Water& water);
-
-        const std::list<Entity>& getTileMapEntities() const { return mTileMapEntities; }
-
-        const std::list<Entity>& getWaterEntities() const { return mWaterEntities; }
+		void setWater(Entity e, const Water& water);
 
         /** \brief Returns a brush object that can be used to paint on the tilemap associated with entity e.
         * Changes to the tilemap through the brush, are send notifications the renderer. */
@@ -228,18 +214,30 @@ namespace ungod
         TilemapBrush makeWaterBrush(Entity e, const std::string& identifier);
 
 
+		/** \brief Changes the local position of a tilemap. */
+		void setTilemapPosition(Entity e, const sf::Vector2f& position);
+
+		/** \brief Changes the local position of a water. */
+		void setWaterPosition(Entity e, const sf::Vector2f& position);
+
+		/** \brief A method that moves the tilemaps and waters attached to the given entity. This method is usually only
+		* used internally by the transform-manager. */
+		void moveMaps(Entity e, const sf::Vector2f& vec);
+
+
+		/** \brief Registers new callback for the ContentsChanged signal. */
+		inline decltype(auto) onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback)
+		{
+			mContentsChangedSignal.connect(callback);
+		}
+
+
         ~TileMapRenderer();
 
-    public:
-        void handleTileMapAdded(Entity e);
-        void handleTileMapRemoved(Entity e);
-        void handleWaterAdded(Entity e);
-        void handleWaterRemoved(Entity e);
-
     private:
-        std::list<Entity> mTileMapEntities;
-        std::list<Entity> mWaterEntities;
+		World& mWorld;
         owls::SignalLink<void, const sf::Vector2u&> mAppSignalLink;
+		owls::Signal<Entity, const sf::FloatRect&> mContentsChangedSignal;
     };
 }
 

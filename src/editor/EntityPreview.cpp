@@ -40,10 +40,6 @@ namespace uedit
             if (mEntity.has<ungod::VisualsComponent>())
                 ungod::Renderer::renderEntity(mEntity, mEntity.modify<ungod::TransformComponent>(), mEntity.modify<ungod::VisualsComponent>(), window, states);
         }
-        if (mEntity.has<ungod::WaterComponent>())
-            ungod::TileMapRenderer::renderWater(mEntity, window, states, mEntity.getWorld());
-        if (mEntity.has<ungod::TileMapComponent>())
-            ungod::TileMapRenderer::renderTileMap(mEntity, window, states);
 
         mState->render(*this, window, states);
     }

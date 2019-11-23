@@ -44,8 +44,6 @@ namespace ungod
         context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<LightBaseComponents, LightOptionalComponents> >::get() );
         context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<TriggerBaseComponents, TriggerOptionalComponents> >::get() );
         context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<WorldObjectBaseComponents, WorldObjectOptionalComponents> >::get() );
-        context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<TileMapBaseComponents,TileMapOptionalComponents> >::get() );
-        context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<WaterBaseComponents, WaterOptionalComponents> >::get() );
         context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<ParticleSystemBaseComponents, ParticleSystemOptionalComponents> >::get() );
         context.changeStorageSemantics<deserial_ref_semantics::ByValue<Entity>>( SerialIdentifier< EntityInstantiation<AudioEmitterBaseComponents, AudioEmitterOptionalComponents> >::get() );
     }

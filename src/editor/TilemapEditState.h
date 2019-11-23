@@ -6,6 +6,7 @@
 #include "ungod/content/Water.h"
 #include "ungod/content/TilemapBrush.h"
 #include "EntityEditState.h"
+#include <optional>
 
 namespace uedit
 {

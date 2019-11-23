@@ -30,6 +30,9 @@ namespace uedit
 
     void LayerDisplay::setup()
     {
+		ungod::WorldGraphNode * node = mCanvas->getEditorState()->getWorldGraph().getActiveNode();
+		if (!node) return;
+
         DestroyChildren();
         SetSizer(NULL);
 
@@ -76,13 +79,13 @@ namespace uedit
         wxArrayInt order;
         wxArrayString items;
 
-        for (std::size_t i = 0; i < mCanvas->getEditorState()->getLayers().getVector().size(); ++i)
+        for (std::size_t i = 0; i < node->getLayers().getVector().size(); ++i)
         {
-            if (mCanvas->getEditorState()->getLayers().getVector()[i].second)
+            if (node->getLayers().getVector()[i].second)
                 order.push_back(i);
             else
                 order.push_back(~i);
-            items.push_back(mCanvas->getEditorState()->getLayers().getVector()[i].first->getName());
+            items.push_back(node->getLayers().getVector()[i].first->getName());
         }
 
         mLayerlist = new wxRearrangeList(this, LAYER_LIST, wxDefaultPosition, wxDefaultSize, order, items);
@@ -118,49 +121,49 @@ namespace uedit
         vbox->Add(hbox3, 1, wxEXPAND);
 
         SetSizer(vbox);
-        //Layout();
         Fit();
-        //vbox->Fit(this);
+		GetParent()->Fit();
     }
 
     int LayerDisplay::getSelection() const
     {
-        return mLayerlist->GetSelection();
+        return mLayerlist->GetSelection(); //if this is true, there is an active world node selected and it is safe to access it
     }
 
     ungod::World* LayerDisplay::getSelectedWorld() const
     {
-        if (getSelection() != wxNOT_FOUND)
-            return static_cast<ungod::World*>(mCanvas->getEditorState()->getLayers().getVector()[getSelection()].first.get());
+		if (getSelection() != wxNOT_FOUND)
+			return static_cast<ungod::World*>(mCanvas->getEditorState()->getWorldGraph().getActiveNode()->getLayers().getVector()[getSelection()].first.get());
         else
             return nullptr;
     }
 
     void LayerDisplay::onMoveDown(wxCommandEvent & event)
     {
-        if (mLayerlist->GetSelection() != wxNOT_FOUND)
+        if (getSelection() != wxNOT_FOUND)
         {
             mLayerlist->MoveCurrentDown();
-            mCanvas->getEditorState()->getLayers().moveLayerDown( (std::size_t) mLayerlist->GetSelection() );
+			mCanvas->getEditorState()->getWorldGraph().getActiveNode()->moveLayerDown( (std::size_t) mLayerlist->GetSelection() );
         }
     }
 
     void LayerDisplay::onMoveUp(wxCommandEvent & event)
     {
-        if (mLayerlist->GetSelection() != wxNOT_FOUND)
+        if (getSelection() != wxNOT_FOUND)
         {
             mLayerlist->MoveCurrentUp();
-            mCanvas->getEditorState()->getLayers().moveLayerUp( (std::size_t) mLayerlist->GetSelection() );
+			mCanvas->getEditorState()->getWorldGraph().getActiveNode()->moveLayerUp( (std::size_t) mLayerlist->GetSelection() );
         }
     }
 
     void LayerDisplay::toggleSelection(wxCommandEvent & event)
     {
-        if (mLayerlist->GetSelection() != wxNOT_FOUND)
+        if (getSelection() != wxNOT_FOUND)
         {
             std::size_t i = (std::size_t) mLayerlist->GetSelection();
-            mCanvas->getEditorState()->getLayers().setActive(i, !mCanvas->getEditorState()->getLayers().isActive(i));
-            mLayerlist->Check(i, mCanvas->getEditorState()->getLayers().isActive(i));
+			mCanvas->getEditorState()->getWorldGraph().getActiveNode()->setActive(i, 
+				!mCanvas->getEditorState()->getWorldGraph().getActiveNode()->getLayers().isActive(i));
+            mLayerlist->Check(i, mCanvas->getEditorState()->getWorldGraph().getActiveNode()->getLayers().isActive(i));
         }
     }
 
@@ -238,16 +241,6 @@ namespace uedit
             listEntity(e);
         }
 
-        for (auto const& e: world->getTileMapRenderer().getTileMapEntities())
-        {
-            listEntity(e);
-        }
-
-        for (auto const& e: world->getTileMapRenderer().getWaterEntities())
-        {
-            listEntity(e);
-        }
-
         mEnCreationLink = world->onEntityCreation([this] (ungod::Entity e)
         {
             listEntity(e);
@@ -269,7 +262,7 @@ namespace uedit
 
         mEntityList->SetItem(mIDMapping.size(), 0, e.getWorld().getName(e));
         mEntityList->SetItem(mIDMapping.size(), 1, std::to_string(e.getID()));
-        mEntityList->SetItem(mIDMapping.size(), 2, e.getInstantiation()->getIdentifier());
+        mEntityList->SetItem(mIDMapping.size(), 2, e.getInstantiation()->getSerialIdentifier());
 
         mIDMapping[e.getID()] = mIDMapping.size();
         mEntities.push_back(e);
@@ -299,7 +292,9 @@ namespace uedit
             mEditorFrame->openEntityDesigner(mEntities[clickevt->GetIndex()]);
  			break;
  		case SHOW:
-            mCanvas->lookAt(mEntities[clickevt->GetIndex()].get<ungod::TransformComponent>().getCenterPosition() * mEntities[clickevt->GetIndex()].getWorld().getRenderDepth());
+            mCanvas->lookAt(
+					mEntities[clickevt->GetIndex()].getGlobalCenterPosition()
+						* mEntities[clickevt->GetIndex()].getWorld().getRenderDepth());
  			break;
  		case RENAME:
         {

@@ -26,6 +26,7 @@
 #include "ungod/content/Water.h"
 #include "ungod/base/Entity.h"
 #include "ungod/base/World.h"
+#include "ungod/visual/TileMapRenderer.h"
 
 namespace ungod
 {
@@ -187,7 +188,8 @@ namespace ungod
 
                   float curOpacity = vis.getOpacity();
                   VisualsManager::setOpacity(e, curOpacity*mReflectionOpacity);
-                  Renderer::renderEntity(e, transf, vis, mRenderTex, states, true, BOUNDS_OVERLAP * (-2*lowerBounds.y + upperBounds.y));
+				  if (!e.has<WaterComponent>())
+					 Renderer::renderEntity(e, transf, vis, mRenderTex, states, true, BOUNDS_OVERLAP * (-2*lowerBounds.y + upperBounds.y));
                   VisualsManager::setOpacity(e, curOpacity);
               });
         }

@@ -44,12 +44,20 @@ namespace ungod
             return;
         context.deserializeRootObject(mLayers, static_cast<const sf::RenderTarget&>(mGamestate.getApp()->getWindow()), mGamestate);
         mIsLoaded = true;
+
+		Logger::info("Node loaded: ");
+		Logger::info(getIdentifier());
+		Logger::endl();
     }
 
     void WorldGraphNode::unload()
     {
         mLayers.clearEverything();
         mIsLoaded = false;
+
+		Logger::info("Node unloaded: ");
+		Logger::info(getIdentifier());
+		Logger::endl();
     }
 
 	void WorldGraphNode::save()
@@ -230,6 +238,10 @@ namespace ungod
 
 		mReferencePositionChanged(pos);
 
+		Logger::info("New active node: ");
+		Logger::info(node->getIdentifier());
+		Logger::endl();
+
         return true;
      }
 
@@ -272,12 +284,9 @@ namespace ungod
     {
         quad::PullResult<WorldGraphNode*> result;
         mWorldQT.retrieve(result, {pos.x, pos.y, 1, 1});
-		if (result.getList().size() > 0)
-		{
-			for (const auto& node : result.getList())
-				if (node->getBounds().contains(pos))
-					return node;
-		}
+		for (const auto& node : result.getList())
+			if (node->getBounds().contains(pos))
+				return node;
         return nullptr;
     }
 
@@ -322,8 +331,8 @@ namespace ungod
 
     void WorldGraph::save(const ScriptedGameState& gamestate) const
     {
-		for (const auto& n : mNodes)
-			n->save();
+		for (const auto& i : mCurrentNeighborhood)
+			mNodes[i]->save();
     }
 
     void WorldGraph::notifyBoundsChanged(WorldGraphNode* node)

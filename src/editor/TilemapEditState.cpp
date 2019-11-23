@@ -18,6 +18,11 @@ namespace uedit
         else
             tm = &mPreview.mEntity.modify<ungod::TileMapComponent>().getTileMap();
 
+		if (!preview.mEntity.has<ungod::TransformComponent>())
+			return;
+
+		states.transform *= preview.mEntity.get<ungod::TransformComponent>().getTransform();
+
         //build a grid and render it
         if (tm->getImage().isLoaded() && tm->getImage().get()->getSize().x > 0)
         {
@@ -27,8 +32,8 @@ namespace uedit
 
             sf::Vector2f windowPosition = window.mapPixelToCoords(sf::Vector2i(0,0));
 
-            unsigned metaX = std::max(0, (int)floor((windowPosition.x - tm->getPosition().x) / (tm->getScale().x*tm->getTileWidth())));
-            unsigned metaY = std::max(0, (int)floor((windowPosition.y - tm->getPosition().y) / (tm->getScale().y*tm->getTileHeight())));
+            unsigned metaX = std::max(0, (int)floor((windowPosition.x - tm->getPosition().x) / tm->getTileWidth()));
+            unsigned metaY = std::max(0, (int)floor((windowPosition.y - tm->getPosition().y) / tm->getTileHeight()));
 
             for (unsigned x = metaX; x < metaX + horizontalSize && x < tm->getMapSizeX(); x++)
                 for (unsigned y = metaY; y < metaY + verticalSize && y < tm->getMapSizeY(); y++)

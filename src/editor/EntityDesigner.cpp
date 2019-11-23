@@ -223,7 +223,6 @@ namespace uedit
         checkOptional<ungod::ParticleSystemComponent>("ParticleSystem", checkLater);
         checkOptional<ungod::MusicEmitterComponent>("MusicEmitter", checkLater);
 
-        wxString ids[mComponentNames.size()];
         mChecker = new wxCheckListBox(window, COMP_CHECKBOX, wxDefaultPosition, wxDefaultSize, mComponentNames.size(), mComponentNames.data());
         mChecker->Layout();
         mChecker->Fit();

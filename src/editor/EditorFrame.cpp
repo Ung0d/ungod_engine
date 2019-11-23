@@ -13,6 +13,7 @@ namespace uedit
         LOAD_PROJECT,
         SAVE_PROJECT,
         NEW_WORLD,
+		NEW_NODE,
         STATE_PROPERTIES,
         EDIT_UNDO,
         EDIT_REDO,
@@ -33,6 +34,7 @@ namespace uedit
         EVT_MENU(LOAD_PROJECT, EditorFrame::onFileLoad)
         EVT_MENU(SAVE_PROJECT, EditorFrame::onFileSave)
         EVT_MENU(NEW_WORLD, EditorFrame::onWorldNew)
+		EVT_MENU(NEW_NODE, EditorFrame::onNodeNew)
         EVT_MENU(STATE_PROPERTIES, EditorFrame::onStateProperties)
         EVT_MENU(EDIT_UNDO, EditorFrame::onEditUndo)
         EVT_MENU(EDIT_REDO, EditorFrame::onEditRedo)
@@ -58,7 +60,7 @@ namespace uedit
         Maximize();
 
         wxMenu* menuFile = new wxMenu;
-        menuFile->Append(NEW_PROJECT, "&new\tCtrl-N",
+        menuFile->Append(NEW_PROJECT, "&new",
                          "Creates a new project file.");
         menuFile->Append(LOAD_PROJECT, "&load\tCtrl-L",
                          "Loads a existing project file.");
@@ -71,8 +73,10 @@ namespace uedit
         menuEdit->Append(EDIT_REDO, "&redo\tCtrl-Shift-Z");
 
         wxMenu* menuLayers = new wxMenu;
-        menuLayers->Append(NEW_WORLD, "&add world",
-                         "Creates a new world an adds it to the project.");
+		menuLayers->Append(NEW_NODE, "&add node\tCtrl-N",
+			"Creates a new node in the world graph");
+		menuLayers->Append(NEW_WORLD, "&add world\tCtrl-W",
+			"Creates a new world an adds it to the project.");
         menuLayers->Append(STATE_PROPERTIES, "&state properties",
                          "Opens a dialog to manage the basic properties of the gamestate.");
 
@@ -91,6 +95,10 @@ namespace uedit
         mParent = new wxPanel(this, wxID_ANY);
         mEditorTabs = new wxNotebook(mParent, wxID_ANY);
         mCanvas = new EditorCanvas(this, mParent, wxID_ANY);
+		mCanvas->getEditorState()->getWorldGraph().onReferencePositionChanged([this](sf::Vector2f pos)
+			{
+				mLayerDisplay->setup();
+			});
         mLayerDisplay = new LayerDisplay(mCanvas, this, mEditorTabs, LAYER_DISPLAY);
         mSheetPreview = new SheetPreview(mEditorTabs, SHEET_PREVIEW);
 
@@ -102,13 +110,31 @@ namespace uedit
         mEditorTabs->AddPage(mSheetPreview, "sheets");
 
         wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
-        vbox->Add(mCanvas, 1, wxEXPAND);
+        vbox->Add(mCanvas, 30, wxEXPAND);
+		{
+			wxButton* graphViewButton = new wxButton(mParent, -1, "graph view");
+			graphViewButton->Bind(wxEVT_BUTTON, [this](wxCommandEvent& event) 
+				{
+					mCanvas->getStateManager().getState(WORLD_GRAPH_STATE)->initState();
+					mCanvas->getStateManager().moveToForeground(WORLD_GRAPH_STATE);
+				});
+			vbox->Add(graphViewButton, 1, wxCENTER);
+		}
         hbox->Add(vbox, 8, wxEXPAND);
 
         mScriptManager = new ScriptManager("C:/Users/Felix/Desktop/GameProgramming/lota_final/res", *mCanvas, mWorldAction, this,SCRIPT_MANAGER, wxPoint(200, 240));
 
         mParent->SetSizer(hbox);
-        Fit();
+
+		ungod::DeserializationContext context;
+		if (context.read("meta_info.xml"))
+		{
+			context.deserializeRootObject(mMetaInfo);
+			if (mMetaInfo.lastProject.size() > 0)
+				loadProject(mMetaInfo.lastProject);
+		}
+
+		Fit();
     }
 
     void EditorFrame::onFileNew(wxCommandEvent& event)
@@ -130,13 +156,12 @@ namespace uedit
         if (path.first)
         {
             loadProject(path.second);
-            for (const auto& l : mCanvas->getEditorState()->getLayers().getVector())
+            /*for (const auto& l : mCanvas->getEditorState()->getLayers().getVector())
             {
                 //TODO TODO TODO sloppy hack, because World is currently the only render layers
-                //when RenderLayer* could be some other subclass ofc, this static cast will cause horror
                 registerWorld(static_cast<ungod::World*>(l.first.get()));
             }
-            mLayerDisplay->setup();
+            mLayerDisplay->setup();*/
         }
     }
 
@@ -145,17 +170,39 @@ namespace uedit
         saveProject();
     }
 
+	void EditorFrame::onNodeNew(wxCommandEvent& event)
+	{
+		WorldGraphNodeCreateDialog graphDia(this, -1, _("Create a new world graph node"), wxPoint(100, 100));
+		if (graphDia.ShowModal() != wxID_OK) return;
+		WorldCreateDialog worldDia(this, -1, _("Create a new world"), wxPoint(100, 100));
+		if (worldDia.ShowModal() != wxID_OK) return;
+		ungod::WorldGraphNode& node = mCanvas->mEditorState->getWorldGraph().createNode(*mCanvas->mEditorState, graphDia.getIdentifier(), graphDia.getDatafile());
+		node.setPosition({ graphDia.getPosX(), graphDia.getPosY() });
+		node.setSize({ graphDia.getSizeX(), graphDia.getSizeY() });
+		ungod::World* world = node.addWorld();
+		world->setRenderDepth(worldDia.getDepth());
+		world->setName(std::string{ worldDia.getName().mb_str() });
+		mCanvas->mEditorState->getWorldGraph().updateReferencePosition({ graphDia.getPosX() + graphDia.getSizeX()/2, graphDia.getPosY() + graphDia.getSizeY()/2});
+		registerWorld(world);
+		mLayerDisplay->setup();
+	}
+
     void EditorFrame::onWorldNew(wxCommandEvent& event)
     {
-        WorldCreateDialog dia (this, -1, _("Create a new world"), wxPoint(100, 100) );
-        if (dia.ShowModal() == wxID_OK)
-        {
-            ungod::World* world = mCanvas->mEditorState->addWorld();
-            world->initSpace(dia.getPosX(), dia.getPosY(), dia.getSizeX(), dia.getSizeY());
-            world->setRenderDepth(dia.getDepth());
-            world->setName(std::string{dia.getName().mb_str()});
-            registerWorld(world);
-            mLayerDisplay->setup();
+		ungod::WorldGraphNode* node = mCanvas->mEditorState->getWorldGraph().getActiveNode();
+		if (!node)
+			wxMessageBox(wxT("No world node selected."));
+		else
+		{ 
+			WorldCreateDialog dia (this, -1, _("Create a new world"), wxPoint(100, 100) );
+			if (dia.ShowModal() == wxID_OK)
+			{
+				ungod::World* world = node->addWorld();
+				world->setRenderDepth(dia.getDepth());
+				world->setName(std::string{ dia.getName().mb_str() });
+				registerWorld(world);
+				mLayerDisplay->setup();
+			}
         }
     }
 
@@ -189,17 +236,17 @@ namespace uedit
 
     void EditorFrame::registerWorld(ungod::World* world)
     {
-        world->getVisualsManager().onContentsChanged([this, world] (ungod::Entity e, const sf::IntRect& rect)
+        world->getVisualsManager().onContentsChanged([this, world] (ungod::Entity e, const sf::FloatRect& rect)
         {
             for (auto d : mActiveDesigners)
                d->onEntityContentsChanged(e, *world);
         });
-        world->getLightSystem().onContentsChanged([this, world] (ungod::Entity e, const sf::IntRect& rect)
+        world->getLightSystem().onContentsChanged([this, world] (ungod::Entity e, const sf::FloatRect& rect)
         {
             for (auto d : mActiveDesigners)
                d->onEntityContentsChanged(e, *world);
         });
-        world->getRigidbodyManager().onContentsChanged([this, world] (ungod::Entity e, const sf::IntRect& rect)
+        world->getRigidbodyManager().onContentsChanged([this, world] (ungod::Entity e, const sf::FloatRect& rect)
         {
             for (auto d : mActiveDesigners)
                d->onColliderChanged(e, *world);
@@ -243,16 +290,19 @@ namespace uedit
         context.save(mProjectFilePath);
         SetTitle(_("Ungod Editor"));
         mContentSaved = true;
+		mCanvas->getEditorState()->getWorldGraph().save(*mCanvas->getEditorState());
     }
 
     void EditorFrame::loadProject(const std::string& filepath)
     {
         mProjectFilePath = filepath;
+		mMetaInfo.lastProject = filepath;
         ungod::DeserializationContext context;
-        context.read(mProjectFilePath);
-        context.deserializeRootObject(*this);
+        if (context.read(mProjectFilePath))
+			context.deserializeRootObject(*this);
         SetTitle(_("Ungod Editor"));
         mContentSaved = true;
+		Fit();
     }
 
 
@@ -292,7 +342,10 @@ namespace uedit
             return nullptr;
         else
         {
-            return static_cast<ungod::World*>(mCanvas->getEditorState()->getLayers().getVector()[mLayerDisplay->getSelection()].first.get());
+			ungod::WorldGraphNode* node = mCanvas->mEditorState->getWorldGraph().getActiveNode();
+			if (!node)
+				return nullptr;
+            return node->getWorld(mLayerDisplay->getSelection());
         }
     }
 
@@ -304,6 +357,7 @@ namespace uedit
                     {(int)mCanvas->getWindow().getSize().x/2, (int)mCanvas->getWindow().getSize().y/2}, mCanvas->getEditorState()->getCamera().getView() );
             centerpos.x *=  e.getWorld().getRenderDepth();
             centerpos.y *=  e.getWorld().getRenderDepth();
+			centerpos = e.getWorld().getContainer()->mapToLocalPosition(centerpos);
             e.getWorld().getTransformManager().setPosition(e, centerpos);
             e.getWorld().getQuadTree().insert(e);
         }
@@ -325,6 +379,13 @@ namespace uedit
             }
         }
     }
+
+	EditorFrame::~EditorFrame()
+	{
+		ungod::SerializationContext context;
+		context.serializeRootObject(mMetaInfo);
+		context.save("meta_info.xml");
+	}
 }
 
 
@@ -349,4 +410,16 @@ namespace ungod
 
         data.mCanvas->load(filepath);
     }
+
+
+	//serialization code
+	void SerialBehavior<uedit::MetaInfo>::serialize(const uedit::MetaInfo& data, MetaNode serializer, SerializationContext& context)
+	{
+		context.serializeProperty("last_project", data.lastProject, serializer);
+	}
+
+	void DeserialBehavior<uedit::MetaInfo>::deserialize(uedit::MetaInfo& data, MetaNode deserializer, DeserializationContext& context)
+	{
+		auto attr = context.first(context.deserializeProperty(data.lastProject), "last_project", deserializer);
+	}
 }

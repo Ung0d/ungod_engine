@@ -565,46 +565,6 @@ namespace ungod
         } );
     }
 
-    template<>
-    inline void World::registerInstantiation(TileMapBaseComponents, TileMapOptionalComponents)
-    {
-        typedef EntityInstantiation< TileMapBaseComponents, TileMapOptionalComponents > Instantiation;
-
-        mDeserialMap.emplace( SerialIdentifier<Instantiation>::get(), [this] (DeserializationContext& context, MetaNode deserializer)
-        {
-            std::vector<Entity> entities;
-
-            context.first( context.deserializeObjectContainer<Entity, World&, const Application&>(
-                                [&entities, this] (std::size_t init)
-                                {
-                                    entities.reserve(init);
-                                    create(TileMapBaseComponents(), TileMapOptionalComponents(), init, [&entities] (Entity e) { entities.emplace_back(std::move(e)); });
-                                },
-                                [&entities] (std::size_t i) -> Entity& { return entities[i]; }, *this, *mMaster->getApp(), TileMapBaseComponents(), TileMapOptionalComponents()),
-                            SerialIdentifier<Instantiation>::get(), deserializer );
-        } );
-    }
-
-    template<>
-    inline void World::registerInstantiation(WaterBaseComponents, WaterOptionalComponents)
-    {
-        typedef EntityInstantiation< WaterBaseComponents, WaterOptionalComponents > Instantiation;
-
-        mDeserialMap.emplace( SerialIdentifier<Instantiation>::get(), [this] (DeserializationContext& context, MetaNode deserializer)
-        {
-            std::vector<Entity> entities;
-
-            context.first( context.deserializeObjectContainer<Entity, World&, const Application&>(
-                                [&entities, this] (std::size_t init)
-                                {
-                                    entities.reserve(init);
-                                    create(WaterBaseComponents(), WaterOptionalComponents(), init, [&entities] (Entity e) { entities.emplace_back(std::move(e)); });
-                                },
-                                [&entities] (std::size_t i) -> Entity& { return entities[i]; }, *this, *mMaster->getApp(), WaterBaseComponents(), WaterOptionalComponents()),
-                            SerialIdentifier<Instantiation>::get(), deserializer );
-        } );
-    }
-
     template<typename ... C, typename F>
     void World::forAll(const F& func) const
     {

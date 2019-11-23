@@ -33,7 +33,6 @@ namespace ungod
         void registerTransform(ScriptStateBase& state)
         {
 			script::Usertype<TransformComponent> transfType = state.registerUsertype<TransformComponent>("Transform"); 
-			transfType["isPlane"] = &TransformComponent::isPlane;
 			transfType["getSize"] = &TransformComponent::getSize;
 			transfType["getPosition"] = &TransformComponent::getPosition;
 			transfType["getCenterPosition"] = &TransformComponent::getCenterPosition;
@@ -42,7 +41,6 @@ namespace ungod
 			transfType["getScale"] = &TransformComponent::getScale;
 
 			script::Usertype<TransformManager> transfManagerType = state.registerUsertype<TransformManager>("TransformManager");
-			transfManagerType["setPlane"] = [](TransformManager& tm, Entity e, bool plane) {tm.setPlane(e, plane); };
 			transfManagerType["setPosition"] = sol::overload([](TransformManager& tm, Entity e, float x, float y) { tm.setPosition(e, { x,y }); },
 				[](TransformManager& tm, Entity e, const sf::Vector2f& pos) { tm.setPosition(e, pos); });
 			transfManagerType["setBaseLineOffsets"] = sol::overload([](TransformManager& tm, Entity e, float x, float y) { tm.setBaseLineOffsets(e, { x,y }); },

@@ -55,16 +55,6 @@ namespace ungod
         for (const auto& v : sorted)
             context.serializeObjectContainer(v.first, v.first, v.second, serializer, data, static_cast<const Application&>(*data.mMaster->getApp()));
 
-        if (!data.mTileMapRenderer.getTileMapEntities().empty())
-            context.serializeObjectContainer(data.mTileMapRenderer.getTileMapEntities().back().getInstantiation()->getSerialIdentifier(),
-                                             data.mTileMapRenderer.getTileMapEntities().back().getInstantiation()->getSerialIdentifier(),
-                                             data.mTileMapRenderer.getTileMapEntities(), serializer, data, static_cast<const Application&>(*data.mMaster->getApp()));
-
-        if (!data.mTileMapRenderer.getWaterEntities().empty())
-            context.serializeObjectContainer(data.mTileMapRenderer.getWaterEntities().back().getInstantiation()->getSerialIdentifier(),
-                                             data.mTileMapRenderer.getWaterEntities().back().getInstantiation()->getSerialIdentifier(),
-                                             data.mTileMapRenderer.getWaterEntities(), serializer, data, static_cast<const Application&>(*data.mMaster->getApp()));
-
         MetaNode nameMapNode = context.appendSubnode(serializer, "name_map");
         for (const auto& nameEntityPair : data.mEntityNames)
         {

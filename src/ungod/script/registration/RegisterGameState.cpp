@@ -43,6 +43,8 @@ namespace ungod
             stateType["load"] = &ScriptedGameState::load;
             stateType["save"] = &ScriptedGameState::save;
             stateType["worldGraph"] = [] (ScriptedGameState& state) -> WorldGraph& {return state.getWorldGraph();};
+			stateType["updateWorldGraph"] = [](ScriptedGameState& state) 
+					{ state.getWorldGraph().updateReferencePosition(state.getCamera().getCenter()); };
         }
     }
 }

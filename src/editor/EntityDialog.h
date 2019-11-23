@@ -36,8 +36,6 @@ namespace uedit
         wxRadioButton* mChoiceTrigger;
         wxRadioButton* mChoiceWorldObject;
         wxRadioButton* mChoiceParticleSystem;
-        wxRadioButton* mChoiceTilemap;
-        wxRadioButton* mChoiceWater;
         wxRadioButton* mChoiceAudioEmitter;
     };
 }

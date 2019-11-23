@@ -18,7 +18,7 @@ namespace uedit
             scriptLoadSizer->Add(hbox1,0,wxALIGN_CENTER_HORIZONTAL);
 
             mScriptsComboBox = new wxComboBox( scriptLoadPanel, SCRIPT_WINDOW_COMBOBOX );
-            Bind(wxEVT_COMBOBOX, EntityScriptWindow::onScriptSelected, this, SCRIPT_WINDOW_COMBOBOX);
+            Bind(wxEVT_COMBOBOX, &EntityScriptWindow::onScriptSelected, this, SCRIPT_WINDOW_COMBOBOX);
             wxBoxSizer* hbox2 = new wxBoxSizer(wxHORIZONTAL);
             hbox2->Add(mScriptsComboBox,1);
             scriptLoadSizer->Add(hbox2,0,wxALIGN_CENTER_HORIZONTAL);

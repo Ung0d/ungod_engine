@@ -31,13 +31,6 @@ namespace uedit
                         std::function([this, e, curoffset](){ e.getWorld().getTransformManager().setBaseLineOffsets(e, curoffset); }));
     }
 
-    void WorldActionWrapper::setEntityPlaneStatus(ungod::Entity e, bool plane)
-    {
-        bool curplane = e.get<ungod::TransformComponent>().isPlane();
-        mEFrame->action(std::function([this, e, plane](){ e.getWorld().getTransformManager().setPlane(e, plane); }),
-                        std::function([this, e, curplane](){ e.getWorld().getTransformManager().setPlane(e, curplane); }));
-    }
-
 
     void WorldActionWrapper::startEntityMoveSession(ungod::Entity e)
     {
@@ -83,8 +76,8 @@ namespace uedit
     void WorldActionWrapper::loadTexture(ungod::Entity e, const std::string& file)
     {
         std::string oldFile = e.get<ungod::VisualsComponent>().getFilePath();
-        mEFrame->action(std::function([this, file](ungod::Entity e){ e.getWorld().getVisualsManager().loadTexture(e, file, ungod::SYNC); }),
-                            std::function([this, oldFile](ungod::Entity e){ if (oldFile != "") e.getWorld().getVisualsManager().loadTexture(e, oldFile, ungod::SYNC); }),
+        mEFrame->action(std::function([this, file](ungod::Entity e){ e.getWorld().getVisualsManager().loadTexture(e, file, ungod::LoadPolicy::SYNC); }),
+                            std::function([this, oldFile](ungod::Entity e){ if (oldFile != "") e.getWorld().getVisualsManager().loadTexture(e, oldFile, ungod::LoadPolicy::SYNC); }),
                             e);
     }
 

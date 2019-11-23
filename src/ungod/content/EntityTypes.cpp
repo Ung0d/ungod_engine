@@ -37,8 +37,6 @@ namespace ungod
         world.registerInstantiation(WorldObjectBaseComponents(), WorldObjectOptionalComponents());
         world.registerInstantiation(ParticleSystemBaseComponents(), ParticleSystemOptionalComponents());
         world.registerInstantiation(TriggerBaseComponents(), TriggerOptionalComponents());
-        world.registerInstantiation(TileMapBaseComponents(), TileMapOptionalComponents());
-        world.registerInstantiation(WaterBaseComponents(), WaterOptionalComponents());
         world.registerInstantiation(AudioEmitterBaseComponents(), AudioEmitterOptionalComponents());
     }
 }

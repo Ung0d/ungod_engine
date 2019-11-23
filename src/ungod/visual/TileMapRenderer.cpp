@@ -27,6 +27,7 @@
 #include "ungod/visual/Camera.h"
 #include "ungod/application/Application.h"
 #include "ungod/content/FloodFill.h"
+#include "ungod/base/World.h"
 
 namespace ungod
 {
@@ -40,37 +41,15 @@ namespace ungod
         }
     }
 
-    TileMapRenderer::TileMapRenderer(Application& app)
+    TileMapRenderer::TileMapRenderer(Application& app, World& world) : mWorld(world)
     {
         mAppSignalLink = app.onTargetSizeChanged([this] (const sf::Vector2u& targetsize)
                                   {
-                                      for (auto e = mWaterEntities.begin(); e != mWaterEntities.end(); e++)
-                                      {
-                                        e->modify<WaterComponent>().mWater.targetsizeChanged(targetsize);
-                                      }
+										mWorld.iterateOverComponents<WaterComponent>([&targetsize](WaterComponent& component)
+											{
+												component.mWater.targetsizeChanged(targetsize);
+											});
                                   });
-    }
-
-    void TileMapRenderer::render(sf::RenderTarget& target, sf::RenderStates states, World& world)
-    {
-        for (const auto& e : mWaterEntities)
-        {
-            renderWater(e, target, states, world);
-        }
-        for (const auto& e : mTileMapEntities)
-        {
-            renderTileMap(e, target, states);
-        }
-    }
-
-    void TileMapRenderer::renderTileMap(Entity e, sf::RenderTarget& target, sf::RenderStates states)
-    {
-        e.modify<TileMapComponent>().mTileMap.render(target, states);
-    }
-
-    void TileMapRenderer::renderWater(Entity e, sf::RenderTarget& target, sf::RenderStates states, World& world)
-    {
-        e.modify<WaterComponent>().mWater.render(target, states, world);
     }
 
     bool TileMapRenderer::reserveTileCount(Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY)
@@ -82,6 +61,7 @@ namespace ungod
     void TileMapRenderer::addTile(Entity e, int id, unsigned material, bool active, bool blocked)
     {
         e.modify<TileMapComponent>().mTileMap.addTile(id, material, active, blocked);
+		mContentsChangedSignal(e, e.modify<TileMapComponent>().mTileMap.getBounds());
     }
 
     void TileMapRenderer::addKey(Entity e, const std::string& key)
@@ -103,13 +83,17 @@ namespace ungod
                              std::vector<bool> active, std::vector<bool> blocked, const unsigned mapSizeX, const unsigned mapSizeY)
     {
         bool b = e.modify<TileMapComponent>().mTileMap.setTiles(tiles, materials, active, blocked, mapSizeX, mapSizeY);
+		if (b)
+			mContentsChangedSignal(e, e.modify<TileMapComponent>().mTileMap.getBounds());
         return b;
     }
 
     bool TileMapRenderer::setTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
                          std::vector<bool> active, const unsigned mapSizeX, const unsigned mapSizeY)
     {
-        bool b = e.modify<TileMapComponent>().mTileMap.setTiles(tiles, materials, active, mapSizeX, mapSizeY);
+		bool b = e.modify<TileMapComponent>().mTileMap.setTiles(tiles, materials, active, mapSizeX, mapSizeY);
+		if (b)
+			mContentsChangedSignal(e, e.modify<TileMapComponent>().mTileMap.getBounds());
         return b;
     }
 
@@ -117,6 +101,8 @@ namespace ungod
                   const unsigned mapSizeX, const unsigned mapSizeY)
     {
         bool b = e.modify<TileMapComponent>().mTileMap.setTiles(tiles, materials, mapSizeX, mapSizeY);
+		if (b)
+			mContentsChangedSignal(e, e.modify<TileMapComponent>().mTileMap.getBounds());
         return b;
     }
 
@@ -137,6 +123,7 @@ namespace ungod
     void TileMapRenderer::addWaterTile(Entity e, int id, unsigned material, bool active, bool blocked)
     {
         e.modify<WaterComponent>().mWater.getTileMap().addTile(id, material, active, blocked);
+		mContentsChangedSignal(e, e.modify<WaterComponent>().mWater.getBounds());
     }
 
     void TileMapRenderer::addWaterKey(Entity e, const std::string& key)
@@ -159,6 +146,8 @@ namespace ungod
                              std::vector<bool> active, std::vector<bool> blocked, const unsigned mapSizeX, const unsigned mapSizeY)
     {
         bool b = e.modify<WaterComponent>().mWater.getTileMap().setTiles(tiles, materials, active, blocked, mapSizeX, mapSizeY);
+		if (b)
+			mContentsChangedSignal(e, e.modify<WaterComponent>().mWater.getBounds());
         return b;
     }
 
@@ -166,6 +155,8 @@ namespace ungod
                          std::vector<bool> active, const unsigned mapSizeX, const unsigned mapSizeY)
     {
         bool b = e.modify<WaterComponent>().mWater.getTileMap().setTiles(tiles, materials, active, mapSizeX, mapSizeY);
+		if (b)
+			mContentsChangedSignal(e, e.modify<WaterComponent>().mWater.getBounds());
         return b;
     }
 
@@ -173,6 +164,8 @@ namespace ungod
                   const unsigned mapSizeX, const unsigned mapSizeY)
     {
         bool b = e.modify<WaterComponent>().mWater.getTileMap().setTiles(tiles, materials, mapSizeX, mapSizeY);
+		if (b)
+			mContentsChangedSignal(e, e.modify<WaterComponent>().mWater.getBounds());
         return b;
     }
 
@@ -225,34 +218,16 @@ namespace ungod
         floodFill(water.mWater.getTileMap(), ix, iy, replacementIDs, activate);
     }
 
-    void TileMapRenderer::setTileMap(TileMapComponent& tilemapc, const TileMap& tilemap)
+    void TileMapRenderer::setTileMap(Entity e, const TileMap& tilemap)
     {
-        tilemapc.mTileMap = tilemap;
+		e.modify<TileMapComponent>().mTileMap = tilemap;
+		mContentsChangedSignal(e, e.modify<TileMapComponent>().mTileMap.getBounds());
     }
 
-    void TileMapRenderer::setWater(WaterComponent& waterc, const Water& water)
+    void TileMapRenderer::setWater(Entity e, const Water& water)
     {
-        waterc.mWater = water;
-    }
-
-    void TileMapRenderer::handleTileMapAdded(Entity e)
-    {
-        mTileMapEntities.emplace_back(e);
-    }
-
-    void TileMapRenderer::handleTileMapRemoved(Entity e)
-    {
-        mTileMapEntities.erase( std::remove( mTileMapEntities.begin(), mTileMapEntities.end(), e ), mTileMapEntities.end() );
-    }
-
-    void TileMapRenderer::handleWaterAdded(Entity e)
-    {
-        mWaterEntities.emplace_back(e);
-    }
-
-    void TileMapRenderer::handleWaterRemoved(Entity e)
-    {
-        mWaterEntities.erase( std::remove( mWaterEntities.begin(), mWaterEntities.end(), e ), mWaterEntities.end() );
+		e.modify<WaterComponent>().mWater = water;
+		mContentsChangedSignal(e, e.modify<WaterComponent>().mWater.getBounds());
     }
 
     TilemapBrush TileMapRenderer::makeTilemapBrush(Entity e, const std::string& identifier)
@@ -268,6 +243,26 @@ namespace ungod
         brush.setNotificator<detail::TilemapRendererChangeNotificator>();
         return brush;
     }
+
+	void TileMapRenderer::setTilemapPosition(Entity e, const sf::Vector2f& position)
+	{
+		e.modify<TileMapComponent>().mTileMap.setPosition(position); 
+		mContentsChangedSignal(e, e.modify<TileMapComponent>().mTileMap.getBounds());
+	}
+
+	void TileMapRenderer::setWaterPosition(Entity e, const sf::Vector2f& position)
+	{
+		e.modify<WaterComponent>().mWater.setPosition(position);
+		mContentsChangedSignal(e, e.modify<WaterComponent>().mWater.getBounds());
+	}
+	
+	void TileMapRenderer::moveMaps(Entity e, const sf::Vector2f& vec)
+	{
+		if (e.has<TileMapComponent>())
+			e.modify<TileMapComponent>().mTileMap.move(vec);
+		if (e.has<WaterComponent>())
+			e.modify<WaterComponent>().mWater.move(vec);
+	}
 
     TileMapRenderer::~TileMapRenderer()
     {

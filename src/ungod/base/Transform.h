@@ -52,9 +52,6 @@ namespace ungod
         * pixel rendering is perfect. */
         sf::Transform getRoundedTransform() const;
 
-        /** \brief Returns the plane flag. */
-        bool isPlane() const;
-
         /** \brief Returns the bounding box/size of the transform. */
         sf::Vector2f getSize() const;
 
@@ -63,12 +60,6 @@ namespace ungod
 
         /** \brief Returns the world-intrinsic position of the transforms center. */
         sf::Vector2f getCenterPosition() const;
-
-		/** \brief Returns the global position of the transform. */
-		sf::Vector2f getGlobalPosition(const World& world) const;
-
-		/** \brief Returns the global position of the transforms center. */
-		sf::Vector2f getGlobalCenterPosition(const World& world) const;
 
         /** \brief Returns the local upper bounds of the transform. */
         const sf::Vector2f& getUpperBounds() const;
@@ -95,7 +86,6 @@ namespace ungod
         sf::Transformable mTransform;
         sf::Vector2f mUpperBound;
         sf::Vector2f mLowerBound;
-        bool mPlane;
         sf::Vector2f mBaseLineOffsets;  ///< stores offsets (default 0,0) for the base-line-points of the entity
     };
 
@@ -105,9 +95,6 @@ namespace ungod
     {
     public:
         TransformManager(quad::QuadTree<Entity>& quadtree);
-
-        /** \brief Sets that plain flag for the given entity. */
-        void setPlane(Entity e, bool plane = true);
 
         /** \brief Sets position for the given entity. Emits a position changed signal. */
         void setPosition(Entity e, const sf::Vector2f& position);

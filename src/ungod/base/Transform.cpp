@@ -38,9 +38,6 @@ namespace ungod
     }
 
 
-    bool TransformComponent::isPlane() const { return mPlane; }
-
-
     sf::Vector2f TransformComponent::getSize() const { return { getScale().x * (mLowerBound.x - mUpperBound.x), getScale().y * (mLowerBound.y - mUpperBound.y) }; }
 
 
@@ -86,12 +83,6 @@ namespace ungod
 
 
     TransformManager::TransformManager(quad::QuadTree<Entity>& quadtree) : mQuadTree(quadtree) {}
-
-
-    void TransformManager::setPlane(Entity e, bool plane)
-    {
-        e.modify<TransformComponent>().mPlane = plane;
-    }
 
 
     void TransformManager::setPosition(Entity e, const sf::Vector2f& position)

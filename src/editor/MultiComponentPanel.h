@@ -78,10 +78,10 @@ namespace uedit
     template<typename T, typename EDIT_PANEL, typename ... OPT>
     void MultiComponentPanel<T, EDIT_PANEL, OPT...>::onSetupChoice(unsigned cc)
     {
-        wxString keys[cc];
+		std::vector<wxString> keys{ cc };
         for (std::size_t i = 0; i < cc; ++i)
             keys[i] = std::to_string(i);
-        mChoice->Set(cc, keys);
+        mChoice->Set(keys);
 
         if (cc > 0)
         {

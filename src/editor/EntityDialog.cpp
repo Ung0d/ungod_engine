@@ -29,8 +29,6 @@ namespace uedit
         mChoiceTrigger = new wxRadioButton(this, -1, "Trigger", wxDefaultPosition, wxDefaultSize);
         mChoiceWorldObject = new wxRadioButton(this, -1, "WorldObject", wxDefaultPosition, wxDefaultSize);
         mChoiceParticleSystem = new wxRadioButton(this, -1, "ParticleSystem", wxDefaultPosition, wxDefaultSize);
-        mChoiceTilemap = new wxRadioButton(this, -1, "TileMap", wxDefaultPosition, wxDefaultSize);
-        mChoiceWater = new wxRadioButton(this, -1, "Water", wxDefaultPosition, wxDefaultSize);
         mChoiceAudioEmitter = new wxRadioButton(this, -1, "AudioEmitter", wxDefaultPosition, wxDefaultSize);
         vbox->Add(mChoiceEntity, 1, wxALIGN_LEFT);
         vbox->Add(mChoiceActor, 1, wxALIGN_LEFT);
@@ -39,8 +37,6 @@ namespace uedit
         vbox->Add(mChoiceTrigger, 1, wxALIGN_LEFT);
         vbox->Add(mChoiceWorldObject, 1, wxALIGN_LEFT);
         vbox->Add(mChoiceParticleSystem, 1, wxALIGN_LEFT);
-        vbox->Add(mChoiceTilemap, 1, wxALIGN_LEFT);
-        vbox->Add(mChoiceWater, 1, wxALIGN_LEFT);
         vbox->Add(mChoiceAudioEmitter, 1, wxALIGN_LEFT);
 
         masterSizer->Add(vbox, 1, wxEXPAND);
@@ -88,15 +84,6 @@ namespace uedit
             return mWorld->create(ungod::ParticleSystemBaseComponents(), ungod::ParticleSystemOptionalComponents());
         }
 
-        if (mChoiceTilemap->GetValue())
-        {
-            return mWorld->create(ungod::TileMapBaseComponents(), ungod::TileMapOptionalComponents());
-        }
-
-        if (mChoiceWater->GetValue())
-        {
-            return mWorld->create(ungod::WaterBaseComponents(), ungod::WaterOptionalComponents());
-        }
         if (mChoiceAudioEmitter->GetValue())
         {
             return mWorld->create(ungod::AudioEmitterBaseComponents(), ungod::AudioEmitterOptionalComponents());

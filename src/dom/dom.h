@@ -26,7 +26,7 @@
 #ifndef DOM_LIBRARY_H
 #define DOM_LIBRARY_H
 
-#include <queue>
+#include <deque>
 #include <list>
 #include <vector>
 #include <memory>
@@ -105,7 +105,7 @@ namespace dom
 
         std::allocator<T> alloc;
         std::vector< MemoryBlock > mBlocks;
-        std::queue<ChunkedArrayHandle> mFreeSlots;
+        std::deque<ChunkedArrayHandle> mFreeSlots;
 
     public:
         /** \brief Constructs a new array with a single block allocated. */
@@ -135,6 +135,10 @@ namespace dom
         /** \brief Returns the number of elements in the list. */
         std::size_t size() const;
 
+		/** \brief Iterates over all objects in the container. Its is not safe to add or objects when iterating! */
+		template<typename FUNC>
+		void iterateOverAll(const FUNC& callback);
+
         ~ChunkedArray();
 
     private:
@@ -148,6 +152,9 @@ namespace dom
 
         public:
             MemoryBlock() : contentCount(0), endIndex(0), ptr(nullptr) {}
+
+			std::size_t getEndIndex() const { return endIndex; }
+			std::size_t getContentCount() const { return contentCount; }
         };
     };
 
@@ -538,6 +545,11 @@ namespace dom
         template<typename C>
         std::size_t getComponentCount() const;
 
+		/** \brief Iterates over all components of type T attached to any entity created via this Universe object. 
+		* Does however only provide access to the component, not to the entity. */
+		template<typename C, typename FUNC>
+		void iterateOverComponents(const FUNC& callback);
+
     private:
         std::array< std::unique_ptr<BaseChunkedArray>, COMP_TOTAL> mManagers;
         ChunkedArray<EntityData<CINDEX, COMP_TOTAL>, ENTITY_BLOCK_SIZE, ENTITY_REUSE_C> mEntityData;
@@ -679,7 +691,7 @@ namespace dom
         if (mFreeSlots.size() > REUSE_C) //reuse a previously abadoned slot
         {
             h = mFreeSlots.front();
-            mFreeSlots.pop();
+            mFreeSlots.pop_front();
         }
         else if (mBlocks.back().contentCount >= BLOCK_SIZE) //need to create a new block
         {
@@ -717,7 +729,7 @@ namespace dom
     template<typename T, std::size_t BLOCK_SIZE, std::size_t REUSE_C>
     void ChunkedArray<T, BLOCK_SIZE, REUSE_C>::destroy(ChunkedArrayHandle h)
     {
-        mFreeSlots.push(h);
+        mFreeSlots.push_back(h);
         --(mBlocks[h.block].contentCount);
         std::allocator_traits<std::allocator<T>>::destroy(  alloc,
                                                         mBlocks[h.block].ptr + h.index);
@@ -737,6 +749,28 @@ namespace dom
             sum += block.contentCount;
         return sum;
     }
+
+	template<typename T, std::size_t BLOCK_SIZE, std::size_t REUSE_C>
+	template<typename FUNC>
+	void ChunkedArray<T, BLOCK_SIZE, REUSE_C>::iterateOverAll(const FUNC& callback)
+	{
+		std::vector<ChunkedArrayHandle> sortedFree(mFreeSlots.begin(), mFreeSlots.end());
+		auto comp = [](const ChunkedArrayHandle& h1, const ChunkedArrayHandle& h2)
+		{
+			return std::size_t(h1.block) * BLOCK_SIZE + std::size_t(h1.index) < std::size_t(h2.block) * BLOCK_SIZE + std::size_t(h2.index);
+		};
+		std::sort(sortedFree.begin(), sortedFree.end(), comp);
+		std::size_t curFreeIndex = 0;
+		for (SubID block = 0; block < mBlocks.size(); block++)
+			for (SubID index = 0; index < mBlocks[block].getEndIndex(); index++)
+			{
+				ChunkedArrayHandle h{ block, index };
+				if (curFreeIndex >= sortedFree.size() || comp(h, sortedFree[curFreeIndex]))
+					callback(get(h));
+				else if (sortedFree[curFreeIndex] == h)
+					curFreeIndex++;
+			}
+	}
 
     template<typename T, std::size_t BLOCK_SIZE, std::size_t REUSE_C>
     ChunkedArray<T, BLOCK_SIZE, REUSE_C>::~ChunkedArray()
@@ -1276,6 +1310,16 @@ namespace dom
         else return 0u;
     }
 
+	template<typename CINDEX, CINDEX COMP_TOTAL>
+	template<typename C, typename FUNC>
+	void Universe<CINDEX, COMP_TOTAL>::iterateOverComponents(const FUNC& callback)
+	{
+		if (!mManagers[ComponentTraits<C, CINDEX, COMP_TOTAL>::getID()])
+			return;
+		ChunkedArray<C, COMPONENT_BLOCK_SIZE>* ca = static_cast<ChunkedArray<C, COMPONENT_BLOCK_SIZE>*>
+			(mManagers[ComponentTraits<C, CINDEX, COMP_TOTAL>::getID()].get());
+		ca->iterateOverAll<FUNC>(callback);
+	}
 
 
     template<typename C>

@@ -518,6 +518,11 @@ namespace ungod
                 multisprite.getComponent(i).mSprite.move(vec);
             }
         }
+		if (e.has<BigSpriteComponent>())
+		{
+			BigSpriteComponent& sprite = e.modify<BigSpriteComponent>();
+			sprite.mBigSprite.move(vec);
+		}
     }
 
     void VisualsManager::setRotation(Entity e, SpriteComponent& sprite, float rotation)

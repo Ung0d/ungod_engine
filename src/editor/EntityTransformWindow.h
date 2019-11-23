@@ -32,11 +32,9 @@ namespace uedit
         StatDisplay<float>* mScaleY;
         StatDisplay<float>* mBaseLineOffsetX;
         StatDisplay<float>* mBaseLineOffsetY;
-        wxCheckBox* mPlaneChecked;
 
     private:
         void refreshStats();
-        void onPlaneChecked(wxCommandEvent& event);
 
         wxDECLARE_EVENT_TABLE();
     };

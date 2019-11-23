@@ -211,12 +211,12 @@ namespace uedit
             std::size_t cc = (std::size_t)(std::stoi( std::string(mCompCountCtrl->GetValue().mb_str()) ));
             mEntity.initMulti<ungod::MultiSpriteComponent>(cc);
 
-            wxString keys[cc];
+			std::vector<wxString> keys{ cc };
             for (std::size_t i = 0; i < cc; ++i)
             {
                 keys[i] = std::to_string(i);
             }
-            mMultiSpriteChoice->Set(cc, keys);
+            mMultiSpriteChoice->Set(keys);
 
             if (cc > 0)
             {
@@ -308,12 +308,12 @@ namespace uedit
             std::size_t cc = (std::size_t)(std::stoi( std::string(mVertexRectCountCtrl->GetValue().mb_str()) ));
             mWorldAction.setVertexRectCount(mEntity, cc);
 
-            wxString keys[cc];
+			std::vector<wxString> keys{ cc };
             for (std::size_t i = 0; i < cc; ++i)
             {
                 keys[i] = std::to_string(i);
             }
-            mVertexChoice->Set(cc, keys);
+            mVertexChoice->Set(keys);
 
             if (cc > 0)
             {
@@ -604,8 +604,7 @@ namespace uedit
 
 
         wxBoxSizer* hbox1 = new wxBoxSizer(wxHORIZONTAL);
-        const wxString choices[rectCount];
-        mVertexChoice = new wxChoice(mVertexPanel, CHOICE_VERTEX, wxDefaultPosition, wxDefaultSize, rectCount, choices);
+        mVertexChoice = new wxChoice(mVertexPanel, CHOICE_VERTEX, wxDefaultPosition, wxDefaultSize);
         for (std::size_t i = 0; i < rectCount; ++i)
         {
             mVertexChoice->SetString(i, std::to_string(i));

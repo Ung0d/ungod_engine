@@ -156,7 +156,7 @@ namespace uedit
         path = boost::filesystem::relative(path, mBasePath);
         mEditorTabs->AddPage(codeeditor, path.string());
 
-        wxFont font (16, wxMODERN, wxNORMAL, wxNORMAL);
+        wxFont font (16, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 
         codeeditor->StyleSetFont(wxSTC_STYLE_DEFAULT, font);
         codeeditor->SetMarginWidth (MARGIN_LINE_NUMBERS, 50);
@@ -215,8 +215,8 @@ namespace uedit
         codeeditor->MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_EMPTY);
         codeeditor->MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY);
 
-        Bind(wxEVT_STC_CHARADDED, ScriptManager::onCharAdded, this, SCRIPT_EDITOR);
-        Bind(wxEVT_STC_CHANGE, ScriptManager::onFileChanged, this, SCRIPT_EDITOR);
+        Bind(wxEVT_STC_CHARADDED, &ScriptManager::onCharAdded, this, SCRIPT_EDITOR);
+        Bind(wxEVT_STC_CHANGE, &ScriptManager::onFileChanged, this, SCRIPT_EDITOR);
 
         //display the contents of the script file
         std::ifstream script;

@@ -23,7 +23,6 @@ namespace uedit
         void setEntityPosition(ungod::Entity e, const sf::Vector2f& pos);
         void setEntityScale(ungod::Entity e, const sf::Vector2f& scale);
         void setEntityBaseLineOffset(ungod::Entity e, const sf::Vector2f& offset);
-        void setEntityPlaneStatus(ungod::Entity e, bool plane);
 
         void startEntityMoveSession(ungod::Entity e);
         void moveEntity(ungod::Entity e, const sf::Vector2f& mv);

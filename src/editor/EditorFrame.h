@@ -24,6 +24,13 @@ namespace uedit
     class EditorState;
     class EntityDesigner;
 
+
+	//metainfo that is automatically serialized and deserialized
+	struct MetaInfo : public ungod::Serializable<MetaInfo>
+	{
+		std::string lastProject;
+	};
+
     /**
     * \brief Main window of the editor.
     */
@@ -65,6 +72,8 @@ namespace uedit
 
         WorldActionWrapper& getWorldActionWrapper() { return mWorldAction; }
 
+		~EditorFrame();
+
     private:
         //central
         command::ActionManager mActionManager;
@@ -81,6 +90,7 @@ namespace uedit
         wxNotebook* mEditorTabs;
         WorldActionWrapper mWorldAction;
         std::string mProjectFilePath;
+		MetaInfo mMetaInfo;
 
     private:
         void onFileNew(wxCommandEvent& event);
@@ -88,6 +98,7 @@ namespace uedit
         void onFileSave(wxCommandEvent& event);
 
         void onWorldNew(wxCommandEvent& event);
+		void onNodeNew(wxCommandEvent& event);
         void onStateProperties(wxCommandEvent& event);
 
         void onEditUndo(wxCommandEvent& event);
@@ -115,7 +126,6 @@ namespace uedit
 
 
 
-
 namespace ungod
 {
     //define how to (de)serialize the filemanager
@@ -136,6 +146,25 @@ namespace ungod
     {
         static void deserialize(uedit::EditorFrame& data, MetaNode deserializer, DeserializationContext& context);
     };
+
+
+	template <>
+	struct SerialIdentifier<uedit::MetaInfo>
+	{
+		static std::string get() { return "MetaInfo"; }
+	};
+
+	template <>
+	struct SerialBehavior<uedit::MetaInfo>
+	{
+		static void serialize(const uedit::MetaInfo& data, MetaNode serializer, SerializationContext& context);
+	};
+
+	template <>
+	struct DeserialBehavior<uedit::MetaInfo>
+	{
+		static void deserialize(uedit::MetaInfo& data, MetaNode deserializer, DeserializationContext& context);
+	};
 }
 
 #endif // EDITOR_FRAME_H

@@ -20,6 +20,27 @@ void load(std::weak_ptr<T> w)
 
 };
 
+
+BOOST_AUTO_TEST_CASE(iterate_over_component_test)
+{
+	ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+	node.setSize({ 800,600 });
+	ungod::World* world = node.addWorld();
+	std::list<ungod::Entity> entities;
+	world->create(ungod::BaseComponents<ungod::TransformComponent>(), 
+		ungod::OptionalComponents<>(), 10000, [&entities](ungod::Entity e) {entities.push_back(e); });
+	int counter = 0;
+	world->iterateOverComponents<ungod::TransformComponent>([&counter](ungod::TransformComponent& transf)
+		{
+			counter++;
+		});
+	BOOST_CHECK_EQUAL(10000, counter);
+	for (const auto& e : entities)
+		world->destroy(e);
+	world->update(20.0f, {}, {});
+}
+
 BOOST_AUTO_TEST_CASE( asset_image_test )
 {
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);

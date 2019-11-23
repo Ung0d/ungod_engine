@@ -1,12 +1,13 @@
 #ifndef UEDIT_STAT_DISPLAYER_H
 #define UEDIT_STAT_DISPLAYER_H
 
-#include <type_traits>
 #include "wx/panel.h"
 #include "wx/textctrl.h"
 #include "wx/sizer.h"
 #include "wx/stattext.h"
 #include "wx/msgdlg.h"
+#include <type_traits>
+#include <string>
 
 namespace uedit
 {
@@ -44,7 +45,7 @@ namespace uedit
 
     /** \brief Partial spec for integral numbers. */
     template <typename T>
-    class StatDisplay<T, typename std::enable_if<std::is_integral<T>::value>::type> : public detail::StatDisplayImpl<T>
+    class StatDisplay<T> : public detail::StatDisplayImpl<T>
     {
     public:
         StatDisplay(const std::string& text, wxWindow * parent, wxWindowID id, const wxPoint & pos = wxDefaultPosition, const wxSize& siz = wxDefaultSize);
@@ -53,16 +54,6 @@ namespace uedit
 
     private:
         wxTextCtrl* mTextCtrl;
-    };
-
-    /** \brief Partial spec for floating point numbers. */
-    template <typename T>
-    class StatDisplay<T, typename std::enable_if<std::is_floating_point<T>::value>::type> : public detail::StatDisplayImpl<T>
-    {
-    public:
-        StatDisplay(const std::string& text, wxWindow * parent, wxWindowID id, const wxPoint & pos = wxDefaultPosition, const wxSize& siz = wxDefaultSize);
-
-        void onTextChange(wxCommandEvent& event);
     };
 
 
@@ -108,49 +99,26 @@ namespace uedit
     }
 
     template<typename T>
-    StatDisplay<T, typename std::enable_if<std::is_integral<T>::value>::type>::
-        StatDisplay(const std::string& text, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz)
+    StatDisplay<T>::StatDisplay(const std::string& text, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz)
     : detail::StatDisplayImpl<T>(text, parent, id, pos, siz)
     {
-        wxPanel::Bind(wxEVT_TEXT_ENTER, &StatDisplay<T, typename std::enable_if<std::is_integral<T>::value>::type>::onTextChange, this, 0);
-    }
-
-    template<typename T>
-    StatDisplay<T, typename std::enable_if<std::is_floating_point<T>::value>::type>::
-        StatDisplay(const std::string& text, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz)
-    : detail::StatDisplayImpl<T>(text, parent, id, pos, siz)
-    {
-        wxPanel::Bind(wxEVT_TEXT_ENTER, &StatDisplay<T, typename std::enable_if<std::is_floating_point<T>::value>::type>::onTextChange, this, 0);
+        wxPanel::Bind(wxEVT_TEXT_ENTER, &StatDisplay<T>::onTextChange, this, 0);
     }
 
 
     template<typename T>
-    void StatDisplay<T, typename std::enable_if<std::is_integral<T>::value>::type>::onTextChange(wxCommandEvent& event)
+    void StatDisplay<T>::onTextChange(wxCommandEvent& event)
     {
         if (!detail::StatDisplayImpl<T>::mSetter || !detail::StatDisplayImpl<T>::mGetter)
             return;
 
         try
         {
-            T t = static_cast<T>(std::stoi( std::string(detail::StatDisplayImpl<T>::mTextCtrl->GetValue().mb_str()) ));
-            detail::StatDisplayImpl<T>::mSetter(t);
-        }
-        catch(const std::exception& e)
-        {
-            auto err = wxMessageDialog(this, _("Text field must contain a valid number."));
-            err.ShowModal();
-            detail::StatDisplayImpl<T>::setValue(detail::StatDisplayImpl<T>::mGetter());
-        }
-    }
-
-    template<typename T>
-    void StatDisplay<T, typename std::enable_if<std::is_floating_point<T>::value>::type>::onTextChange(wxCommandEvent& event)
-    {
-        if (!detail::StatDisplayImpl<T>::mSetter || !detail::StatDisplayImpl<T>::mGetter)
-            return;
-        try
-        {
-            T t = static_cast<T>(std::stof( std::string(detail::StatDisplayImpl<T>::mTextCtrl->GetValue().mb_str()) ));
+			T t;
+			if constexpr (std::is_integral_v<T>)
+				t = static_cast<T>(std::stoi( std::string(detail::StatDisplayImpl<T>::mTextCtrl->GetValue().mb_str()) ));
+			else
+				t = static_cast<T>(std::stof(std::string(detail::StatDisplayImpl<T>::mTextCtrl->GetValue().mb_str())));
             detail::StatDisplayImpl<T>::mSetter(t);
         }
         catch(const std::exception& e)

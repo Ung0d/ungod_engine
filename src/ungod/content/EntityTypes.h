@@ -110,15 +110,7 @@ namespace ungod
                                                              AnimationComponent, MultiComponent<AnimationComponent>, RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>,
                                                              EntityUpdateTimer, SoundEmitterComponent, ShadowEmitterComponent, LightEmitterComponent, LightAffectorComponent,
                                                              MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>, MultiComponent<ShadowEmitterComponent>, ParticleSystemComponent,
-                                                             ParentComponent, ChildComponent>;
-
-    /** \brief A tilemap entity. */
-    using TileMapBaseComponents = BaseComponents<TileMapComponent>;
-    using TileMapOptionalComponents = OptionalComponents<ParentComponent, ChildComponent>;
-
-    /** \brief A water entity. */
-    using WaterBaseComponents = BaseComponents<WaterComponent>;
-    using WaterOptionalComponents = OptionalComponents<TileMapComponent, ParentComponent, ChildComponent>;
+                                                             ParentComponent, ChildComponent, TileMapComponent, WaterComponent>;
 
     /** \brief A particle system entity. */
     using ParticleSystemBaseComponents = BaseComponents<TransformComponent, VisualsComponent, ParticleSystemComponent>;
@@ -189,18 +181,6 @@ namespace ungod
     struct InstantiationCode<WorldObjectBaseComponents, WorldObjectOptionalComponents>
     {
         static int get() { return WORLD_OBJECT; }
-    };
-
-    template<>
-    struct InstantiationCode<TileMapBaseComponents, TileMapOptionalComponents>
-    {
-        static int get() { return TILEMAP; }
-    };
-
-    template<>
-    struct InstantiationCode<WaterBaseComponents, WaterOptionalComponents>
-    {
-        static int get() { return WATER; }
     };
 
     template<>

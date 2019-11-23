@@ -37,7 +37,7 @@ namespace uedit
                                 {"pos_x", 0}, {"pos_y", 0}, {"width", 0}, {"height", 0}, {"offset_x", 0}, {"offset_y", 0} );
                     mRenderbody.setTextureRect(sf::FloatRect((float)std::get<0>(result), (float)std::get<1>(result), (float)std::get<2>(result), (float)std::get<3>(result)));
                     mRenderbody.setPosition({std::get<4>(result), std::get<5>(result)});
-                    mContentBounds = sf::IntRect{mRenderbody.getTextureRect()};
+                    mContentBounds = sf::FloatRect{mRenderbody.getTextureRect()};
                     Refresh(false);
                     mShowAnimation = false;
                 }
@@ -50,7 +50,7 @@ namespace uedit
                 else
                 {
                     mRenderbody = ungod::Sprite{};
-                    mContentBounds = sf::IntRect{0,0,0,0};
+                    mContentBounds = sf::FloatRect{0,0,0,0};
                     mShowAnimation = false;
                 }
 
@@ -258,7 +258,7 @@ namespace uedit
 
     bool SheetPreview::loadSheet(const std::string& sheetID, const std::string& metaID)
     {
-        mImages.emplace_back( sheetID, ungod::SYNC );
+        mImages.emplace_back( sheetID, ungod::LoadPolicy::SYNC );
         mMetas.emplace_back( metaID );
 
         if (mImages.back().isLoaded() && mMetas.back().isLoaded())
@@ -278,7 +278,7 @@ namespace uedit
     {
         for (std::size_t i = 0; i < mImages.size();)
         {
-            mImages[i].load(mImages[i].getFilePath(), ungod::SYNC );
+            mImages[i].load(mImages[i].getFilePath(), ungod::LoadPolicy::SYNC );
             mMetas[i].load(mMetas[i].getFilePath() );
             if (!mImages[i].isLoaded() || !mMetas[i].isLoaded())
             {

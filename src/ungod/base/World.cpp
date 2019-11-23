@@ -48,7 +48,7 @@ namespace ungod
         mInputManager(mQuadTree),
         mAudioManager(master, *this),
         mLightSystem(),
-        mTileMapRenderer(*master->getApp()),
+        mTileMapRenderer(*master->getApp(), *this),
         mParentChildManager(*this),
         mRenderLight(true)
     {
@@ -69,7 +69,7 @@ namespace ungod
         mInputManager(mQuadTree),
         mAudioManager(master, *this),
         mLightSystem(),
-        mTileMapRenderer(*master->getApp()),
+        mTileMapRenderer(*master->getApp(), *this),
         mParentChildManager(*this),
         mRenderLight(true)
     {
@@ -118,19 +118,18 @@ namespace ungod
                                           {
                                                 mMovementManager.handleCollision(e, other, vec, c1, c2);
                                           });
+		mTileMapRenderer.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+			{
+				mTransformManager.handleContentsChanged(e, rect);
+			});
         mTransformManager.onMoveContents( [this] (Entity e, const sf::Vector2f& vec)
                                           {
                                                 mLightSystem.moveLights(e, vec);
                                                 mLightSystem.moveLightColliders(e, vec);
                                                 mRigidbodyManager.moveColliders(e, vec);
                                                 mVisualsManager.moveVisuals(e, vec);
+												mTileMapRenderer.moveMaps(e, vec);
                                           });
-
-
-        onComponentAdded<TileMapComponent>( [this] (Entity e) { mTileMapRenderer.handleTileMapAdded(e); });
-        onComponentRemoved<TileMapComponent>( [this] (Entity e) { mTileMapRenderer.handleTileMapRemoved(e); });
-        onComponentAdded<WaterComponent>( [this] (Entity e) { mTileMapRenderer.handleWaterAdded(e); });
-        onComponentRemoved<WaterComponent>( [this] (Entity e) { mTileMapRenderer.handleWaterRemoved(e); });
 
 
         onComponentAdded<ParticleSystemComponent>( [this] (Entity e) { mParticleSystemManager.handleParticleSystemAdded(e); });
@@ -222,21 +221,13 @@ namespace ungod
 
     bool World::render(sf::RenderTarget& target, sf::RenderStates states)
     {
-        mTileMapRenderer.render(target, states, *this);
-
-
         mRenderedEntities.getList().clear();
         mRenderer.renewRenderlist(target, mRenderedEntities);
-
-        mRenderer.renderPlanes(mRenderedEntities, target, states);
-
-        if (mRenderLight)
-            mLightSystem.render(mRenderedEntities, target, states);
 
         mRenderer.render(mRenderedEntities, target, states);
 
         if (mRenderLight)
-            mLightSystem.render(mRenderedEntities, target, states, false);
+            mLightSystem.render(mRenderedEntities, target, states);
 
         return true; //todo meaningful return value
     }

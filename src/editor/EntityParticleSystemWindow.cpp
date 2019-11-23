@@ -396,13 +396,14 @@ namespace uedit
 
         mVBox = new wxBoxSizer(wxVERTICAL);
 
-        {
-            wxString c[ps.getAffectorCount()];
+		{
+			std::vector<wxString> c{ps.getAffectorCount()};
             for (std::size_t i = 0; i < ps.getAffectorCount(); i++)
             {
                 c[i] = _(ps.getAffectorKey(i));
             }
-            mList = new wxListBox(this, -1, wxDefaultPosition, wxDefaultSize, ps.getAffectorCount(), c,wxLB_SINGLE);
+            mList = new wxListBox(this, -1, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_SINGLE);
+			mList->Set(c);
 
             mList->Bind(wxEVT_LISTBOX, [this] (wxCommandEvent& event)
                         {

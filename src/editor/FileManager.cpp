@@ -13,7 +13,7 @@ namespace uedit
     {
         mRoot = AddRoot(mBasePath.filename().string());
 
-        Bind(wxEVT_RIGHT_DOWN, FileManager::onRightDown, this);
+        Bind(wxEVT_RIGHT_DOWN, &FileManager::onRightDown, this);
     }
 
 

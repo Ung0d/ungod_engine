@@ -91,13 +91,6 @@ namespace uedit
             boxsizer->Add(mBaseLineOffsetY,0,wxALIGN_CENTER_HORIZONTAL);
         }
 
-        {
-            mPlaneChecked = new wxCheckBox(this, -1, _("is plane"), wxDefaultPosition, wxDefaultSize, wxCHK_2STATE);
-            mPlaneChecked->SetValue(mEntity.get<ungod::TransformComponent>().isPlane());
-            mPlaneChecked->Bind(wxEVT_CHECKBOX, &EntityTransformWindow::onPlaneChecked, this);
-            boxsizer->Add(mPlaneChecked,0,wxALIGN_CENTER_HORIZONTAL);
-        }
-
         refreshStats();
 
         SetSizer(boxsizer);
@@ -127,10 +120,5 @@ namespace uedit
         mScaleY->setValue(mEntity.modify<ungod::TransformComponent>().getScale().y);
         mBaseLineOffsetX->setValue(mEntity.modify<ungod::TransformComponent>().getBaseLineOffsets().x);
         mBaseLineOffsetY->setValue(mEntity.modify<ungod::TransformComponent>().getBaseLineOffsets().y);
-    }
-
-    void EntityTransformWindow::onPlaneChecked(wxCommandEvent& event)
-    {
-        mWorldAction.setEntityPlaneStatus(mEntity, mPlaneChecked->GetValue());
     }
 }

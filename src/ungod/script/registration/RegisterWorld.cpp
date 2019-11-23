@@ -74,11 +74,6 @@ namespace ungod
 				{ return world.create(WorldObjectBaseComponents(), WorldObjectOptionalComponents(), script); },
 				[](World& world, const std::string& script, script::Environment param)
 				{ return world.create(WorldObjectBaseComponents(), WorldObjectOptionalComponents(), script, param); });
-			worldType["createTileMap"] = sol::overload([](World& world) { return world.create(TileMapBaseComponents(), TileMapOptionalComponents()); },
-				[](World& world, const std::string& script)
-				{ return world.create(TileMapBaseComponents(), TileMapOptionalComponents(), script); },
-				[](World& world, const std::string& script, script::Environment param)
-				{ return world.create(TileMapBaseComponents(), TileMapOptionalComponents(), script, param); });
 			worldType["createParticleSystem"] = [](World& world) { return world.create(ParticleSystemBaseComponents(), ParticleSystemOptionalComponents()); };
 			worldType["createAudioEmitter"] = [](World& world) { return world.create(AudioEmitterBaseComponents(), AudioEmitterOptionalComponents()); };
 			// Factory methods to produce sets of entities.

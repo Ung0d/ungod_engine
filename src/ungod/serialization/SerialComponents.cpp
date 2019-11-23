@@ -39,8 +39,6 @@ namespace ungod
         context.serializeProperty("t_y", data.mTransform.getPosition().y, serializer);
         if (data.mTransform.getScale().x != 1.0)
             context.serializeProperty("scale", data.mTransform.getScale().x, serializer);
-        if (data.mPlane)
-            context.serializeProperty("plane", data.mPlane, serializer);
         if (data.mBaseLineOffsets.x != 0.0f || data.mBaseLineOffsets.y != 0.0f)
         {
             context.serializeProperty("baseline_x", data.mBaseLineOffsets.x, serializer);
@@ -51,13 +49,12 @@ namespace ungod
 
     void DeserialBehavior<TransformComponent, Entity, World&, const Application&>::deserialize(TransformComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&)
     {
-        auto result = deserializer.getAttributes<float, float, float, bool, float, float>
-                        ( {"t_x", 0.0f}, {"t_y", 0.0f}, {"scale", 1.0f}, {"plane", false}, {"baseline_x", 1.0f}, {"baseline_y", 0.0f});
+        auto result = deserializer.getAttributes<float, float, float, float, float>
+                        ( {"t_x", 0.0f}, {"t_y", 0.0f}, {"scale", 1.0f}, {"baseline_x", 1.0f}, {"baseline_y", 0.0f});
         data.mTransform.setPosition(std::get<0>(result), std::get<1>(result));
         data.mTransform.setScale(std::get<2>(result), std::get<2>(result));
-        data.mPlane = std::get<3>(result);
-        data.mBaseLineOffsets.x = std::get<4>(result);
-        data.mBaseLineOffsets.y = std::get<5>(result);
+        data.mBaseLineOffsets.x = std::get<3>(result);
+        data.mBaseLineOffsets.y = std::get<4>(result);
         //we dont need to emit signals or notify the quadtree
         //entities are inserted AFTER deserialization
     }

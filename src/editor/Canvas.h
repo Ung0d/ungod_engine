@@ -11,10 +11,12 @@
 #include "WorldActionWrapper.h"
 #include "CameraController.h"
 #include <wx/wx.h>
+#include "utilitySFML.h"
+#include "ungod/visual/Font.h"
 
 namespace uedit
 {
-    enum EditorStates { EDITOR_STATE, TILEMAP_EDIT_STATE, ENTITY_EDIT_STATE };
+    enum EditorStates { EDITOR_STATE, TILEMAP_EDIT_STATE, ENTITY_EDIT_STATE, WORLD_GRAPH_STATE };
 
     class EditorFrame;
     class EditorCanvas;
@@ -90,6 +92,40 @@ namespace uedit
     };
 
 
+	/** \brief A state that visualizes the current world graph. Each node is a colored rect with a name.
+	* Connections between nodes are also marked. A double click to a node switches back to the Editor State with the
+	* clicked node as the current graph reference node. */
+	class WorldGraphState : public ungod::State
+	{
+	friend EditorCanvas;
+	public:
+		WorldGraphState(ungod::Application& app, ungod::StateID id, EditorState& editorState, EditorFrame* editorframe);
+
+		virtual void handleEvent(const sf::Event& event) override;
+		virtual void update(float delta) override;
+		virtual void render(sf::RenderTarget& target, sf::RenderStates states) override;
+
+	private:
+		virtual void init() override;
+		virtual void close() override;
+
+	private: 
+		EditorFrame* mEditorframe;
+		EditorState& mEditorState;
+		PressedKeyClickChecker mClickChecker;
+		ungod::Camera mCamera;
+		CameraController mCamContrl;
+		std::unordered_map<ungod::WorldGraphNode*, sf::Color> mColorMapper;
+		ungod::Font mFont;
+		ungod::WorldGraphNode* mSelectedNode;
+		bool mClicked;
+		sf::Vector2i mMouseLastPos;
+		ungod::WorldGraphNode* mConnect;
+		static constexpr float SCALE = 0.005f;
+		static constexpr int TEXTSIZE = 20000;
+	};
+
+
     /** \brief Defines the canvas of the editor, where the game world is rendered
     * and edit operations can be performed. */
     class EditorCanvas : public wxControl, public ungod::Application
@@ -127,6 +163,7 @@ namespace uedit
         TileMapEditState* mGroundEditState;
         TileMapEditState* mWaterEditState;
         EntityEditState* mEntityEditState;
+		WorldGraphState* mWorldGraphState;
         std::string mCurrentFile;
 
         /*

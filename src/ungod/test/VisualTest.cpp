@@ -169,9 +169,9 @@ BOOST_AUTO_TEST_CASE( render_order_test )
     std::advance(iter, 1);
     BOOST_CHECK(e[3] == *(iter));
     std::advance(iter, 1);
-    BOOST_CHECK(e[4] == *(iter));
-    std::advance(iter, 1);
     BOOST_CHECK(e[5] == *(iter));
+    std::advance(iter, 1);
+    BOOST_CHECK(e[4] == *(iter));
 
 	for (int i = 0; i < 6; i++)
 		world->destroy(e[i]); //queue entity for destruction

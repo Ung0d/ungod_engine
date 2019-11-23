@@ -550,7 +550,7 @@ namespace quad
     bool QuadTree<T,MAX_CAPACITY,MAX_LEVEL>::changedProperties(T t)
     {
         auto* owner = getOwner(t);
-        if (owner)
+        if (owner && owner != this)
         {
             if( !owner->isInsideBounds(t) ) //must reinsert the element
             {

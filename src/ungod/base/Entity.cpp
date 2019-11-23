@@ -57,6 +57,16 @@ namespace ungod
     {
         return static_cast<ungod::World&>(mHandle.getUniverse());
     }
+
+	sf::Vector2f Entity::getGlobalPosition() const
+	{
+		return getWorld().getContainer()->mapToGlobalPosition(get<TransformComponent>().getPosition());
+	}
+
+	sf::Vector2f Entity::getGlobalCenterPosition() const
+	{
+		return getWorld().getContainer()->mapToGlobalPosition(get<TransformComponent>().getCenterPosition());
+	}
 }
 
 namespace quad
