@@ -189,6 +189,12 @@ Entity EntityInstantiation< BaseComponents<BASE...>, OptionalComponents<OPTIONAL
     return Entity( e.checkedCopy<BASE..., OPTIONAL...>(), BaseComponents<BASE...>(), OptionalComponents<OPTIONAL...>() );
 }
 
+template<typename... BASE, typename... OPTIONAL>
+Entity EntityInstantiation< BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >::makeForeignCopy(const dom::EntityHandle<>& e, dom::Universe<>& target) const
+{
+	return Entity(e.checkedForeignCopy<BASE..., OPTIONAL...>(target), BaseComponents<BASE...>(), OptionalComponents<OPTIONAL...>());
+}
+
 namespace detail
 {
     //unpacker that emits component removed signals

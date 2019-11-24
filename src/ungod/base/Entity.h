@@ -193,6 +193,9 @@ namespace ungod
         //makes a copy based on the set of assigned components
         virtual Entity makeCopy(const dom::EntityHandle<>& e) const = 0;
 
+		//makes a copy based on the set of assigned components
+		virtual Entity makeForeignCopy(const dom::EntityHandle<>& e, dom::Universe<>& target) const = 0;
+
         //performs cleanup, when the entitys is destroyed
         virtual void cleanup(Entity e) const = 0;
 
@@ -222,6 +225,8 @@ namespace ungod
         virtual bool checkOptional(unsigned short id) const override;
 
         virtual Entity makeCopy(const dom::EntityHandle<>& e) const override;
+
+		virtual Entity makeForeignCopy(const dom::EntityHandle<>& e, dom::Universe<>& target) const override;
 
         virtual void cleanup(Entity e) const override;
 
@@ -276,7 +281,8 @@ namespace std
     {
       std::size_t operator () (const ungod::Entity& e) const
       {
-        return e.getID();
+        //return std::hash<EntityID>(e.getID());   // gcc
+        return std::hash<EntityID>()(e.getID());   // msvc
       }
     };
 
@@ -284,7 +290,8 @@ namespace std
     {
       std::size_t operator () (const ungod::Entity& e) const
       {
-        return e.getID();
+        //return std::hash<EntityID>(e.getID());   // gcc
+		  return std::hash<EntityID>()(e.getID());   // msvc
       }
     };
 }

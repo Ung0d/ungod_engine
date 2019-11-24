@@ -183,6 +183,10 @@ namespace ungod
         /** \brief Create a complete copy of the entity with all it components. */
         Entity makeCopy(Entity e);
 
+		/** \brief COpies an entity from another world to this world 
+		* i.e. returns a new entity which is an exact copy of e but now attached to this world. */
+		Entity makeForeignCopy(Entity e);
+
         /** \brief Tells the world that there exists a instantiation with the given components.
         * This call is mandatory for all instantiations that shall be deserialized. */
         template<typename... BASE, typename... OPTIONAL>
@@ -300,6 +304,8 @@ namespace ungod
         void toggleLight(bool on);
         bool isLightToggled() const;
 
+		~World() override;
+
     private:
         ScriptedGameState* mMaster;
         EntityBehaviorManager mBehaviorManager;
@@ -353,6 +359,9 @@ namespace ungod
 	private:
 		/** \brief Sets the world to a new size. */
 		virtual void setSize(const sf::Vector2f& layersize) override;
+
+		//destroys all entities queued for destruction, automatically called during update and on destruction of the world
+		void destroyQueued();
     };
 
 

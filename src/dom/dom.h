@@ -278,7 +278,8 @@ namespace dom
 
         explicit operator bool() const { return valid(); }
 
-        bool operator==(const EntityHandle<CINDEX, COMP_TOTAL>& other) const { return mHandle == other.mHandle &&
+        bool operator==(const EntityHandle<CINDEX, COMP_TOTAL>& other) const { return mUniverse == other.mUniverse &&
+																				mHandle == other.mHandle &&
                                                                                 mGeneration == other.mGeneration; }
 
         bool operator!=(const EntityHandle<CINDEX, COMP_TOTAL>& other) const { return !(*this == other);  }
@@ -341,6 +342,14 @@ namespace dom
         */
         template<typename ... C>
         EntityHandle checkedCopy() const;
+
+		/**
+		* \brief Creates a copy of the entity that shares the given set of components with the same contents.
+		* Additionally performs existence checks for the given components and copies them only, if they exist.
+		* This method is only for copies to a new universe.
+		*/
+		template<typename ... C>
+		EntityHandle checkedForeignCopy(dom::Universe< CINDEX, COMP_TOTAL > & target) const;
 
         /** \brief Returns a reference to the underlyging entity data. */
         const EntityData<CINDEX, COMP_TOTAL>& getEntityData() const;
@@ -478,6 +487,11 @@ namespace dom
         template<typename ... C>
         EntityHandle<CINDEX, COMP_TOTAL> checkedCopyEntity( const EntityHandle<CINDEX, COMP_TOTAL>& e );
 
+		/** \brief Makes a copy of the given entity. The new entity will share all
+		* Components and component-contents with the given entity. */
+		template<typename ... C>
+		EntityHandle<CINDEX, COMP_TOTAL> checkedForeignCopyEntity(const EntityHandle<CINDEX, COMP_TOTAL>& e);
+
         /**
         * \brief Test if the entity has a specific component of type C. Returns true if and only if the
         * component is assigned. O(1), just a single bit check.
@@ -576,6 +590,14 @@ namespace dom
             ComponentUnpacker<C...>::prepare(mask);
         }
 
+		static void checkedPrepare(const EntityHandle< CINDEX, COMP_TOTAL >& reffer, 
+									std::bitset< COMP_TOTAL >& mask)
+		{
+			if (reffer.has<C1>())
+				mask.set(ComponentTraits<C1, CINDEX, COMP_TOTAL>::getID());
+			ComponentUnpacker<C...>::checkedPrepare(reffer, mask);
+		}
+
         static void unpack(Universe<CINDEX, COMP_TOTAL>& universe,
                            std::vector< ComponentHandle >& handles,
                            std::bitset< COMP_TOTAL >& oldMask,
@@ -633,6 +655,13 @@ namespace dom
         {
             mask.set(ComponentTraits<C1, CINDEX, COMP_TOTAL>::getID());
         }
+
+		static void checkedPrepare(const EntityHandle< CINDEX, COMP_TOTAL >& reffer,
+			std::bitset< COMP_TOTAL >& mask)
+		{
+			if (reffer.has<C1>())
+				mask.set(ComponentTraits<C1, CINDEX, COMP_TOTAL>::getID());
+		}
 
         static void unpack(Universe<CINDEX, COMP_TOTAL>& universe,
                            std::vector< ComponentHandle >& handles,
@@ -896,6 +925,12 @@ namespace dom
         return mUniverse->template checkedCopyEntity<C...>(*this);
     }
 
+	template<typename CINDEX, CINDEX COMP_TOTAL>
+	template<typename ... C>
+	EntityHandle<CINDEX, COMP_TOTAL> EntityHandle<CINDEX, COMP_TOTAL>::checkedForeignCopy(dom::Universe< CINDEX, COMP_TOTAL >& target) const
+	{
+		return target.template checkedForeignCopyEntity<C...>(*this);
+	}
 
     template<typename CINDEX, CINDEX COMP_TOTAL>
     const EntityData<CINDEX, COMP_TOTAL>& EntityHandle<CINDEX, COMP_TOTAL>::getEntityData() const
@@ -1079,6 +1114,26 @@ namespace dom
 
         return EntityHandle<CINDEX, COMP_TOTAL>(this, ehandle, mGenerations[ ehandle.block*ENTITY_BLOCK_SIZE + ehandle.index ]);
     }
+
+	template<typename CINDEX, CINDEX COMP_TOTAL>
+	template<typename ... C>
+	EntityHandle<CINDEX, COMP_TOTAL> Universe<CINDEX, COMP_TOTAL>::checkedForeignCopyEntity(const EntityHandle<CINDEX, COMP_TOTAL>& e)
+	{
+		EntityArrayHandle ehandle = mEntityData.add();
+		accommodateEntity(ehandle);
+		EntityData<CINDEX, COMP_TOTAL>& data = mEntityData.get(ehandle);
+
+		//setup a sample mask for the components
+		std::bitset<COMP_TOTAL> sampleMask;
+		ComponentUnpacker<C...>::checkedPrepare(e, sampleMask);
+		connect(data, sampleMask);
+
+		//create the components and insert them to their correct positions in data.mComponentHandles
+		data.mComponentHandles.resize(e.mUniverse->mEntityData.get(e.mHandle).mComponentHandles.size());
+		ComponentUnpacker<C...>::checkedUnpack(*this, e, data.mComponentHandles, data.mMetaData->mMetaData);
+
+		return EntityHandle<CINDEX, COMP_TOTAL>(this, ehandle, mGenerations[ehandle.block * ENTITY_BLOCK_SIZE + ehandle.index]);
+	}
 
     template<typename CINDEX, CINDEX COMP_TOTAL>
     template<typename C>

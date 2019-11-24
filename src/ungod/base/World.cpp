@@ -170,18 +170,7 @@ namespace ungod
 
     void World::update(float delta, const sf::Vector2f& areaPosition, const sf::Vector2f& areaSize)
     {
-        //clean up entities
-        for (auto& e : mEntitiesToDestroy)
-        {
-            if (!e) continue;
-            if (e.has<TransformComponent>())
-            {
-                mQuadTree.removeFromItsNode(e);
-            }
-            e.getInstantiation()->cleanup(e);
-            e.mHandle.destroy();
-        }
-        mEntitiesToDestroy.clear();
+		destroyQueued();
 
         //first step: retrieve the entities that may collide with the window
         mInUpdateRange.getList().clear();
@@ -278,6 +267,15 @@ namespace ungod
         mEntityCreationSignal(cpy);
         return cpy;
     }
+
+	Entity World::makeForeignCopy(Entity e)
+	{
+		Entity fcpy = e.getInstantiation()->makeForeignCopy(e.mHandle, *this);
+		mEntityCreationSignal(fcpy);
+		return fcpy;
+	}
+
+	void moveFromOtherWorld(Entity e);
 
     void World::handleCustomEvent(const CustomEvent& event)
     {
@@ -490,4 +488,29 @@ namespace ungod
     {
         return mRenderLight;
     }
+	
+	World::~World()
+	{
+		quad::PullResult< Entity > fullpull;
+		mQuadTree.getContent(fullpull);
+		for (const auto& e : fullpull.getList())
+			if (e)
+				destroy(e);
+		destroyQueued();
+	}
+
+	void World::destroyQueued()
+	{
+		for (auto& e : mEntitiesToDestroy)
+		{
+			if (!e) continue;
+			if (e.has<TransformComponent>())
+			{
+				mQuadTree.removeFromItsNode(e);
+			}
+			e.getInstantiation()->cleanup(e);
+			e.mHandle.destroy();
+		}
+		mEntitiesToDestroy.clear();
+	}
 }

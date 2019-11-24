@@ -456,6 +456,25 @@ BOOST_AUTO_TEST_CASE( world_graph_test )
 	BOOST_CHECK(nodeptr);
 }
 
+BOOST_AUTO_TEST_CASE(copy_between_worlds_test)
+{
+	ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+	ungod::World* world1 = node.addWorld();
+	ungod::World* world2 = node.addWorld();
+	ungod::Entity e1 = world1->create(ungod::EntityBaseComponents(), ungod::EntityOptionalComponents());
+	world1->getTransformManager().setPosition(e1, { 100,100 });
+	e1.add<ungod::SpriteComponent>();
+	world1->getVisualsManager().setSpritePosition(e1, { 20,20 });
+	ungod::Entity e2 = world2->makeForeignCopy(e1);
+	BOOST_CHECK(e2.has<ungod::SpriteComponent>());
+	BOOST_CHECK(e2.has<ungod::TransformComponent>());
+	BOOST_CHECK_EQUAL(e2.get<ungod::TransformComponent>().getPosition().x, 100.0f);
+	BOOST_CHECK_EQUAL(e2.get<ungod::SpriteComponent>().getSprite().getPosition().x, 20.0f);
+	world1->addEntity(e1);
+	world2->addEntity(e2); //adding to the quadtree automatically destroys entities when world is destroyed
+}
+
 BOOST_AUTO_TEST_SUITE_END() 
 
 
