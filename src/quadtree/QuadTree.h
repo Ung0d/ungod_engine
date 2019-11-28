@@ -163,9 +163,6 @@ namespace quad
         /** \brief Returns the father of this node. */
         QuadTreeNode* getFather();
 
-        /** \brief Clears the contents of this tree. */
-        void clear();
-
         /**
         * \brief Insert a new object in the tree if it fits. Returns success.
         * This call the ElementTraits::setOwnerNode method for the inserted object
@@ -267,6 +264,9 @@ namespace quad
         * a rect in 2D space.
         */
         const Bounds& getBoundary() const { return QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::mBounds; }
+
+		/** \brief Clears the contents of this tree. */
+		void clear();
 
     private:
         std::unordered_map<uint64_t, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>*> mOwnerNodes; ///<maps element id to owner node
@@ -373,16 +373,6 @@ namespace quad
             mChildren[SOUTHWEST]->processBounds(callback);
             mChildren[SOUTHEAST]->processBounds(callback);
         }
-    }
-
-
-    template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
-    void QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::clear()
-    {
-        mChildren[NORTHWEST].reset();
-        mChildren[NORTHEAST].reset();
-        mChildren[SOUTHWEST].reset();
-        mChildren[SOUTHEAST].reset();
     }
 
 
@@ -519,7 +509,10 @@ namespace quad
              mChildren[SOUTHWEST]->empty() &&
              mChildren[SOUTHEAST]->empty()))
         {
-            clear();
+			mChildren[NORTHWEST].reset();
+			mChildren[NORTHEAST].reset();
+			mChildren[SOUTHWEST].reset();
+			mChildren[SOUTHEAST].reset();
             if (mFather)
                 return mFather->upwardsCleanup();
         }
@@ -888,11 +881,23 @@ namespace quad
     {
         PullResult<T,MAX_CAPACITY,MAX_LEVEL> pull;
         QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::getContent(pull);
-        QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::clear();
+        clear();
         QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>::mBounds = bounds;
         while (!pull.done())
             insert(pull.poll());
     }
+
+
+	template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
+	void QuadTree<T, MAX_CAPACITY, MAX_LEVEL>::clear()
+	{
+		QuadTreeNode<T, MAX_CAPACITY, MAX_LEVEL>::mContainer.clear();
+		mOwnerNodes.clear();
+		QuadTreeNode<T, MAX_CAPACITY, MAX_LEVEL>::mChildren[QuadTreeNode<T, MAX_CAPACITY, MAX_LEVEL>::NORTHWEST].reset();
+		QuadTreeNode<T, MAX_CAPACITY, MAX_LEVEL>::mChildren[QuadTreeNode<T, MAX_CAPACITY, MAX_LEVEL>::NORTHEAST].reset();
+		QuadTreeNode<T, MAX_CAPACITY, MAX_LEVEL>::mChildren[QuadTreeNode<T, MAX_CAPACITY, MAX_LEVEL>::SOUTHWEST].reset();
+		QuadTreeNode<T, MAX_CAPACITY, MAX_LEVEL>::mChildren[QuadTreeNode<T, MAX_CAPACITY, MAX_LEVEL>::SOUTHEAST].reset();
+	}
 }
 
 #endif // _QUADTREE__

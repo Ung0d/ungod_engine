@@ -356,7 +356,7 @@ namespace uedit
 
 	WorldGraphState::WorldGraphState(ungod::Application& app, ungod::StateID id, EditorState& editorState, EditorFrame* editorframe) :
 		ungod::State(app, id), mEditorframe(editorframe), mEditorState(editorState), mCamera(app.getWindow()), mCamContrl(mCamera), mFont("data/arial.ttf"),
-		mSelectedNode(nullptr), mClicked(false), mMouseLastPos(sf::Mouse::getPosition(app.getWindow())), mConnect(nullptr)
+		mSelectedNode(nullptr), mClicked(false), mMouseLastPos(sf::Mouse::getPosition(app.getWindow())), mConnect(nullptr), mCornerSelected(-1)
 	{
 		mClickChecker.onClick([this](const sf::Vector2i& pos)
 			{
@@ -382,7 +382,24 @@ namespace uedit
 			if (event.mouseButton.button == sf::Mouse::Left)
 			{
 				if (!mClicked)
+				{
+					mTotalMove = { 0.0f,0.0f };
+					if (clickedNode)
+					{
+						auto bounds = clickedNode->getBounds();
+						std::array<sf::Vector2f, 4> points{ sf::Vector2f{bounds.left, bounds.top},
+															sf::Vector2f{bounds.left+bounds.width, bounds.top},
+															sf::Vector2f{bounds.left + bounds.width, bounds.top + bounds.height},
+															sf::Vector2f{bounds.left, bounds.top + bounds.height} };
+						for (int i = 0; i < 4; i++)
+							if (ungod::distance(points[i], mouseWorldPos) < (bounds.width+ bounds.height)*CORNER_CLICK_RANGE)
+							{
+								mCornerSelected = i;
+								break;
+							}
+					}
 					mSelectedNode = clickedNode;
+				}
 				mClicked = true;
 			}
 			else if (event.mouseButton.button == sf::Mouse::Right)
@@ -411,17 +428,39 @@ namespace uedit
 		{
 			if (mSelectedNode)
 			{
-
-				sf::Vector2f mouseMove = (1/SCALE) * mCamera.getZoom() * sf::Vector2f{ (float)(event.mouseMove.x - mMouseLastPos.x), (float)(event.mouseMove.y - mMouseLastPos.y) };
-				mSelectedNode->move(mouseMove);
+				sf::Vector2f mouseMove = (1 / SCALE) * mCamera.getZoom() * sf::Vector2f{ (float)(event.mouseMove.x - mMouseLastPos.x), (float)(event.mouseMove.y - mMouseLastPos.y) };
+				if (mCornerSelected == -1)
+					mSelectedNode->move(mouseMove);
+				mTotalMove += mouseMove;
 			}
 			mMouseLastPos.x = event.mouseMove.x;
 			mMouseLastPos.y = event.mouseMove.y;
 		}
 		else if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left)
 		{
+			switch (mCornerSelected)
+			{
+			case 0:
+				mSelectedNode->move(mTotalMove);
+				mSelectedNode->setSize(sf::Vector2f{ mSelectedNode->getBounds().width, mSelectedNode->getBounds().height }-mTotalMove);
+				break;
+			case 1:
+				mSelectedNode->move({ 0.0f, mTotalMove.y });
+				mSelectedNode->setSize(sf::Vector2f{ mSelectedNode->getBounds().width, mSelectedNode->getBounds().height }+sf::Vector2f{ mTotalMove.x, -mTotalMove.y });
+				break;
+			case 2:
+				mSelectedNode->setSize(sf::Vector2f{ mSelectedNode->getBounds().width, mSelectedNode->getBounds().height }+mTotalMove);
+				break;
+			case 3:
+				mSelectedNode->move({ mTotalMove.x, 0.0f });
+				mSelectedNode->setSize(sf::Vector2f{ mSelectedNode->getBounds().width, mSelectedNode->getBounds().height }+sf::Vector2f{ -mTotalMove.x, mTotalMove.y });
+				break;
+			default:
+				break;
+			}
 			mClicked = false;
 			mSelectedNode = nullptr;
+			mCornerSelected = -1;
 		}
 	}
 
