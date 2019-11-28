@@ -24,6 +24,7 @@
 */
 
 #include "ungod/utility/Graph.h"
+#include <stack>
 
 namespace ungod
 {
@@ -69,12 +70,12 @@ namespace ungod
             mVertexProperties[start].visited = true;
             mVertexProperties[start].distance = 0u;
 
-            std::queue<unsigned> nodeQ;
+            std::stack<unsigned> nodeQ;
             nodeQ.push(start);
 
             while (!nodeQ.empty())
             {
-                unsigned cur = nodeQ.back();
+                unsigned cur = nodeQ.top();
                 nodeQ.pop();
                 mOnNodeDiscovered(cur);
                 for (const auto& e : mAdjacencyLists.getNeighbors(cur))

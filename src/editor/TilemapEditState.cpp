@@ -65,7 +65,7 @@ namespace uedit
 
     void TileMapEditState::handleInput(EntityPreview& preview, const sf::Event& event)
     {
-        ungod::TileMap const* tm;
+        /*ungod::TileMap const* tm;
         if (mWater)
             tm = &mPreview.mEntity.modify<ungod::WaterComponent>().getWater().getTileMap();
         else
@@ -101,12 +101,12 @@ namespace uedit
         }
         default:
             break;
-        }
+        }*/
     }
 
     void TileMapEditState::update(EntityPreview& preview, float delta)
     {
-        ungod::TileMap const* tm;
+        /*ungod::TileMap const* tm;
         if (mWater)
             tm = &mPreview.mEntity.modify<ungod::WaterComponent>().getWater().getTileMap();
         else
@@ -173,7 +173,7 @@ namespace uedit
                             //that the key-set this key belongs to, is completely contained in the keymap of the tilemap
                             //afterwards, we have to create a new brush for the identifier that can be deduced from the key, if no brush is
                             //currently present or if the identifier of the present brush is something different
-                            if (!mPreview.mWorldAction.getEditorFrame()->getSelectedWorld())
+                       /*     if (!mPreview.mWorldAction.getEditorFrame()->getSelectedWorld())
                                 return;
                             if (!mTMBrush || mTMBrush->getIdentifier() != key)
                             {
@@ -198,7 +198,7 @@ namespace uedit
                     }
                 }
             }
-        }
+        }*/
     }
 
 
