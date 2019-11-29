@@ -337,13 +337,45 @@ namespace ungod
 
     void WorldGraph::notifyBoundsChanged(WorldGraphNode* node)
     {
+		//bounds are overextended by this factor if a resize occurs
+		static constexpr float RESCALE_FACTOR = 1.5f;
+
 		mWorldQT.removeFromItsNode(node);
         quad::Bounds qtBounds = mWorldQT.getBoundary();
         sf::FloatRect nodeBounds = node->getBounds();
-		float left = std::min(qtBounds.position.x, nodeBounds.left);
-		float top = std::min(qtBounds.position.y, nodeBounds.top);
-		float width = std::max(qtBounds.size.x, nodeBounds.left + nodeBounds.width - qtBounds.position.x);
-		float height = std::max(qtBounds.size.y, nodeBounds.top + nodeBounds.height - qtBounds.position.y);
+
+		//def values may be altered below
+		float left = qtBounds.position.x;
+		float top = qtBounds.position.y;
+		float width = qtBounds.size.x;
+		float height = qtBounds.size.y;
+
+		//left or top overextend?
+		float leftDiff = nodeBounds.left - left;
+		float topDiff = nodeBounds.top - top;
+		if (leftDiff < 0)
+		{
+			left += leftDiff * RESCALE_FACTOR;
+			width -= leftDiff * RESCALE_FACTOR;
+		}
+		if (topDiff < 0)
+		{
+			top += topDiff * RESCALE_FACTOR;
+			height -= leftDiff * RESCALE_FACTOR;
+		}
+
+		//bot or right overextend?
+		float rightDiff = nodeBounds.left + nodeBounds.width - left-width;
+		float botDiff = nodeBounds.top + nodeBounds.height - top - height;
+		if (rightDiff > 0)
+		{
+			width += rightDiff * RESCALE_FACTOR;
+		}
+		if (botDiff > 0)
+		{
+			height += botDiff * RESCALE_FACTOR;
+		}
+
         if (left != qtBounds.position.x || top != qtBounds.position.y || width != qtBounds.size.x || height != qtBounds.size.y)
             mWorldQT.setBoundary({left, top, width, height});
 		mWorldQT.insert(node);
