@@ -26,19 +26,18 @@
 #ifndef UNGOD_COLLISION_MANAGER_H
 #define UNGOD_COLLISION_MANAGER_H
 
-#include <SFML/Graphics/ConvexShape.hpp>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <SFML/Graphics/ConvexShape.hpp>
 #include "quadtree/QuadTree.h"
 #include "owls/Signal.h"
 #include "ungod/physics/Collision.h"
+#include "ungod/base/Entity.h"
 #include "ungod/serialization/CollisionSerial.h"
 
 namespace ungod
 {
-	class Entity;
-
 	static constexpr std::size_t MAX_CONTEXTS = 2;
 
 	/**

@@ -28,10 +28,10 @@
 
 #include "ungod/physics/Physics.h"
 #include "ungod/physics/Collider.h"
+#include "ungod/base/Transform.h"
 
 namespace ungod
 {
-	class TransformComponent;
 
     /** \brief Checks collision between two polygons of arbitrary type. */
     std::pair<bool, sf::Vector2f> doCollide( const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2 );

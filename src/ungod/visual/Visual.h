@@ -36,10 +36,10 @@
 #include "ungod/base/Utility.h"
 #include "ungod/base/Transform.h"
 #include "ungod/base/Entity.h"
-#include "ungod/physics/Collision.h"
 #include "ungod/base/MultiComponent.h"
 #include <sfml_ext/BigTexture.hpp>
 #include <sfml_ext/BigSprite.hpp>
+#include "ungod/physics/Collision.h"
 
 namespace ungod
 {
