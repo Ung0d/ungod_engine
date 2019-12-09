@@ -35,10 +35,14 @@
 #include "ungod/physics/Collision.h"
 #include "ungod/base/Entity.h"
 #include "ungod/serialization/CollisionSerial.h"
+#include "ungod/base/MultiComponent.h"
 
 namespace ungod
 {
 	static constexpr std::size_t MAX_CONTEXTS = 2;
+
+	template<std::size_t CONTEXT = 0>
+	class RigidbodyManager;
 
 	/**
 	* \ingroup Components
@@ -48,7 +52,7 @@ namespace ungod
 	template<std::size_t CONTEXT = 0>
 	class RigidbodyComponent : public Serializable<RigidbodyComponent<CONTEXT>>
 	{
-		static_assert(CONTEXT <= RigidbodyManager::MAX_CONTEXTS, "Attempt to create too much collision contexts.");
+		static_assert(CONTEXT <= MAX_CONTEXTS, "Attempt to create too much collision contexts.");
 		friend class RigidbodyManager<CONTEXT>;
 	private:
 		Collider mCollider;
@@ -67,16 +71,13 @@ namespace ungod
 	* \ingroup Components
 	* \brief MultiRigidbody. */
 	template<std::size_t CONTEXT = 0>
-	using MultiRigidbodyComponent = MultiComponent<RigidbodyComponent>;
-
+	using MultiRigidbodyComponent = MultiComponent<RigidbodyComponent<CONTEXT>>;
 
     /** \brief A manager for operations on rigidbodies. Emits content changed signals. */
 	template <std::size_t CONTEXT = 0>
     class RigidbodyManager
     {
     template <std::size_t N> friend struct ContextIteration;
-    public:
-        static constexpr std::size_t MAX_CONTEXTS = 2;
 
     public:
 		/** \brief Sets a collider count for the multicomponent. */
@@ -161,7 +162,7 @@ namespace ungod
     template<std::size_t CONTEXT = 0>
     class CollisionManager
     {
-    static_assert( CONTEXT <= RigidbodyManager::MAX_CONTEXTS, "Attempt to create too much collision contexts." );
+    static_assert( CONTEXT <= MAX_CONTEXTS, "Attempt to create too much collision contexts." );
     public:
         CollisionManager(quad::QuadTree<Entity>& quadtree);
 
