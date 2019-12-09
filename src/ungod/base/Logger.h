@@ -1,12 +1,10 @@
-// *** ADDED BY HEADER FIXUP ***
-#include <istream>
-// *** END ***
 #ifndef LOGGER_H
 #define LOGGER_H
 
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <istream>
 
 namespace ungod
 {
@@ -53,7 +51,7 @@ namespace ungod
         template <class T>
         static void error(const T& message);
 
-        static bool assertion(bool expr, const std::string& message);
+        static void assertion(bool expr, const std::string& message);
         //toggle output streams
         static void toggleConsoleOutput();
         static void toggleLogfileOutput();

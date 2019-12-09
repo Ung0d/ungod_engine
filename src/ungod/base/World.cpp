@@ -317,21 +317,6 @@ namespace ungod
         return mVisualsManager;
     }
 
-    CollisionManager<MOVEMENT_COLLISION_CONTEXT>& World::getMovementCollisionManager()
-    {
-        return mMovementCollisionManager;
-    }
-
-    CollisionManager<SEMANTICS_COLLISION_CONTEXT>& World::getSemanticsCollisionManager()
-    {
-        return mSemanticsCollisionManager;
-    }
-
-    RigidbodyManager& World::getRigidbodyManager()
-    {
-        return mRigidbodyManager;
-    }
-
     InputManager& World::getInputManager()
     {
         return mInputManager;

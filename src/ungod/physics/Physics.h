@@ -59,6 +59,8 @@ namespace ungod
     float sign(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3);
 
     bool triangleContains(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Vector2f& c, const sf::Vector2f& p);
+
+	sf::Vector2f centerPoint(const sf::Vector2f& a, const sf::Vector2f& b);
 }
 
 #endif // PHYSICS_H

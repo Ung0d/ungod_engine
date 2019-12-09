@@ -23,210 +23,60 @@
 *    source distribution.
 */
 
-#ifndef COLLISION_H
-#define COLLISION_H
+#ifndef UNGOD_COLLISION_H
+#define UNGOD_COLLISION_H
 
-#include <SFML/Graphics/ConvexShape.hpp>
-#include <vector>
-#include <unordered_map>
-#include <unordered_set>
-#include "quadtree/QuadTree.h"
-#include "owls/Signal.h"
-#include "ungod/base/Entity.h"
 #include "ungod/physics/Physics.h"
-#include "ungod/base/Transform.h"
-#include "ungod/base/Logger.h"
-#include "ungod/serialization/CollisionSerial.h"
+#include "ungod/physics/Collider.h"
 
 namespace ungod
 {
-    /**
-    * \brief A Collider with 3 degrees of freedom, modelled by an oriented rectangle in 2d space.
-    */
-    class Collider
-    {
-    friend class RigidbodyManager;
-    public:
-        Collider();
-        Collider(const sf::Vector2f& upleft, const sf::Vector2f& downright, float rotation = 0);
+	class TransformComponent;
 
-        const sf::Vector2f& getUpleft() const;
-        const sf::Vector2f& getDownright() const;
+    /** \brief Checks collision between two polygons of arbitrary type. */
+    std::pair<bool, sf::Vector2f> doCollide( const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2 );
 
-        /** \brief Returns the center of the bounding box of the polygon. */
-        sf::Vector2f getCenter() const;
+	/** \brief Checks for overlap given axis to check and two point sets to check on each axis. */
+	std::pair<bool, sf::Vector2f> satAlgorithm(std::vector<sf::Vector2f>& axis,
+		const std::vector<sf::Vector2f>& points1,
+		const std::vector<sf::Vector2f>& points2);
 
-        /** \brief Returns the bounding box in the "default" coordinate system of the collider. */
-        sf::FloatRect getBoundingBox(const TransformComponent& t) const;
-        sf::FloatRect getBoundingBox(sf::Transform t = sf::Transform()) const;
+	/** \brief Checks the collision between two colliders that are each either RotatedRects or Polygons.*/
+	std::pair<bool, sf::Vector2f> checkPolygonCollision(
+		const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2);
 
-        /** \brief Returns a polygon that is translated according to the given transform. */
-        Collider translate(const TransformComponent& t) const;
+	/** \brief Checks the collision between a Polygon or RotatedRect (c1) and a line-segment-chain segment (c2).*/
+	std::pair<bool, sf::Vector2f> checkPolygonWithSegmentChainCollision(
+		const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2);
 
-        /** \brief Returns the degree of rotation of the collider. */
-        float getRotation() const;
+	/** \brief Checks the collision between a Polygon or RotatedRect (c1) and a circle (c2).*/
+	std::pair<bool, sf::Vector2f> checkPolygonWithCircleCollision(
+		const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2);
 
-        /** \brief Moves the internal position of the collider along the given vector. */
-        void move(const sf::Vector2f& vec);
+	/** \brief Checks the collision between a line-segment-chain (c1) and a circle (c2).*/
+	std::pair<bool, sf::Vector2f> checkSegmentChainWithCircleCollision(
+		const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2);
+	
+	/** \brief Checks the collision between two circles. */
+	std::pair<bool, sf::Vector2f> checkCircleCollision(
+		const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2);
 
-    private:
-        sf::Vector2f mUpleft;
-        sf::Vector2f mDownright;
-        float mRotation;
-    };
-
-    /** \brief A free method implementing the SAT-algorithm for
-    * fast collision checkup of convex polygons. */
-    std::pair<bool, sf::Vector2f> satAlgorithm( const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2 );
-
-
-    /** \brief A free method that checks whether a given point is inside a collider.*/
+	/** \brief A free method that checks whether a given point is inside a collider of arbitrary type.*/
     bool containsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point);
 
+	/** \brief A free method that checks whether a given point is inside a collider if it is already known that the
+	* collider is a rotated rectangle.*/
+	bool rotatedRectContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point);
 
-    /** \brief A manager for operations on rigidbodies. Emits content changed signals. */
-    class RigidbodyManager
-    {
-    template <std::size_t N> friend struct ContextIteration;
-    public:
-        static constexpr std::size_t MAX_CONTEXTS = 2;
-
-    public:
-        /** \brief Adds a new collider to the rigidbody of entity e. */
-        template <std::size_t CONTEXT = 0>
-        void addCollider(Entity e, const Collider& collider, int index = -1);
-        template <std::size_t CONTEXT = 0>
-        void addCollider(Entity e, const sf::Vector2f& upleft, const sf::Vector2f& downright, float rotation = 0, int index = -1);
-
-        /** \brief Removes the collider with given index. */
-        template <std::size_t CONTEXT = 0>
-        void removeCollider(Entity e, std::size_t index);
-
-        /** \brief Sets a new collider for entity e with given index. */
-        template <std::size_t CONTEXT = 0>
-        void modifyCollider(Entity e, std::size_t index, const Collider& collider);
-
-        /** \brief Sets the down right coordinates of the collider with given index. */
-        template <std::size_t CONTEXT = 0>
-        void setColliderDownRight(Entity e, std::size_t index, const sf::Vector2f& downright);
-
-        /** \brief Sets the up left coordinates of the collider with given index. */
-        template <std::size_t CONTEXT = 0>
-        void setColliderUpLeft(Entity e, std::size_t index, const sf::Vector2f& upleft);
-
-        /** \brief Rotates the collider with given index. */
-        template <std::size_t CONTEXT = 0>
-        void rotateCollider(Entity e, std::size_t index, float rotation);
-
-        /** \brief Rotates the collider with given index. */
-        template <std::size_t CONTEXT = 0>
-        void setColliderRotation(Entity e, std::size_t index, float rotation);
-
-        /** \brief Activates/deactivates collision handling for the given entity. */
-        template <std::size_t CONTEXT>
-        void setActive(Entity e, bool active);
-
-        /** \brief Registers new callback for the ContentsChanged signal. */
-        void onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback);
-
-        /** \brief Registers new callback for the ContentsRemoved signal. */
-        void onContentRemoved(const std::function<void(Entity)>& callback);
-
-        /** \brief Returns the lower bound of the bounding rect around all contents of the given entity. */
-        sf::Vector2f getLowerBound(Entity e);
-
-        /** \brief Returns the upper bound of the bounding rect around all contents of the given entity. */
-        sf::Vector2f getUpperBound(Entity e);
-
-        /** \brief A method that moves all colliders attached to the given entity. This method is usually only
-        * used internally by the transform-manager. */
-        void moveColliders(Entity e, const sf::Vector2f& vec);
-
-    private:
-        owls::Signal<Entity, const sf::FloatRect&> mContentsChangedSignal;
-        owls::Signal<Entity> mContentRemoved;
-
-        template <std::size_t CONTEXT>
-        void moveContext(Entity e, const sf::Vector2f& vec);
-
-        template <std::size_t CONTEXT>
-        void contextLowerBounds(Entity e, sf::Vector2f& vec) const;
-
-        template <std::size_t CONTEXT>
-        void contextUpperBounds(Entity e, sf::Vector2f& vec) const;
-    };
-
-    /**
-    * \ingroup Components
-    * \brief A component that models a rigidbody, that is a collection of
-    * colliders. Template argument is the context of the collision. If you
-    */
-    template<std::size_t CONTEXT = 0>
-    class RigidbodyComponent : public Serializable<RigidbodyComponent<CONTEXT>>
-    {
-    static_assert( CONTEXT <= RigidbodyManager::MAX_CONTEXTS, "Attempt to create too much collision contexts." );
-    friend class RigidbodyManager;
-     friend struct SerialBehavior<RigidbodyComponent<CONTEXT>, Entity, const World&, const Application&>;
-    private:
-        std::vector< Collider > mColliders;
-        bool mActive;
-
-    public:
-        RigidbodyComponent() : mActive(true) {}
-
-        const std::vector< Collider >& getColliders() const;
-
-        bool isActive() const { return mActive; }
-    };
-
-
-    /**
-    * \brief A manager that modifies Rigidbody-components of entities and
-    * checks collisions between entities.
-    * Emits collision events.
-    */
-    template<std::size_t CONTEXT = 0>
-    class CollisionManager
-    {
-    static_assert( CONTEXT <= RigidbodyManager::MAX_CONTEXTS, "Attempt to create too much collision contexts." );
-    public:
-        CollisionManager(quad::QuadTree<Entity>& quadtree);
-
-        /**
-        * \brief Checks collisions in the given area of the world. That means,
-        * it checks collisions for all entities in that area and emit
-        * collision signals of detection.
-        */
-        void checkCollisions(const std::list<Entity>& entities);
-
-
-        /** \brief Registers new callback for the Collision signal. */
-        void onCollision(const std::function<void(Entity, Entity, const sf::Vector2f&, const Collider&, const Collider&)>& callback);
-
-        /** \brief Registers new callback for the CollisionBegin signal. */
-        void onBeginCollision(const std::function<void(Entity, Entity)>& callback);
-
-        /** \brief Registers new callback for the CollisionEnd signal. */
-        void onEndCollision(const std::function<void(Entity, Entity)>& callback);
-
-        /** \brief Checks for collision between 2 entities. Emits the given signal each time 2 colliders overlap. */
-        static void entityCollision(Entity e1, Entity e2,
-                                    owls::Signal<Entity, Entity, const sf::Vector2f&, const Collider&, const Collider&>& signal);
-        static void entityCollision(Entity e1, Entity e2,
-                                    TransformComponent t1, TransformComponent t2,
-                                    RigidbodyComponent<CONTEXT>& r1,  RigidbodyComponent<CONTEXT>& r2,
-                                    owls::Signal<Entity, Entity, const sf::Vector2f&, const Collider&, const Collider&>& signal);
-
-    private:
-        using CollidingEntitiesMap = std::unordered_map<Entity, std::unordered_set<Entity> >;  //maps an moveable entities to all static entities it collides with
-
-        quad::QuadTree<Entity>* mQuadtree;
-        std::array< CollidingEntitiesMap, 2 > mDoubleBuffers;
-        bool mBufferActive;
-        owls::Signal<Entity, Entity> mCollisionBeginSignal;
-        owls::Signal<Entity, Entity, const sf::Vector2f&, const Collider&, const Collider&> mCollisionSignal;
-        owls::Signal<Entity, Entity> mCollisionEndSignal;
-    };
+	/** \brief A free method that checks whether a given point is inside a collider if it is already known that the
+	* collider is a convex polygon.*/
+	bool convexPolygonContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point);
+	
+	namespace detail
+	{
+		std::tuple<std::vector<sf::Vector2f>, std::vector<sf::Vector2f>> 
+			getAxisAndPivots(const Collider& collider, const TransformComponent& transf);
+	}
 }
 
-#endif // COLLISION_H
+#endif // UNGOD_COLLISION_H

@@ -123,4 +123,9 @@ namespace ungod
 
         return ((b1 == b2) && (b2 == b3));
     }
+
+	sf::Vector2f centerPoint(const sf::Vector2f& a, const sf::Vector2f& b)
+	{
+		return (a + b) * 0.5f;
+	}
 }

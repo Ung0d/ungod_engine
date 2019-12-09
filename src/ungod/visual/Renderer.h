@@ -28,7 +28,7 @@
 
 #include "ungod/base/Entity.h"
 #include "ungod/base/Transform.h"
-#include "ungod/physics/Collision.h"
+#include "ungod/physics/CollisionManager.h"
 
 namespace ungod
 {

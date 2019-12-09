@@ -125,9 +125,9 @@ namespace ungod
             vertices[0].position -= sf::Vector2f(std::get<0>(local), std::get<1>(local));
         }
 
-        auto global = mCurrentNode.parent().getAttributes<int, int, float, float, unsigned>(
+        auto global = mCurrentNode.parent().getAttributes<float, float, float, float, float>(
                     {"global_width", 0}, {"global_height", 0}, {"global_offset_x", 0}, {"global_offset_y", 0}, {"global_duration", 100} );
-        auto local = mCurrentNode.getAttributes<int, int, int, int, float, float, unsigned>(
+        auto local = mCurrentNode.getAttributes<float, float, float, float, float, float, float>(
                     {"pos_x", 0}, {"pos_y", 0}, {"width", std::get<0>(global)}, {"height", std::get<1>(global)},
                     {"offset_x", std::get<2>(global)}, {"offset_y", std::get<3>(global)}, {"duration", std::get<4>(global)} );
 
