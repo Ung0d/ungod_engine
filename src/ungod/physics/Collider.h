@@ -89,6 +89,15 @@ namespace ungod
 		/** \brief Moves the collider. Requires an internal type-check. */
 		void move(const sf::Vector2f& vec);
 
+		/** \brief Retrieves axis end pivots to check by SAT algorithm. */
+		void getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& pivots, unsigned i) const;
+
+		/** \brief Returns the center point of the collider. Requires an internal type-check. */
+		sf::Vector2f getCenter() const;
+
+		/** \brief Detail: returns the number of SAT runs required to check this collider. Requires an internal type-check. */
+		unsigned getNumRuns() const;
+
 	private:
 		std::array<float, MAX_PARAM> mParam; ///<floating point parameters of the collider, ordering and structure depend on the collider type
 		ColliderType mType;
@@ -137,9 +146,8 @@ namespace ungod
 		sf::FloatRect getBoundingBox(const TransformComponent& t) const;
 		sf::FloatRect getBoundingBox(sf::Transform t = sf::Transform()) const;
 
-		/** \brief Returns all axis and all pivot points to check for by SAT algorithm. */
-		std::tuple<std::vector<sf::Vector2f>, std::vector<sf::Vector2f>>
-			getAxisAndPivots(const TransformComponent& t) const;
+		/** \brief Retrieves all axis and all pivot points to check for by SAT algorithm. */
+		void getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& points, unsigned) const;
 
 		inline float getRotation() const { return mData.getParam(0); }
 		inline float getUpLeftX() const { return mData.getParam(1); }
@@ -188,11 +196,7 @@ namespace ungod
 		sf::FloatRect getBoundingBox(sf::Transform t = sf::Transform()) const;
 
 		/** \brief Returns the center of the bounding box of the polygon. */
-		//sf::Vector2f getCenter() const;
-
-		/** \brief Returns all axis and all pivot points to check for by SAT algorithm. */
-		std::tuple<std::vector<sf::Vector2f>, std::vector<sf::Vector2f>>
-			getAxisAndPivots(const TransformComponent& t) const;
+		sf::Vector2f getCenter() const;
 
 		inline float getPointX(unsigned i) const { return mData.getParam(2 * i); }
 		inline float getPointY(unsigned i) const { return mData.getParam(2 * i + 1); }
@@ -220,6 +224,31 @@ namespace ungod
 	private:
 		Collider& getData() const { return const_cast<Collider&>(mData); }
 	};
+
+
+	/** \brief A class with only additional logic that can be aggregated by ColliderData in
+	* order to grant convenient functionality. */
+	class ConvexPolygonConstAggregator : public PointSetConstAggregator
+	{
+	public:
+		ConvexPolygonConstAggregator(const Collider& data);
+
+		/** \brief Retrieves all axis and all pivot points to check for by SAT algorithm. */
+		void getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& points, unsigned i) const;
+	};
+
+
+	/** \brief A class with only additional logic that can be aggregated by ColliderData in
+	* order to grant convenient functionality. */
+	class EdgeChainConstAggregator : public PointSetConstAggregator
+	{
+	public:
+		EdgeChainConstAggregator(const Collider& data);
+
+		/** \brief Retrieves all axis and all pivot points to check for by SAT algorithm. */
+		void getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& points, unsigned i) const;
+	};
+
 
 
 	/** \brief A class with only additional logic that can be aggregated by ColliderData in

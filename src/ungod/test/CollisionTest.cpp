@@ -7,6 +7,34 @@ using namespace ungod;
 
 BOOST_AUTO_TEST_SUITE(CollisionTest)
 
+BOOST_AUTO_TEST_CASE(colliders_alltoall_test)
+{
+	ungod::TransformComponent transf; //default transform, no effect but needed to invoke methods
+	ungod::Collider rect1 = ungod::makeRotatedRect({ 0,0 }, { 16, 16 });
+	ungod::Collider rect2 = ungod::makeRotatedRect({ 14, 10 }, { 20.0f, 20.0f });
+	ungod::Collider rect3 = ungod::makeRotatedRect({ -10,-10 }, { 10, 10 }, 90);
+
+	auto rect1xrect2 = ungod::doCollide(rect1, rect2, transf, transf);
+	BOOST_REQUIRE(rect1xrect2.first);
+	BOOST_CHECK_EQUAL(rect1xrect2.second.x, -2.0f);
+	BOOST_CHECK_EQUAL(rect1xrect2.second.y, 0.0f);
+
+	BOOST_CHECK(ungod::doCollide(rect1, rect3, transf, transf).first);
+	BOOST_CHECK(!ungod::doCollide(rect2, rect3, transf, transf).first);
+
+	ungod::Collider poly1 = ungod::makeConvexPolygon({ {5,5}, {16,4}, {20,10}, {16,16}, {5,12} });
+
+	BOOST_REQUIRE(ungod::doCollide(poly1, rect1, transf, transf).first);
+
+	ungod::Collider poly2 = poly1; //copy
+	poly2.move({ 12,12 });
+
+	BOOST_REQUIRE(!ungod::doCollide(poly2, rect1, transf, transf).first);
+
+	ungod::Collider poly3 = ungod::makeConvexPolygon({ {10,10}, {16,4}, {20,10} });
+	BOOST_REQUIRE(ungod::doCollide(poly1, poly3, transf, transf).first);
+}
+
 BOOST_AUTO_TEST_CASE( collision_events_test )
 {
     /*ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);

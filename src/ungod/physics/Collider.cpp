@@ -26,6 +26,7 @@
 #include "ungod/physics/Collider.h"
 #include "ungod/base/Transform.h"
 #include "ungod/base/Logger.h"
+#include "ungod/physics/Physics.h"
 
 namespace ungod
 {
@@ -111,6 +112,66 @@ namespace ungod
 			break;
 		default:
 			break;
+		}
+	}
+
+
+	void Collider::getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& pivots, unsigned i) const
+	{
+		switch (mType)
+		{
+		case ColliderType::ROTATED_RECT:
+			RotatedRectConstAggregator{ *this }.getAxisAndPivots(t, axis, pivots, i);
+			break;
+		case ColliderType::CONVEX_POLYGON:
+			ConvexPolygonConstAggregator{ *this }.getAxisAndPivots(t, axis, pivots, i);
+			break;
+		case ColliderType::EDGE_CHAIN:
+			EdgeChainConstAggregator{ *this }.getAxisAndPivots(t, axis, pivots, i);
+			break;
+		case ColliderType::CIRCLE:
+			break;
+		default:
+			break;
+		}
+	}
+
+
+	sf::Vector2f Collider::getCenter() const
+	{
+		switch (mType)
+		{
+		case ColliderType::ROTATED_RECT:
+			return RotatedRectConstAggregator{ *this }.getCenter();
+		case ColliderType::CONVEX_POLYGON:
+			return PointSetConstAggregator{ *this }.getCenter();
+		case ColliderType::EDGE_CHAIN:
+			return {};
+		case ColliderType::CIRCLE:
+			return {};
+		default:
+			return {};
+		}
+	}
+
+
+	unsigned Collider::getNumRuns() const
+	{
+		switch (mType)
+		{
+		case ColliderType::ROTATED_RECT:
+			return 1;
+		case ColliderType::CONVEX_POLYGON:
+			return 1;
+		case ColliderType::EDGE_CHAIN:
+		{
+			auto nump = PointSetConstAggregator{ *this }.getNumberOfPoints();
+			return nump > 0 ? nump - 1 : 0u;
+		}
+		case ColliderType::CIRCLE:
+			return {};
+		default:
+			return {};
 		}
 	}
 
@@ -207,25 +268,25 @@ namespace ungod
 		return { minx, miny, maxx - minx, maxy - miny };
 	}
 
-	std::tuple<std::vector<sf::Vector2f>, std::vector<sf::Vector2f>> RotatedRectConstAggregator::getAxisAndPivots(const TransformComponent& t) const
+	void RotatedRectConstAggregator::getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& points, unsigned) const
 	{
 		sf::Transform finalTransf;
 		finalTransf *= t.getTransform();
 		finalTransf.rotate(getRotation(), getCenter());
 
-		//get the axis to test
-		std::vector<sf::Vector2f> axis{ 2 };
-		std::vector<sf::Vector2f> points{ 4 };
+		points.emplace_back(finalTransf.transformPoint({ getUpLeftX(), getUpLeftY() }));
+		points.emplace_back(finalTransf.transformPoint({ getDownRightX(), getUpLeftY() }));
+		points.emplace_back(finalTransf.transformPoint({ getDownRightX(), getDownRightY() }));
+		points.emplace_back(finalTransf.transformPoint({ getUpLeftX(), getDownRightY() }));
 
-		points[0] = finalTransf.transformPoint({ getUpLeftX(), getUpLeftY() });
-		points[1] = finalTransf.transformPoint({ getDownRightX(), getUpLeftY() });
-		points[2] = finalTransf.transformPoint({ getDownRightX(), getDownRightY() });
-		points[3] = finalTransf.transformPoint({ getUpLeftX(), getDownRightY() });
+		auto n = points.size();
 
-		axis[0] = points[1] - points[0];
-		axis[1] = points[3] - points[0];
-
-		return { points, axis };
+		auto v1 = points[n - 3] - points[n - 4];
+		normalize(v1);
+		axis.emplace_back(perpendicularVector(v1));
+		auto v2 = points[n - 1] - points[n - 4];
+		normalize(v2);
+		axis.emplace_back(perpendicularVector(v2));
 	}
 
 
@@ -278,7 +339,7 @@ namespace ungod
 	}
 
 
-	/*sf::Vector2f PointSetConstAggregator::getCenter() const
+	sf::Vector2f PointSetConstAggregator::getCenter() const
 	{
 		switch (getNumberOfPoints() == 0)
 		{
@@ -286,35 +347,27 @@ namespace ungod
 			return { getPointX(0), getPointY(0) };
 
 		case 2u:
-			return getCenterPoint({ getPointX(0), getPointY(0) }, { getPointX(1), getPointY(1) });
+			return centerPoint({ getPointX(0), getPointY(0) }, { getPointX(1), getPointY(1) });
 
-		case 3u:
-			break; //foward to actual method below
+		case 0u:
+			return {};
 
 		default:
-			return {}
+			break; //foward to >2 case below
 		}
 
-
-	}*/
-
-	std::tuple<std::vector<sf::Vector2f>, std::vector<sf::Vector2f>>
-		PointSetConstAggregator::getAxisAndPivots(const TransformComponent& t) const
-	{
-		//get the axis to test
-		std::vector<sf::Vector2f> axis{ getNumberOfPoints() };
-		std::vector<sf::Vector2f> points{ getNumberOfPoints() };
-
-		for (unsigned i = 0; i < getNumberOfPoints(); i++)
-			points[i] = t.getTransform().transformPoint({ getPointX(i), getPointY(i) });
-
+		float area = 0.0f;
+		sf::Vector2f center;
 		for (unsigned i = 0; i < getNumberOfPoints(); i++)
 		{
 			unsigned inext = (i + 1) % getNumberOfPoints();
-			axis[i] = points[inext] - points[i];
+			float adiff = getPointX(i) * getPointY(inext) - getPointY(i) * getPointX(inext);
+			area += adiff;
+			center.x += (getPointX(i) + getPointX(inext)) * adiff;
+			center.y += (getPointY(i) + getPointY(inext)) * adiff;
 		}
-
-		return { points, axis };
+		area /= 2;
+		return (1/(6*area))*center;
 	}
 
 
@@ -350,6 +403,35 @@ namespace ungod
 		}
 	}
 
+	ConvexPolygonConstAggregator::ConvexPolygonConstAggregator(const Collider& data) : PointSetConstAggregator(data) {}
+
+	void ConvexPolygonConstAggregator::getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& points, unsigned) const
+	{
+		for (unsigned i = 0; i < getNumberOfPoints(); i++)
+			points.emplace_back(t.getTransform().transformPoint({ getPointX(i), getPointY(i) }));
+		auto n = points.size();
+		for (unsigned i = 0; i < getNumberOfPoints(); i++)
+		{
+			unsigned inext = (i + 1) % getNumberOfPoints();
+			auto v = points[n - getNumberOfPoints() + inext] - points[n - getNumberOfPoints() + i];
+			normalize(v);
+			axis.emplace_back(perpendicularVector(v));
+		}
+	}
+
+
+	EdgeChainConstAggregator::EdgeChainConstAggregator(const Collider& data) : PointSetConstAggregator(data) {}
+
+	void EdgeChainConstAggregator::getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& points, unsigned i) const
+	{
+		points.emplace_back(t.getTransform().transformPoint({ getPointX(i), getPointY(i) }));
+		points.emplace_back(t.getTransform().transformPoint({ getPointX(i+1), getPointY(i+1) }));
+
+		auto n = points.size();
+		auto v = points[n - 1] - points[n - 2];
+		normalize(v);
+		axis.emplace_back(perpendicularVector(v));
+	}
 
 	CircleConstAggregator::CircleConstAggregator(const Collider& data) : detail::AggregatorBase(data) {}
 

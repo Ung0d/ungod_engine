@@ -31,19 +31,42 @@ namespace ungod
 {
 	std::pair<bool, sf::Vector2f> doCollide(const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2)
 	{
-		switch (c1.getType())
+		bool collision = false;
+		float minMagn = std::numeric_limits<float>::max();
+		sf::Vector2f mdvMin; 
+		std::vector<sf::Vector2f> axis, pivots1, pivots2;
+		axis.reserve(Collider::MAX_PARAM); //reserve enough space to prevent reallocation even in worst case
+		pivots1.reserve((unsigned)(Collider::MAX_PARAM / 2));
+		pivots2.reserve((unsigned)(Collider::MAX_PARAM / 2));
+		for (unsigned i = 0; i < c1.getNumRuns(); i++)
+			for (unsigned j = 0; i < c2.getNumRuns(); i++)
 		{
-		case ColliderType::ROTATED_RECT:
-			return { false, {} };
-		default:
-			return { false, {} };
+			axis.clear();
+			pivots1.clear();
+			pivots2.clear();
+			c1.getAxisAndPivots(t1, axis, pivots1, i);
+			c2.getAxisAndPivots(t2, axis, pivots2, j);
+			bool collisionHere;
+			sf::Vector2f mdv;
+			std::tie(collisionHere, mdv) = satAlgorithm(axis, pivots1, pivots2);
+			if (dotProduct(t1.getTransform().transformPoint(c1.getCenter()) -
+				t2.getTransform().transformPoint(c2.getCenter()), mdv) < 0)
+			{
+				mdv = -mdv;
+			}
+			float curMagn = sqMagnitude(mdv);
+			if (curMagn < minMagn)
+			{
+				mdvMin = mdv;
+				minMagn = curMagn;
+			}
+			collision = collision || collisionHere;
 		}
+		return { collision, mdvMin };
 	}
 
 
-	std::pair<bool, sf::Vector2f> satAlgorithm(std::vector<sf::Vector2f>& axis,
-		const std::vector<sf::Vector2f>& points1,
-		const std::vector<sf::Vector2f>& points2)
+	std::pair<bool, sf::Vector2f> satAlgorithm(const std::vector<sf::Vector2f>& axis, const std::vector<sf::Vector2f>& pivots1, const std::vector<sf::Vector2f>& pivots2)
 	{
 		float overlap;
 		float smallestOverlap = std::numeric_limits<float>::max();
@@ -51,9 +74,6 @@ namespace ungod
 
 		for (auto& a : axis)
 		{
-			normalize(a);
-			sf::Vector2f perp = perpendicularVector(a);
-
 			float c1Left = std::numeric_limits<float>::infinity();
 			float c1Right = -std::numeric_limits<float>::infinity();
 			float c2Left = std::numeric_limits<float>::infinity();
@@ -61,16 +81,16 @@ namespace ungod
 
 			float projection;
 
-			for (auto& point : points1)
+			for (auto& piv : pivots1)
 			{
-				projection = dotProduct(perp, point);
+				projection = dotProduct(a, piv);
 				c1Right = std::max(c1Right, projection);
 				c1Left = std::min(c1Left, projection);
 			}
 
-			for (auto& point : points2)
+			for (auto& piv : pivots2)
 			{
-				projection = dotProduct(perp, point);
+				projection = dotProduct(a, piv);
 				c2Right = std::max(c2Right, projection);
 				c2Left = std::min(c2Left, projection);
 			}
@@ -84,83 +104,11 @@ namespace ungod
 			if (overlap < smallestOverlap)
 			{
 				smallestOverlap = overlap;
-				offset = perp * overlap;
+				offset = a * overlap;
 			}
 		}
 
 		return { true, offset };
-	}
-
-
-	std::pair<bool, sf::Vector2f> checkPolygonCollision(
-		const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2)
-	{
-		std::vector<sf::Vector2f> axis;
-		std::vector<sf::Vector2f> axis2;
-		std::vector<sf::Vector2f> points1;
-		std::vector<sf::Vector2f> points2;
-		std::tie(points1, axis) = detail::getAxisAndPivots(c1, t1);
-		std::tie(points2, axis2) = detail::getAxisAndPivots(c2, t2);
-		axis.insert(axis.end(), axis2.begin(), axis2.end());
-		return satAlgorithm(axis, points1, points2);
-	}
-
-
-	std::pair<bool, sf::Vector2f> checkPolygonWithLineChainCollision(
-		const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2)
-	{
-		std::vector<sf::Vector2f> axis;
-		std::vector<sf::Vector2f> polyPoints;
-		std::vector<sf::Vector2f> linePoints{ 2 };
-		std::tie(polyPoints, axis) = detail::getAxisAndPivots(c1, t1);
-		axis.emplace_back(); //additional slot for the axis induced by each line segment
-		PointSetConstAggregator psa{ c2 };
-		bool collision = false;
-		sf::Vector2f mdv;
-		for (unsigned i = 0; i < psa.getNumberOfPoints(); i++)
-		{
-			bool collisionHere;
-			sf::Vector2f mdvHere;
-			unsigned inext = (i + 1) % psa.getNumberOfPoints();
-			linePoints[0] = t2.getTransform().transformPoint({ psa.getPointX(i), psa.getPointY(i) });
-			linePoints[1] = t2.getTransform().transformPoint({ psa.getPointX(inext), psa.getPointY(inext) }); //todo reuse from prev iteration
-			axis.back() = linePoints[1] - linePoints[0];
-			std::tie(collisionHere, mdv) = satAlgorithm(axis, polyPoints, linePoints);
-			if (collisionHere)
-			{
-				collision = true;
-				if (magnitude(mdvHere) < magnitude(mdv))
-					mdv = mdvHere;
-			}
-		}
-		return { collision, mdv };
-	}
-
-
-	std::pair<bool, sf::Vector2f> checkPolygonWithCircleCollision(
-		const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2)
-	{
-
-		return { false, {} };
-	}
-
-
-	std::pair<bool, sf::Vector2f> checkSegmentChainWithCircleCollision(
-		const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2)
-	{
-
-		return { false, {} };
-	}
-
-
-	std::pair<bool, sf::Vector2f> checkCircleCollision(
-		const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2)
-	{
-		/*CircleAggregator ca1{ c1 }, ca2{ c2 };
-
-		std::vector<sf::Vector2f> axis{ sf::Vector2f{ca1.getCenterX(), ca1.getCenterY()} };
-		return satAlgorithm(axis, );*/
-		return { false, {} };
 	}
 
 
@@ -220,22 +168,5 @@ namespace ungod
 	{
 		CircleConstAggregator ca{ collider };
 		return distance({ ca.getCenterX(), ca.getCenterY() }, point) <= ca.getRadius();
-	}
-
-	namespace detail
-	{
-		std::tuple<std::vector<sf::Vector2f>, std::vector<sf::Vector2f>> 
-			getAxisAndPivots(const Collider& collider, const TransformComponent& transf)
-		{
-			switch (collider.getType())
-			{
-			case ColliderType::ROTATED_RECT:
-				return RotatedRectConstAggregator{ collider }.getAxisAndPivots(transf);
-			case ColliderType::CONVEX_POLYGON:
-				return PointSetConstAggregator{ collider }.getAxisAndPivots(transf);
-			default:
-				return { {},{} };
-			}
-		}
 	}
 }

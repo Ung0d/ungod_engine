@@ -53,8 +53,13 @@ namespace ungod
 
     float magnitude(const sf::Vector2f& vec)
     {
-        return sqrt(vec.x*vec.x + vec.y*vec.y);
+        return sqrt(sqMagnitude(vec));
     }
+
+	float sqMagnitude(const sf::Vector2f& vec)
+	{
+		return vec.x * vec.x + vec.y * vec.y;
+	}
 
     float distance(const sf::Vector2f& point1, const sf::Vector2f& point2)
     {

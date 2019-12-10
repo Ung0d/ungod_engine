@@ -41,6 +41,8 @@ namespace ungod
 
     float magnitude(const sf::Vector2f& vec);
 
+	float sqMagnitude(const sf::Vector2f& vec);
+
     float distance(const sf::Vector2f& point1, const sf::Vector2f& point2);
 
     float dotProduct(const sf::Vector2f& point1, const sf::Vector2f& point2);
