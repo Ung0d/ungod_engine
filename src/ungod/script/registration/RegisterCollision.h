@@ -42,7 +42,7 @@ namespace ungod
             state.registerUsertype<CollisionManager<CONTEXT>>(STRCAT("CollisionManager", NUM2STR(CONTEXT)));
         }
 
-		state.registerUsertype<RigidbodyManager>("RigidbodyManager",
+		/*state.registerUsertype<RigidbodyManager>("RigidbodyManager",
 			"addMovementCollider", sol::overload(
 				[](RigidbodyManager& rm, Entity e, const Collider& collider) { rm.addCollider<MOVEMENT_COLLISION_CONTEXT>(e, collider); },
 				[](RigidbodyManager& rm, Entity e, const sf::Vector2f& upleft, const sf::Vector2f& downright) { rm.addCollider<MOVEMENT_COLLISION_CONTEXT>(e, upleft, downright); },
@@ -64,7 +64,7 @@ namespace ungod
 			"setMovementCollisionActive", &RigidbodyManager::setActive<MOVEMENT_COLLISION_CONTEXT>,
 			"setSemanticsCollisionActive", &RigidbodyManager::setActive<SEMANTICS_COLLISION_CONTEXT>,
 			"getLowerBound", &RigidbodyManager::getLowerBound,
-			"getUpperBound", &RigidbodyManager::getUpperBound);
+			"getUpperBound", &RigidbodyManager::getUpperBound);*/
 
         /** \brief Registers rigidbody attachment and manipulation functionality for scripts. */
         void registerRigidbody(ScriptStateBase& state);

@@ -91,7 +91,7 @@ namespace ungod
 
         /** \brief Draws the collider-bounds the given entity. */
         template<std::size_t CONTEXT = 0>
-        static void renderColliders(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, sf::RenderTarget& target, sf::RenderStates states, const sf::Color& col);
+        static void renderCollider(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, sf::RenderTarget& target, sf::RenderStates states, const sf::Color& col);
 
         /** \brief Renders a audio emitter entity. */
         static void renderAudioEmitter(Entity e, const TransformComponent& transf, MusicEmitterComponent& emitter, sf::RenderTarget& target, sf::RenderStates states);
@@ -118,30 +118,33 @@ namespace ungod
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     template<std::size_t CONTEXT>
-    void Renderer::renderColliders(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, sf::RenderTarget& target, sf::RenderStates states, const sf::Color& col)
+    void Renderer::renderCollider(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, sf::RenderTarget& target, sf::RenderStates states, const sf::Color& col)
     {
-        states.transform *= transf.getTransform();  //apply the transform of the entity
-        for (const auto& c : body.getColliders())
-          {
-              sf::RenderStates locstates = states;
-              locstates.transform.rotate(c.getRotation(), c.getCenter());   //apply the rotation of the collider
-              sf::RectangleShape rect(c.getDownright() - c.getUpleft());
-              rect.setPosition(c.getUpleft());
-              rect.setFillColor(sf::Color::Transparent);
-              rect.setOutlineThickness(2);
-              rect.setOutlineColor(col);
-              target.draw(rect, locstates);
-          }
+        /*states.transform *= transf.getTransform();  //apply the transform of the entity
+        sf::RenderStates locstates = states;
+        locstates.transform.rotate(c.getRotation(), c.getCenter());   //apply the rotation of the collider
+        sf::RectangleShape rect(c.getDownright() - c.getUpleft());
+        rect.setPosition(c.getUpleft());
+        rect.setFillColor(sf::Color::Transparent);
+        rect.setOutlineThickness(2);
+        rect.setOutlineColor(col);
+        target.draw(rect, locstates);*/
     }
 
     template<std::size_t CONTEXT>
     void Renderer::renderColliders(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states, const sf::Color& col) const
     {
           dom::Utility<Entity>::iterate<TransformComponent, RigidbodyComponent<CONTEXT>>(pull.getList(),
-          [this, &target, &states, col] (Entity e, TransformComponent& transf, RigidbodyComponent<CONTEXT>& body)
-          {
-            Renderer::renderColliders(transf, body, target, states, col);
-          });
+			[this, &target, &states, col] (Entity e, TransformComponent& transf, RigidbodyComponent<CONTEXT>& body)
+			{
+			Renderer::renderCollider(transf, body, target, states, col);
+			});
+		  dom::Utility<Entity>::iterate<TransformComponent, MultiRigidbodyComponent<CONTEXT>>(pull.getList(),
+			[this, &target, &states, col](Entity e, TransformComponent& transf, MultiRigidbodyComponent<CONTEXT>& body)
+			{
+				  for (unsigned i = 0; i < body.getComponentCount(); i++)
+					Renderer::renderCollider(transf, body.getComponent(i), target, states, col);
+			});
     }
 }
 

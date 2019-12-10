@@ -37,7 +37,7 @@ namespace ungod
 		(const RigidbodyComponent<CONTEXT>& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&)
     {
 		context.serializeProperty("a", data.isActive(), serializer);
-		context.serializeProperty("t", data.getCollider().getType(), serializer);
+		context.serializeProperty("t", static_cast<std::underlying_type_t<ColliderType>>(data.getCollider().getType()), serializer);
 		for (unsigned i = 0; i < data.getCollider().getNumParam(); i++)
 			context.serializeProperty("p"+std::to_string(i), data.getCollider().getParam(i), serializer);
     }
@@ -47,9 +47,10 @@ namespace ungod
     {
 		std::vector<float> param;
 		param.reserve(Collider::MAX_PARAM);
-		ColliderType type;
-		auto attr = context.first(context.deserializeProperty(data.mActive, false), "a", deserializer);
-		attr = context.next(context.deserializeProperty(type, ColliderType::UNDEFINED), "t", deserializer, attr);
+		bool active;
+		auto attr = context.first(context.deserializeProperty(active, false), "a", deserializer);
+		std::underlying_type_t<ColliderType> type;
+		attr = context.next(context.deserializeProperty(type, (std::underlying_type_t<ColliderType>)ColliderType::UNDEFINED), "t", deserializer, attr);
 		float curp;
 		int i = 0;
 		attr = context.next(context.deserializeProperty(curp), "p0", deserializer, attr);
@@ -59,7 +60,16 @@ namespace ungod
 			i++;
 			attr = context.next(context.deserializeProperty(curp), "p"+std::to_string(i), deserializer, attr);
 		}
-		world.getRigidbodyManager<CONTEXT>().addCollider(e, Collider{type, param});
+		if constexpr (CONTEXT == MOVEMENT_COLLISION_CONTEXT)
+		{
+			world.getMovementRigidbodyManager().setActive(e, active);
+			world.getMovementRigidbodyManager().addCollider(e, Collider{ static_cast<ColliderType>(type), param });
+		}
+		else if constexpr (CONTEXT == SEMANTICS_COLLISION_CONTEXT)
+		{
+			world.getSemanticsRigidbodyManager().setActive(e, active);
+			world.getSemanticsRigidbodyManager().addCollider(e, Collider{ static_cast<ColliderType>(type), param });
+		}
     }
 }
 

@@ -223,10 +223,10 @@ namespace ungod
         CollisionManager<SEMANTICS_COLLISION_CONTEXT>& getSemanticsCollisionManager() { return mSemanticsCollisionManager; }
 
         /** \brief Returns a reference to the movement rigidbody manager. */
-		RigidbodyManager& getMovementCollisionManager() { return mMovementRigidbodyManager }
+		RigidbodyManager<MOVEMENT_COLLISION_CONTEXT>& getMovementRigidbodyManager() { return mMovementRigidbodyManager; }
 
 		/** \brief Returns a reference to the semantics rigidbody manager. */
-		RigidbodyManager& getSemanticsCollisionManager() { return mSemanticsRigidbodyManager }
+		RigidbodyManager<SEMANTICS_COLLISION_CONTEXT>& getSemanticsRigidbodyManager() { return mSemanticsRigidbodyManager; }
 
         /** \brief Returns a reference to the inout manager. */
         InputManager& getInputManager();

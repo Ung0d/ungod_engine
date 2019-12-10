@@ -80,7 +80,7 @@ namespace ungod
 														MultiComponent<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>, MovementComponent, SpriteMetadataComponent,
                                                         SpriteComponent, MultiComponent<SpriteComponent>, VertexArrayComponent, VisualAffectorComponent, MultiComponent<VisualAffectorComponent>,
                                                         AnimationComponent, MultiComponent<AnimationComponent>, BigSpriteComponent, 
-														RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>, Multicomponent<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>,
+														RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>, MultiComponent<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>,
                                                         EntityUpdateTimer, SoundEmitterComponent, SteeringComponent<script::Environment>, PathFinderComponent, ShadowEmitterComponent, LightEmitterComponent, LightAffectorComponent,
                                                         MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>, MultiComponent<ShadowEmitterComponent>, ParticleSystemComponent,
                                                         ParentComponent, ChildComponent>;

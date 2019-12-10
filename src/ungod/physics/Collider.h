@@ -96,6 +96,18 @@ namespace ungod
 		void accomodatePoint(unsigned i, const sf::Vector2f& point);
 	};
 
+	/** \brief Convenience factory. */
+	Collider makeRotatedRect(const sf::Vector2f& upleft, const sf::Vector2f& downRight, float rotation= 0.0f);
+
+	/** \brief Convenience factory. */
+	Collider makeConvexPolygon(const std::vector<sf::Vector2f>& points);
+
+	/** \brief Convenience factory. */
+	Collider makeEdgeChain(const std::vector<sf::Vector2f>& points);
+
+	/** \brief Convenience factory. */
+	Collider makeCircle(const sf::Vector2f& center, float radius);
+
 	namespace detail
 	{
 		class AggregatorBase

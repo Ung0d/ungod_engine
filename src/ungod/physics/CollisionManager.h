@@ -41,7 +41,7 @@ namespace ungod
 {
 	static constexpr std::size_t MAX_CONTEXTS = 2;
 
-	template<std::size_t CONTEXT = 0>
+	template<std::size_t CONTEXT>
 	class RigidbodyManager;
 
 	/**

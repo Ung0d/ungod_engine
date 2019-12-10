@@ -102,6 +102,36 @@ namespace ungod
 		mParam[(std::size_t)i+1] = point.y;
 	}
 
+
+	Collider makeRotatedRect(const sf::Vector2f& upleft, const sf::Vector2f& downRight, float rotation)
+	{
+		Collider c;
+		c.initRotatedRect(upleft, downRight, rotation);
+		return c;
+	}
+
+	Collider makeConvexPolygon(const std::vector<sf::Vector2f>& points)
+	{
+		Collider c;
+		c.initConvexPolygon(points);
+		return c;
+	}
+
+	Collider makeEdgeChain(const std::vector<sf::Vector2f>& points)
+	{
+		Collider c;
+		c.initEdgeChain(points);
+		return c;
+	}
+
+	Collider makeCircle(const sf::Vector2f& center, float radius)
+	{
+		Collider c;
+		c.initCircle(center, radius);
+		return c;
+	}
+
+
 	namespace detail
 	{
 		AggregatorBase::AggregatorBase(const Collider& data) : mData(data)

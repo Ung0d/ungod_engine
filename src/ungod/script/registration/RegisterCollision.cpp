@@ -33,12 +33,12 @@ namespace ungod
         void registerRigidbody(ScriptStateBase& state)
         {
 
-            state.registerUsertype<Collider>("Collider",
+            /*state.registerUsertype<Collider>("Collider",
                                                    sol::constructors<Collider(const sf::Vector2f& upleft, const sf::Vector2f& downright), Collider(const sf::Vector2f& upleft, const sf::Vector2f& downright, float rotation)>(),
                                                    "getUpleft", &Collider::getUpleft,
                                                    "getDownright", &Collider::getDownright,
                                                    "getCenter", &Collider::getCenter,
-                                                   "getRotation", &Collider::getRotation);
+                                                   "getRotation", &Collider::getRotation);*/
         }
     }
 }

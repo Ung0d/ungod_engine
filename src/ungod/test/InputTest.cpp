@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE( entity_mouse_events_test )
     //create an entity with a collider that shall trigger some events
     ungod::Entity e = world->create(ungod::BaseComponents<ungod::TransformComponent, ungod::RigidbodyComponent<>>());
     world->getTransformManager().setPosition(e, {25, 25});
-    world->getRigidbodyManager().addCollider(e, {10,10}, {50, 50});
+    world->getSemanticsRigidbodyManager().addCollider(e, ungod::makeRotatedRect({10,10}, {50, 50}));
     world->getQuadTree().insert(e);
 
     //shift the windows view to be sure things still work with a non default view
