@@ -55,18 +55,18 @@ namespace ungod
 			script::Usertype<TileMapRenderer> tmRendererType = state.registerUsertype<TileMapRenderer>("TileMapRenderer");
 			tmRendererType["reserveTileCount"] = [](TileMapRenderer& vm, Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY) { vm.reserveTileCount(e, num, mapSizeX, mapSizeY); };
 			tmRendererType["addTile"] = [](TileMapRenderer& vm, Entity e, int id, unsigned material, bool active, bool blocked) { vm.addTile(e, id, material, active, blocked); };
-			tmRendererType["setTiles"] = sol::overload([](TileMapRenderer& vm, Entity e, script::Environment tiles, script::Environment materials, script::Environment active, script::Environment blocked, std::size_t mapX, std::size_t mapY)
+			tmRendererType["setTiles"] = sol::overload([](TileMapRenderer& vm, Entity e, script::Environment tiles, script::Environment materials, script::Environment active, script::Environment blocked, unsigned mapX, unsigned mapY)
 					{ vm.setTiles(e, env2vec<int>(tiles), env2vec<unsigned>(materials), env2vec<bool>(active), env2vec<bool>(blocked), mapX, mapY); },
-					[](TileMapRenderer& vm, Entity e, script::Environment tiles, script::Environment materials, script::Environment active, std::size_t mapX, std::size_t mapY)
+					[](TileMapRenderer& vm, Entity e, script::Environment tiles, script::Environment materials, script::Environment active, unsigned mapX, unsigned mapY)
 					{ vm.setTiles(e, env2vec<int>(tiles), env2vec<unsigned>(materials), env2vec<bool>(active), mapX, mapY); });
 			tmRendererType["loadTiles"] = [](TileMapRenderer& vm, Entity e, const std::string& tileID, const std::string& metaID, unsigned cTileWidth, unsigned cTileHeight, script::Environment keymap)
 			{ vm.loadTiles(e, tileID, metaID, cTileWidth, cTileHeight, env2vec<std::string>(keymap)); };
 
 			tmRendererType["reserveWaterTileCount"] = [](TileMapRenderer& vm, Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY) { vm.reserveWaterTileCount(e, num, mapSizeX, mapSizeY); };
 			tmRendererType["addWaterTile"] = [](TileMapRenderer& vm, Entity e, int id, unsigned material, bool active, bool blocked) { vm.addWaterTile(e, id, material, active, blocked); };
-			tmRendererType["setWaterTiles"] = sol::overload([](TileMapRenderer& vm, Entity e, script::Environment tiles, script::Environment materials, script::Environment active, script::Environment blocked, std::size_t mapX, std::size_t mapY)
+			tmRendererType["setWaterTiles"] = sol::overload([](TileMapRenderer& vm, Entity e, script::Environment tiles, script::Environment materials, script::Environment active, script::Environment blocked, unsigned mapX, unsigned mapY)
 				{ vm.setWaterTiles(e, env2vec<int>(tiles), env2vec<unsigned>(materials), env2vec<bool>(active), env2vec<bool>(blocked), mapX, mapY); },
-				[](TileMapRenderer& vm, Entity e, script::Environment tiles, script::Environment materials, script::Environment active, std::size_t mapX, std::size_t mapY)
+				[](TileMapRenderer& vm, Entity e, script::Environment tiles, script::Environment materials, script::Environment active, unsigned mapX, unsigned mapY)
 				{ vm.setWaterTiles(e, env2vec<int>(tiles), env2vec<unsigned>(materials), env2vec<bool>(active), mapX, mapY); });
 			tmRendererType["loadWaterTiles"] = [](TileMapRenderer& vm, Entity e, const std::string& tileID, const std::string& metaID, unsigned cTileWidth, unsigned cTileHeight, script::Environment keymap)
 				{ vm.loadWaterTiles(e, tileID, metaID, cTileWidth, cTileHeight, env2vec<std::string>(keymap)); };

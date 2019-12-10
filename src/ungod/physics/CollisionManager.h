@@ -81,7 +81,6 @@ namespace ungod
 
     public:
 		/** \brief Sets a collider count for the multicomponent. */
-		template <std::size_t CONTEXT = 0>
 		void setColliderCount(Entity e, unsigned n);
 
         /** \brief Adds a new collider by copying to the rigidbody of entity e. */
@@ -131,26 +130,26 @@ namespace ungod
 
         /** \brief Registers new callback for the ContentsRemoved signal. */
         void onContentRemoved(const std::function<void(Entity)>& callback);
-
+ 
         /** \brief Returns the lower bound of the bounding rect around all contents of the given entity. */
-        sf::Vector2f getLowerBound(Entity e);
+        static sf::Vector2f getLowerBound(Entity e);
 
         /** \brief Returns the upper bound of the bounding rect around all contents of the given entity. */
-        sf::Vector2f getUpperBound(Entity e);
+		static sf::Vector2f getUpperBound(Entity e);
 
         /** \brief A method that moves all colliders attached to the given entity. This method is usually only
         * used internally by the transform-manager. */
-        void moveColliders(Entity e, const sf::Vector2f& vec);
+		static void moveColliders(Entity e, const sf::Vector2f& vec);
 
     private:
         owls::Signal<Entity, const sf::FloatRect&> mContentsChangedSignal;
         owls::Signal<Entity> mContentRemoved;
 
-        void moveContext(Entity e, const sf::Vector2f& vec);
+        void move(Entity e, const sf::Vector2f& vec);
 
-        void contextLowerBounds(Entity e, sf::Vector2f& vec) const;
+        void getLowerBounds(Entity e, sf::Vector2f& vec) const;
 
-        void contextUpperBounds(Entity e, sf::Vector2f& vec) const;
+        void getUpperBounds(Entity e, sf::Vector2f& vec) const;
     };
 
 
@@ -167,11 +166,14 @@ namespace ungod
         CollisionManager(quad::QuadTree<Entity>& quadtree);
 
         /**
-        * \brief Checks collisions in the given area of the world. That means,
-        * it checks collisions for all entities in that area and emit
-        * collision signals of detection.
+        * \brief Checks collisions between all entities in the given list.
         */
         void checkCollisions(const std::list<Entity>& entities);
+
+		/**
+		* \brief Checks collisions between the given entity and all other entities in the same world.
+		*/
+		void checkCollisions(Entity e, TransformComponent t, RigidbodyComponent<CONTEXT>& r);
 
 
         /** \brief Registers new callback for the Collision signal. */

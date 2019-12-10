@@ -29,7 +29,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////IMPLEMENTATION////////////////////////////////////////////////////////////////////////
+//////////setCircleCenter////////////////////////IMPLEMENTATION////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@
 template <std::size_t CONTEXT>
 void RigidbodyManager<CONTEXT>::setColliderCount(Entity e, unsigned n)
 {
-	e.modify < MultiRigidbodyComponent().setComponentCount(n);
+	e.modify<MultiRigidbodyComponent>().setComponentCount(n);
 }
 
 template <std::size_t CONTEXT>
@@ -59,7 +59,7 @@ void RigidbodyManager<CONTEXT>::addRotatedRect(Entity e, RigidbodyComponent<CONT
 template <std::size_t CONTEXT>
 void RigidbodyManager<CONTEXT>::addConvexPolygon(Entity e, RigidbodyComponent<CONTEXT>& rcomp, const std::vector<sf::Vector2f>& points)
 {
-	rcomp.mCollider.initConvexPolygon(points)
+	rcomp.mCollider.initConvexPolygon(points);
 	mContentsChangedSignal(e, PointSetAggregator{ rcomp.mCollider }.getBoundingBox());
 }
 
@@ -67,7 +67,7 @@ void RigidbodyManager<CONTEXT>::addConvexPolygon(Entity e, RigidbodyComponent<CO
 template <std::size_t CONTEXT>
 void RigidbodyManager<CONTEXT>::addEdgeChain(Entity e, RigidbodyComponent<CONTEXT>& rcomp, const std::vector<sf::Vector2f>& points)
 {
-	rcomp.mCollider.initEdgeChain(points)
+	rcomp.mCollider.initEdgeChain(points);
 	mContentsChangedSignal(e, PointSetAggregator{ rcomp.mCollider }.getBoundingBox());
 }
 
@@ -75,7 +75,7 @@ void RigidbodyManager<CONTEXT>::addEdgeChain(Entity e, RigidbodyComponent<CONTEX
 template <std::size_t CONTEXT>
 void RigidbodyManager<CONTEXT>::addCircle(Entity e, RigidbodyComponent<CONTEXT> & rcomp, const sf::Vector2f& center, float radius)
 {
-	rcomp.mCollider.initCircle(center, radius)
+	rcomp.mCollider.initCircle(center, radius);
 	mContentsChangedSignal(e, CircleAggregator{ rcomp.mCollider }.getBoundingBox());
 }
 
@@ -134,7 +134,7 @@ void RigidbodyManager<CONTEXT>::setPoint(Entity e, RigidbodyComponent<CONTEXT>& 
 
 
 template <std::size_t CONTEXT>
-void RigidbodyManager<CONTEXT>::setCenter(Entity e, RigidbodyComponent<CONTEXT>& rcomp, const sf::Vector2f& center)
+void RigidbodyManager<CONTEXT>::setCircleCenter(Entity e, RigidbodyComponent<CONTEXT>& rcomp, const sf::Vector2f& center)
 {
 	CircleAggregator ca{ rcomp.mCollider };
 	ca.setCenterX(center.x);
@@ -154,99 +154,81 @@ void RigidbodyManager<CONTEXT>::setRadius(Entity e, RigidbodyComponent<CONTEXT>&
 template <std::size_t CONTEXT>
 void RigidbodyManager<CONTEXT>::setActive(Entity e, RigidbodyComponent<CONTEXT>& rcomp, bool active)
 {
-	rcomp.mCollider.setActive(active);
+	rcomp.mActive = active;
 	if (active)
 		mContentsChangedSignal(e, RotatedRectAggregator{ rcomp.mCollider }.getBoundingBox());
 	else
 		mContentRemoved(e);
 }
 
-
-
-template <std::size_t N>
-struct ContextIteration
-{
-    static void iterate(RigidbodyManager& mgr, Entity e, const sf::Vector2f& vec)
-    {
-        mgr.moveContext<N>(e, vec);
-        ContextIteration<N-1>::iterate(mgr, e, vec);
-    }
-
-    static void getLowerBounds(RigidbodyManager& mgr, Entity e, sf::Vector2f& vec)
-    {
-        mgr.contextLowerBounds<N>(e, vec);
-        ContextIteration<N-1>::getLowerBounds(mgr, e, vec);
-    }
-
-    static void getUpperBounds(RigidbodyManager& mgr, Entity e, sf::Vector2f& vec)
-    {
-        mgr.contextUpperBounds<N>(e, vec);
-        ContextIteration<N-1>::getUpperBounds(mgr, e, vec);
-    }
-};
-
-template <>
-struct ContextIteration<0>
-{
-    static void iterate(RigidbodyManager& mgr, Entity e, const sf::Vector2f& vec)
-    {
-        mgr.moveContext<0>(e, vec);
-    }
-
-    static void getLowerBounds(RigidbodyManager& mgr, Entity e, sf::Vector2f& vec)
-    {
-        mgr.contextLowerBounds<0>(e, vec);
-    }
-
-    static void getUpperBounds(RigidbodyManager& mgr, Entity e, sf::Vector2f& vec)
-    {
-        mgr.contextUpperBounds<0>(e, vec);
-    }
-};
-
 template <std::size_t CONTEXT>
-void RigidbodyManager<CONTEXT>::moveContext(Entity e, const sf::Vector2f& vec)
+void RigidbodyManager<CONTEXT>::moveColliders(Entity e, const sf::Vector2f& vec)
 {
-    if (e.has<RigidbodyComponent<CONTEXT>>())
-    {
-        RigidbodyComponent<CONTEXT>& body = e.modify<RigidbodyComponent<CONTEXT>>();
-        for (auto& collider : body.mColliders)
-        {
-            collider.move(vec);
-        }
-    }
+	if (e.has<RigidbodyComponent<CONTEXT>>())
+		e.modify<RigidbodyComponent<CONTEXT>>().mCollider.move(vec);
+	if (e.has<MultiRigidbodyComponent<CONTEXT>>())
+	{
+		auto& mb = e.modify<MultiRigidbodyComponent<CONTEXT>>();
+		for (unsigned i = 0; i < mb.getComponentCount(); i++)
+			mb.getComponent(i).mCollider.move(vec);
+	}
 }
 
 template <std::size_t CONTEXT>
-void RigidbodyManager<CONTEXT>::contextLowerBounds(Entity e, sf::Vector2f& vec) const
+sf::Vector2f RigidbodyManager<CONTEXT>::getLowerBound(Entity e) 
 {
-    if (e.has<RigidbodyComponent<CONTEXT>>())
-    {
-        const RigidbodyComponent<CONTEXT>& body = e.get<RigidbodyComponent<CONTEXT>>();
-        for (auto& collider : body.mColliders)
-        {
-            auto bbox = collider.getBoundingBox();
-            vec.x = std::max(bbox.left + bbox.width, vec.x);
-            vec.y = std::max(bbox.top + bbox.height, vec.y);
-        }
-    }
+	sf::Vector2f vec;
+	auto checker = [&vec](const RigidbodyComponent<CONTEXT>& body)
+	{
+		auto bbox = body.getCollider().getBoundingBox();
+		vec.x = std::max(bbox.left + bbox.width, vec.x);
+		vec.y = std::max(bbox.top + bbox.height, vec.y);
+	};
+	if (e.has<RigidbodyComponent<CONTEXT>>())
+		checker(e.get<RigidbodyComponent<CONTEXT>>());
+	if (e.has<MultiRigidbodyComponent<CONTEXT>>())
+	{
+		const auto& mb = e.get<MultiRigidbodyComponent<CONTEXT>>();
+		for (unsigned i = 0; i < mb.getComponentCount(); i++)
+			checker(mb.getComponent(i));
+	}
+	return vec;
 }
 
 template <std::size_t CONTEXT>
-void RigidbodyManager<CONTEXT>::contextUpperBounds(Entity e, sf::Vector2f& vec) const
+sf::Vector2f RigidbodyManager<CONTEXT>::getUpperBound(Entity e) 
 {
-    if (e.has<RigidbodyComponent<CONTEXT>>())
-    {
-        const RigidbodyComponent<CONTEXT>& body = e.get<RigidbodyComponent<CONTEXT>>();
-        for (auto& collider : body.mColliders)
-        {
-            auto bbox = collider.getBoundingBox();
-            vec.x = std::min(bbox.left, vec.x);
-            vec.y = std::min(bbox.top, vec.y);
-        }
-    }
+	sf::Vector2f vec;
+	auto checker = [&vec](const RigidbodyComponent<CONTEXT>& body)
+	{
+		auto bbox = body.getCollider().getBoundingBox();
+		vec.x = std::min(bbox.left, vec.x);
+		vec.y = std::min(bbox.top, vec.y);
+	};
+	if (e.has<RigidbodyComponent<CONTEXT>>())
+		checker(e.get<RigidbodyComponent<CONTEXT>>());
+	if (e.has<MultiRigidbodyComponent<CONTEXT>>())
+	{
+		const auto& mb = e.get<MultiRigidbodyComponent<CONTEXT>>();
+		for (unsigned i = 0; i < mb.getComponentCount(); i++)
+			checker(mb.getComponent(i));
+	}
+	return vec;
 }
 
+
+template <std::size_t CONTEXT>
+void RigidbodyManager<CONTEXT>::onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback)
+{
+	mContentsChangedSignal.connect(callback);
+}
+
+
+template <std::size_t CONTEXT>
+void RigidbodyManager<CONTEXT>::onContentRemoved(const std::function<void(Entity)>& callback)
+{
+	mContentRemoved.connect(callback);
+}
 
 
 
@@ -298,15 +280,10 @@ void CollisionManager<CONTEXT>::entityCollision(Entity e1, Entity e2,
     {
         bool collision;
         sf::Vector2f smallestOffset;
-
-        for (const auto& collider : r1.getColliders())
-            for (const auto& colliderOther : r2.getColliders())
+        std::tie(collision, smallestOffset) = doCollide(r1.getCollider(), r2.getCollider(), t1, t2);
+        if ( collision && e1 != e2 )
         {
-            std::tie(collision, smallestOffset) = satAlgorithm(collider, colliderOther, t1, t2);
-            if ( collision && e1 != e2 )
-            {
-                signal(e1, e2, smallestOffset, collider, colliderOther);
-            }
+            signal(e1, e2, smallestOffset, r1.getCollider(), r2.getCollider());
         }
     }
 }
@@ -321,19 +298,14 @@ void CollisionManager<CONTEXT>::checkCollisions(const std::list<Entity>& entitie
     dom::Utility<Entity>::iterate<TransformComponent, RigidbodyComponent<CONTEXT>>(entities,
       [&result, this] (Entity e, TransformComponent& transf, RigidbodyComponent<CONTEXT>& body)
       {
-          if (!e.isStatic() && body.isActive())
-          {
-            result.getList().clear();
-            mQuadtree->retrieve(result, { transf.getPosition().x, transf.getPosition().y,
-                                          transf.getSize().x, transf.getSize().y });
-
-            dom::Utility<Entity>::iterate<TransformComponent, RigidbodyComponent<CONTEXT>>(result.getList(),
-              [e, &transf, &body, this] (Entity other, TransformComponent& transfOther, RigidbodyComponent<CONTEXT>& bodyOther)
-              {
-                    entityCollision(e, other, transf, transfOther, body, bodyOther, mCollisionSignal);
-              });
-          }
+			checkCollisions(e, transf, body);
       });
+	dom::Utility<Entity>::iterate<TransformComponent, MultiRigidbodyComponent<CONTEXT>>(entities,
+		[&result, this](Entity e, TransformComponent& transf, MultiRigidbodyComponent<CONTEXT>& body)
+		{
+			for (unsigned i = 0; i < body.getComponentCount(); i++)
+				checkCollisions(e, transf, body.getComponent(i));
+		});
 
       for (const auto& eset : mDoubleBuffers[mBufferActive]) //for each entity in the active buffer
       {
@@ -372,6 +344,30 @@ void CollisionManager<CONTEXT>::checkCollisions(const std::list<Entity>& entitie
 
       //swap buffers
       mBufferActive = !mBufferActive;
+}
+
+
+template<std::size_t CONTEXT>
+void CollisionManager<CONTEXT>::checkCollisions(Entity e, TransformComponent transf, RigidbodyComponent<CONTEXT>& body)
+{
+	if (!e.isStatic() && body.isActive())
+	{
+		quad::PullResult<Entity> result;
+		mQuadtree->retrieve(result, { transf.getPosition().x, transf.getPosition().y,
+									  transf.getSize().x, transf.getSize().y });
+
+		dom::Utility<Entity>::iterate<TransformComponent, RigidbodyComponent<CONTEXT>>(result.getList(),
+			[e, &transf, &body, this](Entity other, TransformComponent& transfOther, RigidbodyComponent<CONTEXT>& bodyOther)
+			{
+				entityCollision(e, other, transf, transfOther, body, bodyOther, mCollisionSignal);
+			});
+		dom::Utility<Entity>::iterate<TransformComponent, MultiRigidbodyComponent<CONTEXT>>(result.getList(),
+			[e, &transf, &body, this](Entity other, TransformComponent& transfOther, MultiRigidbodyComponent<CONTEXT>& bodyOther)
+			{
+				for (unsigned i = 0; i < bodyOther.getComponentCount(); i++)
+					entityCollision(e, other, transf, transfOther, body, bodyOther.getComponent(i), mCollisionSignal);
+			});
+	}
 }
 
 #endif //COLLISION_MANAGER_IMPL_H

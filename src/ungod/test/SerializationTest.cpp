@@ -211,10 +211,10 @@ BOOST_AUTO_TEST_CASE(serial_colliders_test)
 		ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
 		node.setSize({ 800,600 });
 		ungod::World* world = node.addWorld();
-		ungod::Entity e_rect = world->create(Base(), Opt());
-		ungod::Entity e_poly = world->create(Base(), Opt());
-		ungod::Entity e_edge = world->create(Base(), Opt());
-		ungod::Entity e_circ = world->create(Base(), Opt());
+		ungod::Entity e_rect = world->create(Base(), Opt()); world->addEntity(e_rect);
+		ungod::Entity e_poly = world->create(Base(), Opt()); world->addEntity(e_poly);
+		ungod::Entity e_edge = world->create(Base(), Opt()); world->addEntity(e_edge);
+		ungod::Entity e_circ = world->create(Base(), Opt()); world->addEntity(e_circ);
 		world->tagWithName(e_rect, "e_rect");
 		world->tagWithName(e_poly, "e_poly");
 		world->tagWithName(e_edge, "e_edge");
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(serial_colliders_test)
 		ungod::DeserializationContext context;
 		context.changeStorageSemantics<ungod::deserial_ref_semantics::ByValue<ungod::Entity>>(
 			ungod::SerialIdentifier< ungod::EntityInstantiation< Base, Opt > >::get());
-		context.read("test_output/world_sav.xml");
+		context.read("test_output/colliders_serial_world_sav.xml");
 
 		context.deserializeRootObject(*world, static_cast<const sf::RenderTarget&>(window));
 
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE(serial_colliders_test)
 
 		BOOST_REQUIRE_EQUAL(static_cast<std::underlying_type_t<ungod::ColliderType>>(e_poly.get<ungod::RigidbodyComponent<>>().getCollider().getType()),
 			static_cast<std::underlying_type_t<ungod::ColliderType>>(ungod::ColliderType::CONVEX_POLYGON));
-		ungod::PointSetConstAggregator psa{ e_rect.get<ungod::RigidbodyComponent<>>().getCollider() };
+		ungod::PointSetConstAggregator psa{ e_poly.get<ungod::RigidbodyComponent<>>().getCollider() };
 		BOOST_REQUIRE_EQUAL(psa.getNumberOfPoints(), 3u);
 		BOOST_CHECK_EQUAL(psa.getPointX(0), 100.0f);
 		BOOST_CHECK_EQUAL(psa.getPointY(0), 130.0f);
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE(serial_colliders_test)
 
 		BOOST_REQUIRE_EQUAL(static_cast<std::underlying_type_t<ungod::ColliderType>>(e_edge.get<ungod::RigidbodyComponent<>>().getCollider().getType()),
 			static_cast<std::underlying_type_t<ungod::ColliderType>>(ungod::ColliderType::EDGE_CHAIN));
-		ungod::PointSetConstAggregator psa2{ e_rect.get<ungod::RigidbodyComponent<>>().getCollider() };
+		ungod::PointSetConstAggregator psa2{ e_edge.get<ungod::RigidbodyComponent<>>().getCollider() };
 		BOOST_REQUIRE_EQUAL(psa2.getNumberOfPoints(), 3u);
 		BOOST_CHECK_EQUAL(psa2.getPointX(0), 100.0f);
 		BOOST_CHECK_EQUAL(psa2.getPointY(0), 130.0f);
@@ -289,7 +289,7 @@ BOOST_AUTO_TEST_CASE(serial_colliders_test)
 
 		BOOST_REQUIRE_EQUAL(static_cast<std::underlying_type_t<ungod::ColliderType>>(e_circ.get<ungod::RigidbodyComponent<>>().getCollider().getType()),
 			static_cast<std::underlying_type_t<ungod::ColliderType>>(ungod::ColliderType::CIRCLE));
-		ungod::CircleConstAggregator ca{ e_rect.get<ungod::RigidbodyComponent<>>().getCollider() };
+		ungod::CircleConstAggregator ca{ e_circ.get<ungod::RigidbodyComponent<>>().getCollider() };
 		BOOST_CHECK_EQUAL(ca.getCenterX(), 100.0f);
 		BOOST_CHECK_EQUAL(ca.getCenterY(), 130.0f);
 		BOOST_CHECK_EQUAL(ca.getRadius(), 50.0f);

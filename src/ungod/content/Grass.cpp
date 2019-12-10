@@ -115,7 +115,7 @@ namespace ungod
         for (std::size_t i = 0; i < grassDensity; ++i)
         {
             grass.modify<GrassPatch>().mGrassData.emplace_back( i, sf::Vector2f( NumberGenerator::getFloatRandBetw(0, patchWidth), NumberGenerator::getFloatRandBetw(0, patchHeight) ),
-                                    grassKeys[NumberGenerator::getRandBetw(0, grassKeys.size()-1)]);
+                                    grassKeys[NumberGenerator::getRandBetw(0, (int)grassKeys.size()-1)]);
         }
     }
 
@@ -131,7 +131,7 @@ namespace ungod
         for (std::size_t i = 0; i < grassDensity; ++i)
         {
             grass.modify<GrassPatch>().mGrassData.emplace_back( i, sf::Vector2f( std::max(-2.0f*distance, std::min(2.0f*distance, NumberGenerator::getNormRand(0,distance))), std::max(-2.0f*distance, std::min(2.0f*distance, NumberGenerator::getNormRand(0,distance))) ),
-                                    grassKeys[NumberGenerator::getRandBetw(0, grassKeys.size()-1)]);
+                                    grassKeys[NumberGenerator::getRandBetw(0, (int)grassKeys.size()-1)]);
         }
     }
 

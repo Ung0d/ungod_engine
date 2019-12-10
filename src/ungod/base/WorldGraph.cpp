@@ -323,7 +323,7 @@ namespace ungod
 
     WorldGraphNode& WorldGraph::createNode(ScriptedGameState& gamestate, const std::string& identifier, const std::string& datafile)
     {
-        mNodes.emplace_back(std::make_unique<WorldGraphNode>(*this, mNodes.size(), gamestate, identifier, datafile));
+        mNodes.emplace_back(std::make_unique<WorldGraphNode>(*this, (unsigned)mNodes.size(), gamestate, identifier, datafile));
         notifyBoundsChanged(mNodes.back().get());
         mAdjacencies.setVertexCount((unsigned)mAdjacencies.getVertexCount()+1);
         return *mNodes.back();

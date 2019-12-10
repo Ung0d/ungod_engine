@@ -377,10 +377,11 @@ namespace ungod
 
     void DeserialBehavior<IntervalTick>::deserialize(IntervalTick& data, MetaNode deserializer, DeserializationContext& context)
     {
-        std::size_t msmin, msmax, num;
-        auto attr = context.first(context.deserializeProperty<std::size_t>(msmin, 0u), "min", deserializer);
-        attr = context.next(context.deserializeProperty<std::size_t>(msmax, 0u), "max", deserializer, attr);
-        attr = context.next(context.deserializeProperty<std::size_t>(num, 0u), "num", deserializer, attr);
+		float msmin, msmax;
+		int num;
+        auto attr = context.first(context.deserializeProperty<float>(msmin, 0.0f), "min", deserializer);
+        attr = context.next(context.deserializeProperty<float>(msmax, 0.0f), "max", deserializer, attr);
+        attr = context.next(context.deserializeProperty<int>(num, 0), "num", deserializer, attr);
         data.init(msmin, msmax, num);
     }
 
@@ -393,8 +394,8 @@ namespace ungod
 
     void DeserialBehavior<OneShotTick>::deserialize(OneShotTick& data, MetaNode deserializer, DeserializationContext& context)
     {
-        std::size_t num;
-        context.first(context.deserializeProperty<std::size_t>(num, 0u), "num", deserializer);
+		int num;
+        context.first(context.deserializeProperty<int>(num, 0u), "num", deserializer);
         data.init(num);
         data.shot = true;
     }
@@ -409,9 +410,9 @@ namespace ungod
 
     void DeserialBehavior<IntervalLifetime>::deserialize(IntervalLifetime& data, MetaNode deserializer, DeserializationContext& context)
     {
-        std::size_t msmin, msmax;
-        auto attr = context.first(context.deserializeProperty<std::size_t>(msmin, 0u), "min", deserializer);
-        attr = context.next(context.deserializeProperty<std::size_t>(msmax, 0u), "max", deserializer, attr);
+        float msmin, msmax;
+        auto attr = context.first(context.deserializeProperty<float>(msmin, 0u), "min", deserializer);
+        attr = context.next(context.deserializeProperty<float>(msmax, 0u), "max", deserializer, attr);
         data.init(msmin, msmax);
     }
 

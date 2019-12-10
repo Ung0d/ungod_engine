@@ -124,9 +124,9 @@ namespace ungod
 
         /** \brief Maps a world position to tiledata. */
         Tile const* getTiledata(const sf::Vector2f& position) const;
-        Tile const* getTiledata(std::size_t x, std::size_t y) const;
+        Tile const* getTiledata(unsigned x, unsigned y) const;
         Tile* getTiledata(const sf::Vector2f& position);
-        Tile* getTiledata(std::size_t x, std::size_t y);
+        Tile* getTiledata(unsigned x, unsigned y);
 
         /** \brief Maps a world position to the corresponding tile-indices. Returns {0,0} if the position is not inside the tilemap. */
         sf::Vector2i getTileIndices(const sf::Vector2f& position) const;

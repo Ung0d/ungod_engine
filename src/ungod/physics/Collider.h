@@ -86,6 +86,9 @@ namespace ungod
 		/** \brief Returns the bounding box of the collider. Requires an internal type-check. */
 		sf::FloatRect getBoundingBox() const;
 
+		/** \brief Moves the collider. Requires an internal type-check. */
+		void move(const sf::Vector2f& vec);
+
 	private:
 		std::array<float, MAX_PARAM> mParam; ///<floating point parameters of the collider, ordering and structure depend on the collider type
 		ColliderType mType;
@@ -151,7 +154,7 @@ namespace ungod
 	class RotatedRectAggregator : public RotatedRectConstAggregator
 	{
 	public:
-		RotatedRectAggregator(const Collider& data);
+		RotatedRectAggregator(Collider& data);
 
 		/** \brief Returns new collider data that is transformed according to the given transform. */
 		Collider transform(const TransformComponent& t) const;
@@ -200,7 +203,7 @@ namespace ungod
 	class PointSetAggregator : public PointSetConstAggregator
 	{
 	public:
-		PointSetAggregator(const Collider& data);
+		PointSetAggregator(Collider& data);
 
 		/** \brief Sets the number of polygon points. Must be below MAX_PARAM/2. */
 		void allocatePoints(unsigned n) const;
@@ -241,7 +244,7 @@ namespace ungod
 	class CircleAggregator : public CircleConstAggregator
 	{
 	public:
-		CircleAggregator(const Collider& data);
+		CircleAggregator(Collider& data);
 
 		/** \brief Returns new collider data that is transformed according to the given transform. */
 		Collider transform(const TransformComponent& t) const;

@@ -96,6 +96,25 @@ namespace ungod
 	}
 
 
+	void Collider::move(const sf::Vector2f& vec)
+	{
+		switch (mType)
+		{
+		case ColliderType::ROTATED_RECT:
+			RotatedRectAggregator{ *this }.move(vec); 
+			break;
+		case ColliderType::CONVEX_POLYGON: case ColliderType::EDGE_CHAIN:
+			PointSetAggregator{ *this }.move(vec);
+			break;
+		case ColliderType::CIRCLE:
+			CircleAggregator{ *this }.move(vec);
+			break;
+		default:
+			break;
+		}
+	}
+
+
 	void Collider::accomodatePoint(unsigned i, const sf::Vector2f& point) 
 	{
 		mParam[i] = point.x;
@@ -210,7 +229,7 @@ namespace ungod
 	}
 
 
-	RotatedRectAggregator::RotatedRectAggregator(const Collider& data) : RotatedRectConstAggregator(data) {}
+	RotatedRectAggregator::RotatedRectAggregator(Collider& data) : RotatedRectConstAggregator(data) {}
 
 	Collider RotatedRectAggregator::transform(const TransformComponent& t) const
 	{
@@ -299,7 +318,7 @@ namespace ungod
 	}
 
 
-	PointSetAggregator::PointSetAggregator(const Collider& data) : PointSetConstAggregator(data) {}
+	PointSetAggregator::PointSetAggregator(Collider& data) : PointSetConstAggregator(data) {}
 
 
 	void PointSetAggregator::allocatePoints(unsigned n) const
@@ -346,7 +365,7 @@ namespace ungod
 	}
 
 
-	CircleAggregator::CircleAggregator(const Collider& data) : CircleConstAggregator(data) {}
+	CircleAggregator::CircleAggregator(Collider& data) : CircleConstAggregator(data) {}
 
 	Collider CircleAggregator::transform(const TransformComponent& t) const
 	{

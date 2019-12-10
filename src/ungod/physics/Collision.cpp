@@ -114,7 +114,7 @@ namespace ungod
 		std::vector<sf::Vector2f> linePoints{ 2 };
 		std::tie(polyPoints, axis) = detail::getAxisAndPivots(c1, t1);
 		axis.emplace_back(); //additional slot for the axis induced by each line segment
-		PointSetAggregator psa{ c2 };
+		PointSetConstAggregator psa{ c2 };
 		bool collision = false;
 		sf::Vector2f mdv;
 		for (unsigned i = 0; i < psa.getNumberOfPoints(); i++)
@@ -172,6 +172,8 @@ namespace ungod
 				return rotatedRectContainsPoint(collider, transf, point);
 			case ColliderType::CONVEX_POLYGON:
 				return convexPolygonContainsPoint(collider, transf, point);
+			case ColliderType::CIRCLE:
+				return circleContainsPoint(collider, transf, point);
 			default:
 				return false;
 		}
@@ -180,7 +182,7 @@ namespace ungod
 
 	bool rotatedRectContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point)
 	{
-		RotatedRectAggregator rota{ collider };
+		RotatedRectConstAggregator rota{ collider };
 		//translate the point into the collider "local" coordinates
 		sf::Vector2f transfPoint = transf.getTransform().getInverse().transformPoint(point);
 		if (rota.getRotation() != 0.0f)
@@ -198,7 +200,7 @@ namespace ungod
 
 	bool convexPolygonContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point)
 	{
-		PointSetAggregator pa{ collider };
+		PointSetConstAggregator pa{ collider };
 		//translate the point into the collider "local" coordinates
 		sf::Vector2f transfPoint = transf.getTransform().getInverse().transformPoint(point);
 		for (unsigned i = 0; i < pa.getNumberOfPoints(); i++)
@@ -207,10 +209,17 @@ namespace ungod
 			sf::Vector2f pcur{ pa.getPointX(i), pa.getPointY(i) };
 			sf::Vector2f normal = sf::Vector2f{ pa.getPointX(inext), pa.getPointY(inext) } - pcur;
 			float dp = dotProduct(normal, point- pcur);
-			if (dp > 0.0f)
+			if (dp < 0.0f)
 				return false;
 		}
 		return true;
+	}
+
+
+	bool circleContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point)
+	{
+		CircleConstAggregator ca{ collider };
+		return distance({ ca.getCenterX(), ca.getCenterY() }, point) <= ca.getRadius();
 	}
 
 	namespace detail
@@ -221,9 +230,9 @@ namespace ungod
 			switch (collider.getType())
 			{
 			case ColliderType::ROTATED_RECT:
-				return RotatedRectAggregator{ collider }.getAxisAndPivots(transf);
+				return RotatedRectConstAggregator{ collider }.getAxisAndPivots(transf);
 			case ColliderType::CONVEX_POLYGON:
-				return PointSetAggregator{ collider }.getAxisAndPivots(transf);
+				return PointSetConstAggregator{ collider }.getAxisAndPivots(transf);
 			default:
 				return { {},{} };
 			}
