@@ -46,16 +46,31 @@ namespace uedit
 
         template<std::size_t CONTEXT>
         void addCollider(ungod::Entity e, const sf::Vector2f& upleft, const sf::Vector2f& downright, float rot, int i = -1);
+
         template<std::size_t CONTEXT>
         void removeCollider(ungod::Entity e, unsigned i);
+        
+
         template <std::size_t CONTEXT = 0>
-        void setColliderDownRight(ungod::Entity e, std::size_t index, const sf::Vector2f& downright);
+        void setRectDownRight(ungod::Entity e, const sf::Vector2f& downright);
         template <std::size_t CONTEXT = 0>
-        void setColliderUpLeft(ungod::Entity e, std::size_t index, const sf::Vector2f& upleft);
+        void setRectDownRight(ungod::Entity e, std::size_t index, const sf::Vector2f& downright);
+
         template <std::size_t CONTEXT = 0>
-        void rotateCollider(ungod::Entity e, std::size_t index, float rotation);
+        void setRectUpLeft(ungod::Entity e, const sf::Vector2f& upleft);
         template <std::size_t CONTEXT = 0>
-        void setColliderRotation(ungod::Entity e, std::size_t index, float rotation);
+        void setRectUpLeft(ungod::Entity e, std::size_t index, const sf::Vector2f& upleft);
+
+        template <std::size_t CONTEXT = 0>
+        void rotateRect(ungod::Entity e, float rotation);
+        template <std::size_t CONTEXT = 0>
+        void rotateRect(ungod::Entity e, std::size_t index, float rotation);
+
+        template <std::size_t CONTEXT = 0>
+        void setRectRotation(ungod::Entity e, float rotation);
+        template <std::size_t CONTEXT = 0>
+        void setRectRotation(ungod::Entity e, std::size_t index, float rotation);
+
 
         void attachScript(ungod::Entity e, const std::string& name);
 
