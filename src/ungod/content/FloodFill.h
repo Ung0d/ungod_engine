@@ -35,7 +35,7 @@ namespace ungod
     * This will replace the ids of all tiles in a connected area of tiles with the same id.
     * Selects randomly from the given vector of ids to fill the flootable space.
     * If the appropriate flag is set, inactive tiles will automatically be activated.*/
-    void floodFill(TileMap& tilemap, std::size_t ix, std::size_t iy, const std::vector<int>& replacementIDs, bool activate);
+    void floodFill(TileMap& tilemap, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs, bool activate);
 }
 
 #endif // UNGOD_FLOOD_FILL_H

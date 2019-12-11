@@ -74,7 +74,7 @@ namespace ungod
         return e.modify<TileMapComponent>().mTileMap.getTiledata(position);
     }
 
-    Tile* TileMapRenderer::getTile(Entity e, std::size_t x, std::size_t y)
+    Tile* TileMapRenderer::getTile(Entity e, unsigned x, unsigned y)
     {
         return e.modify<TileMapComponent>().mTileMap.getTiledata(x, y);
     }
@@ -137,7 +137,7 @@ namespace ungod
         return e.modify<WaterComponent>().mWater.getTileMap().getTiledata(position);
     }
 
-    Tile* TileMapRenderer::getWaterTile(Entity e, std::size_t x, std::size_t y)
+    Tile* TileMapRenderer::getWaterTile(Entity e, unsigned x, unsigned y)
     {
         return e.modify<WaterComponent>().mWater.getTileMap().getTiledata(x, y);
     }
@@ -208,12 +208,12 @@ namespace ungod
         water.mWater.setReflectionOpacity(opacity);
     }
 
-    void TileMapRenderer::floodFillTileMap(TileMapComponent& tilemap, std::size_t ix, std::size_t iy, const std::vector<int>& replacementIDs, bool activate)
+    void TileMapRenderer::floodFillTileMap(TileMapComponent& tilemap, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs, bool activate)
     {
         floodFill(tilemap.mTileMap, ix, iy, replacementIDs, activate);
     }
 
-    void TileMapRenderer::floodFillWater(WaterComponent& water, std::size_t ix, std::size_t iy, const std::vector<int>& replacementIDs, bool activate)
+    void TileMapRenderer::floodFillWater(WaterComponent& water, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs, bool activate)
     {
         floodFill(water.mWater.getTileMap(), ix, iy, replacementIDs, activate);
     }

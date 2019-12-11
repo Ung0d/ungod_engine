@@ -341,7 +341,7 @@ namespace ungod
 
 	sf::Vector2f PointSetConstAggregator::getCenter() const
 	{
-		switch (getNumberOfPoints() == 0)
+		switch (getNumberOfPoints())
 		{
 		case 1u:
 			return { getPointX(0), getPointY(0) };

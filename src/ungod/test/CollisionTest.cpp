@@ -33,6 +33,12 @@ BOOST_AUTO_TEST_CASE(colliders_alltoall_test)
 
 	ungod::Collider poly3 = ungod::makeConvexPolygon({ {10,10}, {16,4}, {20,10} });
 	BOOST_REQUIRE(ungod::doCollide(poly1, poly3, transf, transf).first);
+
+	ungod::Collider chain1 = ungod::makeEdgeChain({ {-1,-1}, {17, -1}, {5,5} });
+	ungod::Collider chain2 = ungod::makeEdgeChain({ {-1,-1}, {17, -1}, {17,17}, {0,17} });
+
+	BOOST_REQUIRE(ungod::doCollide(chain1, rect1, transf, transf).first);
+	BOOST_REQUIRE(!ungod::doCollide(chain2, rect1, transf, transf).first);
 }
 
 BOOST_AUTO_TEST_CASE( collision_events_test )

@@ -39,7 +39,7 @@ namespace ungod
 		pivots1.reserve((unsigned)(Collider::MAX_PARAM / 2));
 		pivots2.reserve((unsigned)(Collider::MAX_PARAM / 2));
 		for (unsigned i = 0; i < c1.getNumRuns(); i++)
-			for (unsigned j = 0; i < c2.getNumRuns(); i++)
+			for (unsigned j = 0; j < c2.getNumRuns(); j++)
 		{
 			axis.clear();
 			pivots1.clear();
@@ -122,7 +122,7 @@ namespace ungod
 				return convexPolygonContainsPoint(collider, transf, point);
 			case ColliderType::CIRCLE:
 				return circleContainsPoint(collider, transf, point);
-			default:
+			default: //no support for edge chains
 				return false;
 		}
     }
