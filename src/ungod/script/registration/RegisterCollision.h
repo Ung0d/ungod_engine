@@ -40,31 +40,33 @@ namespace ungod
             state.registerUsertype<RigidbodyComponent<CONTEXT>>(STRCAT("Rigidbody", NUM2STR(CONTEXT)));
 
             state.registerUsertype<CollisionManager<CONTEXT>>(STRCAT("CollisionManager", NUM2STR(CONTEXT)));
-        }
 
-		/*state.registerUsertype<RigidbodyManager>("RigidbodyManager",
-			"addMovementCollider", sol::overload(
-				[](RigidbodyManager& rm, Entity e, const Collider& collider) { rm.addCollider<MOVEMENT_COLLISION_CONTEXT>(e, collider); },
-				[](RigidbodyManager& rm, Entity e, const sf::Vector2f& upleft, const sf::Vector2f& downright) { rm.addCollider<MOVEMENT_COLLISION_CONTEXT>(e, upleft, downright); },
-				[](RigidbodyManager& rm, Entity e, const sf::Vector2f& upleft, const sf::Vector2f& downright, float rotation) { rm.addCollider<MOVEMENT_COLLISION_CONTEXT>(e, upleft, downright, rotation); }),
-			"modifyMovementCollider", &RigidbodyManager::modifyCollider<MOVEMENT_COLLISION_CONTEXT>,
-			"rotateMovementCollider", &RigidbodyManager::rotateCollider<MOVEMENT_COLLISION_CONTEXT>,
-			"setMovementColliderRotation", &RigidbodyManager::setColliderRotation<MOVEMENT_COLLISION_CONTEXT>,
-			"setMovementColliderDownRight", &RigidbodyManager::setColliderDownRight<MOVEMENT_COLLISION_CONTEXT>,
-			"setMovementColliderUpLeft", &RigidbodyManager::setColliderUpLeft<MOVEMENT_COLLISION_CONTEXT>,
-			"addSemanticsCollider", sol::overload(
-				[](RigidbodyManager& rm, Entity e, const Collider& collider) { rm.addCollider<SEMANTICS_COLLISION_CONTEXT>(e, collider); },
-				[](RigidbodyManager& rm, Entity e, const sf::Vector2f& upleft, const sf::Vector2f& downright) { rm.addCollider<SEMANTICS_COLLISION_CONTEXT>(e, upleft, downright); },
-				[](RigidbodyManager& rm, Entity e, const sf::Vector2f& upleft, const sf::Vector2f& downright, float rotation) { rm.addCollider<SEMANTICS_COLLISION_CONTEXT>(e, upleft, downright, rotation); }),
-			"modifySemanticsCollider", &RigidbodyManager::modifyCollider<SEMANTICS_COLLISION_CONTEXT>,
-			"rotateSemanticsCollider", &RigidbodyManager::rotateCollider<SEMANTICS_COLLISION_CONTEXT>,
-			"setSemanticsColliderRotation", &RigidbodyManager::setColliderRotation<SEMANTICS_COLLISION_CONTEXT>,
-			"setSemanticsColliderDownRight", &RigidbodyManager::setColliderDownRight<SEMANTICS_COLLISION_CONTEXT>,
-			"setSemanticsColliderUpLeft", &RigidbodyManager::setColliderUpLeft<SEMANTICS_COLLISION_CONTEXT>,
-			"setMovementCollisionActive", &RigidbodyManager::setActive<MOVEMENT_COLLISION_CONTEXT>,
-			"setSemanticsCollisionActive", &RigidbodyManager::setActive<SEMANTICS_COLLISION_CONTEXT>,
-			"getLowerBound", &RigidbodyManager::getLowerBound,
-			"getUpperBound", &RigidbodyManager::getUpperBound);*/
+            script::Usertype<RigidbodyManager<CONTEXT>> rmType = 
+                    state.registerUsertype<RigidbodyManager<CONTEXT>>(STRCAT("RigidbodyManager", NUM2STR(CONTEXT)));
+
+            rmType["addCollider"] = sol::overload(
+                [](RigidbodyManager<CONTEXT>& rm, Entity e, const Collider& collider) { rm.addCollider(e, collider); },
+                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned i, const Collider& collider) { rm.addCollider(e, i, collider);  });
+            rmType["clearCollider"] = sol::overload(
+                [](RigidbodyManager<CONTEXT>& rm, Entity e) { rm.clearCollider(e); },
+                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned i) { rm.clearCollider(e, i);  });
+            rmType["setRectDownRight"] = sol::overload(
+                [](RigidbodyManager<CONTEXT>& rm, Entity e, const sf::Vector2f& p) { rm.setRectDownRight(e,p); },
+                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned i, const sf::Vector2f& p) { rm.setRectDownRight(e, i, p);  });
+            rmType["setRectUpLeft"] = sol::overload(
+                [](RigidbodyManager<CONTEXT>& rm, Entity e, const sf::Vector2f& p) { rm.setRectUpLeft(e, p); },
+                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned i, const sf::Vector2f& p) { rm.setRectUpLeft(e, i, p);  });
+            rmType["setRectRotation"] = sol::overload(
+                [](RigidbodyManager<CONTEXT>& rm, Entity e, float r) { rm.setRectRotation(e, r); },
+                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned i, float r) { rm.setRectRotation(e, i, r);  });
+            rmType["setPoint"] = sol::overload(
+                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned pointIndex, const sf::Vector2f& point) { rm.setPoint(e, pointIndex, point); },
+                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned multiIndex, unsigned pointIndex, const sf::Vector2f& point) { rm.setPoint(e, multiIndex, pointIndex, point);  });
+            rmType["setActive"] = sol::overload(
+                [](RigidbodyManager<CONTEXT>& rm, Entity e, bool active) { rm.setActive(e, active); },
+                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned i,bool active) { rm.setActive(e, i, active);  });
+
+        }
 
         /** \brief Registers rigidbody attachment and manipulation functionality for scripts. */
         void registerRigidbody(ScriptStateBase& state);

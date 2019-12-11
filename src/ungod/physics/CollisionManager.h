@@ -80,9 +80,6 @@ namespace ungod
     template <std::size_t N> friend struct ContextIteration;
 
     public:
-		/** \brief Sets a collider count for the multicomponent. */
-		void setColliderCount(Entity e, unsigned n);
-
         /** \brief Adds a new collider by copying to the rigidbody of entity e. */
 		MULTI_COMP_METHOD_1ARG(addCollider,RigidbodyComponent<CONTEXT>, const Collider&, collider)
 
@@ -96,7 +93,7 @@ namespace ungod
 		MULTI_COMP_METHOD_1ARG(addEdgeChain, RigidbodyComponent<CONTEXT>, const std::vector<sf::Vector2f>&, points)
 
 		/** \brief Adds and constructs inplace a new circle collider. */
-		MULTI_COMP_METHOD_2ARG(addCircle, RigidbodyComponent<CONTEXT>, const sf::Vector2f&, center, float, radius)
+		//MULTI_COMP_METHOD_2ARG(addCircle, RigidbodyComponent<CONTEXT>, const sf::Vector2f&, center, float, radius)
 		
         /** \brief Removes a collider. */
 		MULTI_COMP_METHOD_0ARG(clearCollider, RigidbodyComponent<CONTEXT>)
@@ -117,10 +114,10 @@ namespace ungod
 		MULTI_COMP_METHOD_2ARG(setPoint, RigidbodyComponent<CONTEXT>, unsigned, i, const sf::Vector2f&, point)
 
 		/** \brief Sets the center point of a circle collider. */
-		MULTI_COMP_METHOD_1ARG(setCircleCenter, RigidbodyComponent<CONTEXT>, const sf::Vector2f&, center)
+		//MULTI_COMP_METHOD_1ARG(setCircleCenter, RigidbodyComponent<CONTEXT>, const sf::Vector2f&, center)
 
 		/** \brief Sets the radius of a circle collider. */
-		MULTI_COMP_METHOD_1ARG(setRadius, RigidbodyComponent<CONTEXT>, float, radius)
+		//MULTI_COMP_METHOD_1ARG(setRadius, RigidbodyComponent<CONTEXT>, float, radius)
 
         /** \brief Activates/deactivates collision handling for the given entity. */
 		MULTI_COMP_METHOD_1ARG(setActive, RigidbodyComponent<CONTEXT>, bool, active)

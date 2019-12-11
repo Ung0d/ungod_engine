@@ -32,13 +32,28 @@ namespace ungod
     {
         void registerRigidbody(ScriptStateBase& state)
         {
+            script::Usertype<RotatedRectConstAggregator> rrcaType = state.registerUsertype<RotatedRectConstAggregator>("RotatedRectConstAggregator");
+            rrcaType["getRotation"] = &RotatedRectConstAggregator::getRotation;
+            rrcaType["getUpLeft"] = [](RotatedRectConstAggregator& rrca)
+                     {return sf::Vector2f{rrca.getUpLeftX(), rrca.getUpLeftY()}; };
+            rrcaType["getDownRight"] = [](RotatedRectConstAggregator& rrca)
+                     {return sf::Vector2f{ rrca.getDownRightX(), rrca.getDownRightY() }; };
 
-            /*state.registerUsertype<Collider>("Collider",
-                                                   sol::constructors<Collider(const sf::Vector2f& upleft, const sf::Vector2f& downright), Collider(const sf::Vector2f& upleft, const sf::Vector2f& downright, float rotation)>(),
-                                                   "getUpleft", &Collider::getUpleft,
-                                                   "getDownright", &Collider::getDownright,
-                                                   "getCenter", &Collider::getCenter,
-                                                   "getRotation", &Collider::getRotation);*/
+            script::Usertype<PointSetConstAggregator> pscaType = state.registerUsertype<PointSetConstAggregator>("PointSetConstAggregator");
+            rrcaType["getPoint"] = [](PointSetConstAggregator& psca, unsigned i)
+            {return sf::Vector2f{ psca.getPointX(i), psca.getPointY(i) }; };
+
+
+            script::Usertype<Collider> colliderType = state.registerUsertype<Collider>("Collider", sol::constructors<Collider()>());
+            colliderType["getType"] = &Collider::getType;
+            colliderType["asRectangle"] = [](Collider& c) {return RotatedRectConstAggregator(c); };
+            colliderType["asPolygon"] = [](Collider& c) {return PointSetConstAggregator(c); };
+            colliderType["asEdgeChain"] = [](Collider& c) {return PointSetConstAggregator(c); };
+
+            state.registerFunction("makeRotatedRect", [](const sf::Vector2f& upleft, const sf::Vector2f& downRight, float rotation)
+                                { return makeRotatedRect(upleft, downRight, rotation); });
+            state.registerFunction("makeConvexPolygon", &makeConvexPolygon);
+            state.registerFunction("makeEdgeChain", &makeEdgeChain);
         }
     }
 }

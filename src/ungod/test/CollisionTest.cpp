@@ -24,26 +24,26 @@ BOOST_AUTO_TEST_CASE(colliders_alltoall_test)
 
 	ungod::Collider poly1 = ungod::makeConvexPolygon({ {5,5}, {16,4}, {20,10}, {16,16}, {5,12} });
 
-	BOOST_REQUIRE(ungod::doCollide(poly1, rect1, transf, transf).first);
+	BOOST_CHECK(ungod::doCollide(poly1, rect1, transf, transf).first);
 
 	ungod::Collider poly2 = poly1; //copy
 	poly2.move({ 12,12 });
 
-	BOOST_REQUIRE(!ungod::doCollide(poly2, rect1, transf, transf).first);
+	BOOST_CHECK(!ungod::doCollide(poly2, rect1, transf, transf).first);
 
 	ungod::Collider poly3 = ungod::makeConvexPolygon({ {10,10}, {16,4}, {20,10} });
-	BOOST_REQUIRE(ungod::doCollide(poly1, poly3, transf, transf).first);
+	BOOST_CHECK(ungod::doCollide(poly1, poly3, transf, transf).first);
 
 	ungod::Collider chain1 = ungod::makeEdgeChain({ {-1,-1}, {17, -1}, {5,5} });
 	ungod::Collider chain2 = ungod::makeEdgeChain({ {-1,-1}, {17, -1}, {17,17}, {0,17} });
 
-	BOOST_REQUIRE(ungod::doCollide(chain1, rect1, transf, transf).first);
-	BOOST_REQUIRE(!ungod::doCollide(chain2, rect1, transf, transf).first);
+	BOOST_CHECK(ungod::doCollide(chain1, rect1, transf, transf).first);
+	BOOST_CHECK(!ungod::doCollide(chain2, rect1, transf, transf).first);
 }
 
 BOOST_AUTO_TEST_CASE( collision_events_test )
 {
-    /*ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+    ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
 	node.setSize({ 8000,6000 });
 	ungod::World* world = node.addWorld();
@@ -86,11 +86,6 @@ BOOST_AUTO_TEST_CASE( collision_events_test )
     world->update(0.1f, {0,0}, {800, 600});
 
     BOOST_CHECK(collisionDetectedEnd);
-
-	world->destroy(e1); //queue entity for destruction
-	world->destroy(e2); //queue entity for destruction
-	world->destroy(e3); //queue entity for destruction
-	world->update(20.0f, {}, {}); //destroys entity in queue*/
 }
 
 BOOST_AUTO_TEST_CASE( point_inside_collider_test )
@@ -127,7 +122,7 @@ BOOST_AUTO_TEST_CASE( point_inside_collider_test )
 		BOOST_CHECK(!ungod::containsPoint(poly, transf, isNotInside1));
 		BOOST_CHECK(!ungod::containsPoint(poly, transf, isNotInside2));
 	}
-	{
+	/*{
 		sf::Vector2f isInside{ 10.0f, 10.0f };
 		sf::Vector2f isNotInside{ 0.0f, 0.0f };
 		ungod::Collider circle;
@@ -135,7 +130,7 @@ BOOST_AUTO_TEST_CASE( point_inside_collider_test )
 		ungod::TransformComponent transf;
 		BOOST_CHECK(ungod::containsPoint(circle, transf, isInside));
 		BOOST_CHECK(!ungod::containsPoint(circle, transf, isNotInside));
-	}
+	}*/
 }
 
 BOOST_AUTO_TEST_SUITE_END()

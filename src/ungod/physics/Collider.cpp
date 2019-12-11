@@ -66,13 +66,13 @@ namespace ungod
 	}
 
 
-	void Collider::initCircle(const sf::Vector2f& center, float radius)
+	/*void Collider::initCircle(const sf::Vector2f& center, float radius)
 	{
 		mType = ColliderType::CIRCLE;
 		accomodatePoint(0, center);
 		mParam[2] = radius;
 		mNumParamUsed = 3;
-	}
+	}*/
 
 
 	void Collider::reset()
@@ -89,8 +89,8 @@ namespace ungod
 			return RotatedRectConstAggregator{ *this }.getBoundingBox();
 		case ColliderType::CONVEX_POLYGON: case ColliderType::EDGE_CHAIN:
 			return PointSetConstAggregator{ *this }.getBoundingBox();
-		case ColliderType::CIRCLE:
-			return CircleConstAggregator{ *this }.getBoundingBox();
+		/*case ColliderType::CIRCLE:
+			return CircleConstAggregator{ *this }.getBoundingBox();*/
 		default:
 			return {};
 		}
@@ -107,9 +107,9 @@ namespace ungod
 		case ColliderType::CONVEX_POLYGON: case ColliderType::EDGE_CHAIN:
 			PointSetAggregator{ *this }.move(vec);
 			break;
-		case ColliderType::CIRCLE:
+		/*case ColliderType::CIRCLE:
 			CircleAggregator{ *this }.move(vec);
-			break;
+			break;*/
 		default:
 			break;
 		}
@@ -129,8 +129,8 @@ namespace ungod
 		case ColliderType::EDGE_CHAIN:
 			EdgeChainConstAggregator{ *this }.getAxisAndPivots(t, axis, pivots, i);
 			break;
-		case ColliderType::CIRCLE:
-			break;
+		/*case ColliderType::CIRCLE:
+			break;*/
 		default:
 			break;
 		}
@@ -147,8 +147,8 @@ namespace ungod
 			return PointSetConstAggregator{ *this }.getCenter();
 		case ColliderType::EDGE_CHAIN:
 			return {};
-		case ColliderType::CIRCLE:
-			return {};
+		/*case ColliderType::CIRCLE:
+			return {};*/
 		default:
 			return {};
 		}
@@ -160,18 +160,18 @@ namespace ungod
 		switch (mType)
 		{
 		case ColliderType::ROTATED_RECT:
-			return 1;
+			return 1u;
 		case ColliderType::CONVEX_POLYGON:
-			return 1;
+			return 1u;
 		case ColliderType::EDGE_CHAIN:
 		{
 			auto nump = PointSetConstAggregator{ *this }.getNumberOfPoints();
 			return nump > 0 ? nump - 1 : 0u;
 		}
-		case ColliderType::CIRCLE:
-			return {};
+		/*case ColliderType::CIRCLE:
+			return {};*/
 		default:
-			return {};
+			return 0u;
 		}
 	}
 
@@ -204,12 +204,12 @@ namespace ungod
 		return c;
 	}
 
-	Collider makeCircle(const sf::Vector2f& center, float radius)
+	/*Collider makeCircle(const sf::Vector2f& center, float radius)
 	{
 		Collider c;
 		c.initCircle(center, radius);
 		return c;
-	}
+	}*/
 
 
 	namespace detail
@@ -433,7 +433,7 @@ namespace ungod
 		axis.emplace_back(perpendicularVector(v));
 	}
 
-	CircleConstAggregator::CircleConstAggregator(const Collider& data) : detail::AggregatorBase(data) {}
+	/*CircleConstAggregator::CircleConstAggregator(const Collider& data) : detail::AggregatorBase(data) {}
 
 	sf::FloatRect CircleConstAggregator::getBoundingBox(const TransformComponent& t) const
 	{
@@ -444,6 +444,12 @@ namespace ungod
 	{
 		auto tcenter = t.transformPoint({ getCenterX(), getCenterY() });
 		return { tcenter.x - getRadius(), tcenter.y - getRadius(), 2 * getRadius(), 2 * getRadius() };
+	}
+
+	void CircleConstAggregator::getAxisAndPivots(
+		const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& points, unsigned i) const
+	{
+		//no additional axis for
 	}
 
 
@@ -459,5 +465,5 @@ namespace ungod
 	{
 		setCenterX(getCenterX() + vec.x);
 		setCenterY(getCenterY() + vec.y);
-	}
+	}*/
 }

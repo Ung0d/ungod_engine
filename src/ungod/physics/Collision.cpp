@@ -120,8 +120,8 @@ namespace ungod
 				return rotatedRectContainsPoint(collider, transf, point);
 			case ColliderType::CONVEX_POLYGON:
 				return convexPolygonContainsPoint(collider, transf, point);
-			case ColliderType::CIRCLE:
-				return circleContainsPoint(collider, transf, point);
+			/*case ColliderType::CIRCLE:
+				return circleContainsPoint(collider, transf, point);*/
 			default: //no support for edge chains
 				return false;
 		}
@@ -164,9 +164,9 @@ namespace ungod
 	}
 
 
-	bool circleContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point)
+	/*bool circleContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point)
 	{
 		CircleConstAggregator ca{ collider };
 		return distance({ ca.getCenterX(), ca.getCenterY() }, point) <= ca.getRadius();
-	}
+	}*/
 }

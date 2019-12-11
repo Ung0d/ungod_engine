@@ -214,19 +214,19 @@ BOOST_AUTO_TEST_CASE(serial_colliders_test)
 		ungod::Entity e_rect = world->create(Base(), Opt()); world->addEntity(e_rect);
 		ungod::Entity e_poly = world->create(Base(), Opt()); world->addEntity(e_poly);
 		ungod::Entity e_edge = world->create(Base(), Opt()); world->addEntity(e_edge);
-		ungod::Entity e_circ = world->create(Base(), Opt()); world->addEntity(e_circ);
+		//ungod::Entity e_circ = world->create(Base(), Opt()); world->addEntity(e_circ);
 		world->tagWithName(e_rect, "e_rect");
 		world->tagWithName(e_poly, "e_poly");
 		world->tagWithName(e_edge, "e_edge");
-		world->tagWithName(e_circ, "e_circ");
+		//world->tagWithName(e_circ, "e_circ");
 		world->getMovementRigidbodyManager().addRotatedRect(e_rect, 
 								{ 100.0f, 130.0f }, { 200.0f, 400.0f }, 50.0f);
 		world->getMovementRigidbodyManager().addConvexPolygon(e_poly,
 								{ { 100.0f, 130.0f }, { 200.0f, 300.0f }, { 200.0f, 600.0f } });
 		world->getMovementRigidbodyManager().addEdgeChain(e_edge,
 								{ { 100.0f, 130.0f }, { 200.0f, 300.0f }, { 200.0f, 600.0f } });
-		world->getMovementRigidbodyManager().addCircle(e_circ,
-								{ 100.0f, 130.0f }, 50.0f);
+		/*world->getMovementRigidbodyManager().addCircle(e_circ,
+								{ 100.0f, 130.0f }, 50.0f);*/
 		ungod::SerializationContext context;
 		context.serializeRootObject(*world, static_cast<const sf::RenderTarget&>(window));
 		context.save("test_output/colliders_serial_world_sav.xml");
@@ -249,12 +249,12 @@ BOOST_AUTO_TEST_CASE(serial_colliders_test)
 		ungod::Entity e_rect = world->getEntityByName("e_rect");
 		ungod::Entity e_poly = world->getEntityByName("e_poly");
 		ungod::Entity e_edge = world->getEntityByName("e_edge");
-		ungod::Entity e_circ = world->getEntityByName("e_circ");
+		//ungod::Entity e_circ = world->getEntityByName("e_circ");
 
 		BOOST_REQUIRE(world->getEntityByName("e_rect"));
 		BOOST_REQUIRE(world->getEntityByName("e_poly"));
 		BOOST_REQUIRE(world->getEntityByName("e_edge"));
-		BOOST_REQUIRE(world->getEntityByName("e_circ"));
+		//BOOST_REQUIRE(world->getEntityByName("e_circ"));
 
 		BOOST_REQUIRE_EQUAL(static_cast<std::underlying_type_t<ungod::ColliderType>>(e_rect.get<ungod::RigidbodyComponent<>>().getCollider().getType()),
 			static_cast<std::underlying_type_t<ungod::ColliderType>>(ungod::ColliderType::ROTATED_RECT));
@@ -287,12 +287,12 @@ BOOST_AUTO_TEST_CASE(serial_colliders_test)
 		BOOST_CHECK_EQUAL(psa2.getPointX(2), 200.0f);
 		BOOST_CHECK_EQUAL(psa2.getPointY(2), 600.0f);
 
-		BOOST_REQUIRE_EQUAL(static_cast<std::underlying_type_t<ungod::ColliderType>>(e_circ.get<ungod::RigidbodyComponent<>>().getCollider().getType()),
+		/*BOOST_REQUIRE_EQUAL(static_cast<std::underlying_type_t<ungod::ColliderType>>(e_circ.get<ungod::RigidbodyComponent<>>().getCollider().getType()),
 			static_cast<std::underlying_type_t<ungod::ColliderType>>(ungod::ColliderType::CIRCLE));
 		ungod::CircleConstAggregator ca{ e_circ.get<ungod::RigidbodyComponent<>>().getCollider() };
 		BOOST_CHECK_EQUAL(ca.getCenterX(), 100.0f);
 		BOOST_CHECK_EQUAL(ca.getCenterY(), 130.0f);
-		BOOST_CHECK_EQUAL(ca.getRadius(), 50.0f);
+		BOOST_CHECK_EQUAL(ca.getRadius(), 50.0f);*/
 	}
 }
 

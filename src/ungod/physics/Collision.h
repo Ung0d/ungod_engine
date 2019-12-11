@@ -52,7 +52,7 @@ namespace ungod
 
 	/** \brief A free method that checks whether a given point is inside a collider if it is already known that the
 	* collider is a circle. */
-	bool circleContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point);
+	//bool circleContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point);
 }
 
 #endif // UNGOD_COLLISION_H

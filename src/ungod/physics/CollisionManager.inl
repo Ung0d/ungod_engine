@@ -35,12 +35,6 @@
 
 
 template <std::size_t CONTEXT>
-void RigidbodyManager<CONTEXT>::setColliderCount(Entity e, unsigned n)
-{
-	e.modify<MultiRigidbodyComponent>().setComponentCount(n);
-}
-
-template <std::size_t CONTEXT>
 void RigidbodyManager<CONTEXT>::addCollider(Entity e, RigidbodyComponent<CONTEXT>& rcomp, const Collider& collider)
 {
 	rcomp.mCollider = collider;
@@ -72,12 +66,12 @@ void RigidbodyManager<CONTEXT>::addEdgeChain(Entity e, RigidbodyComponent<CONTEX
 }
 
 
-template <std::size_t CONTEXT>
+/*template <std::size_t CONTEXT>
 void RigidbodyManager<CONTEXT>::addCircle(Entity e, RigidbodyComponent<CONTEXT> & rcomp, const sf::Vector2f& center, float radius)
 {
 	rcomp.mCollider.initCircle(center, radius);
 	mContentsChangedSignal(e, CircleAggregator{ rcomp.mCollider }.getBoundingBox());
-}
+}*/
 
 
 template <std::size_t CONTEXT>
@@ -133,7 +127,7 @@ void RigidbodyManager<CONTEXT>::setPoint(Entity e, RigidbodyComponent<CONTEXT>& 
 }
 
 
-template <std::size_t CONTEXT>
+/*template <std::size_t CONTEXT>
 void RigidbodyManager<CONTEXT>::setCircleCenter(Entity e, RigidbodyComponent<CONTEXT>& rcomp, const sf::Vector2f& center)
 {
 	CircleAggregator ca{ rcomp.mCollider };
@@ -149,7 +143,7 @@ void RigidbodyManager<CONTEXT>::setRadius(Entity e, RigidbodyComponent<CONTEXT>&
 	CircleAggregator ca{ rcomp.mCollider };
 	ca.setRadius(radius);
 	mContentsChangedSignal(e, ca.getBoundingBox());
-}
+}*/
 
 template <std::size_t CONTEXT>
 void RigidbodyManager<CONTEXT>::setActive(Entity e, RigidbodyComponent<CONTEXT>& rcomp, bool active)

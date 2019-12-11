@@ -37,8 +37,8 @@ namespace ungod
 		UNDEFINED,
 		ROTATED_RECT,
 		CONVEX_POLYGON,
-		EDGE_CHAIN,
-		CIRCLE
+		EDGE_CHAIN//,
+		//CIRCLE
 	};
 
 	class TransformComponent;
@@ -64,7 +64,7 @@ namespace ungod
 		void initEdgeChain(const std::vector<sf::Vector2f>& points);
 
 		/** \brief Initializes a circle. */
-		void initCircle(const sf::Vector2f& center, float radius);
+		//void initCircle(const sf::Vector2f& center, float radius);
 
 		/** \brief Resets the collider to an undefined state. It will be ignored in all computations. */
 		void reset();
@@ -118,7 +118,7 @@ namespace ungod
 	Collider makeEdgeChain(const std::vector<sf::Vector2f>& points);
 
 	/** \brief Convenience factory. */
-	Collider makeCircle(const sf::Vector2f& center, float radius);
+	//Collider makeCircle(const sf::Vector2f& center, float radius);
 
 	namespace detail
 	{
@@ -253,32 +253,31 @@ namespace ungod
 
 	/** \brief A class with only additional logic that can be aggregated by ColliderData in
 	* order to grant convenient functionality. */
-	class CircleConstAggregator : public detail::AggregatorBase
+	/*class CircleConstAggregator : public detail::AggregatorBase
 	{
 	public:
 		CircleConstAggregator(const Collider& data);
 
-		/** \brief Returns the bounding box in the "default" coordinate system of the collider. */
 		sf::FloatRect getBoundingBox(const TransformComponent& t) const;
 		sf::FloatRect getBoundingBox(sf::Transform t = sf::Transform()) const;
+
+		void getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& points, unsigned i) const;
 
 		inline float getCenterX() const { return mData.getParam(0); }
 		inline float getCenterY() const { return mData.getParam(1); }
 		inline float getRadius() const { return mData.getParam(2); }
-	};
+	};*/
 
 
 	/** \brief A class with only additional logic that can be aggregated by ColliderData in
 	* order to grant convenient functionality. */
-	class CircleAggregator : public CircleConstAggregator
+	/*class CircleAggregator : public CircleConstAggregator
 	{
 	public:
 		CircleAggregator(Collider& data);
 
-		/** \brief Returns new collider data that is transformed according to the given transform. */
 		Collider transform(const TransformComponent& t) const;
 
-		/** \brief Moves the internal position of the collider along the given vector. */
 		void move(const sf::Vector2f& vec) const;
 
 		inline void setCenterX(float x) const { getData().setParam(0, x); }
@@ -287,7 +286,7 @@ namespace ungod
 
 	private:
 		Collider& getData() const { return const_cast<Collider&>(mData); }
-	};
+	}; */
 }
 
 #endif // UNGOD_COLLIDER_H

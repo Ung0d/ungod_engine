@@ -120,15 +120,45 @@ namespace ungod
     template<std::size_t CONTEXT>
     void Renderer::renderCollider(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, sf::RenderTarget& target, sf::RenderStates states, const sf::Color& col)
     {
-        /*states.transform *= transf.getTransform();  //apply the transform of the entity
-        sf::RenderStates locstates = states;
-        locstates.transform.rotate(c.getRotation(), c.getCenter());   //apply the rotation of the collider
-        sf::RectangleShape rect(c.getDownright() - c.getUpleft());
-        rect.setPosition(c.getUpleft());
-        rect.setFillColor(sf::Color::Transparent);
-        rect.setOutlineThickness(2);
-        rect.setOutlineColor(col);
-        target.draw(rect, locstates);*/
+        states.transform *= transf.getTransform();  //apply the transform of the entity
+        switch (body.getCollider().getType())
+        {
+        case ColliderType::ROTATED_RECT:
+        {
+            RotatedRectConstAggregator c{ body.getCollider() };
+            sf::RenderStates locstates = states;
+            locstates.transform.rotate(c.getRotation(), c.getCenter());   //apply the rotation of the collider
+            sf::RectangleShape rect(sf::Vector2f{ c.getDownRightX(), c.getDownRightY() } - sf::Vector2f{c.getUpLeftX(), c.getUpLeftY()});
+            rect.setPosition({ c.getUpLeftX(), c.getUpLeftY() });
+            rect.setFillColor(sf::Color::Transparent);
+            rect.setOutlineThickness(3);
+            rect.setOutlineColor(col);
+            target.draw(rect, locstates);
+            break;
+        }
+        case ColliderType::CONVEX_POLYGON:
+        {
+            PointSetConstAggregator ps{ body.getCollider() };
+            sf::ConvexShape poly(ps.getNumberOfPoints());
+            for (unsigned i = 0; i < ps.getNumberOfPoints(); i++)
+                poly.setPoint(i, { ps.getPointX(i), ps.getPointY(i) });
+            poly.setFillColor(sf::Color::Transparent);
+            poly.setOutlineThickness(3);
+            poly.setOutlineColor(col);
+            target.draw(poly, states);
+            break;
+        }
+        case ColliderType::EDGE_CHAIN:
+        {
+            PointSetConstAggregator ps{ body.getCollider() };
+            sf::VertexArray lines(sf::LinesStrip, ps.getNumberOfPoints());
+            for (unsigned i = 0; i < ps.getNumberOfPoints(); i++)
+                lines[i].color = col;
+            target.draw(lines, states);
+        }
+        default:
+            break;
+        }
     }
 
     template<std::size_t CONTEXT>
