@@ -234,7 +234,7 @@ CollisionManager<CONTEXT>::CollisionManager(quad::QuadTree<Entity>& quadtree) :
     onCollision([this] (Entity e, Entity other, const sf::Vector2f&, const Collider&, const Collider&)
                 {
                     auto result = mDoubleBuffers[mBufferActive].emplace(e, std::unordered_set<Entity>());
-                    result.first->second.insert(other);
+					result.first->second.insert(other);
                 });
 }
 
@@ -278,6 +278,7 @@ void CollisionManager<CONTEXT>::entityCollision(Entity e1, Entity e2,
         if ( collision && e1 != e2 )
         {
             signal(e1, e2, smallestOffset, r1.getCollider(), r2.getCollider());
+			signal(e2, e1, smallestOffset, r2.getCollider(), r1.getCollider());
         }
     }
 }
@@ -288,14 +289,13 @@ void CollisionManager<CONTEXT>::checkCollisions(const std::list<Entity>& entitie
     //clear active buffer
     mDoubleBuffers[mBufferActive].clear();
 
-    quad::PullResult<Entity> result;
     dom::Utility<Entity>::iterate<TransformComponent, RigidbodyComponent<CONTEXT>>(entities,
-      [&result, this] (Entity e, TransformComponent& transf, RigidbodyComponent<CONTEXT>& body)
+      [this] (Entity e, TransformComponent& transf, RigidbodyComponent<CONTEXT>& body)
       {
 			checkCollisions(e, transf, body);
       });
 	dom::Utility<Entity>::iterate<TransformComponent, MultiRigidbodyComponent<CONTEXT>>(entities,
-		[&result, this](Entity e, TransformComponent& transf, MultiRigidbodyComponent<CONTEXT>& body)
+		[this](Entity e, TransformComponent& transf, MultiRigidbodyComponent<CONTEXT>& body)
 		{
 			for (unsigned i = 0; i < body.getComponentCount(); i++)
 				checkCollisions(e, transf, body.getComponent(i));
@@ -303,7 +303,7 @@ void CollisionManager<CONTEXT>::checkCollisions(const std::list<Entity>& entitie
 
       for (const auto& eset : mDoubleBuffers[mBufferActive]) //for each entity in the active buffer
       {
-          auto result = mDoubleBuffers[!mBufferActive].find(eset.first);  //search in the inactive bugger
+          auto result = mDoubleBuffers[!mBufferActive].find(eset.first);  //search in the inactive buffer
           if (result == mDoubleBuffers[!mBufferActive].end())
           {
               for (const auto& other : eset.second)

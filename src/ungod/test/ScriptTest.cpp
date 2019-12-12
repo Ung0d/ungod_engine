@@ -338,3 +338,30 @@ BOOST_AUTO_TEST_CASE( input_script_test )
         BOOST_REQUIRE(*exit);*/
     }
 }
+
+BOOST_AUTO_TEST_CASE(trigger_test)
+{
+    using namespace ungod;
+    ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+    WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+    node.setSize({ 15000, 15000 });
+    ungod::World* world = node.addWorld();
+    world->getBehaviorManager().loadBehaviorScript("test_data/trigger.lua");
+    world->getBehaviorManager().loadBehaviorScript("test_data/trigger_tester.lua");
+    Entity trigger = world->create(TriggerBaseComponents(), TriggerOptionalComponents(), "trigger");
+    Entity tester = world->create(ActorBaseComponents(), ActorOptionalComponents(), "trigger_tester");
+    world->addEntity(trigger);
+    world->addEntity(tester);
+    world->update(20.0f, { 0,0 }, { 15000,15000 });
+    auto check_enter = trigger.get<EntityBehaviorComponent>().getStateVariable<bool>("trigger", "check_enter");
+    auto check_coll = trigger.get<EntityBehaviorComponent>().getStateVariable<bool>("trigger", "check_coll");
+    BOOST_REQUIRE(check_enter);
+    BOOST_CHECK(*check_enter);
+    BOOST_REQUIRE(check_coll);
+    BOOST_CHECK(*check_coll);
+    world->getTransformManager().setPosition(tester, { 400,400 });
+    world->update(20.0f, { 0,0 }, { 15000,15000 });
+    auto check_exit = trigger.get<EntityBehaviorComponent>().getStateVariable<bool>("trigger", "check_exit");
+    BOOST_REQUIRE(check_exit);
+    BOOST_CHECK(*check_exit);
+}

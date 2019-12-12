@@ -104,7 +104,7 @@ void WorldActionWrapper::setRectDownRight(ungod::Entity e, const sf::Vector2f& d
 template <std::size_t CONTEXT>
 void WorldActionWrapper::setRectDownRight(ungod::Entity e, std::size_t index, const sf::Vector2f& downright)
 {
-    ungod::RotatedRectConstAggregator rrca{ e.get<ungod::RigidbodyComponent<CONTEXT>>().getCollider() };
+    ungod::RotatedRectConstAggregator rrca{ e.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index).getCollider() };
     auto old = sf::Vector2f{ rrca.getDownRightX(), rrca.getDownRightY() };
     mEFrame->action(std::function([downright, i](ungod::Entity e)
         {
@@ -147,7 +147,7 @@ void WorldActionWrapper::setRectUpLeft(ungod::Entity e, const sf::Vector2f& uple
 template <std::size_t CONTEXT>
 void WorldActionWrapper::setRectUpLeft(ungod::Entity e, std::size_t index, const sf::Vector2f& upleft)
 {
-    ungod::RotatedRectConstAggregator rrca{ e.get<ungod::RigidbodyComponent<CONTEXT>>().getCollider() };
+    ungod::RotatedRectConstAggregator rrca{ e.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index).getCollider() };
     auto old = sf::Vector2f{ rrca.getUpLeftX(), rrca.getUpLeftY() };
     mEFrame->action(std::function([upleft, i](ungod::Entity e)
         {
@@ -190,7 +190,7 @@ void WorldActionWrapper::rotateRect(ungod::Entity e, float rotation)
 template <std::size_t CONTEXT>
 void WorldActionWrapper::rotateRect(ungod::Entity e, std::size_t index, float rotation)
 {
-    auto old = ungod::RotatedRectConstAggregator{ e.get<ungod::RigidbodyComponent<CONTEXT>>().getCollider() }.getRotation();
+    auto old = ungod::RotatedRectConstAggregator{ e.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index).getCollider() }.getRotation();
     mEFrame->action(std::function([rotation, i](ungod::Entity e)
         {
             if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
@@ -231,7 +231,7 @@ void WorldActionWrapper::setRectRotation(ungod::Entity e, float rotation)
 template <std::size_t CONTEXT>
 void WorldActionWrapper::setRectRotation(ungod::Entity e, std::size_t index, float rotation)
 {
-    auto old = ungod::RotatedRectConstAggregator{ e.get<ungod::RigidbodyComponent<CONTEXT>>().getCollider() }.getRotation();
+    auto old = ungod::RotatedRectConstAggregator{ e.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index).getCollider() }.getRotation();
     mEFrame->action(std::function([rotation, i](ungod::Entity e)
         {
             if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
@@ -245,6 +245,51 @@ void WorldActionWrapper::setRectRotation(ungod::Entity e, std::size_t index, flo
                     e.getWorld().getSemanticsRigidbodyManager().setRectRotation(e, i, old);
                 else if constexpr (CONTEXT == ungod::MOVEMENT_COLLISION_CONTEXT)
                     e.getWorld().getMovementRigidbodyManager().setRectRotation(e, i, old);
+            }),
+            e);
+}
+
+
+template <std::size_t CONTEXT>
+void WorldActionWrapper::setColliderPoint(ungod::Entity e, const sf::Vector2f& p, unsigned i)
+{
+    ungod::PointSetConstAggregator psca{ e.get<ungod::RigidbodyComponent<CONTEXT>>().getCollider() };
+    auto old = sf::Vector2f{ psca.getPointX(i), psca.getPointY(i) };
+    mEFrame->action(std::function([p,i](ungod::Entity e)
+        {
+            if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
+                e.getWorld().getSemanticsRigidbodyManager().setPoint(e, i, p);
+            else if constexpr (CONTEXT == ungod::MOVEMENT_COLLISION_CONTEXT)
+                e.getWorld().getMovementRigidbodyManager().setPoint(e, i, p);
+        }),
+        std::function([old, i](ungod::Entity e)
+            {
+                if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
+                    e.getWorld().getSemanticsRigidbodyManager().setPoint(e, i, old);
+                else if constexpr (CONTEXT == ungod::MOVEMENT_COLLISION_CONTEXT)
+                    e.getWorld().getMovementRigidbodyManager().setPoint(e, i, old);
+            }),
+            e);
+}
+
+template <std::size_t CONTEXT>
+void WorldActionWrapper::setColliderPoint(ungod::Entity e, std::size_t multiIndex, const sf::Vector2f& p, unsigned i)
+{
+    ungod::PointSetConstAggregator psca{ e.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(multiIndex).getCollider() };
+    auto old = sf::Vector2f{ psca.getPointX(i), psca.getPointY(i) };
+    mEFrame->action(std::function([p, i, multiIndex](ungod::Entity e)
+        {
+            if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
+                e.getWorld().getSemanticsRigidbodyManager().setPoint(e, multiIndex, i, p);
+            else if constexpr (CONTEXT == ungod::MOVEMENT_COLLISION_CONTEXT)
+                e.getWorld().getMovementRigidbodyManager().setPoint(e, multiIndex, i, p);
+        }),
+        std::function([old, i, multiIndex](ungod::Entity e)
+            {
+                if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
+                    e.getWorld().getSemanticsRigidbodyManager().setPoint(e, multiIndex, i, old);
+                else if constexpr (CONTEXT == ungod::MOVEMENT_COLLISION_CONTEXT)
+                    e.getWorld().getMovementRigidbodyManager().setPoint(e, multiIndex, i, old);
             }),
             e);
 }

@@ -48,7 +48,7 @@ namespace uedit
     class RectangleWindow : public wxPanel
     {
     public:
-        RectangleWindow(const ungod::Collider& c, wxWindow* parent);
+        RectangleWindow(const ungod::Collider& c, wxWindow* parent, int multiIndex = -1);
 
     private:
         ungod::RotatedRectConstAggregator mRect;
@@ -57,6 +57,7 @@ namespace uedit
         StatDisplay<float>* mDownRightX;
         StatDisplay<float>* mDownRightY;
         StatDisplay<float>* mRotation;
+        int mMulti;
     };
 
 
@@ -64,12 +65,13 @@ namespace uedit
     class PointSetWindow : public wxPanel
     {
     public:
-        PointSetWindow(const ungod::Collider& c, wxWindow* parent);
+        PointSetWindow(const ungod::Collider& c, wxWindow* parent, int multiIndex = -1);
 
     private:
         ungod::PointSetConstAggregator mPointSet;
         std::vector<StatDisplay<float>*> mPointsX;
         std::vector<StatDisplay<float>*> mPointsY;
+        int mMulti;
     };
 }
 

@@ -72,6 +72,12 @@ namespace uedit
         void setRectRotation(ungod::Entity e, std::size_t index, float rotation);
 
 
+        template <std::size_t CONTEXT = 0>
+        void setColliderPoint(ungod::Entity e, const sf::Vector2f& p, unsigned i);
+        template <std::size_t CONTEXT = 0>
+        void setColliderPoint(ungod::Entity e, std::size_t index, const sf::Vector2f& p, unsigned i);
+
+
         void attachScript(ungod::Entity e, const std::string& name);
 
         //removes the given entity from the world and marks it for deletion

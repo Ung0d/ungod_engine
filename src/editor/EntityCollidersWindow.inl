@@ -255,19 +255,20 @@ namespace uedit
         }
     }
 
-
-
     template<std::size_t CONTEXT>
-    RectangleWindow<CONTEXT>::RectangleWindow(const ungod::Collider& c, wxWindow* parent) : wxPanel(parent), mRect(c)
+    RectangleWindow<CONTEXT>::RectangleWindow(const ungod::Collider& c, wxWindow* parent, int multiIndex) : wxPanel(parent), mRect(c), mMulti(multiIndex)
     {
         wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
         {
             mUpLeftX = new StatDisplay<float>("up left x:", this, -1);
-            mUpLeftX->connectSetter([this, index](float x)
+            mUpLeftX->connectSetter([this](float x)
                 {
-                    mWorldAction.setRectUpLeft(mEntity, { x, mRect.getUpLeftX() }, index);
+                    if (mMulti >= 0)
+                        mWorldAction.setRectUpLeft(mEntity, mMulti, { x, mRect.getUpLeftY() });
+                    else
+                        mWorldAction.setRectUpLeft(mEntity, { x, mRect.getUpLeftY() });
                 });
-            mUpLeftX->connectGetter([this, index]()
+            mUpLeftX->connectGetter([this]()
                 {
                     return mRect.getUpLeftX();
                 });
@@ -275,11 +276,14 @@ namespace uedit
         }
         {
             mUpLeftY = new StatDisplay<float>("up left y:", this, -1);
-            mUpLeftY->connectSetter([this, index](float y)
+            mUpLeftY->connectSetter([this](float y)
                 {
-                    mWorldAction.setRectUpLeft(mEntity, { y, mRect.getUpLeftY() }, index);
+                    if (mMulti >= 0)
+                        mWorldAction.setRectUpLeft(mEntity, mMulti, { mRect.getUpLeftX(), y });
+                    else
+                        mWorldAction.setRectUpLeft(mEntity, { mRect.getUpLeftX(), y });
                 });
-            mUpLeftY->connectGetter([this, index]()
+            mUpLeftY->connectGetter([this]()
                 {
                     return mRect.getUpLeftY();
                 });
@@ -287,11 +291,14 @@ namespace uedit
         }
         {
             mDownRightX = new StatDisplay<float>("down right x:", this, -1);
-            mDownRightX->connectSetter([this, index](float x)
+            mDownRightX->connectSetter([this](float x)
                 {
-                    mWorldAction.setRectDownRight(mEntity, { x, mRect.getDownRightX() }, index);
+                    if (mMulti >= 0)
+                        mWorldAction.setRectDownRight(mEntity, mMulti, { x, mRect.getDownRightY() });
+                    else
+                        mWorldAction.setRectDownRight(mEntity, { x, mRect.getDownRightY() });
                 });
-            mDownRightX->connectGetter([this, index]()
+            mDownRightX->connectGetter([this]()
                 {
                     return mRect.getDownRightX();
                 });
@@ -299,36 +306,80 @@ namespace uedit
         }
         {
             mDownRightY = new StatDisplay<float>("down right y:", this, -1);
-            mDownRightY->connectSetter([this, index](float y)
+            mDownRightY->connectSetter([this](float y)
                 {
-                    mWorldAction.setRectDownRight(mEntity, { y, mRect.getDownRightY() }, index);
+                    if (mMulti >= 0)
+                        mWorldAction.setRectDownRight(mEntity, mMulti, { mRect.getDownRightX(), y });
+                    else
+                        mWorldAction.setRectDownRight(mEntity, { mRect.getDownRightX(), y });
                 });
-            mDownRightY->connectGetter([this, index]()
+            mDownRightY->connectGetter([this]()
                 {
                     return mRect.getDownRightY();
                 });
             vbox->Add(mDownRightY, 0, wxALIGN_CENTER_HORIZONTAL);
         }
         {
-            mRotation = new StatDisplay<float>("rotation:", this, -1);
-            mRotation->connectSetter([this, index](float r)
+            mRotation = new StatDisplay<float>("rotation y:", this, -1);
+            mRotation->connectSetter([this](float y)
                 {
-                    mWorldAction.setRotation(mEntity, r);
+                    if (mMulti >= 0)
+                        mWorldAction.setRectRotation(mEntity, mMulti, mRect.getRotation());
+                    else
+                        mWorldAction.setRectRotation(mEntity, mRect.getRotation());
                 });
-            mRotation->connectGetter([this, index]()
+            mRotation->connectGetter([this]()
                 {
-                    return mRect.getDownRightY();
+                    return mRect.getRotation();
                 });
             vbox->Add(mRotation, 0, wxALIGN_CENTER_HORIZONTAL);
         }
+        SetSizer(vbox);
+        Fit();
     }
 
 
 
     template<std::size_t CONTEXT>
-    PointSetWindow<CONTEXT>::PointSetWindow(const ungod::Collider& c, wxWindow* parent) : wxPanel(parent), mPointSet(c)
+    PointSetWindow<CONTEXT>::PointSetWindow(const ungod::Collider& c, wxWindow* parent, int multiIndex) : wxPanel(parent), mPointSet(c), mMulti(multiIndex)
     {
+        wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
+        mPointsX.reserve(mPointSet.getNumberOfPoints());
+        mPointsY.reserve(mPointSet.getNumberOfPoints());
+        for (unsigned i = 0; i < mPointSet.getNumberOfPoints(); i++)
+        {
+            auto* statX = new StatDisplay<float>("p"+str(i)+" x:", this, -1);
+            statX->connectSetter([this, i](float x)
+                {
+                    if (mMulti >= 0)
+                        mWorldAction.setColliderPoint(mEntity, mMulti, { x, mPointSet.getPointY(i) }, i);
+                    else
+                        mWorldAction.setColliderPoint(mEntity, { x, mPointSet.getPointY(i) }, i);
+                });
+            statX->connectGetter([this, i]()
+                {
+                    return mPointSet.getPointX(i);
+                });
+            vbox->Add(statX, 0, wxALIGN_CENTER_HORIZONTAL);
+            mPointsX.emplace_back(statX);
 
+            auto* statY = new StatDisplay<float>("p" + str(i) + " y:", this, -1);
+            statY->connectSetter([this](float y)
+                {
+                    if (mMulti >= 0)
+                        mWorldAction.setColliderPoint(mEntity, mMulti, { mPointSet.getPointX(i), y }, i);
+                    else
+                        mWorldAction.setColliderPoint(mEntity, { mPointSet.getPointX(i), y }, i);
+                });
+            statY->connectGetter([this, i]()
+                {
+                    return mPointSet.getPointY(i);
+                });
+            vbox->Add(statY, 0, wxALIGN_CENTER_HORIZONTAL);
+            mPointsY.emplace_back(statX);
+        }
+        SetSizer(vbox);
+        Fit();
     }
 }
 
