@@ -43,12 +43,6 @@ namespace uedit
         void setVertexRectCount(ungod::Entity e, std::size_t numrect);
         void setVertexArrayRect(ungod::Entity e, std::size_t i, const std::string& key);
         void setVertexArrayRectColor(ungod::Entity e, std::size_t i, const sf::Color& color);
-
-        template<std::size_t CONTEXT>
-        void addCollider(ungod::Entity e, const sf::Vector2f& upleft, const sf::Vector2f& downright, float rot, int i = -1);
-
-        template<std::size_t CONTEXT>
-        void removeCollider(ungod::Entity e, unsigned i);
         
 
         template <std::size_t CONTEXT = 0>

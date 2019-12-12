@@ -66,19 +66,6 @@ void WorldActionWrapper::setTexrectInitializer(ungod::Entity e, const std::strin
 
 
 
-template<std::size_t CONTEXT>
-void WorldActionWrapper::addCollider(ungod::Entity e, const sf::Vector2f& upleft, const sf::Vector2f& downright, float rot, int i)
-{
-    e.getWorld().getRigidbodyManager().addCollider<CONTEXT>(e, upleft, downright, rot, i);
-}
-
-template<std::size_t CONTEXT>
-void WorldActionWrapper::removeCollider(ungod::Entity e, unsigned i)
-{
-    e.getWorld().getRigidbodyManager().removeCollider<CONTEXT>(e, i);
-}
-
-
 template <std::size_t CONTEXT>
 void WorldActionWrapper::setRectDownRight(ungod::Entity e, const sf::Vector2f& downright)
 {
@@ -106,19 +93,19 @@ void WorldActionWrapper::setRectDownRight(ungod::Entity e, std::size_t index, co
 {
     ungod::RotatedRectConstAggregator rrca{ e.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index).getCollider() };
     auto old = sf::Vector2f{ rrca.getDownRightX(), rrca.getDownRightY() };
-    mEFrame->action(std::function([downright, i](ungod::Entity e)
+    mEFrame->action(std::function([downright, index](ungod::Entity e)
         {
             if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
-                e.getWorld().getSemanticsRigidbodyManager().setRectDownRight(e, i, downright);
+                e.getWorld().getSemanticsRigidbodyManager().setRectDownRight(e, index, downright);
             else if constexpr (CONTEXT == ungod::MOVEMENT_COLLISION_CONTEXT)
-                e.getWorld().getMovementRigidbodyManager().setRectDownRight(e, i, downright);
+                e.getWorld().getMovementRigidbodyManager().setRectDownRight(e, index, downright);
         }),
-        std::function([old, i](ungod::Entity e)
+        std::function([old, index](ungod::Entity e)
             {
                 if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
-                    e.getWorld().getSemanticsRigidbodyManager().setRectDownRight(e, i, old);
+                    e.getWorld().getSemanticsRigidbodyManager().setRectDownRight(e, index, old);
                 else if constexpr (CONTEXT == ungod::MOVEMENT_COLLISION_CONTEXT)
-                    e.getWorld().getMovementRigidbodyManager().setRectDownRight(e, i, old);
+                    e.getWorld().getMovementRigidbodyManager().setRectDownRight(e, index, old);
             }),
             e);
 }
@@ -149,19 +136,19 @@ void WorldActionWrapper::setRectUpLeft(ungod::Entity e, std::size_t index, const
 {
     ungod::RotatedRectConstAggregator rrca{ e.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index).getCollider() };
     auto old = sf::Vector2f{ rrca.getUpLeftX(), rrca.getUpLeftY() };
-    mEFrame->action(std::function([upleft, i](ungod::Entity e)
+    mEFrame->action(std::function([upleft, index](ungod::Entity e)
         {
             if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
-                e.getWorld().getSemanticsRigidbodyManager().setRectUpLeft(e, i, upleft);
+                e.getWorld().getSemanticsRigidbodyManager().setRectUpLeft(e, index, upleft);
             else if constexpr (CONTEXT == ungod::MOVEMENT_COLLISION_CONTEXT)
-                e.getWorld().getMovementRigidbodyManager().setRectUpLeft(e, i, upleft);
+                e.getWorld().getMovementRigidbodyManager().setRectUpLeft(e, index, upleft);
         }),
-        std::function([old, i](ungod::Entity e)
+        std::function([old, index](ungod::Entity e)
             {
                 if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
-                    e.getWorld().getSemanticsRigidbodyManager().setRectUpLeft(e, i, old);
+                    e.getWorld().getSemanticsRigidbodyManager().setRectUpLeft(e, index, old);
                 else if constexpr (CONTEXT == ungod::MOVEMENT_COLLISION_CONTEXT)
-                    e.getWorld().getMovementRigidbodyManager().setRectUpLeft(e, i, old);
+                    e.getWorld().getMovementRigidbodyManager().setRectUpLeft(e, index, old);
             }),
             e);
 }
@@ -191,19 +178,19 @@ template <std::size_t CONTEXT>
 void WorldActionWrapper::rotateRect(ungod::Entity e, std::size_t index, float rotation)
 {
     auto old = ungod::RotatedRectConstAggregator{ e.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index).getCollider() }.getRotation();
-    mEFrame->action(std::function([rotation, i](ungod::Entity e)
+    mEFrame->action(std::function([rotation, index](ungod::Entity e)
         {
             if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
-                e.getWorld().getSemanticsRigidbodyManager().rotateRect(e, i, rotation);
+                e.getWorld().getSemanticsRigidbodyManager().rotateRect(e, index, rotation);
             else if constexpr (CONTEXT == ungod::MOVEMENT_COLLISION_CONTEXT)
-                e.getWorld().getMovementRigidbodyManager().rotateRect(e, i, rotation);
+                e.getWorld().getMovementRigidbodyManager().rotateRect(e, index, rotation);
         }),
-        std::function([old, i](ungod::Entity e)
+        std::function([old, index](ungod::Entity e)
             {
                 if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
-                    e.getWorld().getSemanticsRigidbodyManager().setRectRotation(e, i, old);
+                    e.getWorld().getSemanticsRigidbodyManager().setRectRotation(e, index, old);
                 else if constexpr (CONTEXT == ungod::MOVEMENT_COLLISION_CONTEXT)
-                    e.getWorld().getMovementRigidbodyManager().setRectRotation(e, i, old);
+                    e.getWorld().getMovementRigidbodyManager().setRectRotation(e, index, old);
             }),
             e);
 }
@@ -232,19 +219,19 @@ template <std::size_t CONTEXT>
 void WorldActionWrapper::setRectRotation(ungod::Entity e, std::size_t index, float rotation)
 {
     auto old = ungod::RotatedRectConstAggregator{ e.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index).getCollider() }.getRotation();
-    mEFrame->action(std::function([rotation, i](ungod::Entity e)
+    mEFrame->action(std::function([rotation, index](ungod::Entity e)
         {
             if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
-                e.getWorld().getSemanticsRigidbodyManager().setRectRotation(e, i, rotation);
+                e.getWorld().getSemanticsRigidbodyManager().setRectRotation(e, index, rotation);
             else if constexpr (CONTEXT == ungod::MOVEMENT_COLLISION_CONTEXT)
-                e.getWorld().getMovementRigidbodyManager().setRectRotation(e, i, rotation);
+                e.getWorld().getMovementRigidbodyManager().setRectRotation(e, index, rotation);
         }),
-        std::function([old, i](ungod::Entity e)
+        std::function([old, index](ungod::Entity e)
             {
                 if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
-                    e.getWorld().getSemanticsRigidbodyManager().setRectRotation(e, i, old);
+                    e.getWorld().getSemanticsRigidbodyManager().setRectRotation(e, index, old);
                 else if constexpr (CONTEXT == ungod::MOVEMENT_COLLISION_CONTEXT)
-                    e.getWorld().getMovementRigidbodyManager().setRectRotation(e, i, old);
+                    e.getWorld().getMovementRigidbodyManager().setRectRotation(e, index, old);
             }),
             e);
 }

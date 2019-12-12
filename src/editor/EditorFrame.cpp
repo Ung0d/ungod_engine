@@ -246,12 +246,17 @@ namespace uedit
             for (auto d : mActiveDesigners)
                d->onEntityContentsChanged(e, *world);
         });
-        world->getRigidbodyManager().onContentsChanged([this, world] (ungod::Entity e, const sf::FloatRect& rect)
+        world->getSemanticsRigidbodyManager().onContentsChanged([this, world] (ungod::Entity e, const sf::FloatRect& rect)
         {
             for (auto d : mActiveDesigners)
                d->onColliderChanged(e, *world);
         });
-        world->getRigidbodyManager().onContentRemoved([this, world] (ungod::Entity e)
+        world->getMovementRigidbodyManager().onContentsChanged([this, world](ungod::Entity e, const sf::FloatRect& rect)
+        {
+            for (auto d : mActiveDesigners)
+                d->onColliderChanged(e, *world);
+        });
+        world->getSemanticsRigidbodyManager().onContentRemoved([this, world] (ungod::Entity e)
         {
             for (auto d : mActiveDesigners)
                d->onColliderChanged(e, *world);

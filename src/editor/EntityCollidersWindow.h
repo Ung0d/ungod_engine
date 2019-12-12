@@ -31,16 +31,12 @@ namespace uedit
         int mSelection;
         wxChoice* mRigidbodyChoice;
         wxListCtrl* mRigidbodies;
-        StatDisplay<float>* mUpLeftX;
-        StatDisplay<float>* mUpLeftY;
-        StatDisplay<float>* mDownRightX;
-        StatDisplay<float>* mDownRightY;
-        StatDisplay<float>* mRotation;
+        wxPanel* mColliderDetail;
+        wxTextCtrl* mCompCountCtrl;
 
     private:
         void onRigidbodyListSelect(wxListEvent& event);
-        void onColliderAddClicked(wxCommandEvent& event);
-        void onColliderRemoveClicked(wxCommandEvent& event);
+        void onSetColliderCountClicked(wxCommandEvent& event);
     };
 
 
@@ -48,7 +44,7 @@ namespace uedit
     class RectangleWindow : public wxPanel
     {
     public:
-        RectangleWindow(const ungod::Collider& c, wxWindow* parent, int multiIndex = -1);
+        RectangleWindow(ungod::Entity e, const ungod::Collider& c, wxWindow* parent, WorldActionWrapper& waw, int multiIndex = -1);
 
     private:
         ungod::RotatedRectConstAggregator mRect;
@@ -65,7 +61,7 @@ namespace uedit
     class PointSetWindow : public wxPanel
     {
     public:
-        PointSetWindow(const ungod::Collider& c, wxWindow* parent, int multiIndex = -1);
+        PointSetWindow(ungod::Entity e, const ungod::Collider& c, wxWindow* parent, WorldActionWrapper& waw, int multiIndex = -1);
 
     private:
         ungod::PointSetConstAggregator mPointSet;

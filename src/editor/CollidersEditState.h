@@ -30,7 +30,8 @@ namespace uedit
         bool mUpleftGrabbed;
         bool mDownrightGrabbed;
         sf::Vector2i mLastMouse;
-        std::vector< std::size_t > mSelectedColliders;
+        bool mSingleSelected;
+        std::vector< std::size_t > mSelectedMultiColliders;
 
         static constexpr float CORNERDIST = 20.0f;
     };
@@ -38,7 +39,7 @@ namespace uedit
 
     template<std::size_t CONTEXT>
     CollidersEditState<CONTEXT>::CollidersEditState(EntityPreview& preview) :
-        mPreview(preview), mMouseDown(false), mCtrlDown(false), mShiftDown(false)
+        mPreview(preview), mMouseDown(false), mCtrlDown(false), mShiftDown(false), mSingleSelected(false)
     {
         mLastMouse = sf::Mouse::getPosition(preview.mWindow);
     }
@@ -167,14 +168,21 @@ namespace uedit
                             }
                         }
                     }
-                    else
+                    else 
                     {
+                        if (mSingleSelected)
+                        {
+                            if (offset.y > 0)
+                                preview.mWorldAction.rotateRect(preview.mEntity, -ungod::magnitude(offset));
+                            else
+                                preview.mWorldAction.rotateRect(preview.mEntity, ungod::magnitude(offset));
+                        }
                         for (const auto& c : mSelectedColliders)
                         {
                             if (offset.y > 0)
-                                preview.mWorldAction.rotateCollider( preview.mEntity, c, -ungod::magnitude(offset) );
+                                preview.mWorldAction.rotateRect( preview.mEntity, c, -ungod::magnitude(offset) );
                             else
-                                preview.mWorldAction.rotateCollider( preview.mEntity, c, ungod::magnitude(offset) );
+                                preview.mWorldAction.rotateRect( preview.mEntity, c, ungod::magnitude(offset) );
                         }
 
                     }
