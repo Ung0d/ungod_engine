@@ -14,8 +14,8 @@ namespace uedit
 
     class LayerDisplay : public wxWindow, public ungod::Serializable<LayerDisplay>
     {
-    friend class ungod::SerialBehavior<LayerDisplay>;
-    friend class ungod::DeserialBehavior<LayerDisplay>;
+    friend struct ungod::SerialBehavior<LayerDisplay>;
+    friend struct ungod::DeserialBehavior<LayerDisplay>;
     public :
         LayerDisplay(EditorCanvas* canvas,
                      EditorFrame* eframe,

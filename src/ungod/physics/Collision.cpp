@@ -120,6 +120,8 @@ namespace ungod
 				return rotatedRectContainsPoint(collider, transf, point);
 			case ColliderType::CONVEX_POLYGON:
 				return convexPolygonContainsPoint(collider, transf, point);
+			case ColliderType::EDGE_CHAIN:
+				return edgeChainContainsPoint(collider, transf, point);
 			/*case ColliderType::CIRCLE:
 				return circleContainsPoint(collider, transf, point);*/
 			default: //no support for edge chains
@@ -151,16 +153,41 @@ namespace ungod
 		PointSetConstAggregator pa{ collider };
 		//translate the point into the collider "local" coordinates
 		sf::Vector2f transfPoint = transf.getTransform().getInverse().transformPoint(point);
+		bool pos = false;
+		bool neg = false;
 		for (unsigned i = 0; i < pa.getNumberOfPoints(); i++)
 		{
 			unsigned inext = (i + 1) % pa.getNumberOfPoints();
 			sf::Vector2f pcur{ pa.getPointX(i), pa.getPointY(i) };
-			sf::Vector2f normal = sf::Vector2f{ pa.getPointX(inext), pa.getPointY(inext) } - pcur;
-			float dp = dotProduct(normal, point- pcur);
+			sf::Vector2f normal = ungod::perpendicularVector(sf::Vector2f{ pa.getPointX(inext), pa.getPointY(inext) } - pcur);
+			float dp = dotProduct(transfPoint - pcur, normal);
 			if (dp < 0.0f)
-				return false;
+				if (pos)
+					return false;
+				else
+					neg = true;
+			else 
+				if (neg)
+					return false;
+				else
+					pos = true;
 		}
 		return true;
+	}
+
+
+	bool edgeChainContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point)
+	{
+		static constexpr float DIST = 5.0f;
+		PointSetConstAggregator pa{ collider };
+		sf::Vector2f transfPoint = transf.getTransform().getInverse().transformPoint(point);
+		for (unsigned i = 0; i < pa.getNumberOfPoints(); i++)
+		{
+			unsigned inext = (i + 1) % pa.getNumberOfPoints();
+			if (distanceToLineSegment(transfPoint, { pa.getPointX(i), pa.getPointY(i) }, { pa.getPointX(inext), pa.getPointY(inext) }) < DIST)
+				return true;
+		}
+		return false;
 	}
 
 

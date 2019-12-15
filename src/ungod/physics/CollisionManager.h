@@ -113,6 +113,9 @@ namespace ungod
         /** \brief Sets the ith point of a convex polygon collider or a edge-chain collider. */
 		MULTI_COMP_METHOD_2ARG(setPoint, RigidbodyComponent<CONTEXT>, unsigned, i, const sf::Vector2f&, point)
 
+        /** \brief Adds a new point of a convex polygon collider or a edge-chain collider. */
+        MULTI_COMP_METHOD_1ARG(addPoint, RigidbodyComponent<CONTEXT>, const sf::Vector2f&, point)
+
 		/** \brief Sets the center point of a circle collider. */
 		//MULTI_COMP_METHOD_1ARG(setCircleCenter, RigidbodyComponent<CONTEXT>, const sf::Vector2f&, center)
 
@@ -122,11 +125,20 @@ namespace ungod
         /** \brief Activates/deactivates collision handling for the given entity. */
 		MULTI_COMP_METHOD_1ARG(setActive, RigidbodyComponent<CONTEXT>, bool, active)
 
+        /** \brief Moves the collider of the entity by vec and emits content changed signals. */
+        MULTI_COMP_METHOD_1ARG(moveCollider, RigidbodyComponent<CONTEXT>, const sf::Vector2f&, vec)
+
         /** \brief Registers new callback for the ContentsChanged signal. */
-        void onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback);
+        decltype(auto) onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback)
+        {
+            return mContentsChangedSignal.connect(callback);
+        }
 
         /** \brief Registers new callback for the ContentsRemoved signal. */
-        void onContentRemoved(const std::function<void(Entity)>& callback);
+        decltype(auto) onContentRemoved(const std::function<void(Entity)>& callback)
+        {
+            return mContentRemoved.connect(callback);
+        }
  
         /** \brief Returns the lower bound of the bounding rect around all contents of the given entity. */
         static sf::Vector2f getLowerBound(Entity e);
@@ -135,7 +147,7 @@ namespace ungod
 		static sf::Vector2f getUpperBound(Entity e);
 
         /** \brief A method that moves all colliders attached to the given entity. This method is usually only
-        * used internally by the transform-manager. */
+        * used internally by the transform-manager. No signal emit! */
 		static void moveColliders(Entity e, const sf::Vector2f& vec);
 
     private:

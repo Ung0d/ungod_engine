@@ -224,7 +224,7 @@ namespace uedit
                 buildMultiSpriteEdit(mEntity.modify<ungod::MultiSpriteComponent>().getComponent(0), 0);
             }
         }
-        catch(const std::exception& e)
+        catch(const std::exception&)
         {
             auto err = wxMessageDialog(this, _("Text field must contain a valid number."));
             err.ShowModal();
@@ -323,7 +323,7 @@ namespace uedit
             else
                 displayVertexRect(-1);
         }
-        catch(const std::exception& e)
+        catch(const std::exception&)
         {
             auto err = wxMessageDialog(this, _("Text field must contain a valid number."));
             err.ShowModal();

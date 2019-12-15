@@ -121,7 +121,7 @@ namespace uedit
 				t = static_cast<T>(std::stof(std::string(detail::StatDisplayImpl<T>::mTextCtrl->GetValue().mb_str())));
             detail::StatDisplayImpl<T>::mSetter(t);
         }
-        catch(const std::exception& e)
+        catch(const std::exception&)
         {
             auto err = wxMessageDialog(this, _("Text field must contain a valid number."));
             err.ShowModal();

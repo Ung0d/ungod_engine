@@ -304,7 +304,7 @@ namespace uedit
 		mMetaInfo.lastProject = filepath;
         ungod::DeserializationContext context;
         if (context.read(mProjectFilePath))
-			context.deserializeRootObject(*this);
+			context.deserializeRootObject(*this); 
         SetTitle(_("Ungod Editor"));
         mContentSaved = true;
 		Fit();
@@ -413,7 +413,7 @@ namespace ungod
         attr = context.next(context.deserializeObject(*data.mScriptManager), "script_manager", deserializer, attr);
         attr = context.next(context.deserializeObject(*data.mSheetPreview), "sheet_preview", deserializer, attr);
 
-        data.mCanvas->load(filepath);
+        data.mCanvas->load(filepath); 
     }
 
 

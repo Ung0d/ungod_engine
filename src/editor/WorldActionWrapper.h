@@ -45,31 +45,125 @@ namespace uedit
         void setVertexArrayRectColor(ungod::Entity e, std::size_t i, const sf::Color& color);
         
 
-        template <std::size_t CONTEXT = 0>
-        void setRectDownRight(ungod::Entity e, const sf::Vector2f& downright);
-        template <std::size_t CONTEXT = 0>
-        void setRectDownRight(ungod::Entity e, std::size_t index, const sf::Vector2f& downright);
-
-        template <std::size_t CONTEXT = 0>
-        void setRectUpLeft(ungod::Entity e, const sf::Vector2f& upleft);
-        template <std::size_t CONTEXT = 0>
-        void setRectUpLeft(ungod::Entity e, std::size_t index, const sf::Vector2f& upleft);
-
-        template <std::size_t CONTEXT = 0>
-        void rotateRect(ungod::Entity e, float rotation);
-        template <std::size_t CONTEXT = 0>
-        void rotateRect(ungod::Entity e, std::size_t index, float rotation);
-
-        template <std::size_t CONTEXT = 0>
-        void setRectRotation(ungod::Entity e, float rotation);
-        template <std::size_t CONTEXT = 0>
-        void setRectRotation(ungod::Entity e, std::size_t index, float rotation);
 
 
         template <std::size_t CONTEXT = 0>
-        void setColliderPoint(ungod::Entity e, const sf::Vector2f& p, unsigned i);
+        void addCollider(ungod::Entity e, const ungod::Collider& c)
+        {
+            addCollider(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), c);
+        }
         template <std::size_t CONTEXT = 0>
-        void setColliderPoint(ungod::Entity e, std::size_t index, const sf::Vector2f& p, unsigned i);
+        void addCollider(ungod::Entity e, std::size_t index, const ungod::Collider& c)
+        {
+            addCollider(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), c);
+        }
+        template <std::size_t CONTEXT = 0>
+        void addCollider(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, const ungod::Collider& c);
+
+
+        template <std::size_t CONTEXT = 0>
+        void setRectDownRight(ungod::Entity e, const sf::Vector2f& downright)
+        {
+            setRectDownRight(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), downright);
+        }
+        template <std::size_t CONTEXT = 0>
+        void setRectDownRight(ungod::Entity e, std::size_t index, const sf::Vector2f& downright)
+        {
+            setRectDownRight(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), downright);
+        }
+        template <std::size_t CONTEXT = 0>
+        void setRectDownRight(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, const sf::Vector2f& downright);
+
+
+
+        template <std::size_t CONTEXT = 0>
+        void setRectUpLeft(ungod::Entity e, const sf::Vector2f& upleft)
+        {
+            setRectUpLeft(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), upleft);
+        }
+        template <std::size_t CONTEXT = 0>
+        void setRectUpLeft(ungod::Entity e, std::size_t index, const sf::Vector2f& upleft)
+        {
+            setRectUpLeft(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), upleft);
+        }
+        template <std::size_t CONTEXT = 0>
+        void setRectUpLeft(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, const sf::Vector2f& upleft);
+
+
+
+        template <std::size_t CONTEXT = 0>
+        void rotateRect(ungod::Entity e, float rotation)
+        {
+            rotateRect(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), rotation);
+        }
+        template <std::size_t CONTEXT = 0>
+        void rotateRect(ungod::Entity e, std::size_t index, float rotation)
+        {
+            rotateRect(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), rotation);
+        }
+        template <std::size_t CONTEXT = 0>
+        void rotateRect(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, float rotation);
+
+
+
+        template <std::size_t CONTEXT = 0>
+        void setRectRotation(ungod::Entity e, float rotation)
+        {
+            setRectRotation(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), rotation);
+        }
+        template <std::size_t CONTEXT = 0>
+        void setRectRotation(ungod::Entity e, std::size_t index, float rotation)
+        {
+            setRectRotation(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), rotation);
+        }
+        template <std::size_t CONTEXT = 0>
+        void setRectRotation(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, float rotation);
+
+
+
+        template <std::size_t CONTEXT = 0>
+        void setColliderPoint(ungod::Entity e, const sf::Vector2f& p, unsigned i)
+        {
+            setColliderPoint(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), p, i);
+        }
+        template <std::size_t CONTEXT = 0>
+        void setColliderPoint(ungod::Entity e, std::size_t index, const sf::Vector2f& p, unsigned i)
+        {
+            setColliderPoint(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), p, i);
+        }
+        template <std::size_t CONTEXT = 0>
+        void setColliderPoint(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, const sf::Vector2f& p, unsigned i);
+
+
+
+        template <std::size_t CONTEXT = 0>
+        void addColliderPoint(ungod::Entity e, const sf::Vector2f& p)
+        {
+            addColliderPoint(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), p);
+        }
+        template <std::size_t CONTEXT = 0>
+        void addColliderPoint(ungod::Entity e, std::size_t index, const sf::Vector2f& p)
+        {
+            addColliderPoint(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), p);
+        }
+        template <std::size_t CONTEXT = 0>
+        void addColliderPoint(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, const sf::Vector2f& p);
+
+
+
+        template <std::size_t CONTEXT = 0>
+        void moveCollider(ungod::Entity e, const sf::Vector2f& vec)
+        {
+            moveCollider(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), vec);
+        }
+        template <std::size_t CONTEXT = 0>
+        void moveCollider(ungod::Entity e, std::size_t index, const sf::Vector2f& vec)
+        {
+            moveCollider(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), vec);
+        }
+        template <std::size_t CONTEXT = 0>
+        void moveCollider(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, const sf::Vector2f& vec);
+
 
 
         void attachScript(ungod::Entity e, const std::string& name);

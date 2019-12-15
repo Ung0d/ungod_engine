@@ -47,8 +47,8 @@ namespace uedit
 
     class ScriptManager : public wxFrame, public ungod::Serializable<ScriptManager>
     {
-    friend class ungod::SerialBehavior<ScriptManager>;
-    friend class ungod::DeserialBehavior<ScriptManager>;
+    friend struct ungod::SerialBehavior<ScriptManager>;
+    friend struct ungod::DeserialBehavior<ScriptManager>;
     public:
         ScriptManager(const std::string& baseFilepath,
                       ungod::Application& app,

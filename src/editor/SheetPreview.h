@@ -40,8 +40,8 @@ namespace uedit
 
     class SheetPreview : public wxWindow, public ungod::Serializable<SheetPreview>
     {
-    friend class ungod::SerialBehavior<SheetPreview>;
-    friend class ungod::DeserialBehavior<SheetPreview>;
+    friend struct ungod::SerialBehavior<SheetPreview>;
+    friend struct ungod::DeserialBehavior<SheetPreview>;
     public:
         SheetPreview(wxWindow * parent, wxWindowID id,
                       const wxPoint & pos = wxDefaultPosition );

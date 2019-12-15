@@ -51,6 +51,10 @@ namespace ungod
 	bool convexPolygonContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point);
 
 	/** \brief A free method that checks whether a given point is inside a collider if it is already known that the
+	* collider is a edge shape. In fact, this method checks whether the distance of a point is smaller than a hardcoded constant. */
+	bool edgeChainContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point);
+
+	/** \brief A free method that checks whether a given point is inside a collider if it is already known that the
 	* collider is a circle. */
 	//bool circleContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point);
 }

@@ -56,10 +56,11 @@ namespace ungod
         lFile.close();
     }
 
-    void Logger::assertion(bool expr, const std::string& message)
+    bool Logger::assertion(bool expr, const std::string& message)
     {
         if (!expr)
             log(message, "Assertion failed", Priority_Level::PRIORITY_ERROR);
+        return expr;
     }
 
     void Logger::toggleConsoleOutput()

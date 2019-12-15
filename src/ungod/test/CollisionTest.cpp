@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( point_inside_collider_test )
 		sf::Vector2f isNotInside2{ 3, 1 };
 
 		ungod::Collider poly;
-		poly.initConvexPolygon({ { 0,0 }, { 1,1 }, {2,1}, {-1,2} });
+		poly.initConvexPolygon({ { 0,0 }, { 1,1 }, {2,1}, {2,-1} });
 
 		ungod::TransformComponent transf;
 

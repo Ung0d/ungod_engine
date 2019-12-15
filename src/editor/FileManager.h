@@ -24,8 +24,8 @@ namespace uedit
 
     class FileManager : public wxTreeCtrl, public ungod::Serializable<FileManager>
     {
-    friend class ungod::SerialBehavior<FileManager>;
-    friend class ungod::DeserialBehavior<FileManager>;
+    friend struct ungod::SerialBehavior<FileManager>;
+    friend struct ungod::DeserialBehavior<FileManager>;
     public:
         FileManager(const std::string& filetype, const std::string& baseFilepath, wxWindow* parent = nullptr, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition);
 

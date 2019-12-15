@@ -133,4 +133,17 @@ namespace ungod
 	{
 		return (a + b) * 0.5f;
 	}
+
+    float distanceToLineSegment(const sf::Vector2f& point, const sf::Vector2f& a, const sf::Vector2f& b)
+    {
+        const float l2 = sqMagnitude(b-a);  
+        if (l2 == 0.0) return distance(point, a);   
+        // Consider the line extending the segment, parameterized as v + t (w - v).
+        // We find projection of point p onto the line. 
+        // It falls where t = [(p-a) . (b-a)] / |b-a|^2
+        // We clamp t from [0,1] to handle points outside the segment vw.
+        const float t = std::max(0.0f, std::min(1.0f, dotProduct(point - a, b - a) / l2));
+        const sf::Vector2f projection = a + t * (b - a);  // Projection falls on the segment
+        return distance(point, projection);
+    }
 }

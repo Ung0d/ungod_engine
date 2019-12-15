@@ -127,6 +127,19 @@ void RigidbodyManager<CONTEXT>::setPoint(Entity e, RigidbodyComponent<CONTEXT>& 
 }
 
 
+template <std::size_t CONTEXT>
+void RigidbodyManager<CONTEXT>::addPoint(Entity e, RigidbodyComponent<CONTEXT>& rcomp, const sf::Vector2f& point)
+{
+	PointSetAggregator psa{ rcomp.mCollider };
+	if (Logger::assertion(rcomp.mCollider.getNumParam() < Collider::MAX_PARAM, "Maximum number of points for a collider exceeded!"))
+		return;
+	psa.allocatePoints(psa.getNumberOfPoints() + 1);
+	psa.setPointX(psa.getNumberOfPoints()-1, point.x);
+	psa.setPointY(psa.getNumberOfPoints()-1, point.y);
+	mContentsChangedSignal(e, psa.getBoundingBox());
+}
+
+
 /*template <std::size_t CONTEXT>
 void RigidbodyManager<CONTEXT>::setCircleCenter(Entity e, RigidbodyComponent<CONTEXT>& rcomp, const sf::Vector2f& center)
 {
@@ -153,6 +166,14 @@ void RigidbodyManager<CONTEXT>::setActive(Entity e, RigidbodyComponent<CONTEXT>&
 		mContentsChangedSignal(e, RotatedRectAggregator{ rcomp.mCollider }.getBoundingBox());
 	else
 		mContentRemoved(e);
+}
+
+
+template <std::size_t CONTEXT>
+void RigidbodyManager<CONTEXT>::moveCollider(Entity e, RigidbodyComponent<CONTEXT>& rcomp, const sf::Vector2f& vec)
+{
+	rcomp.mCollider.move(vec);
+	mContentsChangedSignal(e, rcomp.mCollider.getBoundingBox());
 }
 
 template <std::size_t CONTEXT>
@@ -208,20 +229,6 @@ sf::Vector2f RigidbodyManager<CONTEXT>::getUpperBound(Entity e)
 			checker(mb.getComponent(i));
 	}
 	return vec;
-}
-
-
-template <std::size_t CONTEXT>
-void RigidbodyManager<CONTEXT>::onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback)
-{
-	mContentsChangedSignal.connect(callback);
-}
-
-
-template <std::size_t CONTEXT>
-void RigidbodyManager<CONTEXT>::onContentRemoved(const std::function<void(Entity)>& callback)
-{
-	mContentRemoved.connect(callback);
 }
 
 

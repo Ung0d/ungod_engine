@@ -25,6 +25,9 @@ namespace uedit
 
         const sf::RenderWindow& getWindow() const;
 
+        /** \brief Returns the position of the mouse in the render areas coordinate system. */
+        sf::Vector2f getMousePosition() const;
+
     protected:
         sf::RenderWindow mWindow;
         sf::Clock mTimer;

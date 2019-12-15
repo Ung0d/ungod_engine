@@ -518,6 +518,7 @@ namespace uedit
 	{
 		mClicked = false;
 		mSelectedNode = nullptr;
+        mCamera.setZoom(0.25f);
 	}
 
 	void WorldGraphState::close()

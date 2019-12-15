@@ -326,15 +326,17 @@ namespace ungod
 	{
 		if (mData.getNumParam() == 0) return {};
 		auto t0 = t.transformPoint({ getPointX(0), getPointY(0) });
-		sf::FloatRect bounds{ t0, {} };
+		sf::FloatRect bounds{ t0, t0 };
 		for (unsigned i = 1; i < getNumberOfPoints(); i++)
 		{
 			auto ti = t.transformPoint({ getPointX(i), getPointY(i) });
 			bounds.left = std::min(ti.x, bounds.left);
 			bounds.top = std::min(ti.y, bounds.top);
-			bounds.width = std::max(ti.x - bounds.left, bounds.width);
-			bounds.height = std::max(ti.y - bounds.height, bounds.height);
+			bounds.width = std::max(ti.x, bounds.width);
+			bounds.height = std::max(ti.y, bounds.height);
 		}
+		bounds.width -= bounds.left;
+		bounds.height -= bounds.top;
 		return bounds;
 	}
 
@@ -368,6 +370,12 @@ namespace ungod
 		}
 		area /= 2;
 		return (1/(6*area))*center;
+	}
+
+
+	ColliderType PointSetConstAggregator::getType() const
+	{
+		return mData.getType();
 	}
 
 

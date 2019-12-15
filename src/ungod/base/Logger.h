@@ -51,7 +51,7 @@ namespace ungod
         template <class T>
         static void error(const T& message);
 
-        static void assertion(bool expr, const std::string& message);
+        static bool assertion(bool expr, const std::string& message);
         //toggle output streams
         static void toggleConsoleOutput();
         static void toggleLogfileOutput();

@@ -198,6 +198,9 @@ namespace ungod
 		/** \brief Returns the center of the bounding box of the polygon. */
 		sf::Vector2f getCenter() const;
 
+		/** \brief Returns either CONVEX_POLYGON or EDGE_CHAIN. */
+		ColliderType getType() const;
+
 		inline float getPointX(unsigned i) const { return mData.getParam(2 * i); }
 		inline float getPointY(unsigned i) const { return mData.getParam(2 * i + 1); }
 	};

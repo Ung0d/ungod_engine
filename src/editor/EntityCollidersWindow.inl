@@ -5,7 +5,7 @@ namespace uedit
 {
     template<std::size_t CONTEXT>
     EntityCollidersWindow<CONTEXT>::EntityCollidersWindow(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& siz)
-        : wxWindow(parent, id, pos, siz), mEntity(e), mWaw(waw), mSelection(0), mColliderDetail(nullptr)
+        : wxWindow(parent, id, pos, siz), mEntity(e), mWaw(waw), mSelection(-1), mSingleSelected(false), mColliderDetail(nullptr)
     {
         wxBoxSizer* boxsizer = new wxBoxSizer(wxVERTICAL);
 
@@ -18,7 +18,7 @@ namespace uedit
         mRigidbodies->Bind(wxEVT_LIST_ITEM_ACTIVATED, &EntityCollidersWindow<CONTEXT>::onRigidbodyListSelect, this);
         boxsizer->Add(mRigidbodies, 2, wxALIGN_CENTER_HORIZONTAL);
 
-        if (mEntity.has<ungod::MultiRigidbodyComponent<CONTEXT>>()) //otherwise this button is redundant
+        if (mEntity.has<ungod::MultiRigidbodyComponent<CONTEXT>>()) //otherwise redundant
         {
             wxBoxSizer* countSetSizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -33,37 +33,105 @@ namespace uedit
             boxsizer->Add(countSetSizer, 1, wxALIGN_CENTER_HORIZONTAL);
         }
 
+        {
+            wxBoxSizer* initButtonsSizer = new wxBoxSizer(wxHORIZONTAL);
+
+            wxButton* rectButton = new wxButton(this, -1, _("reactangle"));
+            rectButton->Bind(wxEVT_BUTTON, [this](wxCommandEvent& event) 
+                {
+                    ungod::Collider rect; 
+                    if (mEntity.get<ungod::TransformComponent>().getSize().x == 0.0f || 
+                        mEntity.get<ungod::TransformComponent>().getSize().y == 0.0f)
+                        rect = ungod::makeRotatedRect({ 0,0 }, { 50, 50 });
+                    else
+                        rect = ungod::makeRotatedRect({ 0,0 }, mEntity.get<ungod::TransformComponent>().getSize());
+                    if (mSingleSelected)
+                        mWaw.addCollider(mEntity, rect);
+                    else if (mSelection >= 0)
+                        mWaw.addCollider(mEntity, mSelection, rect);
+                });
+            initButtonsSizer->Add(rectButton, 0, wxALIGN_CENTER);
+
+            wxButton* polyButton = new wxButton(this, -1, _("polygon"));
+            polyButton->Bind(wxEVT_BUTTON, [this](wxCommandEvent& event)
+                {
+                    ungod::Collider poly;
+                    if (mEntity.get<ungod::TransformComponent>().getSize().x == 0.0f ||
+                        mEntity.get<ungod::TransformComponent>().getSize().y == 0.0f)
+                        poly = ungod::makeConvexPolygon({ { 0,0 }, {50, 0}, {25, 50} });
+                    else
+                        poly = ungod::makeConvexPolygon({ { 0,0 }, {mEntity.get<ungod::TransformComponent>().getSize().x, 0},
+                                                {mEntity.get<ungod::TransformComponent>().getSize().x/2, mEntity.get<ungod::TransformComponent>().getSize().y} });
+                    if (mSingleSelected)
+                        mWaw.addCollider(mEntity, poly);
+                    else if (mSelection >= 0)
+                        mWaw.addCollider(mEntity, mSelection, poly);
+                });
+            initButtonsSizer->Add(polyButton, 0, wxALIGN_CENTER);
+
+            wxButton* edgechainButton = new wxButton(this, -1, _("edge chain"));
+            edgechainButton->Bind(wxEVT_BUTTON, [this](wxCommandEvent& event)
+                {
+                    ungod::Collider chain = ungod::makeEdgeChain({ { 0,0 }, {100, 0} });
+                    if (mSingleSelected)
+                        mWaw.addCollider(mEntity, chain);
+                    else if (mSelection >= 0)
+                        mWaw.addCollider(mEntity, mSelection, chain);
+                });
+            initButtonsSizer->Add(edgechainButton, 0, wxALIGN_CENTER);
+
+            boxsizer->Add(initButtonsSizer, 1, wxALIGN_CENTER_HORIZONTAL);
+        }
+
+
         updateRigidbodyList();
 
         SetSizer(boxsizer);
 
-        if (mEntity.has<ungod::RigidbodyComponent<CONTEXT>>() ||
-            (mEntity.has < ungod::MultiRigidbodyComponent<CONTEXT>() &&
-                mEntity.get < ungod::MultiRigidbodyComponent<CONTEXT>().getComponentCount() > 0))
-            displayRigidbody(0);
+        if (mEntity.has<ungod::RigidbodyComponent<CONTEXT>>())
+            displayRigidbody(0, true);
+        else if (mEntity.has < ungod::MultiRigidbodyComponent<CONTEXT>>() &&
+                mEntity.get < ungod::MultiRigidbodyComponent<CONTEXT>>().getComponentCount() > 0)
+            displayRigidbody(0, false);
         else
-            displayRigidbody(-1);
+            displayRigidbody(-1, false);
     }
 
 
     template<std::size_t CONTEXT>
     void EntityCollidersWindow<CONTEXT>::onColliderChanged(ungod::Entity e)
     {
-        updateRigidbodyList();
-        if (mSelection != -1 && (unsigned)mSelection < e.get<ungod::RigidbodyComponent<CONTEXT>>().getColliders().size())
-            displayRigidbody(mSelection);
+        if (mColliderDetail)
+        {
+            auto* disp = static_cast<BaseColliderDisplay*>(mColliderDetail);
+            if (mSingleSelected)
+            {
+                if (e.get<ungod::RigidbodyComponent<CONTEXT>>().getCollider().getType() == disp->getType())
+                    disp->refresh();
+                else
+                    displayRigidbody(0, true);
+            }
+            else //if (mSelection != -1)
+            {
+                if (e.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(mSelection).getCollider().getType() == disp->getType())
+                    disp->refresh();
+                else
+                    displayRigidbody(mSelection, false);
+            }
+        }
     }
 
 
     template<std::size_t CONTEXT>
-    void EntityCollidersWindow<CONTEXT>::displayRigidbody(int index)
+    void EntityCollidersWindow<CONTEXT>::displayRigidbody(int index, bool single)
     {
         if (mColliderDetail)
         {
-            GetSizer()->Remove(mColliderDetail);
+            GetSizer()->Detach(mColliderDetail);
             mColliderDetail->Destroy();
         }
         mSelection = index;
+        mSingleSelected = single;
         if (mSelection == -1) //no rigidbody selected
         {
             mColliderDetail = new wxPanel(this);
@@ -71,24 +139,24 @@ namespace uedit
         else
         {
             const ungod::Collider* coll;
-            int index = -1;
-            if (mEntity.has<ungod::RigidbodyComponent<CONTEXT>>())
+            int isel = -1;
+            if (mSingleSelected)
             {
                 coll = &mEntity.get<ungod::RigidbodyComponent<CONTEXT>>().getCollider();
             }
             else
             {
                 coll = &mEntity.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(mSelection).getCollider();
-                index = mSelection;
+                isel = mSelection;
             }
 
             switch (coll->getType())
             {
             case ungod::ColliderType::ROTATED_RECT:
-                mColliderDetail = new RectangleWindow(mEntity, *coll, this, mWaw, index);
+                mColliderDetail = new RectangleWindow<CONTEXT>(mEntity, *coll, this, mWaw, isel);
                 break;
             case ungod::ColliderType::CONVEX_POLYGON: case ungod::ColliderType::EDGE_CHAIN:
-                mColliderDetail = new PointSetWindow(mEntity, *coll, this, mWaw, index);
+                mColliderDetail = new PointSetWindow<CONTEXT>(mEntity, *coll, this, mWaw, isel);
                 break;
             default:
                 mColliderDetail = new wxPanel(this);
@@ -98,6 +166,7 @@ namespace uedit
         }
 
         GetSizer()->Add(mColliderDetail, 4, wxALIGN_CENTER_HORIZONTAL);
+        Layout();
         Fit();
     }
 
@@ -106,30 +175,53 @@ namespace uedit
     void EntityCollidersWindow<CONTEXT>::updateRigidbodyList()
     {
         mRigidbodies->DeleteAllItems();
+        int offset = 0;
         if (mEntity.has<ungod::RigidbodyComponent<CONTEXT>>())
         {
             wxListItem rigidbodyItem;
             rigidbodyItem.SetId(0);
             mRigidbodies->InsertItem(rigidbodyItem);
             mRigidbodies->SetItem(0, 0, "0");
+            offset = 1;
         }
-        else //multi component
+
+        if (mEntity.has<ungod::MultiRigidbodyComponent<CONTEXT>>())
         {
             for (unsigned i = 0; i < mEntity.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponentCount(); i++)
             {
                 wxListItem rigidbodyItem;
                 rigidbodyItem.SetId(i);
                 mRigidbodies->InsertItem(rigidbodyItem);
-                mRigidbodies->SetItem(i, 0, std::to_string(i));
+                mRigidbodies->SetItem(i+ offset, 0, std::to_string(i));
             }
         }
     }
 
 
     template<std::size_t CONTEXT>
+    ungod::RigidbodyComponent<CONTEXT>* EntityCollidersWindow<CONTEXT>::getActiveComponent() const
+    {
+        if (mSingleSelected)
+            return &mEntity.modify<ungod::RigidbodyComponent<CONTEXT>>();
+        else if (mSelection != -1)
+            return &mEntity.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(mSelection);
+        else
+            return nullptr;
+    }
+
+
+    template<std::size_t CONTEXT>
     void EntityCollidersWindow<CONTEXT>::onRigidbodyListSelect(wxListEvent& event)
     {
-        displayRigidbody(event.GetIndex());
+        if (mEntity.has<ungod::MultiRigidbodyComponent<CONTEXT>>())
+        {
+            if (event.GetIndex() == 0)
+                displayRigidbody(0, true);
+            else
+                displayRigidbody(event.GetIndex()-1, false);
+        }
+        else
+            displayRigidbody(event.GetIndex(), false);
     }
 
 
@@ -151,7 +243,7 @@ namespace uedit
 
     template<std::size_t CONTEXT>
     RectangleWindow<CONTEXT>::RectangleWindow(ungod::Entity e, const ungod::Collider& c, 
-        wxWindow* parent, WorldActionWrapper& waw, int multiIndex) : wxPanel(parent), mRect(c), mMulti(multiIndex)
+        wxWindow* parent, WorldActionWrapper& waw, int multiIndex) : BaseColliderDisplay(parent), mEntity(e), mRect(c), mMulti(multiIndex), mWaw(waw)
     {
         wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
         {
@@ -159,9 +251,9 @@ namespace uedit
             mUpLeftX->connectSetter([this](float x)
                 {
                     if (mMulti >= 0)
-                        waw.setRectUpLeft(e, mMulti, { x, mRect.getUpLeftY() });
+                        mWaw.setRectUpLeft(mEntity, mMulti, { x, mRect.getUpLeftY() });
                     else
-                        waw.setRectUpLeft(e, { x, mRect.getUpLeftY() });
+                        mWaw.setRectUpLeft(mEntity, { x, mRect.getUpLeftY() });
                 });
             mUpLeftX->connectGetter([this]()
                 {
@@ -174,9 +266,9 @@ namespace uedit
             mUpLeftY->connectSetter([this](float y)
                 {
                     if (mMulti >= 0)
-                        waw.setRectUpLeft(e, mMulti, { mRect.getUpLeftX(), y });
+                        mWaw.setRectUpLeft(mEntity, mMulti, { mRect.getUpLeftX(), y });
                     else
-                        waw.setRectUpLeft(e, { mRect.getUpLeftX(), y });
+                        mWaw.setRectUpLeft(mEntity, { mRect.getUpLeftX(), y });
                 });
             mUpLeftY->connectGetter([this]()
                 {
@@ -189,9 +281,9 @@ namespace uedit
             mDownRightX->connectSetter([this](float x)
                 {
                     if (mMulti >= 0)
-                        waw.setRectDownRight(e, mMulti, { x, mRect.getDownRightY() });
+                        mWaw.setRectDownRight(mEntity, mMulti, { x, mRect.getDownRightY() });
                     else
-                        waw.setRectDownRight(e, { x, mRect.getDownRightY() });
+                        mWaw.setRectDownRight(mEntity, { x, mRect.getDownRightY() });
                 });
             mDownRightX->connectGetter([this]()
                 {
@@ -204,9 +296,9 @@ namespace uedit
             mDownRightY->connectSetter([this](float y)
                 {
                     if (mMulti >= 0)
-                        waw.setRectDownRight(e, mMulti, { mRect.getDownRightX(), y });
+                        mWaw.setRectDownRight(mEntity, mMulti, { mRect.getDownRightX(), y });
                     else
-                        waw.setRectDownRight(e, { mRect.getDownRightX(), y });
+                        mWaw.setRectDownRight(mEntity, { mRect.getDownRightX(), y });
                 });
             mDownRightY->connectGetter([this]()
                 {
@@ -219,9 +311,9 @@ namespace uedit
             mRotation->connectSetter([this](float y)
                 {
                     if (mMulti >= 0)
-                        waw.setRectRotation(e, mMulti, mRect.getRotation());
+                        mWaw.setRectRotation(mEntity, mMulti, mRect.getRotation());
                     else
-                        waw.setRectRotation(e, mRect.getRotation());
+                        mWaw.setRectRotation(mEntity, mRect.getRotation());
                 });
             mRotation->connectGetter([this]()
                 {
@@ -229,53 +321,94 @@ namespace uedit
                 });
             vbox->Add(mRotation, 0, wxALIGN_CENTER_HORIZONTAL);
         }
+        refresh();
         SetSizer(vbox);
         Fit();
     }
 
 
+    template<std::size_t CONTEXT>
+    void RectangleWindow<CONTEXT>::refresh()
+    {
+        mUpLeftX->refreshValue();
+        mUpLeftY->refreshValue();
+        mDownRightX->refreshValue();
+        mDownRightY->refreshValue();
+        mRotation->refreshValue();
+    }
+
 
     template<std::size_t CONTEXT>
     PointSetWindow<CONTEXT>::PointSetWindow(ungod::Entity e, const ungod::Collider& c, 
-        wxWindow* parent, WorldActionWrapper& waw, int multiIndex) : wxPanel(parent), mPointSet(c), mMulti(multiIndex)
+        wxWindow* parent, WorldActionWrapper& waw, int multiIndex) : BaseColliderDisplay(parent), 
+        mEntity(e), mPointSet(c), mMulti(multiIndex), mWaw(waw), mVbox(new wxBoxSizer(wxVERTICAL)), mType(mPointSet.getType())
     {
-        wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
         mPointsX.reserve(mPointSet.getNumberOfPoints());
         mPointsY.reserve(mPointSet.getNumberOfPoints());
         for (unsigned i = 0; i < mPointSet.getNumberOfPoints(); i++)
-        {
-            auto* statX = new StatDisplay<float>("p"+str(i)+" x:", this, -1);
-            statX->connectSetter([this, i](float x)
-                {
-                    if (mMulti >= 0)
-                        waw.setColliderPoint(e, mMulti, { x, mPointSet.getPointY(i) }, i);
-                    else
-                        waw.setColliderPoint(e, { x, mPointSet.getPointY(i) }, i);
-                });
-            statX->connectGetter([this, i]()
-                {
-                    return mPointSet.getPointX(i);
-                });
-            vbox->Add(statX, 0, wxALIGN_CENTER_HORIZONTAL);
-            mPointsX.emplace_back(statX);
-
-            auto* statY = new StatDisplay<float>("p" + str(i) + " y:", this, -1);
-            statY->connectSetter([this](float y)
-                {
-                    if (mMulti >= 0)
-                        waw.setColliderPoint(e, mMulti, { mPointSet.getPointX(i), y }, i);
-                    else
-                        waw.setColliderPoint(e, { mPointSet.getPointX(i), y }, i);
-                });
-            statY->connectGetter([this, i]()
-                {
-                    return mPointSet.getPointY(i);
-                });
-            vbox->Add(statY, 0, wxALIGN_CENTER_HORIZONTAL);
-            mPointsY.emplace_back(statX);
-        }
-        SetSizer(vbox);
+            addPoint(i);
+        refresh();
+        SetSizer(mVbox);
         Fit();
+    }
+
+
+    template<std::size_t CONTEXT>
+    void PointSetWindow<CONTEXT>::addPoint(unsigned i)
+    {
+        auto* statX = new StatDisplay<float>("p" + std::to_string(i) + " x:", this, -1);
+        statX->connectSetter([this, i](float x)
+            {
+                if (mMulti >= 0)
+                    mWaw.setColliderPoint(mEntity, mMulti, { x, mPointSet.getPointY(i) }, i);
+                else
+                    mWaw.setColliderPoint(mEntity, { x, mPointSet.getPointY(i) }, i);
+            });
+        statX->connectGetter([this, i]()
+            {
+                return mPointSet.getPointX(i);
+            });
+        mVbox->Add(statX, 0, wxALIGN_CENTER_HORIZONTAL);
+        mPointsX.emplace_back(statX);
+
+        auto* statY = new StatDisplay<float>("p" + std::to_string(i) + " y:", this, -1);
+        statY->connectSetter([this,i](float y)
+            {
+                if (mMulti >= 0)
+                    mWaw.setColliderPoint(mEntity, mMulti, { mPointSet.getPointX(i), y }, i);
+                else
+                    mWaw.setColliderPoint(mEntity, { mPointSet.getPointX(i), y }, i);
+            });
+        statY->connectGetter([this, i]()
+            {
+                return mPointSet.getPointY(i);
+            });
+        mVbox->Add(statY, 0, wxALIGN_CENTER_HORIZONTAL);
+        mPointsY.emplace_back(statY);
+    }
+
+
+    template<std::size_t CONTEXT>
+    void PointSetWindow<CONTEXT>::refresh()
+    {
+        if (mPointSet.getNumberOfPoints() > mPointsX.size())
+        {
+            for (unsigned i = mPointsX.size(); i < mPointSet.getNumberOfPoints(); i++)
+                addPoint(i);
+            Fit();
+        }
+        else if (mPointSet.getNumberOfPoints() < mPointsX.size())
+        {
+            mPointsX.clear();
+            mPointsY.clear();
+            for (unsigned i = 0; i < mPointSet.getNumberOfPoints(); i++)
+                addPoint(i);
+            Fit();
+        }
+        for (auto d : mPointsX)
+            d->refreshValue();
+        for (auto d : mPointsY)
+            d->refreshValue();
     }
 }
 

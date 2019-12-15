@@ -36,8 +36,8 @@ namespace uedit
     */
     class EditorFrame : public wxFrame, public ungod::Serializable<EditorFrame>
     {
-    friend class ungod::SerialBehavior<EditorFrame>;
-    friend class ungod::DeserialBehavior<EditorFrame>;
+    friend struct ungod::SerialBehavior<EditorFrame>;
+    friend struct ungod::DeserialBehavior<EditorFrame>;
     public:
         EditorFrame();
 
@@ -71,6 +71,8 @@ namespace uedit
         void openEntityDesigner(ungod::Entity e);
 
         WorldActionWrapper& getWorldActionWrapper() { return mWorldAction; }
+
+        void registerWorld(ungod::World* world);
 
 		~EditorFrame();
 
@@ -111,8 +113,6 @@ namespace uedit
         void onScriptToggle(wxCommandEvent& event);
 
         bool saveBeforeProceed();
-
-        void registerWorld(ungod::World* world);
 
         void saveProject();
         void loadProject(const std::string& filepath);

@@ -1057,11 +1057,6 @@ namespace ungod
         le.mLight.setActive(active);
     }
 
-    void LightSystem::onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback)
-    {
-        mContentsChangedSignal.connect(callback);
-    }
-
     sf::Vector2f LightSystem::getLowerBound(Entity e)
     {
         sf::Vector2f lowerBounds(0,0);

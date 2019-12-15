@@ -347,11 +347,11 @@ namespace uedit
         }
         else if (mTabs->GetPageText(event.GetSelection()) == _("MovementCollision"))
         {
-            mEntityPreview->toggle<CollidersEditState<ungod::MOVEMENT_COLLISION_CONTEXT>>();
+            mEntityPreview->toggle<CollidersEditState<ungod::MOVEMENT_COLLISION_CONTEXT>>(*mMovementCollidersOrganizer);
         }
         else if (mTabs->GetPageText(event.GetSelection()) == _("SemanticsCollision"))
         {
-            mEntityPreview->toggle<CollidersEditState<ungod::SEMANTICS_COLLISION_CONTEXT>>();
+            mEntityPreview->toggle<CollidersEditState<ungod::SEMANTICS_COLLISION_CONTEXT>>(*mSemanticsCollidersOrganizer);
         }
         else if (mTabs->GetPageText(event.GetSelection()) == _("Light"))
         {
