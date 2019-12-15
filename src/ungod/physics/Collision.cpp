@@ -24,214 +24,176 @@
 */
 
 #include "ungod/physics/Collision.h"
-#include "ungod/base/World.h"
+#include "ungod/base/Logger.h"
+#include "ungod/base/Transform.h"
 
 namespace ungod
 {
-    Collider::Collider() :
-        mUpleft(), mDownright(), mRotation(0.0f) {}
-
-    Collider::Collider(const sf::Vector2f& upleft, const sf::Vector2f& downright, float rotation) :
-        mUpleft(upleft), mDownright(downright), mRotation(rotation) {}
-
-    const sf::Vector2f& Collider::getUpleft() const
-    {
-        return mUpleft;
-    }
-
-    const sf::Vector2f& Collider::getDownright() const
-    {
-        return mDownright;
-    }
-
-    sf::Vector2f Collider::getCenter() const
-    {
-        return mUpleft + 0.5f*(mDownright-mUpleft);
-    }
-
-    sf::FloatRect Collider::getBoundingBox(const TransformComponent& t) const
-    {
-        return getBoundingBox(t.getTransform());
-    }
-
-    sf::FloatRect Collider::getBoundingBox(sf::Transform transf) const
-    {
-        transf.rotate(mRotation, getCenter());
-        sf::Vector2f p1 = transf.transformPoint(mUpleft);
-        sf::Vector2f p2 = transf.transformPoint({mDownright.x, mUpleft.y});
-        sf::Vector2f p3 = transf.transformPoint(mDownright);
-        sf::Vector2f p4 = transf.transformPoint({mUpleft.x, mDownright.y});
-
-        float minx = std::numeric_limits<float>::infinity();
-        float maxx = -std::numeric_limits<float>::infinity();
-        float miny = std::numeric_limits<float>::infinity();
-        float maxy = -std::numeric_limits<float>::infinity();
-
-        minx = std::min(minx, p1.x);
-        maxx = std::max(maxx, p1.x);
-        miny = std::min(miny, p1.y);
-        maxy = std::max(maxy, p1.y);
-
-        minx = std::min(minx, p2.x);
-        maxx = std::max(maxx, p2.x);
-        miny = std::min(miny, p2.y);
-        maxy = std::max(maxy, p2.y);
-
-        minx = std::min(minx, p3.x);
-        maxx = std::max(maxx, p3.x);
-        miny = std::min(miny, p3.y);
-        maxy = std::max(maxy, p3.y);
-
-        minx = std::min(minx, p4.x);
-        maxx = std::max(maxx, p4.x);
-        miny = std::min(miny, p4.y);
-        maxy = std::max(maxy, p4.y);
-
-        return {minx, miny, maxx-minx, maxy-miny};
-    }
-
-    Collider Collider::translate(const TransformComponent& t) const
-    {
-        return { t.getTransform().transformPoint(mUpleft),
-                 t.getTransform().transformPoint(mDownright) };
-    }
-
-    float Collider::getRotation() const
-    {
-        return mRotation;
-    }
-
-    void Collider::move(const sf::Vector2f& vec)
-    {
-        mUpleft += vec;
-        mDownright += vec;
-    }
+	std::pair<bool, sf::Vector2f> doCollide(const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2)
+	{
+		bool collision = false;
+		float minMagn = std::numeric_limits<float>::max();
+		sf::Vector2f mdvMin; 
+		std::vector<sf::Vector2f> axis, pivots1, pivots2;
+		axis.reserve(Collider::MAX_PARAM); //reserve enough space to prevent reallocation even in worst case
+		pivots1.reserve((unsigned)(Collider::MAX_PARAM / 2));
+		pivots2.reserve((unsigned)(Collider::MAX_PARAM / 2));
+		for (unsigned i = 0; i < c1.getNumRuns(); i++)
+			for (unsigned j = 0; j < c2.getNumRuns(); j++)
+		{
+			axis.clear();
+			pivots1.clear();
+			pivots2.clear();
+			c1.getAxisAndPivots(t1, axis, pivots1, i);
+			c2.getAxisAndPivots(t2, axis, pivots2, j);
+			bool collisionHere;
+			sf::Vector2f mdv;
+			std::tie(collisionHere, mdv) = satAlgorithm(axis, pivots1, pivots2);
+			if (dotProduct(t1.getTransform().transformPoint(c1.getCenter()) -
+				t2.getTransform().transformPoint(c2.getCenter()), mdv) < 0)
+			{
+				mdv = -mdv;
+			}
+			float curMagn = sqMagnitude(mdv);
+			if (curMagn < minMagn)
+			{
+				mdvMin = mdv;
+				minMagn = curMagn;
+			}
+			collision = collision || collisionHere;
+		}
+		return { collision, mdvMin };
+	}
 
 
-    std::pair<bool, sf::Vector2f> satAlgorithm( const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2 )
-    {
-        sf::Transform finalTransf1;
-        sf::Transform finalTransf2;
-        finalTransf1 *= t1.getTransform();
-        finalTransf2 *= t2.getTransform();
-        finalTransf1.rotate(c1.getRotation(), c1.getCenter());
-        finalTransf2.rotate(c2.getRotation(), c2.getCenter());
+	std::pair<bool, sf::Vector2f> satAlgorithm(const std::vector<sf::Vector2f>& axis, const std::vector<sf::Vector2f>& pivots1, const std::vector<sf::Vector2f>& pivots2)
+	{
+		float overlap;
+		float smallestOverlap = std::numeric_limits<float>::max();
+		sf::Vector2f offset;
 
-        //get the axis to test
-        std::array<sf::Vector2f, 4> mAxis;
-        std::array<sf::Vector2f, 4> mPoints1;
-        std::array<sf::Vector2f, 4> mPoints2;
+		for (auto& a : axis)
+		{
+			float c1Left = std::numeric_limits<float>::infinity();
+			float c1Right = -std::numeric_limits<float>::infinity();
+			float c2Left = std::numeric_limits<float>::infinity();
+			float c2Right = -std::numeric_limits<float>::infinity();
 
-        mPoints1[0] = finalTransf1.transformPoint( c1.getDownright() );
-        mPoints1[1] = finalTransf1.transformPoint( {c1.getUpleft().x, c1.getDownright().y} );
-        mPoints1[2] = finalTransf1.transformPoint( c1.getUpleft() );
-        mPoints1[3] = finalTransf1.transformPoint( {c1.getDownright().x, c1.getUpleft().y} );
+			float projection;
 
-        mPoints2[0] = finalTransf2.transformPoint( c2.getDownright() );
-        mPoints2[1] = finalTransf2.transformPoint( {c2.getUpleft().x, c2.getDownright().y} );
-        mPoints2[2] = finalTransf2.transformPoint( c2.getUpleft() );
-        mPoints2[3] = finalTransf2.transformPoint( {c2.getDownright().x, c2.getUpleft().y} );
+			for (auto& piv : pivots1)
+			{
+				projection = dotProduct(a, piv);
+				c1Right = std::max(c1Right, projection);
+				c1Left = std::min(c1Left, projection);
+			}
 
-        mAxis[0] = mPoints1[3] - mPoints1[2];
-        mAxis[1] = mPoints1[1] - mPoints1[2];
-        mAxis[2] = mPoints2[3] - mPoints2[2];
-        mAxis[3] = mPoints2[1] - mPoints2[2];
+			for (auto& piv : pivots2)
+			{
+				projection = dotProduct(a, piv);
+				c2Right = std::max(c2Right, projection);
+				c2Left = std::min(c2Left, projection);
+			}
 
-        float overlap;
-        float smallestOverlap = std::numeric_limits<float>::max();
-        sf::Vector2f offset;
+			overlap = std::min(c1Right, c2Right) - std::max(c1Left, c2Left);
 
-        for (auto& axis : mAxis)
-        {
-            normalize(axis);
-            sf::Vector2f perp = perpendicularVector( axis );
+			if (overlap < 0)
+			{
+				return { false, {0,0} };
+			}
+			if (overlap < smallestOverlap)
+			{
+				smallestOverlap = overlap;
+				offset = a * overlap;
+			}
+		}
 
-            float c1Left = std::numeric_limits<float>::infinity();
-            float c1Right = -std::numeric_limits<float>::infinity();
-            float c2Left = std::numeric_limits<float>::infinity();
-            float c2Right = -std::numeric_limits<float>::infinity();
-
-            float projection;
-
-            for (auto& point : mPoints1)
-            {
-                projection = dotProduct(perp, point);
-                c1Right = std::max(c1Right, projection);
-                c1Left = std::min(c1Left, projection);
-            }
-
-            for (auto& point : mPoints2)
-            {
-                projection = dotProduct(perp, point);
-                c2Right = std::max(c2Right, projection);
-                c2Left = std::min(c2Left, projection);
-            }
-
-            overlap = std::min(c1Right, c2Right) - std::max(c1Left, c2Left);
-
-            if (overlap < 0)
-            {
-                return { false, {0,0} };
-            }
-            if (overlap < smallestOverlap)
-            {
-                smallestOverlap = overlap;
-                offset = perp*overlap;
-            }
-        }
-
-        if (dotProduct( finalTransf1.transformPoint(c1.getCenter()) -
-                        finalTransf2.transformPoint(c2.getCenter()), offset) < 0)
-        {
-            offset = -offset;
-        }
-
-        return { true, offset };
-    }
+		return { true, offset };
+	}
 
 
     bool containsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point)
     {
-        //translate the point into the collider "local" coordinates
-        sf::Vector2f transfPoint = transf.getTransform().getInverse().transformPoint(point);
-        if (collider.getRotation() != 0.0f)
-        {
-            //rotate the point in the coord.system of the collider
-            sf::Transform inverseRotation;
-            inverseRotation.rotate( -collider.getRotation(), collider.getCenter() );
-            transfPoint = inverseRotation.transformPoint(transfPoint);
-
-        }
-        return transfPoint.x >= collider.getUpleft().x && transfPoint.y >= collider.getUpleft().y &&
-               transfPoint.x <= collider.getDownright().x && transfPoint.y <= collider.getDownright().y;
+		switch (collider.getType())
+		{
+			case ColliderType::ROTATED_RECT:
+				return rotatedRectContainsPoint(collider, transf, point);
+			case ColliderType::CONVEX_POLYGON:
+				return convexPolygonContainsPoint(collider, transf, point);
+			case ColliderType::EDGE_CHAIN:
+				return edgeChainContainsPoint(collider, transf, point);
+			/*case ColliderType::CIRCLE:
+				return circleContainsPoint(collider, transf, point);*/
+			default: //no support for edge chains
+				return false;
+		}
     }
 
-    void RigidbodyManager::onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback)
-    {
-        mContentsChangedSignal.connect(callback);
-    }
 
-    void RigidbodyManager::onContentRemoved(const std::function<void(Entity)>& callback)
-    {
-        mContentRemoved.connect(callback);
-    }
+	bool rotatedRectContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point)
+	{
+		RotatedRectConstAggregator rota{ collider };
+		//translate the point into the collider "local" coordinates
+		sf::Vector2f transfPoint = transf.getTransform().getInverse().transformPoint(point);
+		if (rota.getRotation() != 0.0f)
+		{
+			//rotate the point in the coord.system of the collider
+			sf::Transform inverseRotation;
+			inverseRotation.rotate(-rota.getRotation(), rota.getCenter());
+			transfPoint = inverseRotation.transformPoint(transfPoint);
 
-    sf::Vector2f RigidbodyManager::getLowerBound(Entity e)
-    {
-        sf::Vector2f lowerBounds(0,0);
-        ContextIteration<MAX_CONTEXTS>::getLowerBounds(*this, e, lowerBounds);
-        return lowerBounds;
-    }
+		}
+		return transfPoint.x >= rota.getUpLeftX() && transfPoint.y >= rota.getUpLeftY() &&
+			transfPoint.x <= rota.getDownRightX() && transfPoint.y <= rota.getDownRightY();
+	}
 
-    sf::Vector2f RigidbodyManager::getUpperBound(Entity e)
-    {
-        sf::Vector2f upperBounds(0,0);
-        ContextIteration<MAX_CONTEXTS>::getUpperBounds(*this, e, upperBounds);
-        return upperBounds;
-    }
 
-    void RigidbodyManager::moveColliders(Entity e, const sf::Vector2f& vec)
-    {
-        ContextIteration<MAX_CONTEXTS>::iterate(*this, e, vec);
-    }
+	bool convexPolygonContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point)
+	{
+		PointSetConstAggregator pa{ collider };
+		//translate the point into the collider "local" coordinates
+		sf::Vector2f transfPoint = transf.getTransform().getInverse().transformPoint(point);
+		bool pos = false;
+		bool neg = false;
+		for (unsigned i = 0; i < pa.getNumberOfPoints(); i++)
+		{
+			unsigned inext = (i + 1) % pa.getNumberOfPoints();
+			sf::Vector2f pcur{ pa.getPointX(i), pa.getPointY(i) };
+			sf::Vector2f normal = ungod::perpendicularVector(sf::Vector2f{ pa.getPointX(inext), pa.getPointY(inext) } - pcur);
+			float dp = dotProduct(transfPoint - pcur, normal);
+			if (dp < 0.0f)
+				if (pos)
+					return false;
+				else
+					neg = true;
+			else 
+				if (neg)
+					return false;
+				else
+					pos = true;
+		}
+		return true;
+	}
+
+
+	bool edgeChainContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point)
+	{
+		static constexpr float DIST = 5.0f;
+		PointSetConstAggregator pa{ collider };
+		sf::Vector2f transfPoint = transf.getTransform().getInverse().transformPoint(point);
+		for (unsigned i = 0; i < pa.getNumberOfPoints(); i++)
+		{
+			unsigned inext = (i + 1) % pa.getNumberOfPoints();
+			if (distanceToLineSegment(transfPoint, { pa.getPointX(i), pa.getPointY(i) }, { pa.getPointX(inext), pa.getPointY(inext) }) < DIST)
+				return true;
+		}
+		return false;
+	}
+
+
+	/*bool circleContainsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point)
+	{
+		CircleConstAggregator ca{ collider };
+		return distance({ ca.getCenterX(), ca.getCenterY() }, point) <= ca.getRadius();
+	}*/
 }

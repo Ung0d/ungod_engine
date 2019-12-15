@@ -52,7 +52,7 @@ namespace ungod
               const std::string& distortionMap,
               const std::string& texFilepath, const std::string& metaFilepath,
               const std::string& fragmentShader, const std::string& vertexShader,
-              std::size_t tileWidth, std::size_t tileHeight,
+			  unsigned tileWidth, unsigned tileHeight,
               const sf::RenderTarget& target,
               const std::vector<std::string>& keymap);
 
@@ -64,7 +64,7 @@ namespace ungod
                       const sf::RenderTarget& target);
 
         void loadTiles(const std::string& texFilepath, const std::string& metaFilepath,
-                      std::size_t tileWidth, std::size_t tileHeight,
+						unsigned tileWidth, unsigned tileHeight,
                       const std::vector<std::string>& keymap);
 
         /** \brief Accesses the underlying ground object, which is responsible for the texture drawing. */

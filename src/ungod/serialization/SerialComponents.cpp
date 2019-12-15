@@ -442,7 +442,7 @@ namespace ungod
         }
         else
         {
-            auto result = deserializer.getAttributes<int, int, int, int>(
+            auto result = deserializer.getAttributes<float, float, float, float>(
                      {"tex_x", 0},  {"tex_y", 0}, {"size_x", 0},  {"size_y", 0} );
             if (std::get<0>(result) == 0 && std::get<1>(result) == 0 && std::get<2>(result) == 0 && std::get<3>(result) == 0)
             {

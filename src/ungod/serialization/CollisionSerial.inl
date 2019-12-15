@@ -33,28 +33,43 @@ namespace ungod
     std::string SerialIdentifier<RigidbodyComponent<CONTEXT>>::get()  { return std::string("RB") + std::to_string(CONTEXT); }
 
     template <std::size_t CONTEXT>
-    void SerialBehavior<RigidbodyComponent<CONTEXT>, Entity, const World&, const Application&>::serialize(const RigidbodyComponent<CONTEXT>& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&)
+    void SerialBehavior<RigidbodyComponent<CONTEXT>, Entity, const World&, const Application&>::serialize
+		(const RigidbodyComponent<CONTEXT>& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&)
     {
-        for (const auto& collider : data.mColliders)
-        {
-            MetaNode colliderNode = context.appendSubnode(serializer, "c");
-            context.serializeProperty("left", collider.getUpleft().x, colliderNode);
-            context.serializeProperty("top", collider.getUpleft().y, colliderNode);
-            context.serializeProperty("right", collider.getDownright().x, colliderNode);
-            context.serializeProperty("bottom", collider.getDownright().y, colliderNode);
-            context.serializeProperty("rotation", collider.getRotation(), colliderNode);
-        }
+		context.serializeProperty("a", data.isActive(), serializer);
+		context.serializeProperty("t", static_cast<std::underlying_type_t<ColliderType>>(data.getCollider().getType()), serializer);
+		for (unsigned i = 0; i < data.getCollider().getNumParam(); i++)
+			context.serializeProperty("p"+std::to_string(i), data.getCollider().getParam(i), serializer);
     }
 
     template <std::size_t CONTEXT>
     void DeserialBehavior<RigidbodyComponent<CONTEXT>, Entity, World&, const Application&>::deserialize(RigidbodyComponent<CONTEXT>& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&)
     {
-        forEachSubnode(deserializer, [&world, e] (MetaNode colliderNode)
-        {
-            auto result = colliderNode.getAttributes<float, float, float, float, float>
-                ({"left", 0.0f}, {"top", 0.0f}, {"right", 0.0f}, {"bottom", 0.0f}, {"rotation", 0.0f});
-            world.getRigidbodyManager().addCollider(e, {std::get<0>(result), std::get<1>(result)}, {std::get<2>(result), std::get<3>(result)}, std::get<4>(result));
-        }, "c");
+		std::vector<float> param;
+		param.reserve(Collider::MAX_PARAM);
+		bool active;
+		auto attr = context.first(context.deserializeProperty(active, false), "a", deserializer);
+		std::underlying_type_t<ColliderType> type;
+		attr = context.next(context.deserializeProperty(type, (std::underlying_type_t<ColliderType>)ColliderType::UNDEFINED), "t", deserializer, attr);
+		float curp;
+		int i = 0;
+		attr = context.next(context.deserializeProperty(curp), "p0", deserializer, attr);
+		while (attr)
+		{
+			param.emplace_back(curp);
+			i++;
+			attr = context.next(context.deserializeProperty(curp), "p"+std::to_string(i), deserializer, attr);
+		}
+		if constexpr (CONTEXT == MOVEMENT_COLLISION_CONTEXT)
+		{
+			world.getMovementRigidbodyManager().setActive(e, active);
+			world.getMovementRigidbodyManager().addCollider(e, Collider{ static_cast<ColliderType>(type), param });
+		}
+		else if constexpr (CONTEXT == SEMANTICS_COLLISION_CONTEXT)
+		{
+			world.getSemanticsRigidbodyManager().setActive(e, active);
+			world.getSemanticsRigidbodyManager().addCollider(e, Collider{ static_cast<ColliderType>(type), param });
+		}
     }
 }
 

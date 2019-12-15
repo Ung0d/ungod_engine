@@ -6,9 +6,13 @@ namespace uedit
 {
     LightEditState::LightEditState(EntityPreview& preview, const EntityLightWindow& lightWindow) :
         mPreview(preview), mMouseDown(false), mCtrlDown(false), mShiftDown(false),
-        mPointSet(false), mLightSelected(false), mColliderSelected(false), mEntityLightWindow(lightWindow), mDraggedPoint(-1), mSelectedComponent(nullptr)
+        mPointSet(false), mLightSelected(false), mColliderSelected(false), mEntityLightWindow(lightWindow), mShadowEmitterDraggers(preview.getWorldAction())
     {
-        mLastMouse = sf::Mouse::getPosition();
+        mShadowEmitterDraggers.setupPointDraggers(mPreview.getEntity());
+        mLink = mPreview.getEntity().getWorld().getLightSystem().onContentsChanged([this](ungod::Entity e, const sf::FloatRect&)
+            {
+                mShadowEmitterDraggers.notifyChange(mPreview.getEntity());
+            });
     }
 
     void LightEditState::selectLight()
@@ -143,22 +147,6 @@ namespace uedit
                             }
                         }
                     }
-                    else if (mDraggedPoint == -1)
-                    {
-                        mSelectedComponent = mEntityLightWindow.getActiveComponent();
-                        if (mSelectedComponent)
-                        {
-                            for (unsigned i = 0; i < mSelectedComponent->getCollider().getPointCount(); i++)
-                            {
-                                if (ungod::distance(mousePos, mSelectedComponent->getCollider().getPoint(i)) <= DRAG_DISTANCE)
-                                {
-                                    if (mDraggedPoint == -1 ||
-                                        ungod::distance(mousePos, mSelectedComponent->getCollider().getPoint(i)) < ungod::distance(mousePos, mSelectedComponent->getCollider().getPoint(mDraggedPoint)))
-                                            mDraggedPoint = i;
-                                }
-                            }
-                        }
-                    }
                 }
 
                 break;
@@ -167,7 +155,6 @@ namespace uedit
             {
                 mMouseDown = false;
                 mPointSet = false;
-                mDraggedPoint = -1;
                 break;
             }
             case sf::Event::MouseMoved:
@@ -201,9 +188,6 @@ namespace uedit
                             preview.mWorldAction.setMultiPoint(preview.mEntity, comp.getCollider().getPoint(j) + offset, j, i);
                     }
 
-                    if (mSelectedComponent && mSelectedComponent == mEntityLightWindow.getActiveComponent() && mDraggedPoint != -1 && !mColliderSelected && mSelectedMultiLights.empty())
-                        preview.mWorldAction.setPoint(preview.mEntity, mSelectedComponent->getCollider().getPoint(mDraggedPoint) + offset, mDraggedPoint);
-
                     mLastMouse = sf::Mouse::getPosition();
                 }
                 break;
@@ -234,6 +218,8 @@ namespace uedit
             }
             default: break;
         }
+
+        mShadowEmitterDraggers.handleEvent(preview, event);
     }
 
     void LightEditState::update(EntityPreview& preview, float delta)
@@ -282,13 +268,11 @@ namespace uedit
         for (const auto& i : mSelectedMultiColliders)
             renderColliderSelection(window, states, preview.mEntity.get<ungod::MultiShadowEmitter>().getComponent(i).getCollider().getShape());
 
-        if (mSelectedComponent && mSelectedComponent == mEntityLightWindow.getActiveComponent() && mDraggedPoint != -1 && !mColliderSelected && mSelectedMultiLights.empty())
-        {
-            static constexpr int radius = 10;
-            sf::CircleShape circle(radius);
-            circle.setFillColor(sf::Color::Red);
-            circle.setPosition(mSelectedComponent->getCollider().getPoint(mDraggedPoint)-sf::Vector2f{radius/2, radius/2});
-            window.draw(circle, states);
-        }
+        mShadowEmitterDraggers.render(window, states);
+    }
+
+    LightEditState::~LightEditState()
+    {
+        mLink.disconnect();
     }
 }

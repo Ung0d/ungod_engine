@@ -95,10 +95,10 @@ namespace ungod
         void merge(const T& t1, const T& t2);
 
         /** \brief Returns the current number of elements. */
-        unsigned elementCount() const;
+		std::size_t elementCount() const;
 
         /** \brief Returns the current number of sets. */
-        unsigned setCount() const;
+        std::size_t setCount() const;
 
         ~DisjointSets() {}
     };
@@ -190,13 +190,13 @@ namespace ungod
     }
 
     template<typename T>
-    unsigned DisjointSets<T>::elementCount() const
+	std::size_t DisjointSets<T>::elementCount() const
     {
         return elements.size();
     }
 
     template<typename T>
-    unsigned DisjointSets<T>::setCount() const
+	std::size_t DisjointSets<T>::setCount() const
     {
         return setcounter;
     }

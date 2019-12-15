@@ -104,7 +104,7 @@ namespace ungod
         Tile* getTile(Entity e, const sf::Vector2f& position);
 
         /** \brief Accesses the tile at the given position. */
-        Tile* getTile(Entity e, std::size_t x, std::size_t y);
+        Tile* getTile(Entity e, unsigned x, unsigned y);
 
         /** \brief Sets the tiles for a tilemap. */
         bool setTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
@@ -137,7 +137,7 @@ namespace ungod
         Tile* getWaterTile(Entity e, const sf::Vector2f& position);
 
         /** \brief Accesses the tile at the given position. */
-        Tile* getWaterTile(Entity e, std::size_t x, std::size_t y);
+        Tile* getWaterTile(Entity e, unsigned x, unsigned y);
 
         /** \brief Sets the tiles for a water. */
         bool setWaterTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
@@ -190,14 +190,14 @@ namespace ungod
         static void setWaterReflectionOpacity(WaterComponent& water, float opacity);
 
         /** \brief Performs flood fill for the given entity with a tilemap component. */
-        inline static void floodFillTileMap(Entity e, std::size_t ix, std::size_t iy, const std::vector<int>& replacementIDs, bool activate)
+        inline static void floodFillTileMap(Entity e, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs, bool activate)
         { floodFillTileMap(e.modify<TileMapComponent>(), ix, iy, replacementIDs, activate); }
-        static void floodFillTileMap(TileMapComponent& tilemap, std::size_t ix, std::size_t iy, const std::vector<int>& replacementIDs, bool activate);
+        static void floodFillTileMap(TileMapComponent& tilemap, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs, bool activate);
 
         /** \brief Performs flood fill for the given entity with a water component. */
-        inline static void floodFillWater(Entity e, std::size_t ix, std::size_t iy, const std::vector<int>& replacementIDs, bool activate)
+        inline static void floodFillWater(Entity e, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs, bool activate)
         { floodFillWater(e.modify<WaterComponent>(), ix, iy, replacementIDs, activate); }
-        static void floodFillWater(WaterComponent& water, std::size_t ix, std::size_t iy, const std::vector<int>& replacementIDs, bool activate);
+        static void floodFillWater(WaterComponent& water, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs, bool activate);
 
         /** \brief Sets a new tilemap for the given entity with a tilemap component. */
 		void setTileMap(Entity e, const TileMap& tilemap);

@@ -204,9 +204,11 @@ namespace uedit
         checkOptional<ungod::SpriteMetadataComponent>("SpriteMetadata", checkLater);
         checkOptional<ungod::AnimationComponent>("Animation", checkLater);
         checkOptional<ungod::MultiAnimationComponent>("MultiAnimation", checkLater);
-        checkOptional<ungod::EntityBehaviorComponent>("EntityBehavior {Script support]", checkLater);
+        checkOptional<ungod::EntityBehaviorComponent>("EntityBehavior[Script support]", checkLater);
         checkOptional<ungod::RigidbodyComponent<ungod::MOVEMENT_COLLISION_CONTEXT>>("Rigidbody[Movement]", checkLater);
         checkOptional<ungod::RigidbodyComponent<ungod::SEMANTICS_COLLISION_CONTEXT>>("Rigidbody[Semantics]", checkLater);
+        checkOptional<ungod::MultiRigidbodyComponent<ungod::MOVEMENT_COLLISION_CONTEXT>>("MultiRigidbody[Movement]", checkLater);
+        checkOptional<ungod::MultiRigidbodyComponent<ungod::SEMANTICS_COLLISION_CONTEXT>>("MultiRigidbody[Semantics]", checkLater);
         checkOptional<ungod::MovementComponent>("Movement", checkLater);
         checkOptional<ungod::SteeringComponent<ungod::script::Environment>>("Steering", checkLater);
         checkOptional<ungod::EntityUpdateTimer>("EntityUpdateTimer", checkLater);
@@ -251,12 +253,14 @@ namespace uedit
             mVisualsOrganizer = new EntityVisualsWindow(mEntity, mWorldAction, mTabs,-1,wxDefaultPosition,wxDefaultSize);
             mTabs->AddPage(mVisualsOrganizer, "Visuals");
         }
-        if (mEntity.has<ungod::RigidbodyComponent<ungod::MOVEMENT_COLLISION_CONTEXT>>())
+        if (mEntity.has<ungod::RigidbodyComponent<ungod::MOVEMENT_COLLISION_CONTEXT>>() ||
+            mEntity.has<ungod::MultiRigidbodyComponent<ungod::MOVEMENT_COLLISION_CONTEXT>>())
         {
             mMovementCollidersOrganizer = new EntityCollidersWindow<ungod::MOVEMENT_COLLISION_CONTEXT>(mEntity, mWorldAction, mTabs,-1,wxDefaultPosition,wxDefaultSize);
             mTabs->AddPage(mMovementCollidersOrganizer, "MovementCollision");
         }
-        if (mEntity.has<ungod::RigidbodyComponent<ungod::SEMANTICS_COLLISION_CONTEXT>>())
+        if (mEntity.has<ungod::RigidbodyComponent<ungod::SEMANTICS_COLLISION_CONTEXT>>() ||
+            mEntity.has<ungod::MultiRigidbodyComponent<ungod::SEMANTICS_COLLISION_CONTEXT>>())
         {
             mSemanticsCollidersOrganizer = new EntityCollidersWindow<ungod::SEMANTICS_COLLISION_CONTEXT>(mEntity, mWorldAction, mTabs,-1,wxDefaultPosition,wxDefaultSize);
             mTabs->AddPage(mSemanticsCollidersOrganizer, "SemanticsCollision");
@@ -343,11 +347,11 @@ namespace uedit
         }
         else if (mTabs->GetPageText(event.GetSelection()) == _("MovementCollision"))
         {
-            mEntityPreview->toggle<CollidersEditState<ungod::MOVEMENT_COLLISION_CONTEXT>>();
+            mEntityPreview->toggle<CollidersEditState<ungod::MOVEMENT_COLLISION_CONTEXT>>(*mMovementCollidersOrganizer);
         }
         else if (mTabs->GetPageText(event.GetSelection()) == _("SemanticsCollision"))
         {
-            mEntityPreview->toggle<CollidersEditState<ungod::SEMANTICS_COLLISION_CONTEXT>>();
+            mEntityPreview->toggle<CollidersEditState<ungod::SEMANTICS_COLLISION_CONTEXT>>(*mSemanticsCollidersOrganizer);
         }
         else if (mTabs->GetPageText(event.GetSelection()) == _("Light"))
         {

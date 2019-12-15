@@ -194,7 +194,7 @@ namespace ungod
         {
             mAdjacencies.resize(numVertex);
             for (;beginEdges != endEdges; ++beginEdges)
-                addEdge(beginEdges->u, beginEdges->v);
+                addEdge((unsigned)beginEdges->u, (unsigned)beginEdges->v);
         }
 
 

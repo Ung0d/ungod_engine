@@ -18,6 +18,11 @@ namespace uedit
         return mWindow;
     }
 
+    sf::Vector2f RenderArea::getMousePosition() const
+    {
+        return mWindow.mapPixelToCoords(sf::Mouse::getPosition(mWindow), mCamera.getView());
+    }
+
     void RenderArea::onIdle(wxIdleEvent& idleEvent)
     {
         Refresh(false);

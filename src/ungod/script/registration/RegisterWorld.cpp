@@ -99,7 +99,8 @@ namespace ungod
 			worldType["visuals"] = &World::getVisualsManager;
 			worldType["collisionMov"] = &World::getMovementCollisionManager;
 			worldType["collisionSem"] = &World::getSemanticsCollisionManager;
-			worldType["rigidbody"] = &World::getRigidbodyManager;
+			worldType["rigidbodyMov"] = &World::getMovementRigidbodyManager;
+			worldType["rigidbodySem"] = &World::getSemanticsRigidbodyManager;
 			worldType["input"] = &World::getInputManager;
 			worldType["audio"] = &World::getAudioManager;
 			worldType["light"] = static_cast<LightSystem& (World::*)() >(&World::getLightSystem);

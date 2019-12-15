@@ -251,6 +251,8 @@ namespace uedit
             mIDMapping.erase(e.getID());
             mEntities.erase(std::remove(mEntities.begin(), mEntities.end(), e), mEntities.end());
         });
+
+        mEditorFrame->registerWorld(world);
     }
 
 

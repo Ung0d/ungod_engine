@@ -28,14 +28,14 @@
 
 namespace ungod
 {
-    void floodFill(TileMap& tilemap, std::size_t ix, std::size_t iy, const std::vector<int>& replacementIDs, bool activate)
+    void floodFill(TileMap& tilemap, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs, bool activate)
     {
         Tile* target = tilemap.getTiledata(ix, iy);
         std::vector<bool> visited((std::size_t)tilemap.getMapSizeX()* (std::size_t)tilemap.getMapSizeY(), false);
         if (!target)
             return;
         int targetID = target->getTileID();
-        std::stack<std::pair<std::size_t, std::size_t>> nodestack;
+        std::stack<std::pair<unsigned, unsigned>> nodestack;
         nodestack.emplace(ix, iy);
         while (!nodestack.empty())
         {
@@ -47,8 +47,8 @@ namespace ungod
 
             visited[tilemap.getMapSizeX()*cur.second + cur.first] = true;
 
-            std::size_t west = cur.first;
-            std::size_t east = cur.first;
+            unsigned west = cur.first;
+            unsigned east = cur.first;
             while (west > 0 && tilemap.getTiledata(west - 1, cur.second)->getTileID() == targetID)
             {
                 --west;
@@ -57,7 +57,7 @@ namespace ungod
             {
                 ++east;
             }
-            for (std::size_t i = west; i <= east; ++i)
+            for (unsigned i = west; i <= east; ++i)
             {
                 Tile* curTile = tilemap.getTiledata(i, cur.second);
                 if (!curTile->isActive())

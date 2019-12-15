@@ -88,7 +88,7 @@ namespace uedit
 
     void LightComponentEdit::onLightTexturePicked(wxFileDirPickerEvent& event)
     {
-        mWorldAction.loadLightTexture(mEntity, mLightComponent, {mTexPicker->GetPath().mb_str()});
+        mWorldAction.loadLightTexture(mEntity, mLightComponent, std::string{mTexPicker->GetPath().mb_str()});
     }
 
 
@@ -136,7 +136,7 @@ namespace uedit
 
             EndModal(wxID_OK);
         }
-        catch(const std::exception& e)
+        catch(const std::exception&)
         {
             EndModal(wxID_CANCEL);
         }

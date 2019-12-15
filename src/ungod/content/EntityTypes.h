@@ -76,9 +76,11 @@ namespace ungod
 
     /** \brief A basic entity with just a transform by default. */
     using EntityBaseComponents = BaseComponents<TransformComponent, EntityBehaviorComponent>;
-    using EntityOptionalComponents = OptionalComponents<VisualsComponent, RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>, MovementComponent, SpriteMetadataComponent,
+    using EntityOptionalComponents = OptionalComponents<VisualsComponent, RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>, 
+														MultiComponent<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>, MovementComponent, SpriteMetadataComponent,
                                                         SpriteComponent, MultiComponent<SpriteComponent>, VertexArrayComponent, VisualAffectorComponent, MultiComponent<VisualAffectorComponent>,
-                                                        AnimationComponent, MultiComponent<AnimationComponent>, BigSpriteComponent, RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>,
+                                                        AnimationComponent, MultiComponent<AnimationComponent>, BigSpriteComponent, 
+														RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>, MultiComponent<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>,
                                                         EntityUpdateTimer, SoundEmitterComponent, SteeringComponent<script::Environment>, PathFinderComponent, ShadowEmitterComponent, LightEmitterComponent, LightAffectorComponent,
                                                         MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>, MultiComponent<ShadowEmitterComponent>, ParticleSystemComponent,
                                                         ParentComponent, ChildComponent>;
@@ -105,9 +107,10 @@ namespace ungod
 
     /** \brief A world object is stationary entity in the world, that has a visual appearence and a transform by default. */
     using WorldObjectBaseComponents = BaseComponents<TransformComponent, VisualsComponent>;
-    using WorldObjectOptionalComponents = OptionalComponents<SpriteMetadataComponent, RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>, EntityBehaviorComponent,
-                                                             SpriteComponent, MultiComponent<SpriteComponent>, VertexArrayComponent, VisualAffectorComponent, MultiComponent<VisualAffectorComponent>,
-                                                             AnimationComponent, MultiComponent<AnimationComponent>, RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>,
+    using WorldObjectOptionalComponents = OptionalComponents<SpriteMetadataComponent, RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>, MultiComponent<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>,
+                                                             EntityBehaviorComponent, SpriteComponent, MultiComponent<SpriteComponent>, VertexArrayComponent, VisualAffectorComponent, 
+                                                             MultiComponent<VisualAffectorComponent>, AnimationComponent, MultiComponent<AnimationComponent>, 
+                                                             RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>, MultiComponent<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>,
                                                              EntityUpdateTimer, SoundEmitterComponent, ShadowEmitterComponent, LightEmitterComponent, LightAffectorComponent,
                                                              MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>, MultiComponent<ShadowEmitterComponent>, ParticleSystemComponent,
                                                              ParentComponent, ChildComponent, TileMapComponent, WaterComponent>;

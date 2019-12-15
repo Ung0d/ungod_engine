@@ -45,6 +45,63 @@ namespace ungod
 
         MultiComponent() {}
     };
+
+	//shortcuts to define methods with a name and (up to 4) arguments that 
+	//have to support both single, multi and raw comp calls
+	#define MULTI_COMP_METHOD_0ARG(NAME,C) \
+	void NAME(Entity e) \
+	{ \
+		NAME(e, e.modify<C>());  \
+	} \
+	void NAME(Entity e, unsigned multiIndex) \
+	{ \
+		NAME(e, e.modify<MultiComponent<C>>().getComponent(multiIndex)); \
+	} \
+	void NAME(Entity e, C& c); 
+
+	#define MULTI_COMP_METHOD_1ARG(NAME,C,A,a) \
+	void NAME(Entity e, A a) \
+	{ \
+		NAME(e, e.modify<C>(), a);  \
+	} \
+	void NAME(Entity e, unsigned multiIndex, A a) \
+	{ \
+		NAME(e, e.modify<MultiComponent<C>>().getComponent(multiIndex), a); \
+	} \
+	void NAME(Entity e, C& c, A a); 
+
+#define MULTI_COMP_METHOD_2ARG(NAME,C,A1,a1,A2,a2) \
+	void NAME(Entity e, A1 a1, A2 a2) \
+	{ \
+		NAME(e, e.modify<C>(), a1, a2); \
+	} \
+	void NAME(Entity e, unsigned multiIndex, A1 a1, A2 a2) \
+	{ \
+		NAME(e, e.modify<MultiComponent<C>>().getComponent(multiIndex), a1, a2); \
+	} \
+	void NAME(Entity e, C& c, A1 a1, A2 a2); 
+
+	#define MULTI_COMP_METHOD_3ARG(NAME,C,A1,a1,A2,a2,A3,a3) \
+	void NAME(Entity e,A1 a1,A2 a2,A3 a3) \
+	{ \
+		NAME(e, e.modify<C>(), a1, a2, a3); \
+	} \
+	void NAME(Entity e, unsigned multiIndex,A1 a1,A2 a2,A3 a3) \
+	{ \
+		NAME(e, e.modify<MultiComponent<C>>().getComponent(multiIndex), a1, a2, a3); \
+	} \
+	void NAME(Entity e, C& c,A1 a1,A2 a2,A3 a3); 
+
+	#define MULTI_COMP_METHOD_4ARG(NAME,C,A1,a1,A2,a2,A3,a3,A4,a4) \
+	void NAME(Entity e,A1 a1,A2 a2,A3 a3,A4 a4) \
+	{ \
+		NAME(e, e.modify<C>(), a1, a2, a3, a4); \
+	} \
+	void NAME(Entity e, unsigned multiIndex,A1 a1,A2 a2,A3 a3,A4 a4) \
+	{ \
+		NAME(e, e.modify<MultiComponent<C>>().getComponent(multiIndex), a1, a2, a3, a4); \
+	} \
+	void NAME(Entity e, C& c,A1 a1,A2 a2,A3 a3,A4 a4); 
 }
 
 #endif // MULTI_COMPONENT_H

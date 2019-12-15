@@ -141,21 +141,27 @@ BOOST_AUTO_TEST_CASE( render_order_test )
     BOOST_REQUIRE_EQUAL(world->getQuadTree().size(), 6u);
 
     world->getTransformManager().setPosition(e[0], sf::Vector2f{ 10, 10 });
-    world->getRigidbodyManager().addCollider(e[0], sf::Vector2f{0,0}, sf::Vector2f{30,50});  //giving a collider just to set the size of the entity to 30x50 pixel
+    world->getMovementRigidbodyManager().addCollider(e[0], 
+			ungod::makeRotatedRect(sf::Vector2f{0,0}, sf::Vector2f{30,50}));  //giving a collider just to set the size of the entity to 30x50 pixel
     world->getTransformManager().setPosition(e[1], sf::Vector2f{ 40, 20 });
-    world->getRigidbodyManager().addCollider(e[1], sf::Vector2f{0,0}, sf::Vector2f{30,50});
+    world->getMovementRigidbodyManager().addCollider(e[1], 
+			ungod::makeRotatedRect(sf::Vector2f{0,0}, sf::Vector2f{30,50}));
 
     world->getTransformManager().setPosition(e[2], sf::Vector2f{ 120, 150 });
-    world->getRigidbodyManager().addCollider(e[2], sf::Vector2f{0,0}, sf::Vector2f{50,70});
+    world->getMovementRigidbodyManager().addCollider(e[2], 
+			ungod::makeRotatedRect(sf::Vector2f{0,0}, sf::Vector2f{50,70}));
     world->getTransformManager().setBaseLineOffsets(e[2], sf::Vector2f{ 0, 70 });
     world->getTransformManager().setPosition(e[3], sf::Vector2f{ 145, 195 });
-    world->getRigidbodyManager().addCollider(e[3], sf::Vector2f{0,0}, sf::Vector2f{20,20});
+    world->getMovementRigidbodyManager().addCollider(e[3], 
+			ungod::makeRotatedRect(sf::Vector2f{0,0}, sf::Vector2f{20,20}));
 
     world->getTransformManager().setPosition(e[4], sf::Vector2f{ 320, 350 });
-    world->getRigidbodyManager().addCollider(e[4], sf::Vector2f{0,0}, sf::Vector2f{50,70});
+    world->getMovementRigidbodyManager().addCollider(e[4], 
+			ungod::makeRotatedRect(sf::Vector2f{0,0}, sf::Vector2f{50,70}));
     world->getTransformManager().setBaseLineOffsets(e[4], sf::Vector2f{ 70, 0 });
     world->getTransformManager().setPosition(e[5], sf::Vector2f{ 330, 370 });
-    world->getRigidbodyManager().addCollider(e[5], sf::Vector2f{0,0}, sf::Vector2f{20,20});
+    world->getMovementRigidbodyManager().addCollider(e[5], 
+			ungod::makeRotatedRect(sf::Vector2f{0,0}, sf::Vector2f{20,20}));
 
     world->render(window, sf::RenderStates{});
 

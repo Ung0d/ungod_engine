@@ -28,7 +28,7 @@
 
 #include "ungod/base/Entity.h"
 #include "ungod/base/Transform.h"
-#include "ungod/physics/Collision.h"
+#include "ungod/physics/CollisionManager.h"
 
 namespace ungod
 {
@@ -64,7 +64,9 @@ namespace ungod
 
         /** \brief Draws the colliders of all entities in the internal render-list, that have a Rigidbody-component. */
         template<std::size_t CONTEXT = 0>
-        void renderColliders(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states, const sf::Color& col) const;
+        void renderColliders(const quad::PullResult<Entity>& pull, 
+            sf::RenderTarget& target, sf::RenderStates states,
+            const sf::Color& outlineCol, const sf::Color& fillCol = sf::Color::Transparent) const;
 
         /** \brief Draws audio emitters. */
         void renderAudioEmitters(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const;
@@ -91,7 +93,9 @@ namespace ungod
 
         /** \brief Draws the collider-bounds the given entity. */
         template<std::size_t CONTEXT = 0>
-        static void renderColliders(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, sf::RenderTarget& target, sf::RenderStates states, const sf::Color& col);
+        static void renderCollider(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, 
+                                    sf::RenderTarget& target, sf::RenderStates states, 
+                                    const sf::Color& outlineCol, const sf::Color& fillCol = sf::Color::Transparent);
 
         /** \brief Renders a audio emitter entity. */
         static void renderAudioEmitter(Entity e, const TransformComponent& transf, MusicEmitterComponent& emitter, sf::RenderTarget& target, sf::RenderStates states);
@@ -118,30 +122,69 @@ namespace ungod
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     template<std::size_t CONTEXT>
-    void Renderer::renderColliders(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, sf::RenderTarget& target, sf::RenderStates states, const sf::Color& col)
+    void Renderer::renderCollider(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, 
+        sf::RenderTarget& target, sf::RenderStates states, const sf::Color& outlineCol, const sf::Color& fillCol)
     {
         states.transform *= transf.getTransform();  //apply the transform of the entity
-        for (const auto& c : body.getColliders())
-          {
-              sf::RenderStates locstates = states;
-              locstates.transform.rotate(c.getRotation(), c.getCenter());   //apply the rotation of the collider
-              sf::RectangleShape rect(c.getDownright() - c.getUpleft());
-              rect.setPosition(c.getUpleft());
-              rect.setFillColor(sf::Color::Transparent);
-              rect.setOutlineThickness(2);
-              rect.setOutlineColor(col);
-              target.draw(rect, locstates);
-          }
+        switch (body.getCollider().getType())
+        {
+        case ColliderType::ROTATED_RECT:
+        {
+            RotatedRectConstAggregator c{ body.getCollider() };
+            sf::RenderStates locstates = states;
+            locstates.transform.rotate(c.getRotation(), c.getCenter());   //apply the rotation of the collider
+            sf::RectangleShape rect(sf::Vector2f{ c.getDownRightX(), c.getDownRightY() } - sf::Vector2f{c.getUpLeftX(), c.getUpLeftY()});
+            rect.setPosition({ c.getUpLeftX(), c.getUpLeftY() });
+            rect.setFillColor(fillCol);
+            rect.setOutlineThickness(3);
+            rect.setOutlineColor(outlineCol);
+            target.draw(rect, locstates);
+            break;
+        }
+        case ColliderType::CONVEX_POLYGON:
+        {
+            PointSetConstAggregator ps{ body.getCollider() };
+            sf::ConvexShape poly(ps.getNumberOfPoints());
+            for (unsigned i = 0; i < ps.getNumberOfPoints(); i++)
+                poly.setPoint(i, { ps.getPointX(i), ps.getPointY(i) });
+            poly.setFillColor(fillCol);
+            poly.setOutlineThickness(3);
+            poly.setOutlineColor(outlineCol);
+            target.draw(poly, states);
+            break;
+        }
+        case ColliderType::EDGE_CHAIN:
+        {
+            PointSetConstAggregator ps{ body.getCollider() };
+            sf::VertexArray lines(sf::LinesStrip, ps.getNumberOfPoints());
+            for (unsigned i = 0; i < ps.getNumberOfPoints(); i++)
+            {
+                lines[i].position = { ps.getPointX(i), ps.getPointY(i) };
+                lines[i].color = outlineCol;
+            }
+            target.draw(lines, states);
+            break;
+        }
+        default:
+            break;
+        }
     }
 
     template<std::size_t CONTEXT>
-    void Renderer::renderColliders(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states, const sf::Color& col) const
+    void Renderer::renderColliders(const quad::PullResult<Entity>& pull, 
+        sf::RenderTarget& target, sf::RenderStates states, const sf::Color& outlineCol, const sf::Color& fillCol) const
     {
           dom::Utility<Entity>::iterate<TransformComponent, RigidbodyComponent<CONTEXT>>(pull.getList(),
-          [this, &target, &states, col] (Entity e, TransformComponent& transf, RigidbodyComponent<CONTEXT>& body)
-          {
-            Renderer::renderColliders(transf, body, target, states, col);
-          });
+			[this, &target, &states, outlineCol, fillCol] (Entity e, TransformComponent& transf, RigidbodyComponent<CONTEXT>& body)
+			{
+			Renderer::renderCollider(transf, body, target, states, outlineCol, fillCol);
+			});
+		  dom::Utility<Entity>::iterate<TransformComponent, MultiRigidbodyComponent<CONTEXT>>(pull.getList(),
+			[this, &target, &states, outlineCol, fillCol](Entity e, TransformComponent& transf, MultiRigidbodyComponent<CONTEXT>& body)
+			{
+				  for (unsigned i = 0; i < body.getComponentCount(); i++)
+					Renderer::renderCollider(transf, body.getComponent(i), target, states, outlineCol, fillCol);
+			});
     }
 }
 

@@ -1,12 +1,10 @@
-// *** ADDED BY HEADER FIXUP ***
-#include <istream>
-// *** END ***
 #ifndef LOGGER_H
 #define LOGGER_H
 
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <istream>
 
 namespace ungod
 {

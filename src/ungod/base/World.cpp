@@ -98,14 +98,22 @@ namespace ungod
                                           {
                                                 mTransformManager.handleContentsChanged(e, rect);
                                           });
-        mRigidbodyManager.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
+        mMovementRigidbodyManager.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
                                           {
                                                 mTransformManager.handleContentsChanged(e, rect);
                                           });
-        mRigidbodyManager.onContentRemoved( [this] (Entity e)
+		mSemanticsRigidbodyManager.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+											{
+												mTransformManager.handleContentsChanged(e, rect);
+											});
+        mMovementRigidbodyManager.onContentRemoved( [this] (Entity e)
                                           {
                                                 mTransformManager.handleContentsRemoved(e);
                                           });
+		mSemanticsRigidbodyManager.onContentRemoved([this](Entity e)
+											{
+												mTransformManager.handleContentsRemoved(e);
+											});
         mLightSystem.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
                                           {
                                                 mTransformManager.handleContentsChanged(e, rect);
@@ -126,7 +134,8 @@ namespace ungod
                                           {
                                                 mLightSystem.moveLights(e, vec);
                                                 mLightSystem.moveLightColliders(e, vec);
-                                                mRigidbodyManager.moveColliders(e, vec);
+												mMovementRigidbodyManager.moveColliders(e, vec);
+												mSemanticsRigidbodyManager.moveColliders(e, vec);
                                                 mVisualsManager.moveVisuals(e, vec);
 												mTileMapRenderer.moveMaps(e, vec);
                                           });
@@ -138,13 +147,15 @@ namespace ungod
         //connect lower bounds methods
         mTransformManager.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mVisualsManager.getLowerBound(e); });
         mTransformManager.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mLightSystem.getLowerBound(e); });
-        mTransformManager.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mRigidbodyManager.getLowerBound(e); });
+        mTransformManager.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mMovementRigidbodyManager.getLowerBound(e); });
+		mTransformManager.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyManager.getLowerBound(e); });
         mTransformManager.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mParticleSystemManager.getLowerBound(e); });
 
         //connect upper bounds methods
         mTransformManager.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mVisualsManager.getUpperBound(e); });
         mTransformManager.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mLightSystem.getUpperBound(e); });
-        mTransformManager.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mRigidbodyManager.getUpperBound(e); });
+        mTransformManager.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mMovementRigidbodyManager.getUpperBound(e); });
+		mTransformManager.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyManager.getUpperBound(e); });
         mTransformManager.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mParticleSystemManager.getUpperBound(e); });
 
         //init audio
@@ -315,21 +326,6 @@ namespace ungod
     VisualsManager& World::getVisualsManager()
     {
         return mVisualsManager;
-    }
-
-    CollisionManager<MOVEMENT_COLLISION_CONTEXT>& World::getMovementCollisionManager()
-    {
-        return mMovementCollisionManager;
-    }
-
-    CollisionManager<SEMANTICS_COLLISION_CONTEXT>& World::getSemanticsCollisionManager()
-    {
-        return mSemanticsCollisionManager;
-    }
-
-    RigidbodyManager& World::getRigidbodyManager()
-    {
-        return mRigidbodyManager;
     }
 
     InputManager& World::getInputManager()

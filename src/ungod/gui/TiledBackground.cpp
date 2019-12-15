@@ -221,7 +221,7 @@ namespace tgui
             Widget::rendererChanged(property);
             for (unsigned i = 0; i < m_vertices.getVertexCount(); ++i)
             {
-                m_vertices[i].color.a = 255*m_opacityCached;
+                m_vertices[i].color.a = (sf::Uint8)(255*m_opacityCached);
             }
         }
         else

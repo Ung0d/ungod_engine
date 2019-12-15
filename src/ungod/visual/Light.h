@@ -446,7 +446,10 @@ namespace ungod
 
 
         /** \brief Registers new callback for the ContentsChanged signal. */
-        void onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback);
+        decltype(auto) onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback) 
+        {
+            return mContentsChangedSignal.connect(callback);
+        }
 
         /** \brief Returns the lower bound of the bounding rect around all contents of the given entity. */
         sf::Vector2f getLowerBound(Entity e);

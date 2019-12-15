@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
         world->getTransformManager().setPosition(e2, {100.0f, 100.0f});
         world->getVisualsManager().loadTexture(e2, "test_data/test.png");
 
-        world->getRigidbodyManager().addCollider(e2, {0,0}, {10,10}, 0);
+		world->getMovementRigidbodyManager().addCollider(e2, ungod::makeRotatedRect( {0,0}, {10,10}, 0 ));
 
         world->getQuadTree().insert(e);
         world->getQuadTree().insert(e2);
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
                  ungod::SerialIdentifier< ungod::EntityInstantiation< ungod::BaseComponents<ungod::VisualsComponent, ungod::TransformComponent>, ungod::OptionalComponents<ungod::RigidbodyComponent<>> > >::get())
              {
                  BOOST_CHECK(e.has<ungod::RigidbodyComponent<>>());
-                 BOOST_CHECK_EQUAL(10.0f, e.get<ungod::RigidbodyComponent<>>().getColliders()[0].getDownright().y);
+				 BOOST_CHECK_EQUAL(10.0f, ungod::RotatedRectConstAggregator{ e.get<ungod::RigidbodyComponent<>>().getCollider() }.getDownRightY());
                  BOOST_CHECK(e.get<ungod::VisualsComponent>().isLoaded());
                  BOOST_CHECK_EQUAL(100.0f, e.get<ungod::TransformComponent>().getPosition().y);
              }
@@ -199,6 +199,101 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
         BOOST_CHECK_EQUAL(1600.0f, world2->getSize().x);
 		BOOST_CHECK_EQUAL(1200.0f, world2->getSize().y);
     }
+}
+
+BOOST_AUTO_TEST_CASE(serial_colliders_test)
+{
+	typedef ungod::BaseComponents<ungod::TransformComponent, ungod::RigidbodyComponent<>> Base;
+	typedef ungod::OptionalComponents<> Opt;
+	{
+		sf::RenderWindow window;
+		ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+		ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+		node.setSize({ 800,600 });
+		ungod::World* world = node.addWorld();
+		ungod::Entity e_rect = world->create(Base(), Opt()); world->addEntity(e_rect);
+		ungod::Entity e_poly = world->create(Base(), Opt()); world->addEntity(e_poly);
+		ungod::Entity e_edge = world->create(Base(), Opt()); world->addEntity(e_edge);
+		//ungod::Entity e_circ = world->create(Base(), Opt()); world->addEntity(e_circ);
+		world->tagWithName(e_rect, "e_rect");
+		world->tagWithName(e_poly, "e_poly");
+		world->tagWithName(e_edge, "e_edge");
+		//world->tagWithName(e_circ, "e_circ");
+		world->getMovementRigidbodyManager().addRotatedRect(e_rect, 
+								{ 100.0f, 130.0f }, { 200.0f, 400.0f }, 50.0f);
+		world->getMovementRigidbodyManager().addConvexPolygon(e_poly,
+								{ { 100.0f, 130.0f }, { 200.0f, 300.0f }, { 200.0f, 600.0f } });
+		world->getMovementRigidbodyManager().addEdgeChain(e_edge,
+								{ { 100.0f, 130.0f }, { 200.0f, 300.0f }, { 200.0f, 600.0f } });
+		/*world->getMovementRigidbodyManager().addCircle(e_circ,
+								{ 100.0f, 130.0f }, 50.0f);*/
+		ungod::SerializationContext context;
+		context.serializeRootObject(*world, static_cast<const sf::RenderTarget&>(window));
+		context.save("test_output/colliders_serial_world_sav.xml");
+	}
+	{
+		sf::RenderWindow window;
+		ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+		ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+		node.setSize({ 800,600 });
+		ungod::World* world = node.addWorld();
+		world->registerInstantiation(Base(), Opt());
+
+		ungod::DeserializationContext context;
+		context.changeStorageSemantics<ungod::deserial_ref_semantics::ByValue<ungod::Entity>>(
+			ungod::SerialIdentifier< ungod::EntityInstantiation< Base, Opt > >::get());
+		context.read("test_output/colliders_serial_world_sav.xml");
+
+		context.deserializeRootObject(*world, static_cast<const sf::RenderTarget&>(window));
+
+		ungod::Entity e_rect = world->getEntityByName("e_rect");
+		ungod::Entity e_poly = world->getEntityByName("e_poly");
+		ungod::Entity e_edge = world->getEntityByName("e_edge");
+		//ungod::Entity e_circ = world->getEntityByName("e_circ");
+
+		BOOST_REQUIRE(world->getEntityByName("e_rect"));
+		BOOST_REQUIRE(world->getEntityByName("e_poly"));
+		BOOST_REQUIRE(world->getEntityByName("e_edge"));
+		//BOOST_REQUIRE(world->getEntityByName("e_circ"));
+
+		BOOST_REQUIRE_EQUAL(static_cast<std::underlying_type_t<ungod::ColliderType>>(e_rect.get<ungod::RigidbodyComponent<>>().getCollider().getType()),
+			static_cast<std::underlying_type_t<ungod::ColliderType>>(ungod::ColliderType::ROTATED_RECT));
+		ungod::RotatedRectConstAggregator rra{ e_rect.get<ungod::RigidbodyComponent<>>().getCollider() };
+		BOOST_CHECK_EQUAL(rra.getUpLeftX(), 100.0f);
+		BOOST_CHECK_EQUAL(rra.getUpLeftY(), 130.0f);
+		BOOST_CHECK_EQUAL(rra.getDownRightX(), 200.0f);
+		BOOST_CHECK_EQUAL(rra.getDownRightY(), 400.0f);
+		BOOST_CHECK_EQUAL(rra.getRotation(), 50.0f);
+
+		BOOST_REQUIRE_EQUAL(static_cast<std::underlying_type_t<ungod::ColliderType>>(e_poly.get<ungod::RigidbodyComponent<>>().getCollider().getType()),
+			static_cast<std::underlying_type_t<ungod::ColliderType>>(ungod::ColliderType::CONVEX_POLYGON));
+		ungod::PointSetConstAggregator psa{ e_poly.get<ungod::RigidbodyComponent<>>().getCollider() };
+		BOOST_REQUIRE_EQUAL(psa.getNumberOfPoints(), 3u);
+		BOOST_CHECK_EQUAL(psa.getPointX(0), 100.0f);
+		BOOST_CHECK_EQUAL(psa.getPointY(0), 130.0f);
+		BOOST_CHECK_EQUAL(psa.getPointX(1), 200.0f);
+		BOOST_CHECK_EQUAL(psa.getPointY(1), 300.0f);
+		BOOST_CHECK_EQUAL(psa.getPointX(2), 200.0f);
+		BOOST_CHECK_EQUAL(psa.getPointY(2), 600.0f);
+
+		BOOST_REQUIRE_EQUAL(static_cast<std::underlying_type_t<ungod::ColliderType>>(e_edge.get<ungod::RigidbodyComponent<>>().getCollider().getType()),
+			static_cast<std::underlying_type_t<ungod::ColliderType>>(ungod::ColliderType::EDGE_CHAIN));
+		ungod::PointSetConstAggregator psa2{ e_edge.get<ungod::RigidbodyComponent<>>().getCollider() };
+		BOOST_REQUIRE_EQUAL(psa2.getNumberOfPoints(), 3u);
+		BOOST_CHECK_EQUAL(psa2.getPointX(0), 100.0f);
+		BOOST_CHECK_EQUAL(psa2.getPointY(0), 130.0f);
+		BOOST_CHECK_EQUAL(psa2.getPointX(1), 200.0f);
+		BOOST_CHECK_EQUAL(psa2.getPointY(1), 300.0f);
+		BOOST_CHECK_EQUAL(psa2.getPointX(2), 200.0f);
+		BOOST_CHECK_EQUAL(psa2.getPointY(2), 600.0f);
+
+		/*BOOST_REQUIRE_EQUAL(static_cast<std::underlying_type_t<ungod::ColliderType>>(e_circ.get<ungod::RigidbodyComponent<>>().getCollider().getType()),
+			static_cast<std::underlying_type_t<ungod::ColliderType>>(ungod::ColliderType::CIRCLE));
+		ungod::CircleConstAggregator ca{ e_circ.get<ungod::RigidbodyComponent<>>().getCollider() };
+		BOOST_CHECK_EQUAL(ca.getCenterX(), 100.0f);
+		BOOST_CHECK_EQUAL(ca.getCenterY(), 130.0f);
+		BOOST_CHECK_EQUAL(ca.getRadius(), 50.0f);*/
+	}
 }
 
 BOOST_AUTO_TEST_CASE( polymorphic_test )

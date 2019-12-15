@@ -23,8 +23,8 @@
 *    source distribution.
 */
 
-#ifndef WORLD_H
-#define WORLD_H
+#ifndef UNGOD_WORLD_H
+#define UNGOD_WORLD_H
 
 #include "ungod/base/Entity.h"
 #include "ungod/base/Transform.h"
@@ -33,7 +33,7 @@
 #include "ungod/visual/Renderer.h"
 #include "ungod/physics/Movement.h"
 #include "ungod/physics/Path.h"
-#include "ungod/physics/Collision.h"
+#include "ungod/physics/CollisionManager.h"
 #include "ungod/physics/Steering.h"
 #include "ungod/base/Input.h"
 #include "ungod/base/EntityUtility.h"
@@ -217,13 +217,16 @@ namespace ungod
         VisualsManager& getVisualsManager();
 
         /** \brief Returns a reference to the movement collision manager. */
-        CollisionManager<MOVEMENT_COLLISION_CONTEXT>& getMovementCollisionManager();
+		CollisionManager<MOVEMENT_COLLISION_CONTEXT>& getMovementCollisionManager() { return mMovementCollisionManager; }
 
         /** \brief Returns a reference to the collision manager. */
-        CollisionManager<SEMANTICS_COLLISION_CONTEXT>& getSemanticsCollisionManager();
+        CollisionManager<SEMANTICS_COLLISION_CONTEXT>& getSemanticsCollisionManager() { return mSemanticsCollisionManager; }
 
-        /** \brief Returns a reference to the rigidbody manager. */
-        RigidbodyManager& getRigidbodyManager();
+        /** \brief Returns a reference to the movement rigidbody manager. */
+		RigidbodyManager<MOVEMENT_COLLISION_CONTEXT>& getMovementRigidbodyManager() { return mMovementRigidbodyManager; }
+
+		/** \brief Returns a reference to the semantics rigidbody manager. */
+		RigidbodyManager<SEMANTICS_COLLISION_CONTEXT>& getSemanticsRigidbodyManager() { return mSemanticsRigidbodyManager; }
 
         /** \brief Returns a reference to the inout manager. */
         InputManager& getInputManager();
@@ -318,7 +321,8 @@ namespace ungod
         MovementManager mMovementManager;
         SteeringManager<script::Environment> mSteeringManager;
         PathPlanner mPathPlanner;
-        RigidbodyManager mRigidbodyManager;
+        RigidbodyManager<MOVEMENT_COLLISION_CONTEXT> mMovementRigidbodyManager;
+		RigidbodyManager<SEMANTICS_COLLISION_CONTEXT> mSemanticsRigidbodyManager;
         InputManager mInputManager;
         AudioManager mAudioManager;
         LightSystem mLightSystem;
@@ -373,8 +377,7 @@ namespace ungod
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    //#include "ungod/base/Entity.inl"
-    #include "ungod/physics/Collision.inl"
+    #include "ungod/physics/CollisionManager.inl"
 
 
 

@@ -105,7 +105,7 @@ namespace ungod
         std::vector<sf::Vector2f> points;
         DisjointSets<const Collider*> colliderClusters; //bundles together intersecting colliders
 
-        world.forAll<TransformComponent, RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>([&] (Entity e, TransformComponent& t, RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>& rb)
+        /*world.forAll<TransformComponent, RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>([&] (Entity e, TransformComponent& t, RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>& rb)
           {
               if (e.isStatic())
               {
@@ -149,7 +149,7 @@ namespace ungod
 
                   //now remove for each collider cluster all triangles, that have edges between 2 points of the cluster,
               }
-          });
+          });*/
 
           //triangulate the points
           DelaunayTriangulation<sf::Vector2f> triag;

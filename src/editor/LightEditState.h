@@ -3,10 +3,31 @@
 
 #include "EntityEditState.h"
 #include "ungod/visual/Light.h"
+#include "PointDragger.h"
 
 namespace uedit
 {
     class EntityLightWindow;
+
+    template<>
+    struct CompTraits<ungod::ShadowEmitterComponent>
+    {
+        static unsigned numPoints(const ungod::ShadowEmitterComponent& c)
+        {
+            return c.getCollider().getPointCount();
+        }
+
+        static void setup(ungod::Entity e, ungod::ShadowEmitterComponent& c, WorldActionWrapper& waw, std::list<PointDragger>& draggers)
+        {
+            for (unsigned i = 0; i < c.getCollider().getPointCount(); i++)
+            {
+                auto setter = [e, &c, i, &waw](const sf::Vector2f& p) mutable { waw.setPoint(e, c, p, i); };
+                auto getter = [&c, i]() { return c.getCollider().getPoint(i); };
+                draggers.emplace_back(setter, getter);
+            }
+        }
+    };
+
 
     /** \brief A state for visual editing. */
     class LightEditState : public EditState
@@ -31,6 +52,8 @@ namespace uedit
         virtual void update(EntityPreview& preview, float delta) override;
         virtual void render(EntityPreview& preview, sf::RenderWindow& window, sf::RenderStates states) override;
 
+        ~LightEditState();
+
     private:
         EntityPreview& mPreview;
         bool mMouseDown;
@@ -43,15 +66,14 @@ namespace uedit
         bool mColliderSelected;
         std::vector< std::size_t > mSelectedMultiColliders;
         const EntityLightWindow& mEntityLightWindow;
-        int mDraggedPoint;
-        ungod::ShadowEmitterComponent const* mSelectedComponent;
+        PointDraggerSet<ungod::ShadowEmitterComponent> mShadowEmitterDraggers;
+        owls::SignalLink<void, ungod::Entity, const sf::FloatRect&> mLink;
 
         static constexpr float DRAG_DISTANCE = 20.0f;
 
     private:
         void renderLightSelection(sf::RenderWindow& window, sf::RenderStates states, const sf::FloatRect& bounds);
         void renderColliderSelection(sf::RenderWindow& window, sf::RenderStates states, sf::ConvexShape shape);
-
     };
 
 }

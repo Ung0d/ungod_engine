@@ -272,7 +272,7 @@ namespace ungod
         return getTiledata(ti.x, ti.y);
     }
 
-    Tile const* TileMap::getTiledata(std::size_t x, std::size_t y) const
+    Tile const* TileMap::getTiledata(unsigned x, unsigned y) const
     {
         unsigned estimatedPos = x*mMapSizeY + y;
 
@@ -287,7 +287,7 @@ namespace ungod
         return const_cast<Tile*>(static_cast<const TileMap*>(this)->getTiledata(position));
     }
 
-    Tile* TileMap::getTiledata(std::size_t x, std::size_t y)
+    Tile* TileMap::getTiledata(unsigned x, unsigned y)
     {
         return const_cast<Tile*>(static_cast<const TileMap*>(this)->getTiledata(x, y));
     }
@@ -370,7 +370,7 @@ namespace ungod
 
             if (mSoundProfiles[tile->getMaterialID()].getSoundCount() > 1) //play a random sound
             {
-                index = NumberGenerator::getRandBetw(0, mSoundProfiles[tile->getMaterialID()].getSoundCount()-1);
+                index = NumberGenerator::getRandBetw(0, (int)mSoundProfiles[tile->getMaterialID()].getSoundCount()-1);
             }
 
             if (mModifyPitch[tile->getMaterialID()])
@@ -378,7 +378,7 @@ namespace ungod
                 pitch = NumberGenerator::getFloatRandBetw(0.85f, 1.15f);
             }
 
-            mAudiomanager->playSound(mSoundProfiles[tile->getMaterialID()], index, VolumeSettings::FOOTSTEPS, pitch);
+            mAudiomanager->playSound(mSoundProfiles[tile->getMaterialID()], index, 1.0f, VolumeSettings::FOOTSTEPS, pitch);
         }
     }
 

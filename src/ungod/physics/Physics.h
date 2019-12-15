@@ -41,6 +41,8 @@ namespace ungod
 
     float magnitude(const sf::Vector2f& vec);
 
+	float sqMagnitude(const sf::Vector2f& vec);
+
     float distance(const sf::Vector2f& point1, const sf::Vector2f& point2);
 
     float dotProduct(const sf::Vector2f& point1, const sf::Vector2f& point2);
@@ -59,6 +61,11 @@ namespace ungod
     float sign(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3);
 
     bool triangleContains(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Vector2f& c, const sf::Vector2f& p);
+
+	sf::Vector2f centerPoint(const sf::Vector2f& a, const sf::Vector2f& b);
+
+    /** \brief Returns the closest distance of a point to a line segment ab. */
+    float distanceToLineSegment(const sf::Vector2f& point, const sf::Vector2f& a, const sf::Vector2f& b);
 }
 
 #endif // PHYSICS_H

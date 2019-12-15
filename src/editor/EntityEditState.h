@@ -15,6 +15,8 @@ namespace uedit
         virtual void handleInput(EntityPreview& preview, const sf::Event& event) {}
         virtual void update(EntityPreview& preview, float delta) {}
         virtual void render(EntityPreview& preview, sf::RenderWindow& window, sf::RenderStates states) {}
+
+        virtual ~EditState() {}
     };
 }
 

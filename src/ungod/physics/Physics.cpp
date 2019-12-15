@@ -53,8 +53,13 @@ namespace ungod
 
     float magnitude(const sf::Vector2f& vec)
     {
-        return sqrt(vec.x*vec.x + vec.y*vec.y);
+        return sqrt(sqMagnitude(vec));
     }
+
+	float sqMagnitude(const sf::Vector2f& vec)
+	{
+		return vec.x * vec.x + vec.y * vec.y;
+	}
 
     float distance(const sf::Vector2f& point1, const sf::Vector2f& point2)
     {
@@ -122,5 +127,23 @@ namespace ungod
         bool b3 = sign(p, c, a) < 0.0f;
 
         return ((b1 == b2) && (b2 == b3));
+    }
+
+	sf::Vector2f centerPoint(const sf::Vector2f& a, const sf::Vector2f& b)
+	{
+		return (a + b) * 0.5f;
+	}
+
+    float distanceToLineSegment(const sf::Vector2f& point, const sf::Vector2f& a, const sf::Vector2f& b)
+    {
+        const float l2 = sqMagnitude(b-a);  
+        if (l2 == 0.0) return distance(point, a);   
+        // Consider the line extending the segment, parameterized as v + t (w - v).
+        // We find projection of point p onto the line. 
+        // It falls where t = [(p-a) . (b-a)] / |b-a|^2
+        // We clamp t from [0,1] to handle points outside the segment vw.
+        const float t = std::max(0.0f, std::min(1.0f, dotProduct(point - a, b - a) / l2));
+        const sf::Vector2f projection = a + t * (b - a);  // Projection falls on the segment
+        return distance(point, projection);
     }
 }
