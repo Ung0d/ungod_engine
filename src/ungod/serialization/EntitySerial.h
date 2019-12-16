@@ -27,6 +27,7 @@
 #define ENTITY_SERIAL_H
 
 #include "ungod/serialization/Serializable.h"
+#include "ungod/content/EntityTypes.h"
 
 ///this file describes how to (de)serialize entities
 
@@ -53,6 +54,54 @@ namespace ungod
     struct SerialIdentifier< EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> > >
     {
         static std::string get();
+    };
+
+    template<>
+    struct SerialIdentifier< EntityInstantiation< EntityBaseComponents, EntityOptionalComponents > >
+    {
+        static std::string get() { return "Entity"; }
+    };
+
+    template<>
+    struct SerialIdentifier< EntityInstantiation< ActorBaseComponents, ActorOptionalComponents > >
+    {
+        static std::string get() { return "Actor"; }
+    };
+
+    template<>
+    struct SerialIdentifier< EntityInstantiation< MetaObjectBaseComponents, MetaObjectOptionalComponents > >
+    {
+        static std::string get() { return "MetaObject"; }
+    };
+
+    template<>
+    struct SerialIdentifier< EntityInstantiation< LightBaseComponents, LightOptionalComponents > >
+    {
+        static std::string get() { return "Light"; }
+    };
+
+    template<>
+    struct SerialIdentifier< EntityInstantiation< TriggerBaseComponents, TriggerOptionalComponents > >
+    {
+        static std::string get() { return "Trigger"; }
+    };
+
+    template<>
+    struct SerialIdentifier< EntityInstantiation< WorldObjectBaseComponents, WorldObjectOptionalComponents > >
+    {
+        static std::string get() { return "WorldObject"; }
+    };
+
+    template<>
+    struct SerialIdentifier< EntityInstantiation< ParticleSystemBaseComponents, ParticleSystemOptionalComponents > >
+    {
+        static std::string get() { return "ParticleSystem"; }
+    };
+
+    template<>
+    struct SerialIdentifier< EntityInstantiation< AudioEmitterBaseComponents, AudioEmitterOptionalComponents > >
+    {
+        static std::string get() { return "AudioEmitter"; }
     };
 
     template<typename ... CB, typename ... CO>

@@ -3,10 +3,44 @@
 #include "ungod/application/Application.h"
 #include "ungod/content/TileMap.h"
 #include "ungod/serialization/SerialGraph.h"
+#include "ungod/serialization/DeserialInit.h"
 #include "ungod/application/ScriptedGameState.h"
 #include "ungod/test/mainTest.h"
 
 BOOST_AUTO_TEST_SUITE(SerializationTest)
+
+BOOST_AUTO_TEST_CASE(entity_instantiation_test)
+{
+    {
+        sf::RenderWindow window;
+        ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+        ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+        node.setSize({ 800,600 });
+        ungod::World* world = node.addWorld();
+
+        ungod::Entity actor = world->create(ungod::ActorBaseComponents(), ungod::ActorOptionalComponents());
+        world->addEntity(actor);
+
+        ungod::SerializationContext context;
+        context.serializeRootObject(*world, static_cast<const sf::RenderTarget&>(window));
+        context.save("test_output/instantiation_sav.xml");
+    }
+
+    {
+        sf::RenderWindow window;
+        ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+        ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+        node.setSize({ 800,600 });
+        ungod::World* world = node.addWorld();
+
+        ungod::DeserializationContext context;
+        ungod::initContext(context);
+        context.read("test_output/instantiation_sav.xml");
+        context.deserializeRootObject(*world, static_cast<const sf::RenderTarget&>(window));
+
+        //todo write checks
+    }
+}
 
 BOOST_AUTO_TEST_CASE( serializsation_test )
 {
