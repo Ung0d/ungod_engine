@@ -55,6 +55,7 @@ namespace ungod
     bool TileMapRenderer::reserveTileCount(Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY)
     {
         bool b = e.modify<TileMapComponent>().mTileMap.reserveTileCount(num, mapSizeX, mapSizeY);
+        mContentsChangedSignal(e, e.modify<TileMapComponent>().mTileMap.getBounds());
         return b;
     }
 
@@ -117,6 +118,7 @@ namespace ungod
    bool TileMapRenderer::reserveWaterTileCount(Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY)
     {
         bool b = e.modify<WaterComponent>().mWater.getTileMap().reserveTileCount(num, mapSizeX, mapSizeY);
+        mContentsChangedSignal(e, e.modify<TileMapComponent>().mTileMap.getBounds());
         return b;
     }
 
@@ -263,6 +265,18 @@ namespace ungod
 		if (e.has<WaterComponent>())
 			e.modify<WaterComponent>().mWater.move(vec);
 	}
+
+    void TileMapRenderer::tilemapCallback(Entity e, TileMapComponent& tmc, const std::function<void(TileMap&)>& callback)
+    {
+        callback(tmc.mTileMap);
+        mContentsChangedSignal(e, tmc.mTileMap.getBounds());
+    }
+
+    void TileMapRenderer::waterCallback(Entity e, WaterComponent& wc, const std::function<void(Water&)>& callback)
+    {
+        callback(wc.mWater);
+        mContentsChangedSignal(e, wc.mWater.getBounds());
+    }
 
     TileMapRenderer::~TileMapRenderer()
     {

@@ -24,7 +24,6 @@
 */
 
 #include "ungod/content/TilemapBrush.h"
-#include <bitset>
 
 namespace ungod
 {
@@ -320,77 +319,11 @@ namespace ungod
 
         if (connect)
         {
-            switch (setTiles.to_ulong())
-            {
-                case 0:
-                    // 0
-                    paintNoAdjacent(tiles);
-                    break;
-                case 1:
-                    //1 u
-                    paintAdjacentSingle(tiles, 0);
-                    break;
-                case 2:
-                    //1 l
-                    paintAdjacentSingle(tiles, 3);
-                    break;
-                case 3:
-                    //2 ul
-                    paintAdjacentCorner(tiles, 0);
-                    break;
-                case 4:
-                    //1 r
-                    paintAdjacentSingle(tiles, 1);
-                    break;
-                case 5:
-                    //2 ur
-                    paintAdjacentCorner(tiles, 1);
-                    break;
-                case 6:
-                    //2 lr
-                    paintAdjacentOpposite(tiles, 1);
-                    break;
-                case 7:
-                    //3 d
-                    paintAdjacentOneOut(tiles, 2);
-                    break;
-                case 8:
-                    //1 d
-                    paintAdjacentSingle(tiles, 2);
-                    break;
-                case 9:
-                    //2 ud
-                    paintAdjacentOpposite(tiles, 0);
-                    break;
-                case 10:
-                    //2 dl
-                    paintAdjacentCorner(tiles, 3);
-                    break;
-                case 11:
-                    //3 r
-                    paintAdjacentOneOut(tiles, 1);
-                    break;
-                case 12:
-                    //2 dr
-                    paintAdjacentCorner(tiles, 2);
-                    break;
-                case 13:
-                    //3 l
-                    paintAdjacentOneOut(tiles, 3);
-                    break;
-                case 14:
-                    //3 u
-                    paintAdjacentOneOut(tiles, 0);
-                    break;
-                case 15:
-                    paintAdjacentAll(tiles);
-                    //4
-                    break;
-            }
+            paint(tiles, setTiles);
         }
         else if (mLast)
         {
-            int d;
+            int d = -1;
             if (ix == mLastX)
             {
                 if (iy == mLastY+1)
@@ -405,7 +338,10 @@ namespace ungod
                 else if (mLastX>0 && ix == mLastX-1)
                     d = 3;
             }
-            paintConnected2Last(tiles, d);
+            if (d != -1)
+                paintConnected2Last(tiles, d);
+            else
+                paint(tiles, setTiles);
         }
 
         mLast = true;
@@ -1337,6 +1273,77 @@ namespace ungod
         {
             ungod::Logger::warning("Attempt to set an invalid tile ID. Does the tileset miss tiletypes?");
             ungod::Logger::endl();
+        }
+    }
+
+    void TilemapBrush::paint(const std::array<Tile*, 9>& tiles, const std::bitset<4>& setTiles)
+    {
+        switch (setTiles.to_ulong())
+        {
+        case 0:
+            // 0
+            paintNoAdjacent(tiles);
+            break;
+        case 1:
+            //1 u
+            paintAdjacentSingle(tiles, 0);
+            break;
+        case 2:
+            //1 l
+            paintAdjacentSingle(tiles, 3);
+            break;
+        case 3:
+            //2 ul
+            paintAdjacentCorner(tiles, 0);
+            break;
+        case 4:
+            //1 r
+            paintAdjacentSingle(tiles, 1);
+            break;
+        case 5:
+            //2 ur
+            paintAdjacentCorner(tiles, 1);
+            break;
+        case 6:
+            //2 lr
+            paintAdjacentOpposite(tiles, 1);
+            break;
+        case 7:
+            //3 d
+            paintAdjacentOneOut(tiles, 2);
+            break;
+        case 8:
+            //1 d
+            paintAdjacentSingle(tiles, 2);
+            break;
+        case 9:
+            //2 ud
+            paintAdjacentOpposite(tiles, 0);
+            break;
+        case 10:
+            //2 dl
+            paintAdjacentCorner(tiles, 3);
+            break;
+        case 11:
+            //3 r
+            paintAdjacentOneOut(tiles, 1);
+            break;
+        case 12:
+            //2 dr
+            paintAdjacentCorner(tiles, 2);
+            break;
+        case 13:
+            //3 l
+            paintAdjacentOneOut(tiles, 3);
+            break;
+        case 14:
+            //3 u
+            paintAdjacentOneOut(tiles, 0);
+            break;
+        case 15:
+            paintAdjacentAll(tiles);
+            //4
+            break;
         }
     }
 

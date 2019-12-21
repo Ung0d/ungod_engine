@@ -45,6 +45,7 @@ namespace uedit
         static constexpr unsigned INSPECT = 0;
         static constexpr unsigned SHOW = 1;
         static constexpr unsigned RENAME = 2;
+        static constexpr unsigned DELETE_EN = 3;
 
     private:
         void onMoveDown(wxCommandEvent & event);

@@ -59,7 +59,7 @@ namespace ungod
         for (const auto& nameEntityPair : data.mEntityNames)
         {
             if (nameEntityPair.get<World::EntityTag>())//also clears out invalid entities
-                context.serializeWeak(nameEntityPair.get<World::NameTag>(), &nameEntityPair.get<World::EntityTag>(), nameMapNode);
+                context.serializeWeak(nameEntityPair.get<World::NameTag>(), nameEntityPair.get<World::EntityTag>(), nameEntityPair.get<World::EntityTag>().getInstantiation()->getSerialIdentifier(), nameMapNode);
         }
     }
 

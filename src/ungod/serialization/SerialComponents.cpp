@@ -557,7 +557,11 @@ namespace ungod
 
     void DeserialBehavior<TileMapComponent, Entity, World&, const Application&>::deserialize(TileMapComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application& app)
     {
-        context.first(context.deserializeObject(data.mTileMap), "tilemap", deserializer);
+        auto deserial = [&](TileMap& tm) mutable
+        {
+            context.first(context.deserializeObject(tm), "tilemap", deserializer);
+        };
+        world.getTileMapRenderer().tilemapCallback(e, data, deserial);
     }
 
 
@@ -569,6 +573,12 @@ namespace ungod
     void DeserialBehavior<WaterComponent, Entity, World&, const Application&>::deserialize(WaterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application& app)
     {
         context.first(context.deserializeObject(data.mWater, static_cast<const sf::RenderTarget&>(app.getWindow())), "water", deserializer);
+
+        auto deserial = [&](Water& w) mutable
+        {
+            context.first(context.deserializeObject(w, static_cast<const sf::RenderTarget&>(app.getWindow())), "water", deserializer);
+        };
+        world.getTileMapRenderer().waterCallback(e, data, deserial);
     }
 
 

@@ -31,6 +31,7 @@
 #include <functional>
 #include <array>
 #include <memory>
+#include <bitset>
 
 namespace ungod
 {
@@ -175,6 +176,8 @@ namespace ungod
 
             //sets the given tile ID if it is != -1
             void setTileID(Tile* tile, int id) const;
+
+            void paint(const std::array<Tile*, 9>& tiles, const std::bitset<4>& setTiles);
     };
 }
 

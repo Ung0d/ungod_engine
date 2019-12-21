@@ -77,7 +77,7 @@ namespace ungod
             empl.first->second.node = appendSubnode(pool, typeIdentifier.c_str());
 
         //object already serialized? (shared instance call?)
-        auto res = indexMap.emplace(SerialID<T>::get(data), SerialInfo());
+        auto res = empl.first->second.indexMap.emplace(SerialID<T>::get(data), SerialInfo());
         if (res.second) //first time serialize
         {
             //define the serial info and insert it under the data-adress
@@ -125,11 +125,17 @@ namespace ungod
 
 
     template<typename T>
-    inline void SerializationContext::serializeWeak(const std::string& objIdentifier, const T* data, MetaNode serializer)
+    inline void SerializationContext::serializeWeak(const std::string& objIdentifier, const T& data, const std::string& typeIdentifier, MetaNode serializer)
     {
         if (data)
         {
-            auto res = indexMap.emplace(SerialID<T>::get(*data), SerialInfo());
+            //get the type master node or create a new one if non-existing
+            auto empl = nodemap.emplace(typeIdentifier, NodeInfo(nullptr));
+            if (empl.second) //no subnode exists; create one
+                empl.first->second.node = appendSubnode(pool, typeIdentifier.c_str());
+
+            //object already serialized? (shared instance call?)
+            auto res = empl.first->second.indexMap.emplace(SerialID<T>::get(data), SerialInfo());
             if (res.second || res.first->second.weakQueue.size() > 0)
             {
                 res.first->second.weakQueue.emplace(objIdentifier, serializer);

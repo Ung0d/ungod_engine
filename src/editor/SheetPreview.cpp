@@ -68,6 +68,13 @@ namespace uedit
         }
     }
 
+    void SheetPreviewArea::clear()
+    {
+        mSelectedImage = nullptr;
+        mSelectedMeta = nullptr;
+        mShowAnimation = false;
+    }
+
     void SheetPreviewArea::update(float delta)
     {
         //if animation is shown, update it
@@ -258,18 +265,16 @@ namespace uedit
 
     bool SheetPreview::loadSheet(const std::string& sheetID, const std::string& metaID)
     {
-        mImages.emplace_back( sheetID, ungod::LoadPolicy::SYNC );
-        mMetas.emplace_back( metaID );
+        ungod::Image img{ sheetID, ungod::LoadPolicy::SYNC };
+        ungod::MetaMap meta{ metaID };
 
-        if (mImages.back().isLoaded() && mMetas.back().isLoaded())
+        if (img.isLoaded() && meta.isLoaded())
         {
+            mImages.emplace_back(img);
+            mMetas.emplace_back(meta);
             updateSheetListbox();
+            mPreviewArea->clear();
             return true;
-        }
-        else
-        {
-            mImages.pop_back();
-            mMetas.pop_back();
         }
         return false;
     }

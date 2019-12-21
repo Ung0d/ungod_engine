@@ -231,6 +231,13 @@ namespace ungod
 			mContentsChangedSignal.connect(callback);
 		}
 
+        /** \brief Applies a user defined function to the tilemap that is allowed to change its bounds. Is used e.g. for deserial. */
+        void tilemapCallback(Entity e, TileMapComponent& tmc, const std::function<void(TileMap&)>& callback);
+
+
+        /** \brief Applies a user defined function to the water that is allowed to change its bounds. Is used e.g. for deserial. */
+        void waterCallback(Entity e, WaterComponent& wc, const std::function<void(Water&)>& callback);
+
 
         ~TileMapRenderer();
 

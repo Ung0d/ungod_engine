@@ -278,6 +278,7 @@ namespace uedit
         mnu.Append(INSPECT, 	"inspect");
         mnu.Append(SHOW, 	"show");
         mnu.Append(RENAME, 	"rename");
+        mnu.Append(DELETE_EN, "delete");
         mnu.Bind(wxEVT_COMMAND_MENU_SELECTED, &LayerDisplay::onEntityMenuSelect, this);
         PopupMenu(&mnu);
     }
@@ -308,6 +309,12 @@ namespace uedit
                 mEntityList->SetItem(mIDMapping[mEntities[clickevt->GetIndex()].getID()], 0, name);
             }
  			break;
+        }
+        case DELETE_EN:
+        {
+            ungod::Entity e = mEntities[clickevt->GetIndex()];
+            e.getWorld().destroy(e);
+            break;
         }
         default:
             break;

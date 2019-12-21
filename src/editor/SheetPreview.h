@@ -23,6 +23,8 @@ namespace uedit
         /** \brief Previews the specified content. */
         void preview(ungod::Image& image, ungod::MetaMap& meta, const std::string& key);
 
+        void clear();
+
         virtual void update(float delta) override;
         virtual void render(sf::RenderWindow& window, sf::RenderStates states) override;
 

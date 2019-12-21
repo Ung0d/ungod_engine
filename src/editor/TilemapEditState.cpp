@@ -30,7 +30,8 @@ namespace uedit
             float verticalSize = ceil( mPreview.mCamera.getView().getSize().y / (tm->getScale().y*tm->getTileHeight()) ) + 1;
             mVertices.resize(horizontalSize*verticalSize*4);
 
-            sf::Vector2f windowPosition = window.mapPixelToCoords(sf::Vector2i(0,0));
+            sf::Vector2f windowPosition = window.mapPixelToCoords(sf::Vector2i(0,0), mPreview.mCamera.getView());
+            windowPosition = states.transform.getInverse().transformPoint(windowPosition);
 
             unsigned metaX = std::max(0, (int)floor((windowPosition.x - tm->getPosition().x) / tm->getTileWidth()));
             unsigned metaY = std::max(0, (int)floor((windowPosition.y - tm->getPosition().y) / tm->getTileHeight()));
@@ -65,7 +66,7 @@ namespace uedit
 
     void TileMapEditState::handleInput(EntityPreview& preview, const sf::Event& event)
     {
-        /*ungod::TileMap const* tm;
+        ungod::TileMap const* tm;
         if (mWater)
             tm = &mPreview.mEntity.modify<ungod::WaterComponent>().getWater().getTileMap();
         else
@@ -82,7 +83,8 @@ namespace uedit
             }
             else if (event.mouseButton.button == sf::Mouse::Right)
             {
-                sf::Vector2f worldpos = mPreview.mWindow.mapPixelToCoords( {event.mouseButton.x, event.mouseButton.y}, mPreview.mCamera.getView() );
+                sf::Vector2f worldpos = mPreview.mWindow.mapPixelToCoords(sf::Mouse::getPosition(mPreview.getWindow()), mPreview.mCamera.getView() );
+                worldpos = mPreview.mEntity.modify<ungod::TransformComponent>().getTransform().getInverse().transformPoint(worldpos);
                 ungod::Tile const* tile = tm->getTiledata(worldpos);
                 if (tile && tile->isActive())
                 {
@@ -101,12 +103,12 @@ namespace uedit
         }
         default:
             break;
-        }*/
+        }
     }
 
     void TileMapEditState::update(EntityPreview& preview, float delta)
     {
-        /*ungod::TileMap const* tm;
+        ungod::TileMap const* tm;
         if (mWater)
             tm = &mPreview.mEntity.modify<ungod::WaterComponent>().getWater().getTileMap();
         else
@@ -114,7 +116,8 @@ namespace uedit
 
         if (mMouseDown)
         {
-            sf::Vector2f worldpos = mPreview.mWindow.mapPixelToCoords( {sf::Mouse::getPosition(mPreview.mWindow).x, sf::Mouse::getPosition(mPreview.mWindow).y}, mPreview.mCamera.getView() );
+            sf::Vector2f worldpos = mPreview.mWindow.mapPixelToCoords( sf::Mouse::getPosition(mPreview.mWindow), mPreview.mCamera.getView() );
+            worldpos = mPreview.mEntity.modify<ungod::TransformComponent>().getTransform().getInverse().transformPoint(worldpos);
             ungod::Tile const* tile = tm->getTiledata(worldpos);
             std::string key = mPreview.mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentKey();
             std::string type = mPreview.mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentType();
@@ -173,7 +176,7 @@ namespace uedit
                             //that the key-set this key belongs to, is completely contained in the keymap of the tilemap
                             //afterwards, we have to create a new brush for the identifier that can be deduced from the key, if no brush is
                             //currently present or if the identifier of the present brush is something different
-                       /*     if (!mPreview.mWorldAction.getEditorFrame()->getSelectedWorld())
+                            if (!mPreview.mWorldAction.getEditorFrame()->getSelectedWorld())
                                 return;
                             if (!mTMBrush || mTMBrush->getIdentifier() != key)
                             {
@@ -198,7 +201,7 @@ namespace uedit
                     }
                 }
             }
-        }*/
+        }
     }
 
 
@@ -226,6 +229,7 @@ namespace uedit
                     mMouseDown = true;
 
                     sf::Vector2f worldpos = mPreview.mWindow.mapPixelToCoords( {sf::Mouse::getPosition(mPreview.mWindow).x, sf::Mouse::getPosition(mPreview.mWindow).y}, mPreview.mCamera.getView() );
+                    worldpos = mPreview.mEntity.modify<ungod::TransformComponent>().getTransform().getInverse().transformPoint(worldpos);
                     ungod::Tile const* tile = tm->getTiledata(worldpos);
                     std::string key = mPreview.mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentKey();
                     if (tile && key != "")

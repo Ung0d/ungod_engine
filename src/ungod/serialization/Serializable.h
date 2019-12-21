@@ -205,14 +205,6 @@ namespace ungod
     class SerializationContext : public Context
     {
     private:
-        //contains a metanode and the current number of subnodes
-        struct NodeInfo
-        {
-            MetaNode node;
-            unsigned subCount;
-            NodeInfo(MetaNode cNode) : node(cNode), subCount(0) {}
-        };
-
         struct SerialInfo
         {
             std::string strhash;
@@ -221,11 +213,19 @@ namespace ungod
             std::queue< std::pair<std::string, MetaNode> > weakQueue;
         };
 
-        using IndexMap = std::unordered_map< uintptr_t, SerialInfo >;  //maps serialized objects on info about their serialization
-        using NodeMap = std::unordered_map< std::string, NodeInfo >;    //maps object types on info about subcount and their corresponding metanodes
+        using IndexMap = std::unordered_map< uintptr_t, SerialInfo >;  //maps serialized objects on info about their 
 
-        //map contains all serialized objects so far together with the index of their storage node and a waiting queue for weak objects
-        IndexMap indexMap;
+        //contains a metanode and the current number of subnodes
+        struct NodeInfo
+        {
+            MetaNode node;
+            unsigned subCount;
+            //map contains all serialized objects so far together with the index of their storage node and a waiting queue for weak objects
+            IndexMap indexMap;
+            NodeInfo(MetaNode cNode) : node(cNode), subCount(0) {}
+        };
+
+        using NodeMap = std::unordered_map< std::string, NodeInfo >;    //maps object types on info about subcount and their corresponding metanodes
 
         //map contains all serialized types so far
         NodeMap nodemap;
@@ -301,7 +301,7 @@ namespace ungod
         * deserialize weak refs last, in order to gain maximum linked-list-iteration speed.
         */
         template<typename T>
-        inline void serializeWeak(const std::string& objIdentifier, const T* data, MetaNode serializer);
+        inline void serializeWeak(const std::string& objIdentifier, const T& data, const std::string& typeIdentifier, MetaNode serializer);
 
 
         /**

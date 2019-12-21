@@ -69,19 +69,19 @@ namespace ungod
             if (err) return;
         }
 
-        //set all remaining weak refs to null
-        for (auto& p : indexMap)
-        {
-            while (!p.second.weakQueue.empty())
-            {
-                serializeProperty(p.second.weakQueue.front().first, NULL_ADRESS.c_str(), p.second.weakQueue.front().second);
-                p.second.weakQueue.pop();
-            }
-        }
-
         //notify parents nodes, how many subnodes they have (= number of serialized objects of a type)
         for (auto& n : nodemap)
         {
+            //set all remaining weak refs to null
+            for (auto& p : n.second.indexMap)
+            {
+                while (!p.second.weakQueue.empty())
+                {
+                    serializeProperty(p.second.weakQueue.front().first, NULL_ADRESS.c_str(), p.second.weakQueue.front().second);
+                    p.second.weakQueue.pop();
+                }
+            }
+
              n.second.node.appendAttribute(
                 metaDoc.allocateAttribute(
                     OBJECT_COUNT.c_str(), std::to_string(n.second.subCount).c_str()));

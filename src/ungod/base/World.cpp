@@ -504,6 +504,7 @@ namespace ungod
 			{
 				mQuadTree.removeFromItsNode(e);
 			}
+            mEntityDestructionSignal(e);
 			e.getInstantiation()->cleanup(e);
 			e.mHandle.destroy();
 		}
