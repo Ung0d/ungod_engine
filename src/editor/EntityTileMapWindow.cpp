@@ -17,6 +17,10 @@ namespace uedit
         initButton->Bind(wxEVT_BUTTON, &EntityTileMapWindow::onInitClicked, this);
         vbox->Add(initButton,1,wxCENTER);
 
+        auto* fitButton = new wxButton(this, -1, "fit to world");
+        fitButton->Bind(wxEVT_BUTTON, &EntityTileMapWindow::onFitClicked, this);
+        vbox->Add(fitButton, 1, wxCENTER);
+
         auto* resetViewBut = new wxButton(this, -1, "reset view");
         resetViewBut->Bind(wxEVT_BUTTON, &EntityTileMapWindow::onViewReset, this);
         vbox->Add(resetViewBut,1,wxCENTER);
@@ -44,6 +48,22 @@ namespace uedit
             mWorldAction.loadTiles(mEntity, std::string{dia.getSheetID().mbc_str()}, std::string{dia.getMetaID().mbc_str()},
                                    dia.getTileWidth(), dia.getTileHeight());
             mWorldAction.reserveTileCount(mEntity, dia.getMapWidth()*dia.getMapHeight(), dia.getMapWidth(), dia.getMapHeight());
+        }
+    }
+
+    void EntityTileMapWindow::onFitClicked(wxCommandEvent& event)
+    {
+        mWorldAction.setEntityPosition(mEntity, {});
+        const auto& tm = mEntity.get<ungod::TileMapComponent>().getTileMap();
+        if (tm.getTileWidth() != 0 && tm.getTileHeight() != 0)
+        {
+            unsigned width = (unsigned)std::floor(mEntity.getWorld().getSize().x / tm.getTileWidth());
+            unsigned height = (unsigned)std::floor(mEntity.getWorld().getSize().y / tm.getTileHeight());
+            mWorldAction.reserveTileCount(mEntity, width * height, width, height);
+        }
+        else
+        {
+            wxMessageBox(wxT("Initialize a tile-width and a tile-height > 0."), wxT("Error"), wxICON_INFORMATION);
         }
     }
 

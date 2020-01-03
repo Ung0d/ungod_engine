@@ -17,9 +17,9 @@ namespace uedit
     public:
         BaseColliderDisplay(wxWindow* parent) : wxPanel(parent) {}
 
-        virtual void refresh() = 0;
+        virtual void refresh() {}
 
-        virtual ungod::ColliderType getType() const = 0;
+        virtual ungod::ColliderType getType() const { return ungod::ColliderType::UNDEFINED; }
     };
 
 
@@ -45,7 +45,7 @@ namespace uedit
         bool mSingleSelected;
         wxChoice* mRigidbodyChoice;
         wxListCtrl* mRigidbodies;
-        wxPanel* mColliderDetail;
+        BaseColliderDisplay* mColliderDetail;
         wxTextCtrl* mCompCountCtrl;
 
     private:

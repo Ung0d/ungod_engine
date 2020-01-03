@@ -22,6 +22,7 @@ namespace uedit
 
     private:
         void onInitClicked(wxCommandEvent & event);
+        void onFitClicked(wxCommandEvent& event);
         void onViewReset(wxCommandEvent & event);
     };
 

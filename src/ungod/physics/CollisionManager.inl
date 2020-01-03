@@ -131,7 +131,7 @@ template <std::size_t CONTEXT>
 void RigidbodyManager<CONTEXT>::addPoint(Entity e, RigidbodyComponent<CONTEXT>& rcomp, const sf::Vector2f& point)
 {
 	PointSetAggregator psa{ rcomp.mCollider };
-	if (Logger::assertion(rcomp.mCollider.getNumParam() < Collider::MAX_PARAM, "Maximum number of points for a collider exceeded!"))
+	if (Logger::assertion(rcomp.mCollider.getNumParam()+2 > Collider::MAX_PARAM, "Maximum number of points for a collider exceeded!"))
 		return;
 	psa.allocatePoints(psa.getNumberOfPoints() + 1);
 	psa.setPointX(psa.getNumberOfPoints()-1, point.x);

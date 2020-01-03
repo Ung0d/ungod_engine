@@ -68,6 +68,9 @@ namespace ungod
         /** \brief Returns a pointer to the world at position i of the layer stack. */
         World* getWorld(unsigned i) const;
 
+        /** \brief Returns the number of worlds. */
+        unsigned getNumWorld() const { return (unsigned)getLayers().getVector().size(); }
+
         /** \brief Render the world scene. */
         bool render(sf::RenderTarget& target, sf::RenderStates states) const;
 
@@ -196,6 +199,9 @@ namespace ungod
 		/** \brief Slow retrieval by index. */
 		WorldGraphNode* getNode(unsigned i);
 
+        /** \brief Returns the number of world graph nodes. */
+        unsigned getNumberOfNodes() const { return (unsigned)mAdjacencies.getVertexCount(); }
+
         /** \brief Get active. */
         WorldGraphNode* getActiveNode();
 
@@ -219,6 +225,8 @@ namespace ungod
         void notifyBoundsChanged(WorldGraphNode* node);
 
 		const graph::UndirectedAdjacencyLists& getALlists() const { return mAdjacencies; }
+
+        const quad::QuadTree<WorldGraphNode*>& getQuadTree() const { return mWorldQT; }
 
 		/** \brief Connects a callback to the reference position changed event, which is emitted, if a new graph 
 		* node is set as a new center node during some update. Parameter is the new reference position in world coodinates. */

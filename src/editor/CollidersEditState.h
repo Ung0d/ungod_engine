@@ -201,8 +201,8 @@ namespace uedit
                         {
                             sf::Vector2f mousePosLocal = preview.getEntity().get<ungod::TransformComponent>().getTransform().getInverse().transformPoint(mouseWorldPos);
                             if (mCollidersWindow.getActiveComponent() && 
-                                mCollidersWindow.getActiveComponent()->getCollider().getType() == ungod::ColliderType::CONVEX_POLYGON &&
-                                mCollidersWindow.getActiveComponent()->getCollider().getType() == ungod::ColliderType::EDGE_CHAIN)
+                                (mCollidersWindow.getActiveComponent()->getCollider().getType() == ungod::ColliderType::CONVEX_POLYGON ||
+                                mCollidersWindow.getActiveComponent()->getCollider().getType() == ungod::ColliderType::EDGE_CHAIN))
                                 preview.mWorldAction.addColliderPoint(preview.mEntity, *mCollidersWindow.getActiveComponent(), mousePosLocal);
                         }
                     }

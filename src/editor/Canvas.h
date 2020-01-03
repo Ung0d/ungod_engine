@@ -123,7 +123,7 @@ namespace uedit
 		ungod::WorldGraphNode* mConnect;
 		int mCornerSelected;
 		sf::Vector2f mTotalMove;
-		static constexpr float SCALE = 0.005f;
+		static constexpr float SCALE = 0.02f;
 		static constexpr int TEXTSIZE = 20000;
 		static constexpr float CORNER_CLICK_RANGE = 0.05f; //in percentage of (node.width+node.height)
 	};

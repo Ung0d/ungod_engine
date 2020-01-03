@@ -134,7 +134,7 @@ namespace uedit
         mSingleSelected = single;
         if (mSelection == -1) //no rigidbody selected
         {
-            mColliderDetail = new wxPanel(this);
+            mColliderDetail = new BaseColliderDisplay(this);
         }
         else
         {
@@ -159,7 +159,7 @@ namespace uedit
                 mColliderDetail = new PointSetWindow<CONTEXT>(mEntity, *coll, this, mWaw, isel);
                 break;
             default:
-                mColliderDetail = new wxPanel(this);
+                mColliderDetail = new BaseColliderDisplay(this);
                 break;
             }
             

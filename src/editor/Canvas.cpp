@@ -267,12 +267,13 @@ namespace uedit
         mEditorState->toggleDebugmode(false);
 
 		auto bounds = mEditorState->getWorldGraph().getActiveNode()->getBounds();
-		states.transform.translate({ bounds.left, bounds.top });
+        sf::RenderStates nodeStates = states;
+        nodeStates.transform.translate({ bounds.left, bounds.top });
 
         for (const auto& e : mSelectedEntities)
         {
             mEditorState->getCamera().renderBegin(e.getWorld().getRenderDepth());
-            sf::RenderStates local = states;
+            sf::RenderStates local = nodeStates;
             sf::RectangleShape rect;
             if (e.has<ungod::TransformComponent>())
             {
@@ -284,6 +285,28 @@ namespace uedit
 				rect.setOutlineThickness(2);
 				rect.setOutlineColor(sf::Color::Red);
 				target.draw(rect, local);
+            }
+            mEditorState->getCamera().renderEnd();
+        }
+
+        //render layer bounds
+        quad::PullResult<ungod::WorldGraphNode*> pull;
+        sf::Vector2f windowTop = target.mapPixelToCoords({}, mEditorState->getCamera().getView());
+        sf::Vector2f windowBot = target.mapPixelToCoords(static_cast<sf::Vector2i>(target.getSize()), mEditorState->getCamera().getView());
+        mEditorState->getWorldGraph().getQuadTree().retrieve(pull, {windowTop.x, windowTop.y, windowBot.x - windowTop.x, windowBot.y - windowTop.y});
+        for (auto* n : pull.getList())
+        {
+            mEditorState->getCamera().renderBegin();
+            auto nbounds = n->getBounds();
+            if (sf::FloatRect{windowTop, windowBot - windowTop}.intersects(nbounds))
+            {
+                sf::RectangleShape rect;
+                rect.setPosition(std::max(windowTop.x, nbounds.left), std::max(windowTop.y, nbounds.top));
+                rect.setSize(sf::Vector2f{ std::min(windowBot.x, nbounds.left + nbounds.width), std::min(windowBot.y, nbounds.top + nbounds.height) } - rect.getPosition());
+                rect.setFillColor(sf::Color::Transparent);
+                rect.setOutlineColor(sf::Color::Green);
+                rect.setOutlineThickness(10.0f);
+                target.draw(rect, states);
             }
             mEditorState->getCamera().renderEnd();
         }
@@ -505,10 +528,24 @@ namespace uedit
 			//draw text
 			if (mFont.isLoaded())
 			{
-				float resizeFactor = (rect.getSize().x + rect.getSize().y) / 500.0f;
-				sf::Text text{ node->getIdentifier(), *(mFont.get()), unsigned(TEXTSIZE*SCALE* resizeFactor) };
-				text.setPosition(SCALE * (bounds.left + 0.25f*bounds.width), SCALE * (bounds.top + 0.25f*bounds.height));
-				target.draw(text, states);
+				float resizeFactor = (rect.getSize().x + rect.getSize().y) / 10000.0f;
+				sf::Text textID{ node->getIdentifier(), *(mFont.get()), unsigned(TEXTSIZE*SCALE* resizeFactor) };
+                textID.setPosition(SCALE * (bounds.left + 0.25f*bounds.width), SCALE * (bounds.top + 0.25f*bounds.height));
+                
+                std::string posStr = "(" + std::to_string(node->getBounds().left) + "," +
+                    std::to_string(node->getBounds().top) + ")";
+                sf::Text textNodepos{ posStr, *(mFont.get()), unsigned(TEXTSIZE * SCALE * resizeFactor) };
+                textNodepos.setPosition(SCALE * (bounds.left + 0.25f * bounds.width), SCALE * (bounds.top + 0.25f * bounds.height) + textID.getGlobalBounds().height);
+
+                std::string sizeStr = "(" + std::to_string(node->getBounds().width) + "," +
+                    std::to_string(node->getBounds().height) + ")";
+                sf::Text textNodesize{ sizeStr, *(mFont.get()), unsigned(TEXTSIZE * SCALE * resizeFactor) };
+                textNodesize.setPosition(SCALE * (bounds.left + 0.25f * bounds.width), SCALE * (bounds.top + 0.25f * bounds.height) + textID.getGlobalBounds().height + textNodepos.getGlobalBounds().height);
+
+
+                target.draw(textID, states);
+                target.draw(textNodepos, states);
+                target.draw(textNodesize, states);
 			}
 		}
 		mCamera.renderEnd();
