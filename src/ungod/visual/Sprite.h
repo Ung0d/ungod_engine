@@ -57,6 +57,8 @@ namespace ungod
 
         sf::Vertex* getVertices();
 
+        sf::Vertex const* getVertices() const;
+
         void setPosition(const sf::Vector2f& position);
 
         void setPosition(float x, float y);
@@ -82,6 +84,10 @@ namespace ungod
         void flipX();
 
         void flipY();
+
+        bool isFlippedX() const;
+
+        bool isFlippedY() const;
 
     private:
         std::array<sf::Vertex, 4> mVertices;

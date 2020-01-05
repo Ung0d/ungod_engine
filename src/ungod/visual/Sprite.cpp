@@ -79,6 +79,11 @@ namespace ungod
         return &mVertices[0];
     }
 
+    sf::Vertex const* Sprite::getVertices() const
+    {
+        return &mVertices[0];
+    }
+
     void Sprite::setPosition(const sf::Vector2f& position)
     {
         sf::Vector2f rounded{std::round(position.x), std::round(position.y)} ;
@@ -156,5 +161,15 @@ namespace ungod
     {
         std::swap(mVertices[0].texCoords, mVertices[3].texCoords);
         std::swap(mVertices[1].texCoords, mVertices[2].texCoords);
+    }
+
+    bool Sprite::isFlippedX() const
+    {
+        return mVertices[0].texCoords.x > mVertices[1].texCoords.x;
+    }
+
+    bool Sprite::isFlippedY() const
+    {
+        return mVertices[0].texCoords.x > mVertices[3].texCoords.x;
     }
 }

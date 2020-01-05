@@ -262,11 +262,6 @@ namespace ungod
     {
         context.serializeProperty("rect_count", data.mVertices.textureRectCount(), serializer);
 
-        if (data.mFlipX)
-            context.serializeProperty("flip_x", true, serializer);
-        if (data.mFlipY)
-            context.serializeProperty("flip_y", true, serializer);
-
         for (unsigned i = 0; i < data.mVertices.textureRectCount(); ++i)
         {
             MetaNode rectNode = context.appendSubnode(serializer, "texrect");
@@ -291,6 +286,11 @@ namespace ungod
             {
                 context.serializeProperty("pos_1_x", data.mVertices.getPosition(i).x, rectNode);
                 context.serializeProperty("pos_1_y", data.mVertices.getPosition(i).y, rectNode);
+                //test if the rect is flipped
+                if (data.mVertices.isFlippedX(i)) 
+                    context.serializeProperty("flip_x", true, rectNode);
+                if (data.mVertices.isFlippedY(i))
+                    context.serializeProperty("flip_y", true, rectNode);
             }
             else
             {
@@ -316,14 +316,9 @@ namespace ungod
 
     void DeserialBehavior<VertexArrayComponent, Entity, World&, const Application&>::deserialize(VertexArrayComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&)
     {
-        auto result = deserializer.getAttributes<unsigned, bool, bool>({"rect_count", 0}, {"flip_x", false}, {"flip_y", false});
+        auto result = deserializer.getAttributes<unsigned>({"rect_count", 0});
 
         world.getVisualsManager().initTextureRects(e, std::get<0>(result));
-
-        if (std::get<1>(result))
-            world.getVisualsManager().flipVertexX(data);
-        if (std::get<2>(result))
-            world.getVisualsManager().flipVertexY(data);
 
         unsigned i = 0;
         forEachSubnode(deserializer, [&] (MetaNode texRectNode)
@@ -342,7 +337,7 @@ namespace ungod
                     ungod::Logger::warning(e.get<SpriteMetadataComponent>().getFilePath());
                     ungod::Logger::endl();
                 }
-                auto rectData = texRectNode.getAttributes<float, float>({"pos_1_x",0.0f}, {"pos_1_y",0.0f});
+                auto rectData = texRectNode.getAttributes<float, float, bool, bool>({"pos_1_x",0.0f}, {"pos_1_y",0.0f}, { "flip_x", false }, { "flip_y", false });
                 auto rectData2 = texRectNode.getAttributes<float, float, float, float, float, float, uint8_t, uint8_t, uint8_t, uint8_t>
                     ({"pos_2_x", std::get<0>(rectData) + texrect.width},
                      {"pos_2_y", std::get<1>(rectData)},
@@ -362,11 +357,15 @@ namespace ungod
                                                     { std::get<2>(rectData2), std::get<3>(rectData2) },
                                                     { std::get<4>(rectData2), std::get<5>(rectData2) });
                 world.getVisualsManager().setArrayRectColor(e, sf::Color{std::get<6>(rectData2), std::get<7>(rectData2), std::get<8>(rectData2), std::get<9>(rectData2)}, i);
+                if (std::get<2>(rectData))
+                    world.getVisualsManager().flipVertexX(data, i);
+                if (std::get<3>(rectData))
+                    world.getVisualsManager().flipVertexY(data, i);
             }
             else
             {
-                auto rectData = texRectNode.getAttributes<int, int, int, int, float, float>
-                    ({"left",0}, {"top",0}, {"width",0}, {"height",0}, {"pos_1_x",0.0f}, {"pos_1_y",0.0f});
+                auto rectData = texRectNode.getAttributes<int, int, int, int, float, float, bool, bool>
+                    ({"left",0}, {"top",0}, {"width",0}, {"height",0}, {"pos_1_x",0.0f}, {"pos_1_y",0.0f}, { "flip_x", false }, { "flip_y", false });
 
                 auto rectData2 = texRectNode.getAttributes<float, float, float, float, float, float, uint8_t, uint8_t, uint8_t, uint8_t>
                     ({"pos_2_x", std::get<4>(rectData) + std::get<2>(rectData)},
@@ -387,6 +386,10 @@ namespace ungod
                                                     { std::get<2>(rectData2), std::get<3>(rectData2) },
                                                     { std::get<4>(rectData2), std::get<5>(rectData2) });
                 world.getVisualsManager().setArrayRectColor(e, sf::Color{std::get<6>(rectData2), std::get<7>(rectData2), std::get<8>(rectData2), std::get<9>(rectData2)}, i);
+                if (std::get<2>(rectData))
+                    world.getVisualsManager().flipVertexX(data, i);
+                if (std::get<3>(rectData))
+                    world.getVisualsManager().flipVertexY(data, i);
             }
 
             //dont forget to increment!
@@ -426,9 +429,9 @@ namespace ungod
         if (data.mSprite.getOrigin().y != 0.0f)
             context.serializeProperty("origin_y", data.mSprite.getOrigin().y, serializer);
 
-        if (data.mFlipX)
+        if (data.mSprite.isFlippedX())
             context.serializeProperty("flip_x", true, serializer);
-        if (data.mFlipY)
+        if (data.mSprite.isFlippedY())
             context.serializeProperty("flip_y", true, serializer);
     }
 

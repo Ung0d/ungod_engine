@@ -185,6 +185,20 @@ namespace uedit
                         e, i);
     }
 
+    void WorldActionWrapper::flipVertexX(ungod::Entity e, unsigned i)
+    {
+        mEFrame->action(std::function([this](ungod::Entity e, unsigned i) { e.getWorld().getVisualsManager().flipVertexX(e, i); }),
+            std::function([this](ungod::Entity e, unsigned i) { e.getWorld().getVisualsManager().flipVertexX(e , i); }),
+            e, i);
+    }
+
+    void WorldActionWrapper::flipVertexY(ungod::Entity e, unsigned i)
+    {
+        mEFrame->action(std::function([this](ungod::Entity e, unsigned i) { e.getWorld().getVisualsManager().flipVertexY(e, i); }),
+            std::function([this](ungod::Entity e, unsigned i) { e.getWorld().getVisualsManager().flipVertexY(e, i); }),
+            e, i);
+    }
+
     void WorldActionWrapper::removeEntity(ungod::Entity e)
     {
         mEFrame->action(std::function([this](ungod::Entity e){ e.getWorld().getQuadTree().remove(e); }),

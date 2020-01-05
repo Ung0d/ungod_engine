@@ -93,7 +93,7 @@ namespace ungod
      friend struct SerialBehavior<VertexArrayComponent, Entity, const World&, const Application&>;
     public:
         /** \brief Default constructs the visual component. */
-        VertexArrayComponent() : mFlipX(false), mFlipY(false) {}
+        VertexArrayComponent() = default;
 
         /** \brief Accesses the underlying vertex array. */
         const VertexArray& getVertices() const { return mVertices; }
@@ -101,8 +101,6 @@ namespace ungod
     private:
         VertexArray mVertices;
         std::vector<std::string> mKeys;
-        bool mFlipX;
-        bool mFlipY;
     };
 
 
@@ -117,7 +115,7 @@ namespace ungod
 		 SerialBehavior<SpriteComponent, Entity, const World&, const Application&>;
     friend struct DeserialBehavior<SpriteComponent, Entity, World&, const Application&>;
     public:
-        SpriteComponent() : mFlipX(false), mFlipY(false) {}
+        SpriteComponent() = default;
 
         /** \brief Accesses the underlying sprite. */
         const Sprite& getSprite() const { return mSprite; }
@@ -125,8 +123,6 @@ namespace ungod
     private:
         Sprite mSprite;
         std::string mKey;
-        bool mFlipX;
-        bool mFlipY;
     };
 
     /**
@@ -444,6 +440,14 @@ namespace ungod
         /** \brief Flips the vertex-array of the given entity in y direction. */
         inline static void flipVertexY(Entity e) {flipVertexY(e.modify<VertexArrayComponent>());}
         static void flipVertexY(VertexArrayComponent& vertices);
+
+        /** \brief Flips the i-th rect of the vertex-array of the given entity in x direction. */
+        inline static void flipVertexX(Entity e, unsigned i) { flipVertexX(e.modify<VertexArrayComponent>(), i); }
+        static void flipVertexX(VertexArrayComponent& vertices, unsigned i);
+
+        /** \brief Flips the i-th rect of the the vertex-array of the given entity in y direction. */
+        inline static void flipVertexY(Entity e, unsigned i) { flipVertexY(e.modify<VertexArrayComponent>(), i); }
+        static void flipVertexY(VertexArrayComponent& vertices, unsigned i);
 
         /** \brief Flips the sprite of the given entity in x direction. */
         inline static void flipSpriteX(Entity e) {flipSpriteX(e.modify<SpriteComponent>());}

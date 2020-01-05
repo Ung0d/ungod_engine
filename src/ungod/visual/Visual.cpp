@@ -552,25 +552,31 @@ namespace ungod
 
     void VisualsManager::flipVertexX(VertexArrayComponent& vertices)
     {
-        vertices.mFlipX = !vertices.mFlipX;
         vertices.mVertices.flipX();
     }
 
     void VisualsManager::flipVertexY(VertexArrayComponent& vertices)
     {
-        vertices.mFlipY = !vertices.mFlipY;
         vertices.mVertices.flipY();
+    }
+
+    void VisualsManager::flipVertexX(VertexArrayComponent& vertices, unsigned i)
+    {
+        vertices.mVertices.flipX(i);
+    }
+
+    void VisualsManager::flipVertexY(VertexArrayComponent& vertices, unsigned i)
+    {
+        vertices.mVertices.flipY(i);
     }
 
     void VisualsManager::flipSpriteX(SpriteComponent& sprite)
     {
-        sprite.mFlipX = !sprite.mFlipX;
         sprite.mSprite.flipX();
     }
 
     void VisualsManager::flipSpriteY(SpriteComponent& sprite)
     {
-        sprite.mFlipY = !sprite.mFlipY;
         sprite.mSprite.flipY();
     }
 

@@ -22,7 +22,7 @@ namespace uedit
         wxWindow(parent, id, pos, siz), mEntity(e), mWorldAction(waw), mTypeNotebook(nullptr), mTexRectLabel(nullptr), mMultiTexRectLabel(nullptr),
         mCompCountCtrl(nullptr), mMultiSpriteChoice(nullptr), mSpritePanel(nullptr), mMultiSpritePanel(nullptr),
         mVertexPanel(nullptr), mVertexRectCountCtrl(nullptr), mVertexChoice(nullptr), mVertexTexRectLabel(nullptr),
-        mVertexPositionX(nullptr), mVertexPositionY(nullptr), mSelectedVertex(-1), mVertexColor(nullptr)
+        mVertexPositionX(nullptr), mVertexPositionY(nullptr), mSelectedVertex(-1), mVertexColor(nullptr), mVertexFlipX(nullptr), mVertexFlipY(nullptr)
     {
         wxSizer* boxsizer = new wxBoxSizer(wxVERTICAL);
 
@@ -604,11 +604,10 @@ namespace uedit
 
 
         wxBoxSizer* hbox1 = new wxBoxSizer(wxHORIZONTAL);
-        mVertexChoice = new wxChoice(mVertexPanel, CHOICE_VERTEX, wxDefaultPosition, wxDefaultSize);
+        wxArrayString str;
         for (std::size_t i = 0; i < rectCount; ++i)
-        {
-            mVertexChoice->SetString(i, std::to_string(i));
-        }
+            str.Add(std::to_string(i));
+        mVertexChoice = new wxChoice(mVertexPanel, CHOICE_VERTEX, wxDefaultPosition, wxDefaultSize, str);
         hbox1->Add(mVertexChoice, 1, wxALL, 5);
 
         vertexSizer->Add(hbox1,0,wxALIGN_CENTER_HORIZONTAL);
@@ -648,6 +647,24 @@ namespace uedit
                 mVertexColor = new wxColourPickerCtrl(mVertexPanel, VERTEX_COLOR_PICKER);
                 hbox->Add(mVertexColor, 1, wxALL, 3);
                 vertexSizer->Add(hbox,0,wxALIGN_CENTER_HORIZONTAL);
+            }
+
+            {
+                mVertexFlipX = new wxCheckBox(mVertexPanel, -1, _("flip x"));
+                mVertexFlipX->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent& evt)
+                {
+                   mWorldAction.flipVertexX(mEntity, mSelectedVertex);
+                });
+                vertexSizer->Add(mVertexFlipX, 0, wxALIGN_CENTER_HORIZONTAL);
+            }
+
+            {
+                mVertexFlipY = new wxCheckBox(mVertexPanel, -1, _("flip y"));
+                mVertexFlipY->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent& evt)
+                    {
+                        mWorldAction.flipVertexY(mEntity, mSelectedVertex);
+                    });
+                vertexSizer->Add(mVertexFlipY, 0, wxALIGN_CENTER_HORIZONTAL);
             }
 
             if (mEntity.has<ungod::SpriteMetadataComponent>())
@@ -715,6 +732,8 @@ namespace uedit
                     {
                         return mEntity.modify<ungod::VertexArrayComponent>().getVertices().getPosition(index).y;
                     } );
+            mVertexFlipX->SetValue(mEntity.get<ungod::VertexArrayComponent>().getVertices().isFlippedX(index));
+            mVertexFlipY->SetValue(mEntity.get<ungod::VertexArrayComponent>().getVertices().isFlippedY(index));
             mVertexPositionX->setValue(mEntity.modify<ungod::VertexArrayComponent>().getVertices().getPosition(index).x);
             mVertexPositionY->setValue(mEntity.modify<ungod::VertexArrayComponent>().getVertices().getPosition(index).y);
             mVertexColor->SetColour(convertColor(mEntity.modify<ungod::VertexArrayComponent>().getVertices().getRectColor(index)));
@@ -722,6 +741,8 @@ namespace uedit
             mVertexPositionX->Show();
             mVertexPositionY->Show();
             mVertexColor->Show();
+            mVertexFlipX->Show();
+            mVertexFlipY->Show();
         }
         else  //-1 means display, when no rect is selected (empty fields)
         {
@@ -746,6 +767,8 @@ namespace uedit
             mVertexPositionX->Hide();
             mVertexPositionY->Hide();
             mVertexColor->Hide();
+            mVertexFlipX->Hide();
+            mVertexFlipY->Hide();
         }
         mVertexPanel->Fit();
         mTypeNotebook->Fit();

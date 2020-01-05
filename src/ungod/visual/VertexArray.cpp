@@ -158,20 +158,36 @@ namespace ungod
     void VertexArray::flipX()
     {
         for (unsigned i = 0; i < textureRectCount(); i++)
-        {
-            sf::Vertex* quad = &mVertices[i*4];
-            std::swap(quad[0].texCoords, quad[1].texCoords);
-            std::swap(quad[3].texCoords, quad[2].texCoords);
-        }
+            flipX(i);
     }
 
     void VertexArray::flipY()
     {
         for (unsigned i = 0; i < textureRectCount(); i++)
-        {
-            sf::Vertex* quad = &mVertices[(std::size_t)i*4];
-            std::swap(quad[0].texCoords, quad[3].texCoords);
-            std::swap(quad[1].texCoords, quad[2].texCoords);
-        }
+            flipY(i);
+    }
+
+    void VertexArray::flipX(unsigned i)
+    {
+        sf::Vertex* quad = &mVertices[i * 4];
+        std::swap(quad[0].texCoords, quad[1].texCoords);
+        std::swap(quad[3].texCoords, quad[2].texCoords);
+    }
+
+    void VertexArray::flipY(unsigned i)
+    {
+        sf::Vertex* quad = &mVertices[(std::size_t)i * 4];
+        std::swap(quad[0].texCoords, quad[3].texCoords);
+        std::swap(quad[1].texCoords, quad[2].texCoords);
+    }
+
+    bool VertexArray::isFlippedX(unsigned i) const
+    {
+        return mVertices[i * 4].texCoords.x > mVertices[i * 4 + 1].texCoords.x;
+    }
+
+    bool VertexArray::isFlippedY(unsigned i) const
+    {
+        return mVertices[i * 4].texCoords.y > mVertices[i * 4 + 3].texCoords.y;
     }
 }

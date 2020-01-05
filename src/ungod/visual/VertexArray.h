@@ -85,8 +85,11 @@ namespace ungod
         void setPoints(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4, std::size_t index);
 
         void flipX();
-
         void flipY();
+        void flipX(unsigned i);
+        void flipY(unsigned i);
+        bool isFlippedX(unsigned i) const;
+        bool isFlippedY(unsigned i) const;
 
     private:
         sf::VertexArray mVertices;

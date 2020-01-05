@@ -77,6 +77,8 @@ namespace uedit
         StatDisplay<float>* mVertexPositionY;
         int mSelectedVertex;
         wxColourPickerCtrl* mVertexColor;
+        wxCheckBox* mVertexFlipX;
+        wxCheckBox* mVertexFlipY;
 
     private:
         void onTexSelect(wxFileDirPickerEvent& event);

@@ -43,7 +43,8 @@ namespace uedit
         void setVertexRectCount(ungod::Entity e, std::size_t numrect);
         void setVertexArrayRect(ungod::Entity e, std::size_t i, const std::string& key);
         void setVertexArrayRectColor(ungod::Entity e, std::size_t i, const sf::Color& color);
-        
+        void flipVertexX(ungod::Entity e, unsigned i);
+        void flipVertexY(ungod::Entity e, unsigned i);
 
 
 
