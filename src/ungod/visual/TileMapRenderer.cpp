@@ -59,9 +59,9 @@ namespace ungod
         return b;
     }
 
-    void TileMapRenderer::addTile(Entity e, int id, unsigned material, bool active, bool blocked)
+    void TileMapRenderer::addTile(Entity e, int id, bool active)
     {
-        e.modify<TileMapComponent>().mTileMap.addTile(id, material, active, blocked);
+        e.modify<TileMapComponent>().mTileMap.addTile(id, active);
 		mContentsChangedSignal(e, e.modify<TileMapComponent>().mTileMap.getBounds());
     }
 
@@ -80,28 +80,17 @@ namespace ungod
         return e.modify<TileMapComponent>().mTileMap.getTiledata(x, y);
     }
 
-    bool TileMapRenderer::setTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
-                             std::vector<bool> active, std::vector<bool> blocked, const unsigned mapSizeX, const unsigned mapSizeY)
+    bool TileMapRenderer::setTiles(Entity e, std::vector<int> tiles, std::vector<bool> active, const unsigned mapSizeX, const unsigned mapSizeY)
     {
-        bool b = e.modify<TileMapComponent>().mTileMap.setTiles(tiles, materials, active, blocked, mapSizeX, mapSizeY);
+        bool b = e.modify<TileMapComponent>().mTileMap.setTiles(tiles, active, mapSizeX, mapSizeY);
 		if (b)
 			mContentsChangedSignal(e, e.modify<TileMapComponent>().mTileMap.getBounds());
         return b;
     }
 
-    bool TileMapRenderer::setTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
-                         std::vector<bool> active, const unsigned mapSizeX, const unsigned mapSizeY)
+    bool TileMapRenderer::setTiles(Entity e, std::vector<int> tiles, const unsigned mapSizeX, const unsigned mapSizeY)
     {
-		bool b = e.modify<TileMapComponent>().mTileMap.setTiles(tiles, materials, active, mapSizeX, mapSizeY);
-		if (b)
-			mContentsChangedSignal(e, e.modify<TileMapComponent>().mTileMap.getBounds());
-        return b;
-    }
-
-    bool TileMapRenderer::setTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
-                  const unsigned mapSizeX, const unsigned mapSizeY)
-    {
-        bool b = e.modify<TileMapComponent>().mTileMap.setTiles(tiles, materials, mapSizeX, mapSizeY);
+		bool b = e.modify<TileMapComponent>().mTileMap.setTiles(tiles, mapSizeX, mapSizeY);
 		if (b)
 			mContentsChangedSignal(e, e.modify<TileMapComponent>().mTileMap.getBounds());
         return b;
@@ -122,9 +111,9 @@ namespace ungod
         return b;
     }
 
-    void TileMapRenderer::addWaterTile(Entity e, int id, unsigned material, bool active, bool blocked)
+    void TileMapRenderer::addWaterTile(Entity e, int id, bool active)
     {
-        e.modify<WaterComponent>().mWater.getTileMap().addTile(id, material, active, blocked);
+        e.modify<WaterComponent>().mWater.getTileMap().addTile(id, active);
 		mContentsChangedSignal(e, e.modify<WaterComponent>().mWater.getBounds());
     }
 
@@ -144,28 +133,17 @@ namespace ungod
         return e.modify<WaterComponent>().mWater.getTileMap().getTiledata(x, y);
     }
 
-    bool TileMapRenderer::setWaterTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
-                             std::vector<bool> active, std::vector<bool> blocked, const unsigned mapSizeX, const unsigned mapSizeY)
+    bool TileMapRenderer::setWaterTiles(Entity e, std::vector<int> tiles, std::vector<bool> active, const unsigned mapSizeX, const unsigned mapSizeY)
     {
-        bool b = e.modify<WaterComponent>().mWater.getTileMap().setTiles(tiles, materials, active, blocked, mapSizeX, mapSizeY);
+        bool b = e.modify<WaterComponent>().mWater.getTileMap().setTiles(tiles, active, mapSizeX, mapSizeY);
 		if (b)
 			mContentsChangedSignal(e, e.modify<WaterComponent>().mWater.getBounds());
         return b;
     }
 
-    bool TileMapRenderer::setWaterTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
-                         std::vector<bool> active, const unsigned mapSizeX, const unsigned mapSizeY)
+    bool TileMapRenderer::setWaterTiles(Entity e, std::vector<int> tiles, const unsigned mapSizeX, const unsigned mapSizeY)
     {
-        bool b = e.modify<WaterComponent>().mWater.getTileMap().setTiles(tiles, materials, active, mapSizeX, mapSizeY);
-		if (b)
-			mContentsChangedSignal(e, e.modify<WaterComponent>().mWater.getBounds());
-        return b;
-    }
-
-    bool TileMapRenderer::setWaterTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
-                  const unsigned mapSizeX, const unsigned mapSizeY)
-    {
-        bool b = e.modify<WaterComponent>().mWater.getTileMap().setTiles(tiles, materials, mapSizeX, mapSizeY);
+        bool b = e.modify<WaterComponent>().mWater.getTileMap().setTiles(tiles, mapSizeX, mapSizeY);
 		if (b)
 			mContentsChangedSignal(e, e.modify<WaterComponent>().mWater.getBounds());
         return b;

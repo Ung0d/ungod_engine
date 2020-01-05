@@ -42,25 +42,19 @@ namespace ungod
     {
     public:
         //constructors
-        Tile() : tileID(0), materialID(0u), active(false), blocked(false) {}
-        Tile(const int cTileID, const unsigned cMaterialID, const bool cActive, const bool cBlocked) : tileID(cTileID), materialID(cMaterialID), active(cActive), blocked(cBlocked) {}
+        Tile() : tileID(0), active(false) {}
+        Tile(const int cTileID, const bool cActive) : tileID(cTileID), active(cActive) {}
 
     private:
         //members
         int tileID;
-        unsigned materialID;
         bool active;
-        bool blocked;
 
     public:
         int getTileID() const { return tileID; }
         void setTileID(int newTileID) { tileID = newTileID; }
-        void setMaterialID(unsigned newMaterialID) { materialID = newMaterialID; }
-        unsigned getMaterialID() const { return materialID; }
         bool isActive() const { return active; }
         void setActive(bool nactive) { active = nactive; }
-        bool isBlocked() const { return blocked; }
-        void setBlocked(bool nblocked) { blocked = nblocked; }
     };
 
     /**
@@ -105,10 +99,9 @@ namespace ungod
         bool render(sf::RenderTarget& target, sf::RenderStates states);
         //setup
         bool reserveTileCount(std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY);
-        void addTile(int id, unsigned material, bool active = true, bool blocked = false);
-        bool setTiles(std::vector<int> tiles, std::vector<unsigned> materials, std::vector<bool> active, std::vector<bool> blocked, const unsigned mapSizeX, const unsigned mapSizeY);
-        bool setTiles(std::vector<int> tiles, std::vector<unsigned> materials, std::vector<bool> active, const unsigned mapSizeX, const unsigned mapSizeY);
-        bool setTiles(std::vector<int> tiles, std::vector<unsigned> materials, const unsigned mapSizeX, const unsigned mapSizeY);
+        void addTile(int id, bool active = true);
+        bool setTiles(std::vector<int> tiles, std::vector<bool> active, const unsigned mapSizeX, const unsigned mapSizeY);
+        bool setTiles(std::vector<int> tiles, const unsigned mapSizeX, const unsigned mapSizeY);
         void loadTiles(const std::string& tileID, const std::string& metaID,
                        unsigned cTileWidth, unsigned cTileHeight,
                        const std::vector<std::string>& keymap = {});

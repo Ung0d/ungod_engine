@@ -95,7 +95,7 @@ namespace ungod
         bool reserveTileCount(Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY);
 
         /** \brief Appends a tile to the tilemap. */
-        void addTile(Entity e, int id, unsigned material, bool active = true, bool blocked = false);
+        void addTile(Entity e, int id, bool active = true);
 
         /** \brief Appends a key to the tilemap keytable. */
         void addKey(Entity e, const std::string& key);
@@ -107,16 +107,10 @@ namespace ungod
         Tile* getTile(Entity e, unsigned x, unsigned y);
 
         /** \brief Sets the tiles for a tilemap. */
-        bool setTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
-                             std::vector<bool> active, std::vector<bool> blocked, const unsigned mapSizeX, const unsigned mapSizeY);
+        bool setTiles(Entity e, std::vector<int> tiles, std::vector<bool> active, const unsigned mapSizeX, const unsigned mapSizeY);
 
         /** \brief Sets the tiles for a tilemap. */
-        bool setTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
-                             std::vector<bool> active, const unsigned mapSizeX, const unsigned mapSizeY);
-
-        /** \brief Sets the tiles for a tilemap. */
-        bool setTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
-                             const unsigned mapSizeX, const unsigned mapSizeY);
+        bool setTiles(Entity e, std::vector<int> tiles, const unsigned mapSizeX, const unsigned mapSizeY);
 
         /** \brief Load tiles and meta ID for the entities tilemap. */
         void loadTiles(Entity e, const std::string& tileID, const std::string& metaID,
@@ -128,7 +122,7 @@ namespace ungod
         bool reserveWaterTileCount(Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY);
 
         /** \brief Appends a tile to the water. */
-        void addWaterTile(Entity e, int id, unsigned material, bool active = true, bool blocked = false);
+        void addWaterTile(Entity e, int id, bool active = true);
 
         /** \brief Appends a key to the water keytable. */
         void addWaterKey(Entity e, const std::string& key);
@@ -140,16 +134,10 @@ namespace ungod
         Tile* getWaterTile(Entity e, unsigned x, unsigned y);
 
         /** \brief Sets the tiles for a water. */
-        bool setWaterTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
-                             std::vector<bool> active, std::vector<bool> blocked, const unsigned mapSizeX, const unsigned mapSizeY);
+        bool setWaterTiles(Entity e, std::vector<int> tiles, std::vector<bool> active, const unsigned mapSizeX, const unsigned mapSizeY);
 
         /** \brief Sets the tiles for a water. */
-        bool setWaterTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
-                             std::vector<bool> active, const unsigned mapSizeX, const unsigned mapSizeY);
-
-        /** \brief Sets the tiles for a water. */
-        bool setWaterTiles(Entity e, std::vector<int> tiles, std::vector<unsigned> materials,
-                             const unsigned mapSizeX, const unsigned mapSizeY);
+        bool setWaterTiles(Entity e, std::vector<int> tiles, const unsigned mapSizeX, const unsigned mapSizeY);
 
         /** \brief Load tiles and meta ID for the entities water. */
         void loadWaterTiles(Entity e, const std::string& tileID, const std::string& metaID,

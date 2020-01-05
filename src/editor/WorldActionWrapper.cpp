@@ -211,7 +211,7 @@ namespace uedit
                             { e.getWorld().getTileMapRenderer().reserveTileCount(e, num, mapSizeX, mapSizeY);
                               for (std::size_t i = 0; i < num; ++i)
                                 {
-                                    e.getWorld().getTileMapRenderer().addTile(e,0,0,false,false);
+                                    e.getWorld().getTileMapRenderer().addTile(e,0,false);
                                 };
                                 }),
                         std::function([this, oldmapx, oldmapy](ungod::Entity e)
@@ -225,7 +225,7 @@ namespace uedit
         if (!tile)
             return;
 
-        setTileData(e, position, id, tile->getMaterialID(), tile->isActive(), tile->isBlocked());
+        setTileData(e, position, id, tile->isActive());
     }
 
     void WorldActionWrapper::setTileActive(ungod::Entity e, const sf::Vector2f& position, bool active)
@@ -234,36 +234,30 @@ namespace uedit
         if (!tile)
             return;
 
-        setTileData(e, position, tile->getTileID(), tile->getMaterialID(), active, tile->isBlocked());
+        setTileData(e, position, tile->getTileID(), active);
     }
 
-    void WorldActionWrapper::setTileData(ungod::Entity e, const sf::Vector2f& position, int id, unsigned material, bool active, bool blocked)
+    void WorldActionWrapper::setTileData(ungod::Entity e, const sf::Vector2f& position, int id, bool active)
     {
         ungod::Tile* tile = e.getWorld().getTileMapRenderer().getTile(e, position);
         if (!tile)
             return;
 
         int oldid = tile->getTileID();
-        unsigned oldmat = tile->getMaterialID();
         bool oldactiv = tile->isActive();
-        bool oldblocked = tile->isBlocked();
-        mEFrame->action<ungod::Entity, const sf::Vector2f&>(std::function([this, id, material, active, blocked](ungod::Entity e, const sf::Vector2f& position)
+        mEFrame->action<ungod::Entity, const sf::Vector2f&>(std::function([this, id, active](ungod::Entity e, const sf::Vector2f& position)
                             {
                                 ungod::Tile* tile = e.getWorld().getTileMapRenderer().getTile(e, position);
                                 if (!tile) return;
                                 tile->setTileID(id);
-                                tile->setMaterialID(material);
                                 tile->setActive(active);
-                                tile->setBlocked(blocked);
                             }),
-                        std::function([this, oldid, oldmat, oldactiv, oldblocked](ungod::Entity e, const sf::Vector2f& position)
+                        std::function([this, oldid, oldactiv](ungod::Entity e, const sf::Vector2f& position)
                             {
                                 ungod::Tile* tile = e.getWorld().getTileMapRenderer().getTile(e, position);
                                 if (!tile) return;
                                 tile->setTileID(oldid);
-                                tile->setMaterialID(oldmat);
                                 tile->setActive(oldactiv);
-                                tile->setBlocked(oldblocked);
                             }),
                         e, position);
     }
@@ -301,7 +295,7 @@ namespace uedit
                             { e.getWorld().getTileMapRenderer().reserveWaterTileCount(e, num, mapSizeX, mapSizeY);
                               for (std::size_t i = 0; i < num; ++i)
                                 {
-                                    e.getWorld().getTileMapRenderer().addWaterTile(e,0,0,false,false);
+                                    e.getWorld().getTileMapRenderer().addWaterTile(e,0,false);
                                 };
                             }),
                         std::function([this, oldmapx, oldmapy](ungod::Entity e)
@@ -315,7 +309,7 @@ namespace uedit
         if (!tile)
             return;
 
-        setWaterTileData(e, position, id, tile->getMaterialID(), tile->isActive(), tile->isBlocked());
+        setWaterTileData(e, position, id, tile->isActive());
     }
 
     void WorldActionWrapper::setWaterTileActive(ungod::Entity e, const sf::Vector2f& position, bool active)
@@ -324,36 +318,30 @@ namespace uedit
         if (!tile)
             return;
 
-        setWaterTileData(e, position, tile->getTileID(), tile->getMaterialID(), active, tile->isBlocked());
+        setWaterTileData(e, position, tile->getTileID(), active);
     }
 
-    void WorldActionWrapper::setWaterTileData(ungod::Entity e, const sf::Vector2f& position, int id, unsigned material, bool active, bool blocked)
+    void WorldActionWrapper::setWaterTileData(ungod::Entity e, const sf::Vector2f& position, int id, bool active)
     {
         ungod::Tile* tile = e.getWorld().getTileMapRenderer().getWaterTile(e, position);
         if (!tile)
             return;
 
         int oldid = tile->getTileID();
-        unsigned oldmat = tile->getMaterialID();
         bool oldactiv = tile->isActive();
-        bool oldblocked = tile->isBlocked();
-        mEFrame->action<ungod::Entity, const sf::Vector2f&>(std::function([this, id, material, active, blocked](ungod::Entity e, const sf::Vector2f& position)
+        mEFrame->action<ungod::Entity, const sf::Vector2f&>(std::function([this, id, active](ungod::Entity e, const sf::Vector2f& position)
                             {
                                 ungod::Tile* tile = e.getWorld().getTileMapRenderer().getWaterTile(e, position);
                                 if (!tile) return;
                                 tile->setTileID(id);
-                                tile->setMaterialID(material);
                                 tile->setActive(active);
-                                tile->setBlocked(blocked);
                             }),
-                        std::function([this, oldid, oldmat, oldactiv, oldblocked](ungod::Entity e, const sf::Vector2f& position)
+                        std::function([this, oldid, oldactiv](ungod::Entity e, const sf::Vector2f& position)
                             {
                                 ungod::Tile* tile = e.getWorld().getTileMapRenderer().getWaterTile(e, position);
                                 if (!tile) return;
                                 tile->setTileID(oldid);
-                                tile->setMaterialID(oldmat);
                                 tile->setActive(oldactiv);
-                                tile->setBlocked(oldblocked);
                             }),
                         e, position);
     }

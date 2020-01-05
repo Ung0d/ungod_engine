@@ -35,21 +35,21 @@ namespace ungod
         {
 			script::Usertype<Water> waterType = state.registerUsertype<Water>("Water");
 			waterType["setTiles"] = sol::overload(
-								[](Water& water, script::Environment tiles, script::Environment materials, std::size_t mapX, std::size_t mapY)
+								[](Water& water, script::Environment tiles, std::size_t mapX, std::size_t mapY)
 								{
-									water.getTileMap().setTiles(env2vec<int>(tiles), env2vec<unsigned>(materials), mapX, mapY);
+									water.getTileMap().setTiles(env2vec<int>(tiles), mapX, mapY);
 								},
-								[](Water& water, script::Environment tiles, script::Environment materials, script::Environment active, std::size_t mapX, std::size_t mapY)
+								[](Water& water, script::Environment tiles, script::Environment active, std::size_t mapX, std::size_t mapY)
 								{
-									water.getTileMap().setTiles(env2vec<int>(tiles), env2vec<unsigned>(materials), env2vec<bool>(active), mapX, mapY);
+									water.getTileMap().setTiles(env2vec<int>(tiles), env2vec<bool>(active), mapX, mapY);
 								});
 			waterType["reserveTileCount"] = [](Water& water, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY)
 								{
 									water.getTileMap().reserveTileCount(num, mapSizeX, mapSizeY);
 								};
-			waterType["addTile"] =	[](Water& water, int id, unsigned material, bool active)
+			waterType["addTile"] =	[](Water& water, int id, bool active)
 								{
-									water.getTileMap().addTile(id, material, active);
+									water.getTileMap().addTile(id, active);
 								};
 			waterType["loadTiles"] = [](Water& water,
 				const std::string& texFilepath, const std::string& metaFilepath,

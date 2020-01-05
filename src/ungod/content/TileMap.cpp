@@ -142,52 +142,13 @@ namespace ungod
         return true;
     }
 
-    void TileMap::addTile(int id, unsigned material, bool active, bool blocked)
+    void TileMap::addTile(int id, bool active)
     {
-        mTiles.emplace_back(id, material, active, blocked);
+        mTiles.emplace_back(id, active);
     }
 
-    bool TileMap::setTiles(std::vector<int> tiles, std::vector<unsigned> materials, std::vector<bool> active, std::vector<bool> blocked, const unsigned mapSizeX, const unsigned mapSizeY)
+    bool TileMap::setTiles(std::vector<int> tiles, std::vector<bool> active, const unsigned mapSizeX, const unsigned mapSizeY)
     {
-        if (tiles.size() != materials.size())
-        {
-            Logger::warning("Can't set ground tiles. Tile-ids-vector and materials-vector are not of the same size.");
-            Logger::endl();
-            return false;
-        }
-
-        if (tiles.size() != active.size())
-        {
-            Logger::warning("Can't set ground tiles. Tile-ids-vector and active-vector are not of the same size.");
-            Logger::endl();
-            return false;
-        }
-
-        if (tiles.size() != blocked.size())
-        {
-            Logger::warning("Can't set ground tiles. Tile-ids-vector and blocked-vector are not of the same size.");
-            Logger::endl();
-            return false;
-        }
-
-        if (!reserveTileCount(tiles.size(), mapSizeX, mapSizeY))
-            return false;
-
-        for (std::size_t i = 0; i < tiles.size(); ++i)
-            addTile(tiles[i], materials[i], active[i], blocked[i]);
-
-        return true;
-    }
-
-    bool TileMap::setTiles(std::vector<int> tiles, std::vector<unsigned> materials, std::vector<bool> active, const unsigned mapSizeX, const unsigned mapSizeY)
-    {
-        if (tiles.size() != materials.size())
-        {
-            Logger::warning("Can't set ground tiles. Tile-ids-vector and materials-vector are not of the same size.");
-            Logger::endl();
-            return false;
-        }
-
         if (tiles.size() != active.size())
         {
             Logger::warning("Can't set ground tiles. Tile-ids-vector and active-vector are not of the same size.");
@@ -199,25 +160,18 @@ namespace ungod
             return false;
 
         for (std::size_t i = 0; i < tiles.size(); ++i)
-            addTile(tiles[i], materials[i], active[i], false);
+            addTile(tiles[i], active[i]);
 
         return true;
     }
 
-    bool TileMap::setTiles(std::vector<int> tiles, std::vector<unsigned> materials, const unsigned mapSizeX, const unsigned mapSizeY)
+    bool TileMap::setTiles(std::vector<int> tiles, const unsigned mapSizeX, const unsigned mapSizeY)
     {
-        if (tiles.size() != materials.size())
-        {
-            Logger::warning("Can't set ground tiles. Tile-ids-vector and materials-vector are not of the same size.");
-            Logger::endl();
-            return false;
-        }
-
         if (!reserveTileCount(tiles.size(), mapSizeX, mapSizeY))
             return false;
 
         for (std::size_t i = 0; i < tiles.size(); ++i)
-            addTile(tiles[i], materials[i], true, false);
+            addTile(tiles[i], true);
 
         return true;
     }
@@ -354,7 +308,7 @@ namespace ungod
 
     void FootstepSoundProfile::playSoundAt(const sf::Vector2f& position)
     {
-        Tile const* tile = mGround->getTiledata(position);
+       /* Tile const* tile = mGround->getTiledata(position);
         if (tile)
         {
             if (!(tile->getMaterialID() < mSoundProfiles.size()))
@@ -379,15 +333,15 @@ namespace ungod
             }
 
             mAudiomanager->playSound(mSoundProfiles[tile->getMaterialID()], index, 1.0f, VolumeSettings::FOOTSTEPS, pitch);
-        }
+        } */
     }
 
     FootstepSoundProfile::~FootstepSoundProfile()
     {
-        for (const auto& profile : mSoundProfiles)
+       /* for (const auto& profile : mSoundProfiles)
         {
             mAudiomanager->expireSounds(profile);
-        }
+        } */
     }
 
 

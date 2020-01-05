@@ -178,17 +178,17 @@ namespace uedit
 
         void reserveTileCount(ungod::Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY);
         void setTileData(ungod::Entity e, const sf::Vector2f& position, int id);
+        void setTileData(ungod::Entity e, const sf::Vector2f& position, int id, bool active);
         void setTileActive(ungod::Entity e, const sf::Vector2f& position, bool active);
-        void setTileData(ungod::Entity e, const sf::Vector2f& position, int id, unsigned material, bool active, bool blocked);
         void loadTiles(ungod::Entity e, const std::string& tileID, const std::string& metaID,
                        unsigned cTileWidth, unsigned cTileHeight,
                        const std::vector<std::string>& keymap = {});
         void addKey(ungod::Entity e, const std::string& key);
 
         void reserveWaterTileCount(ungod::Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY);
+        void setWaterTileData(ungod::Entity e, const sf::Vector2f& position, int id, bool active);
         void setWaterTileData(ungod::Entity e, const sf::Vector2f& position, int id);
         void setWaterTileActive(ungod::Entity e, const sf::Vector2f& position, bool active);
-        void setWaterTileData(ungod::Entity e, const sf::Vector2f& position, int id, unsigned material, bool active, bool blocked);
         void loadWaterTiles(ungod::Entity e, const std::string& tileID, const std::string& metaID,
                        unsigned cTileWidth, unsigned cTileHeight,
                        const std::vector<std::string>& keymap = {});

@@ -152,13 +152,13 @@ namespace uedit
                             {
                                 if (tileID == (int)tm->getKeyMap().size())
                                     mPreview.mWorldAction.addWaterKey(mPreview.mEntity, key);
-                                mPreview.mWorldAction.setWaterTileData(mPreview.mEntity, worldpos, tileID, tile->getMaterialID(), true, tile->isBlocked());
+                                mPreview.mWorldAction.setWaterTileData(mPreview.mEntity, worldpos, tileID);
                             }
                             else
                             {
                                 if (tileID == (int)tm->getKeyMap().size())
                                     mPreview.mWorldAction.addKey(mPreview.mEntity, key);
-                                mPreview.mWorldAction.setTileData(mPreview.mEntity, worldpos, tileID, tile->getMaterialID(), true, tile->isBlocked());
+                                mPreview.mWorldAction.setTileData(mPreview.mEntity, worldpos, tileID);
                             }
                         }
                     }

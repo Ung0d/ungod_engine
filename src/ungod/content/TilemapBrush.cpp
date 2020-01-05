@@ -334,9 +334,9 @@ namespace ungod
             else if (iy == mLastY)
             {
                 if (ix == mLastX+1)
-                    d = 1;
-                else if (mLastX>0 && ix == mLastX-1)
                     d = 3;
+                else if (mLastX>0 && ix == mLastX-1)
+                    d = 1;
             }
             if (d != -1)
                 paintConnected2Last(tiles, d);
@@ -430,7 +430,7 @@ namespace ungod
     void TilemapBrush::paintAdjacentSingle(const std::array<Tile*, 9>& tiles, int d) const
     {
         int fixedID = fixTile(tiles[mPos[d]], CONN_PATH, (d+2)%4);
-        if (fixedID != mSetTiles[tiles[mPos[d]]->getTileID()])
+        if (fixedID != tiles[mPos[d]]->getTileID())
         {
             setTileID(tiles[4], mPathEnd[d]);
             setTileID(tiles[mPos[d]], fixedID);
@@ -445,7 +445,9 @@ namespace ungod
         int fix1 = fixTile(tiles[mPos[d]], CONN_LEFTBOUND, (d+2)%4);
         int fix2 = fixTile(tiles[mPos[(d+3)%4]], CONN_RIGHTBOUND, (d+1)%4);
         int diagFix = fixTileDiagonal(tiles[mPosCorner[d]], true, (d+2)%4);
-        if (fix1 != mSetTiles[tiles[mPos[d]]->getTileID()] && fix2 != mSetTiles[tiles[mPos[(d+3)%4]]->getTileID()])
+        if (fix1 != tiles[mPos[d]]->getTileID() && 
+            fix2 != tiles[mPos[(d+3)%4]]->getTileID() &&
+            diagFix != tiles[mPosCorner[d]]->getTileID())
         {
             setTileID(tiles[4], mCorner[d]);
             setTileID(tiles[mPos[d]], fix1);
@@ -456,18 +458,19 @@ namespace ungod
         {
             fix1 = fixTile(tiles[mPos[d]], CONN_PATH, (d+2)%4);
             fix2 = fixTile(tiles[mPos[(d+3)%4]], CONN_PATH, (d+1)%4);
-            if (fix1 != mSetTiles[tiles[mPos[d]]->getTileID()] && fix2 != mSetTiles[tiles[mPos[(d+3)%4]]->getTileID()])
+            if (fix1 != tiles[mPos[d]]->getTileID() && 
+                fix2 != tiles[mPos[(d+3)%4]]->getTileID())
             {
                 setTileID(tiles[4], mPathCurve[d]);
                 setTileID(tiles[mPos[d]], fix1);
                 setTileID(tiles[mPos[(d+3)%4]],fix2);
             }
-            else if (fix1 != mSetTiles[tiles[mPos[d]]->getTileID()])
+            else if (fix1 != tiles[mPos[d]]->getTileID())
             {
                 setTileID(tiles[4], mPathEnd[d]);
                 setTileID(tiles[mPos[d]], fix1);
             }
-            else if (fix2 != mSetTiles[tiles[mPos[(d+3)%4]]->getTileID()])
+            else if (fix2 != tiles[mPos[(d+3)%4]]->getTileID())
             {
                 setTileID(tiles[4], mPathEnd[(d+3)%4]);
                 setTileID(tiles[mPos[(d+3)%4]], fix2);
@@ -482,7 +485,7 @@ namespace ungod
     {
         int fix1 = fixTile(tiles[mPos[d]], CONN_PATH, (d+2)%4);
         int fix2 = fixTile(tiles[mPos[(d+2)%4]], CONN_PATH, d);
-        if (fix1 != mSetTiles[tiles[mPos[d]]->getTileID()] && fix2 != mSetTiles[tiles[mPos[(d+2)%4]]->getTileID()])
+        if (fix1 != tiles[mPos[d]]->getTileID() && fix2 != tiles[mPos[(d+2)%4]]->getTileID())
         {
             if (d%2==0)
                 setTileID(tiles[4], mPathV);
@@ -491,12 +494,12 @@ namespace ungod
             setTileID(tiles[mPos[d]], fix1);
             setTileID(tiles[mPos[(d+2)%4]], fix2);
         }
-        else if (fix1 != mSetTiles[tiles[mPos[d]]->getTileID()])
+        else if (fix1 != tiles[mPos[d]]->getTileID())
         {
             setTileID(tiles[4], mPathEnd[d]);
             setTileID(tiles[mPos[d]], fix1);
         }
-        else if (fix2 != mSetTiles[tiles[mPos[(d+2)%4]]->getTileID()])
+        else if (fix2 != tiles[mPos[(d+2)%4]]->getTileID())
         {
             setTileID(tiles[4], mPathEnd[(d+2)%4]);
             setTileID(tiles[mPos[(d+2)%4]], fix2);
@@ -508,121 +511,196 @@ namespace ungod
 
     void TilemapBrush::paintAdjacentOneOut(const std::array<Tile*, 9>& tiles, int d) const
     {
-        int fixFull = fixTile(tiles[mPos[(d+2)%4]], CONN_FULL, d);
-        int fixHalf1 = fixTile(tiles[mPos[(d+1)%4]], CONN_RIGHTBOUND, (d+3)%4);
-        int fixHalf2 = fixTile(tiles[mPos[(d+3)%4]], CONN_LEFTBOUND, (d+1)%4);
-        if (fixFull != tiles[mPos[(d+2)%4]]->getTileID() &&
-            fixHalf1 != tiles[mPos[(d+1)%4]]->getTileID() &&
-            fixHalf2 != tiles[mPos[(d+3)%4]]->getTileID())
+        int fixD1 = fixTileDiagonal(tiles[mPosCorner[(d + 2) % 4]], true, d);
+        int fixD2 = fixTileDiagonal(tiles[mPosCorner[(d + 3) % 4]], true, (d + 1) % 4);
+
+        if (fixD1 != tiles[mPosCorner[(d + 2) % 4]]->getTileID() &&
+            fixD2 != tiles[mPosCorner[(d + 3) % 4]]->getTileID())
         {
+            int fixFull = fixTile(tiles[mPos[(d+2)%4]], CONN_FULL, d);
+            int fixHalf1 = fixTile(tiles[mPos[(d+1)%4]], CONN_RIGHTBOUND, (d+3)%4);
+            int fixHalf2 = fixTile(tiles[mPos[(d+3)%4]], CONN_LEFTBOUND, (d+1)%4);
             setTileID(tiles[4], mTrans[(d+2)%4]);
             setTileID(tiles[mPos[(d+2)%4]], fixFull);
             setTileID(tiles[mPos[(d+1)%4]], fixHalf1);
             setTileID(tiles[mPos[(d+3)%4]], fixHalf2);
-            setTileID(tiles[mPosCorner[(d+2)%4]], fixTileDiagonal(tiles[mPosCorner[(d+2)%4]], true, d));
-            setTileID(tiles[mPosCorner[(d+3)%4]], fixTileDiagonal(tiles[mPosCorner[(d+3)%4]], true, (d+1)%4));
+            setTileID(tiles[mPosCorner[(d+2)%4]], fixD1);
+            setTileID(tiles[mPosCorner[(d+3)%4]], fixD2);
         }
         else
         {
-            int fixP1 = fixTile(tiles[mPos[(d+2)%4]], CONN_PATH, d);
-            int fixP2 = fixTile(tiles[mPos[(d+1)%4]], CONN_PATH, (d+3)%4);
-            int fixP3 = fixTile(tiles[mPos[(d+3)%4]], CONN_PATH, (d+1)%4);
-            if (fixP1 != tiles[mPos[(d+2)%4]]->getTileID() &&
-                fixP2 != tiles[mPos[(d+1)%4]]->getTileID() &&
-                fixP3 != tiles[mPos[(d+3)%4]]->getTileID())
+            if (fixD1 != tiles[mPosCorner[(d + 2) % 4]]->getTileID())
             {
-                setTileID(tiles[4], mTShape[(d+2)%4]);
-                setTileID(tiles[mPos[(d+2)%4]], fixP1);
-                setTileID(tiles[mPos[(d+1)%4]], fixP2);
-                setTileID(tiles[mPos[(d+3)%4]], fixP3);
+                int fixP1 = fixTile(tiles[mPos[(d + 1) % 4]], CONN_RIGHTBOUND, (d + 3) % 4);
+                int fixP2 = fixTile(tiles[mPos[(d + 2) % 4]], CONN_LEFTBOUND, d);
+                int fixP3 = fixTile(tiles[mPos[(d + 3) % 4]], CONN_PATH, (d + 1) % 4);
+                setTileID(tiles[4], mCorner2pathB[(d + 2) % 4]);
+                setTileID(tiles[mPos[(d + 1) % 4]], fixP1);
+                setTileID(tiles[mPos[(d + 2) % 4]], fixP2);
+                setTileID(tiles[mPos[(d + 3) % 4]], fixP3);
+                setTileID(tiles[mPosCorner[(d + 2) % 4]], fixD1);
             }
-            else if (fixP2 != tiles[mPos[(d+1)%4]]->getTileID() &&
-                     fixFull != tiles[mPos[(d+2)%4]]->getTileID() &&
-                     fixHalf2 != tiles[mPos[(d+3)%4]]->getTileID())
+            else if (fixD2 != tiles[mPosCorner[(d + 3) % 4]]->getTileID())
             {
-                setTileID(tiles[4], mCorner2pathA[(d+3)%4]);
-                setTileID(tiles[mPos[(d+2)%4]], fixFull);
-                setTileID(tiles[mPos[(d+1)%4]], fixP2);
-                setTileID(tiles[mPos[(d+3)%4]], fixHalf2);
-                setTileID(tiles[mPosCorner[(d+3)%4]], fixTileDiagonal(tiles[mPosCorner[(d+3)%4]], true, (d+1)%4));
-            }
-            else if (fixP3 != tiles[mPos[(d+3)%4]]->getTileID() &&
-                     fixFull != tiles[mPos[(d+2)%4]]->getTileID() &&
-                     fixHalf1 != tiles[mPos[(d+1)%4]]->getTileID())
-            {
-                setTileID(tiles[4], mCorner2pathB[(d+2)%4]);
-                setTileID(tiles[mPos[(d+2)%4]], fixFull);
-                setTileID(tiles[mPos[(d+1)%4]], fixHalf1);
-                setTileID(tiles[mPos[(d+3)%4]], fixP3);
-                setTileID(tiles[mPosCorner[(d+2)%4]], fixTileDiagonal(tiles[mPosCorner[(d+2)%4]], true, d));
+                int fixP1 = fixTile(tiles[mPos[(d + 1) % 4]], CONN_PATH, (d + 3) % 4);
+                int fixP2 = fixTile(tiles[mPos[(d + 2) % 4]], CONN_RIGHTBOUND, d);
+                int fixP3 = fixTile(tiles[mPos[(d + 3) % 4]], CONN_LEFTBOUND, (d + 1) % 4);
+                setTileID(tiles[4], mCorner2pathA[(d + 3) % 4]);
+                setTileID(tiles[mPos[(d + 1) % 4]], fixP1);
+                setTileID(tiles[mPos[(d + 2) % 4]], fixP2);
+                setTileID(tiles[mPos[(d + 3) % 4]], fixP3);
+                setTileID(tiles[mPosCorner[(d + 3) % 4]], fixD2);
             }
             else
-                setTileID(tiles[4], mIso);
+            {
+                int fixP1 = fixTile(tiles[mPos[(d + 2) % 4]], CONN_PATH, d);
+                int fixP2 = fixTile(tiles[mPos[(d + 1) % 4]], CONN_PATH, (d + 3) % 4);
+                int fixP3 = fixTile(tiles[mPos[(d + 3) % 4]], CONN_PATH, (d + 1) % 4);
+                setTileID(tiles[4], mTShape[(d + 2) % 4]);
+                setTileID(tiles[mPos[(d + 2) % 4]], fixP1);
+                setTileID(tiles[mPos[(d + 1) % 4]], fixP2);
+                setTileID(tiles[mPos[(d + 3) % 4]], fixP3);
+            }
         }
     }
 
 
     void TilemapBrush::paintAdjacentAll(const std::array<Tile*, 9>& tiles) const
     {
+        enum class AdjAllType
+        {
+            ALL, INNER_CORNER, DIAG, T2Pprev, T2Pnext, C2PC, CROSS
+        };
+
         //first: try to insert a basic tile
         //all 8 adjacent tiles must be connectable to the basic tile
-        bool good = true;
-        std::array<int, 4> fixes;
-        for (unsigned i = 0; i < 4; i++)
-        {
-            fixes[i] = fixTile(tiles[mPos[i]], CONN_FULL, i);
-            if (fixes[i] == tiles[mPos[i]]->getTileID())
-                good = false;
-        }
+        AdjAllType type = AdjAllType::ALL;
+        int index = -1;
         std::array<int, 4> cornerFixes;
         for (unsigned i = 0; i < 4; i++)
         {
-            cornerFixes[i] = fixTileDiagonal(tiles[mPosCorner[i]], true, i);
+            cornerFixes[i] = fixTileDiagonal(tiles[mPosCorner[i]], true, (i + 2) % 4);
             if (cornerFixes[i] == tiles[mPosCorner[i]]->getTileID())
-                good = false;
-        }
-        if (good)
-        {
-            for (unsigned i = 0; i < 4; i++)
             {
-                tiles[mPos[i]]->setTileID(fixes[i]);
-            }
-
-            for (unsigned i = 0; i < 4; i++)
-            {
-                tiles[mPosCorner[i]]->setTileID(cornerFixes[i]);
-            }
-            tiles[4]->setTileID(mBasic);
-            return;
-        }
-
-        //second: try to insert an inner corner, try all 4 possible orientations
-        for (int d = 0; d < 4; d++)
-        {
-            int fixFull1 = fixTile(tiles[mPos[d]], CONN_FULL, d);
-            int fixFull2 = fixTile(tiles[mPos[(d+3)%4]], CONN_FULL, (d+3)%4);
-            int fixHalf1 = fixTile(tiles[mPos[(d+1)%4]], CONN_LEFTBOUND, (d+1)%4);
-            int fixHalf2 = fixTile(tiles[mPos[(d+2)%4]], CONN_RIGHTBOUND, (d+2)%4);
-
-            if (fixFull1 != tiles[mPos[d]]->getTileID() &&
-                fixFull2 != tiles[mPos[(d+3)%4]]->getTileID() &&
-                fixHalf1 != tiles[mPos[(d+1)%4]]->getTileID() &&
-                fixHalf2 != tiles[mPos[(d+2)%4]]->getTileID())
-            {
-                int fixCorner1 = fixTileDiagonal(tiles[mPos[d]], true, d);
-                int fixCorner2 = fixTileDiagonal(tiles[mPos[(d+3)%4]], true, (d+3)%4);
-                int fixCorner3 = fixTileDiagonal(tiles[mPos[(d+1)%4]], true, (d+1)%4);
-                int fixCornerNone = fixTileDiagonal(tiles[mPos[(d+2)%4]], false, (d+2)%4);
-
-                if (fixFull1 != tiles[mPos[d]]->getTileID() &&
-                fixFull2 != tiles[mPos[(d+3)%4]]->getTileID() &&
-                fixHalf1 != tiles[mPos[(d+1)%4]]->getTileID() &&
-                fixHalf2 != tiles[mPos[(d+2)%4]]->getTileID())
+                switch (type)
                 {
-
+                    case AdjAllType::ALL:
+                    {
+                        type = AdjAllType::INNER_CORNER;
+                        index = i;
+                        break;
+                    }
+                    case AdjAllType::INNER_CORNER:
+                    {
+                        if (index == (i + 2) % 4)
+                            type = AdjAllType::DIAG;
+                        else if (index == (i + 3) % 4)
+                            type = AdjAllType::T2Pprev;
+                        else if (index == (i + 1) % 4)
+                            type = AdjAllType::T2Pnext;
+                        break;
+                    }
+                    case AdjAllType::DIAG:
+                    {
+                        type = AdjAllType::C2PC;
+                        index = 1;
+                        break;
+                    }
+                    case AdjAllType::T2Pprev:
+                    {
+                        type = AdjAllType::C2PC;
+                        if (index == (i + 1) % 4)
+                            index = 2;
+                        else
+                            index = (index + 3)%4;
+                        break;
+                    }
+                    case AdjAllType::C2PC:
+                    {
+                        type = AdjAllType::CROSS;
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
         }
+        std::array<int, 4> fixes;
+        switch (type)
+        {
+            case AdjAllType::ALL:
+            {
+                for (unsigned i = 0; i < 4; i++)
+                    fixes[i] = fixTile(tiles[mPos[i]], CONN_FULL, (i + 2) % 4);
+                tiles[4]->setTileID(mBasic);
+                break;
+            }
+            case AdjAllType::INNER_CORNER:
+            {
+                fixes[(index + 2) % 4] = fixTile(tiles[mPos[(index + 2) % 4]], CONN_FULL, index);
+                fixes[(index + 3) % 4] = fixTile(tiles[mPos[(index + 3) % 4]], CONN_LEFTBOUND, (index + 1) % 4);
+                fixes[index] = fixTile(tiles[mPos[index]], CONN_RIGHTBOUND, (index + 2) % 4);
+                fixes[(index + 1) % 4] = fixTile(tiles[mPos[(index + 1) % 4]], CONN_FULL, (index + 3) % 4);
+
+                tiles[4]->setTileID(mInnerCorner[(index+2)%4]);
+                break;
+            }
+            case AdjAllType::DIAG:
+            {
+                fixes[index] = fixTile(tiles[mPos[index]], CONN_RIGHTBOUND, (index + 2) % 4);
+                fixes[(index + 1) % 4] = fixTile(tiles[mPos[(index + 1) % 4]], CONN_LEFTBOUND, (index + 3) % 4);
+                fixes[(index + 2) % 4] = fixTile(tiles[mPos[(index + 2) % 4]], CONN_RIGHTBOUND, index);
+                fixes[(index + 3) % 4] = fixTile(tiles[mPos[(index + 3) % 4]], CONN_LEFTBOUND, (index + 1) % 4);
+
+                if (index % 2 == 0)
+                    tiles[4]->setTileID(mDiag1);
+                else
+                    tiles[4]->setTileID(mDiag2);
+                break;
+            }
+            case AdjAllType::T2Pprev:
+            {
+                fixes[(index + 3) % 4] = fixTile(tiles[mPos[(index + 3) % 4]], CONN_LEFTBOUND, (index + 1) % 4);
+                fixes[index] = fixTile(tiles[mPos[index]], CONN_PATH, (index + 2) % 4);
+                fixes[(index + 1) % 4] = fixTile(tiles[mPos[(index + 1) % 4]], CONN_RIGHTBOUND, (index + 3) % 4);
+                fixes[(index + 2) % 4] = fixTile(tiles[mPos[(index + 2) % 4]], CONN_FULL, index);
+                tiles[4]->setTileID(mTrans2path[(index + 2) % 4]);
+                break;
+            }
+            case AdjAllType::T2Pnext:
+            {
+                fixes[index] = fixTile(tiles[mPos[index]], CONN_RIGHTBOUND, (index + 2) % 4);
+                fixes[(index + 1) % 4] = fixTile(tiles[mPos[(index + 1) % 4]], CONN_FULL, (index + 3) % 4);
+                fixes[(index + 2) % 4] = fixTile(tiles[mPos[(index + 2) % 4]], CONN_LEFTBOUND, index);
+                fixes[(index + 3) % 4] = fixTile(tiles[mPos[(index + 3) % 4]], CONN_PATH, (index + 1) % 4);
+                tiles[4]->setTileID(mTrans2path[(index + 1) % 4]);
+                break;
+            }
+            case AdjAllType::C2PC:
+            {
+                fixes[index] = fixTile(tiles[mPos[index]], CONN_LEFTBOUND, (index + 2) % 4);
+                fixes[(index + 1) % 4] = fixTile(tiles[mPos[(index + 1) % 4]], CONN_PATH, (index + 3) % 4);
+                fixes[(index + 2) % 4] = fixTile(tiles[mPos[(index + 2) % 4]], CONN_PATH, index);
+                fixes[(index + 3) % 4] = fixTile(tiles[mPos[(index + 3) % 4]], CONN_RIGHTBOUND, (index + 1) % 4);
+                tiles[4]->setTileID(mCorner2pathC[index]);
+                break;
+            }
+            case AdjAllType::CROSS:
+            {
+                fixes[index] = fixTile(tiles[mPos[index]], CONN_PATH, (index + 2) % 4);
+                fixes[(index + 1) % 4] = fixTile(tiles[mPos[(index + 1) % 4]], CONN_PATH, (index + 3) % 4);
+                fixes[(index + 2) % 4] = fixTile(tiles[mPos[(index + 2) % 4]], CONN_PATH, index);
+                fixes[(index + 3) % 4] = fixTile(tiles[mPos[(index + 3) % 4]], CONN_PATH, (index + 1) % 4);
+                tiles[4]->setTileID(mCross);
+                break;
+            }
+        }
+
+        for (unsigned i = 0; i < 4; i++)
+            tiles[mPos[i]]->setTileID(fixes[i]);
+
+        for (unsigned i = 0; i < 4; i++)
+            tiles[mPosCorner[i]]->setTileID(cornerFixes[i]);
     }
 
 
@@ -712,7 +790,7 @@ namespace ungod
                         break;
 
                     case T_SHAPE:
-                        if (tile->getTileID() == mTrans[(d+2)%4])
+                        if (tile->getTileID() == mTShape[(d+2)%4])
                             return mCross;
                         break;
 
@@ -990,7 +1068,7 @@ namespace ungod
                         break;
 
                     case T_SHAPE:
-                        if (tile->getTileID() == mTrans[(d+2)%4])
+                        if (tile->getTileID() == mTShape[(d+2)%4])
                             return mTrans2path[d];
                         break;
 
@@ -998,9 +1076,13 @@ namespace ungod
                         break;
 
                     case CORNER2PATHA:
+                        if (tile->getTileID() == mCorner2pathA[(d + 3) % 4])
+                            return mInnerCorner[d];
                         break;
 
                     case CORNER2PATHB:
+                        if (tile->getTileID() == mCorner2pathB[(d + 2) % 4])
+                            return mInnerCorner[(d + 1) % 4];
                         break;
 
                     default:
@@ -1216,7 +1298,7 @@ namespace ungod
                 case T_SHAPE:
                     for (int i = 0; i < 4; i++)
                     {
-                        if (tile->getTileID() == mPathCurve[i])
+                        if (tile->getTileID() == mTShape[i])
                         {
                             if (d==i)
                                 return mCorner2pathB[d];
@@ -1254,6 +1336,90 @@ namespace ungod
                     }
                     break;
 
+                case CORNER2PATHA:
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (tile->getTileID() == mCorner2pathA[i])
+                        {
+                            if (d == (i + 3) % 4)
+                                return mTrans[d];
+                            else if (d == (i + 1) % 4)
+                                return mTrans2path[i];
+                            else if (d == (i + 2) % 4)
+                            {
+                                if (i % 2 == 0)
+                                    return mDiag1;
+                                else
+                                    return mDiag2;
+                            }
+                        }
+                    }
+                    return tile->getTileID();
+
+                case CORNER2PATHB:
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (tile->getTileID() == mCorner2pathB[i])
+                        {
+                            if (d == (i + 1) % 4)
+                                return mTrans[i];
+                            else if (d == (i + 2) % 4)
+                            {
+                                if (i % 2 == 0)
+                                    return mDiag1;
+                                else
+                                    return mDiag2;
+                            }
+                            else if (d == (i + 3) % 4)
+                                return mTrans2path[d];
+                        }
+                    }
+                    return tile->getTileID();
+
+                case CORNER2PATHC:
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (tile->getTileID() == mCorner2pathC[i])
+                        {
+                            if (d == (i + 1) % 4)
+                                return mTrans2path[i];
+                            if (d == (i + 2) % 4)
+                            {
+                                if (i % 2 == 0)
+                                    return mDiag2;
+                                else
+                                    return mDiag1;
+                            }
+                            else if (d == (i + 3) % 4)
+                                return mTrans2path[d];
+                        }
+                    }
+                    return tile->getTileID();
+
+                case DIAG1:
+                    if (d % 2 == 0)
+                        return mInnerCorner[d];
+                    return tile->getTileID();
+
+                case DIAG2:
+                    if (d % 2 == 1)
+                        return mInnerCorner[d];
+                    return tile->getTileID();
+
+                case TRANS2PATH:
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (tile->getTileID() == mTrans2path[i])
+                        {
+                            if (d == (i + 2) % 4)
+                                return mInnerCorner[(i+1)%4];
+                            if (d == (i + 3) % 4)
+                                return mInnerCorner[i];
+                        }
+                    }
+                    return tile->getTileID();
+
+
                 default:
                     return tile->getTileID();
             }
@@ -1278,6 +1444,9 @@ namespace ungod
 
     void TilemapBrush::paint(const std::array<Tile*, 9>& tiles, const std::bitset<4>& setTiles)
     {
+        if (mSetTiles[tiles[4]->getTileID()] != FOREIGN) //nothing to do
+            return;
+
         switch (setTiles.to_ulong())
         {
         case 0:

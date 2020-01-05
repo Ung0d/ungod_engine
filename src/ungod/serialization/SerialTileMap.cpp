@@ -39,9 +39,7 @@ namespace ungod
 
         context.serializePropertyContainer("keys", data.mKeymap, serializer);
         context.serializePropertyContainer<int>("ids", [&data] (std::size_t i) { return data.mTiles[i].getTileID(); } , data.mTiles.size(), serializer);
-        context.serializePropertyContainer<unsigned>("materials", [&data] (std::size_t i) { return data.mTiles[i].getMaterialID(); } , data.mTiles.size(), serializer);
         context.serializePropertyContainer<bool>("active", [&data] (std::size_t i) { return data.mTiles[i].isActive(); } , data.mTiles.size(), serializer);
-        context.serializePropertyContainer<bool>("blocked", [&data] (std::size_t i) { return data.mTiles[i].isBlocked(); } , data.mTiles.size(), serializer);
 
         /*MetaNode keymapNode = context.appendSubnode(serializer, "keys");
         context.serializeProperty("count", data.mKeymap.size(), keymapNode);
@@ -81,27 +79,17 @@ namespace ungod
         data.loadTiles( tilesID, metaID, tileWidth, tileHeight, keymap);
 
         std::vector<int> tiles;
-        std::vector<unsigned> materials;
         std::vector<bool> active;
-        std::vector<bool> blocked;
         attr = context.next(
             context.deserializeContainer<int>([&tiles] (std::size_t num) { tiles.reserve(num); },
                              [&tiles] (int id) { tiles.emplace_back(id); }),
                              "ids", deserializer, attr );
         attr = context.next(
-            context.deserializeContainer<unsigned>([&materials] (std::size_t num) { materials.reserve(num); },
-                             [&materials] (unsigned mat) { materials.emplace_back(mat); }),
-                             "materials", deserializer, attr );
-        attr = context.next(
             context.deserializeContainer<bool>([&active] (std::size_t num) { active.reserve(num); },
                              [&active] (bool a) { active.push_back(a); }),
                              "active", deserializer, attr );
-        attr = context.next(
-            context.deserializeContainer<bool>([&blocked] (std::size_t num) { blocked.reserve(num); },
-                             [&blocked] (bool b) { blocked.push_back(b); }),
-                             "blocked", deserializer, attr );
 
-        data.setTiles(tiles, materials, active, blocked, mapWidth, mapHeight);
+        data.setTiles(tiles, active, mapWidth, mapHeight);
 
         //deserialize the keymap
         /*MetaNode keymapNode = deserializer.firstNode("keys");

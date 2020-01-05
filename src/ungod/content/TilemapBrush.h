@@ -146,7 +146,7 @@ namespace ungod
             std::array<int, 4> mPathCurve;
 
             static constexpr std::array<int, 4> mPos = {1,5,7,3};
-            static constexpr std::array<int, 4> mPosCorner = {0,2,6,8};
+            static constexpr std::array<int, 4> mPosCorner = {0,2,8,6};
 
             std::unique_ptr<detail::TilemapChangeNotificator> mChangeNotificator;
 
