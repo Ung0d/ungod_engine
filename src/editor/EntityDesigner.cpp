@@ -26,7 +26,7 @@ namespace uedit
         EVT_MENU(EDIT_REDO, EntityDesigner::onEditRedo)
     wxEND_EVENT_TABLE()
 
-    const wxSize EntityDesigner::DEFAULT_SIZE = {1000, 650};
+    const wxSize EntityDesigner::DEFAULT_SIZE = {1600, 1000};
 
     EntityDesigner::EntityDesigner ( EditorCanvas& canvas, WorldActionWrapper& waw, ungod::Entity e,
                                 wxWindow * parent, wxWindowID id,

@@ -1,4 +1,5 @@
 #include "LayerProperties.h"
+#include "StatDisplayer.h"
 
 namespace uedit
 {
@@ -23,6 +24,19 @@ namespace uedit
             lightRender->SetValue(world->isLightToggled());
             lightRender->Bind(wxEVT_CHECKBOX, &LayerPropertiesWindow::onLightCheck, this);
             vbox->Add(lightRender, 1, wxCENTER);
+        }
+
+        {
+            StatDisplay<float>* depthDisp = new StatDisplay<float>("depth:", this, -1);
+            depthDisp->connectSetter([this](float depth)
+                {
+                    mWorld->setRenderDepth(depth);
+                });
+            depthDisp->connectGetter([this]()
+                {
+                    return mWorld->getRenderDepth();
+                });
+            vbox->Add(depthDisp, 1, wxCENTER);
         }
 
         SetSizer(vbox);

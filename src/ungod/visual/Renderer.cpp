@@ -69,11 +69,11 @@ namespace ungod
             sf::Vector2 rla = right.getLeftAnchor();
             sf::Vector2 rra = right.getRightAnchor();
 
-            if (sign(lra, rra ,lla) >= 0 && sign(lra, rla ,lla) >= 0)
+            /*if (sign(lra, rra ,lla) > 0 && sign(lra, rla ,lla) > 0)
                 return true;
 
             if (sign(rra, lra ,rla) >= 0 && sign(rra, lla ,rla) >= 0)
-                return false;
+                return false;*/
 
             return std::max(rra.y, rla.y) > std::max(lla.y, lra.y);
         };

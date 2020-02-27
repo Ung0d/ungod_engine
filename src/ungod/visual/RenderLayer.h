@@ -43,10 +43,10 @@ namespace ungod
     * A layer has a depth value, that controls its virtual z-position in 3d space. */
     class RenderLayer : public PolymorphicSerializable<RenderLayer, const sf::RenderTarget&>
     {
-     friend struct SerialBehavior<RenderLayer, const sf::RenderTarget&>;
-    friend struct DeserialBehavior<RenderLayer, const sf::RenderTarget&>;
+        friend struct SerialBehavior<RenderLayer, const sf::RenderTarget&>;
+        friend struct DeserialBehavior<RenderLayer, const sf::RenderTarget&>;
 
-    friend class RenderLayerContainer;
+        friend class RenderLayerContainer;
 
     public:
         RenderLayer(float renderdepth = 1.0f);
@@ -55,10 +55,12 @@ namespace ungod
 
         float getRenderDepth() const;
 
-        virtual bool render(sf::RenderTarget& target, sf::RenderStates states) = 0;
+        virtual bool render(sf::RenderTarget& target, sf::RenderStates states) { return false;  }
 
         virtual bool renderDebug(sf::RenderTarget& target, sf::RenderStates states,
-                                 bool bounds = true, bool texrects = true, bool colliders = true, bool audioemitters = true, bool lights = true) const {return true;}
+            bool bounds = true, bool texrects = true, bool colliders = true, bool audioemitters = true, bool lights = true) const {
+            return true;
+        }
 
         /** \brief Updates the layer for the given amount of delta time and within the specified rectangular area
         * of the game world. */
@@ -71,7 +73,7 @@ namespace ungod
         virtual void handleCustomEvent(const CustomEvent& event) {}
 
         /** \brief Returns the boundaries of the render layer not affected by render depth and transform. */
-		virtual sf::Vector2f getSize() const = 0;
+        virtual sf::Vector2f getSize() const { return {}; }
 
         /** \brief Returns the boundaries of the render layer not affected by render depth. */
         sf::Vector2f getTransformedSize() const;
@@ -104,7 +106,7 @@ namespace ungod
 
 	private:
 		/** \brief Sets the render layer to a new size. */
-		virtual void setSize(const sf::Vector2f& layersize) = 0;
+        virtual void setSize(const sf::Vector2f& layersize) {}
 
     };
 

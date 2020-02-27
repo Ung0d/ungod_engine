@@ -551,11 +551,13 @@ namespace quad
                 std::tie(wasRemoved, owner) = owner->removeFromNode(*this, t);
                 if( wasRemoved )
                 {
-                    while (owner->getFather() && !owner->getFather()->insert(*this, t))
+                    while (owner->getFather())
                     {
+                        if (owner->insert(*this, t))
+                            return true;
                         owner = owner->getFather();
                     }
-                    return owner->getFather();
+                    return static_cast<QuadTree<T, MAX_CAPACITY, MAX_LEVEL>*>(owner)->insert(t);
                 }
             }
         }

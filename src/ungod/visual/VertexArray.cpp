@@ -108,8 +108,8 @@ namespace ungod
     {
         sf::Vector2f rounded{std::round(pos.x), std::round(pos.y)};
 
-        float width = mVertices[index*4+1].texCoords.x - mVertices[index*4].texCoords.x;
-		float height = mVertices[index*4+2].texCoords.y - mVertices[index*4+1].texCoords.y;
+        float width = std::abs(mVertices[index*4+1].texCoords.x - mVertices[index*4].texCoords.x);
+		float height = std::abs(mVertices[index*4+2].texCoords.y - mVertices[index*4+1].texCoords.y);
         //set the new position
         mVertices[index*4].position = rounded;
         mVertices[index*4+1].position = sf::Vector2f(rounded.x + width, rounded.y);

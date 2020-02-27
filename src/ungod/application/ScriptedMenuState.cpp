@@ -32,6 +32,7 @@
 #include "ungod/script/registration/RegisterApplication.h"
 #include "ungod/application/Application.h"
 #include "ungod/script/CustomEvent.h"
+#include "ungod/visual/RenderLayer.h"
 
 namespace ungod
 {

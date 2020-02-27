@@ -34,6 +34,8 @@
 namespace ungod
 {
     class CameraAffector;
+    class RenderLayer;
+
 
     /** \brief A camera defines the area of a world that is visible on the screen. It can be locked to an entity with
     * transform component in order to follow it. */
@@ -58,7 +60,7 @@ namespace ungod
         void update(float delta);
 
         /** \brief Must be invoked when a rendering process, that shall make use of the camera, begins. */
-        void renderBegin(float renderDepth = 1.0f);
+        void renderBegin(const RenderLayer* layer = nullptr);
 
         /** \brief Must be invoked when a rendering process, that shall make use of the camera, ends. */
         void renderEnd();
@@ -102,7 +104,7 @@ namespace ungod
 
         /** \brief Returns the current view of the camera. optionally calculating in the given render depth. */
         const sf::View& getView() const;
-        sf::View getView(float renderDepth) const;
+        sf::View getView(const RenderLayer* layer) const;
 
         /** \brief Registers new callback for the view-size-changed-signal. */
         void onViewSizeChanged(const std::function<void(const sf::Vector2f&)>& callback);

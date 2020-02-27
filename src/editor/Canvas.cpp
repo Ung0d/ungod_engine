@@ -272,7 +272,7 @@ namespace uedit
 
         for (const auto& e : mSelectedEntities)
         {
-            mEditorState->getCamera().renderBegin(e.getWorld().getRenderDepth());
+            mEditorState->getCamera().renderBegin(&e.getWorld());
             sf::RenderStates local = nodeStates;
             sf::RectangleShape rect;
             if (e.has<ungod::TransformComponent>())
@@ -349,7 +349,7 @@ namespace uedit
         {
             bool anyClicked = false;
             //retrieve entities near mouse position
-            sf::Vector2f mouseWorldPos = mApp->getWindow().mapPixelToCoords( {event.mouseButton.x, event.mouseButton.y}, mEditorState->getCamera().getView(mEFrame->getSelectedWorld()->getRenderDepth()));
+            sf::Vector2f mouseWorldPos = mApp->getWindow().mapPixelToCoords( {event.mouseButton.x, event.mouseButton.y}, mEditorState->getCamera().getView(mEFrame->getSelectedWorld()));
 			mouseWorldPos = mEFrame->getSelectedWorld()->getContainer()->mapToLocalPosition(mouseWorldPos);
 			quad::PullResult<ungod::Entity> pull;
             mEFrame->getSelectedWorld()->getQuadTree().retrieve(pull, { mouseWorldPos.x, mouseWorldPos.y, 0.0f, 0.0f });

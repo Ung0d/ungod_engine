@@ -28,6 +28,7 @@
 #include "ungod/physics/Physics.h"
 #include "ungod/base/Utility.h"
 #include "ungod/base/World.h"
+#include "ungod/visual/RenderLayer.h"
 
 namespace ungod
 {
@@ -98,10 +99,14 @@ namespace ungod
         }
     }
 
-    void Camera::renderBegin(float renderDepth)
+    void Camera::renderBegin(const RenderLayer* layer)
     {
         mStor = mTarget->getView();
-        sf::View finView = getView(renderDepth);
+        sf::View finView;
+        if (layer)
+            finView = getView(layer);
+        else
+            finView = getView();
         finView.move(mNoise);
         finView.setCenter( std::round(finView.getCenter().x), std::round(finView.getCenter().y) );
         finView.setSize( std::round(finView.getSize().x), std::round(finView.getSize().y) );
@@ -183,11 +188,12 @@ namespace ungod
         return mView;
     }
 
-    sf::View Camera::getView(float renderDepth) const
+    sf::View Camera::getView(const RenderLayer* layer) const
     {
-        sf::View depthview = mView;
-        depthview.setCenter( renderDepth * depthview.getCenter() );
-        return depthview;
+        sf::View finView = mView;
+        sf::Vector2f scaledDiff = layer->getRenderDepth() * (mView.getCenter() - layer->getContainer()->getPosition());
+        finView.setCenter(layer->getContainer()->getPosition() + scaledDiff);
+        return finView;
     }
 
     void Camera::onViewSizeChanged(const std::function<void(const sf::Vector2f&)>& callback)

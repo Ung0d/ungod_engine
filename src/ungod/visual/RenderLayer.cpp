@@ -60,13 +60,14 @@ namespace ungod
 
     bool RenderLayerContainer::render(sf::RenderTarget& target, sf::RenderStates states) const
     {
-		states.transform.translate({mBounds.left, mBounds.top});
+        sf::Vector2f layerWorldPos{ mBounds.left, mBounds.top };
+		states.transform.translate(layerWorldPos);
         bool check = true;
         for (const auto& layer : mRenderLayers)
         {
             if (layer.second)
             {
-                mCamera.renderBegin(layer.first->getRenderDepth());
+                mCamera.renderBegin(layer.first.get());
 				check = check && layer.first->render(target, states);
                 mCamera.renderEnd();
             }
@@ -82,7 +83,7 @@ namespace ungod
         {
             if (layer.second)
             {
-				mCamera.renderBegin(layer.first->getRenderDepth());
+				mCamera.renderBegin(layer.first.get());
                 check = check && layer.first->renderDebug(target, states, bounds, texrects, colliders, audioemitters, lights);
                 mCamera.renderEnd();
             }
@@ -112,9 +113,9 @@ namespace ungod
         {
             if (layer.second)
             {
-                sf::View camview = mCamera.getView(layer.first->getRenderDepth());
+                sf::View camview = mCamera.getView();
 				sf::Vector2f viewpos = mapToLocalPosition(sf::Vector2f{ camview.getCenter().x - camview.getSize().x / 2,camview.getCenter().y - camview.getSize().y / 2 });
-				layer.first->update(delta, viewpos, camview.getSize());
+				layer.first->update(delta, viewpos*layer.first->getRenderDepth(), camview.getSize());
             }
         }
     }
