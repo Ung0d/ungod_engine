@@ -2,6 +2,7 @@
 #define MAIN_TEST_H
 
 #include "ungod/application/Application.h"
+#include "tensorflow/lite/model.h"
 
 //wrap a global ungod::Application object that is constructed for all tests and that sets up all neccessary stuff
 struct EmbeddedTestApp
@@ -11,7 +12,7 @@ struct EmbeddedTestApp
 		embeddedApp = new ungod::Application("test_app");
 		embeddedApp->initApplication();
         ungod::Logger::info("Test application object constructed...");
-        ungod::Logger::endl();
+        ungod::Logger::endl();	
     }
 	~EmbeddedTestApp()
     {
