@@ -42,24 +42,18 @@ BOOST_AUTO_TEST_CASE( tilemap_test )
     rendertex.create(800,600);
     ungod::TileMap tilemap;
     tilemap.loadTiles("test_data/tilemap_test.png", "test_data/tilemap_test.xml", 32, 32, {"geen", "red", "blue", "yellow"});
-    tilemap.setTiles({0,1,2,3,0,1,2,3,0,1,2,3}, {0,1,2,3,0,1,2,3,0,1,2,3}, 4, 3);
+    tilemap.setTiles({0,1,2,3,0,1,2,3,0,1,2,3}, 4, 3);
 
 
     BOOST_CHECK_EQUAL(tilemap.getTiledata(0,0)->getTileID(), 0);
-    BOOST_CHECK_EQUAL(tilemap.getTiledata(0,0)->getMaterialID(), 0u);
     BOOST_CHECK_EQUAL(tilemap.getTiledata(1,2)->getTileID(), 1);
-    BOOST_CHECK_EQUAL(tilemap.getTiledata(1,2)->getMaterialID(), 1u);
     BOOST_CHECK_EQUAL(tilemap.getTiledata(3,1)->getTileID(), 2);
-    BOOST_CHECK_EQUAL(tilemap.getTiledata(3,1)->getMaterialID(), 2u);
 
     BOOST_CHECK_EQUAL(tilemap.getTiledata(sf::Vector2f{50,50})->getTileID(), 0);
-    BOOST_CHECK_EQUAL(tilemap.getTiledata(sf::Vector2f{50,50})->getMaterialID(), 0u);
 
     tilemap.getTiledata(1,1)->setTileID(3);
-    tilemap.getTiledata(3,1)->setMaterialID(3);
 
     BOOST_CHECK_EQUAL(tilemap.getTiledata(sf::Vector2f{50,50})->getTileID(), 3);
-    BOOST_CHECK_EQUAL(tilemap.getTiledata(sf::Vector2f{25,100})->getMaterialID(), 3u);
 
     {  //test correct output with the default view
         tilemap.render(rendertex, {});
@@ -96,7 +90,7 @@ BOOST_AUTO_TEST_CASE( tilemap_brush_test )
                                                                                 "brown_stone_pathend_down", "brown_stone_pathend_up", "brown_stone_pathend_left", "brown_stone_pathend_right",
                                                                                 "brown_stone_pathcurve_1", "brown_stone_pathcurve_2", "brown_stone_pathcurve_3", "brown_stone_pathcurve_4",
                                                                                 "brown_stone_corner_1", "brown_stone_corner_2", "brown_stone_corner_3", "brown_stone_corner_4"});
-    tilemap.setTiles({0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, 5, 5);
+    tilemap.setTiles({0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, 5, 5);
     ungod::TilemapBrush brush("brown_stone", tilemap);
 
     brush.paintTile(2,2);
@@ -119,7 +113,7 @@ BOOST_AUTO_TEST_CASE( floodfill_test )
     {
         ungod::TileMap tilemap;
         tilemap.loadTiles("test_data/tilemap_test.png", "test_data/tilemap_test.xml", 32, 32, {"geen", "red", "blue", "yellow"});
-        tilemap.setTiles({0,0,0,0,0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0,0,0,0}, 4, 3);
+        tilemap.setTiles({0,0,0,0,0,0,0,0,0,0,0,0}, 4, 3);
 
         ungod::floodFill(tilemap, 1, 1, {1}, true);
 

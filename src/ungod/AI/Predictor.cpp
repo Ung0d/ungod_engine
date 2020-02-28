@@ -29,6 +29,23 @@ namespace ungod
 {
     namespace AI
     {
+        bool Predictor::setModel(Model model)
+        {
+            tflite::ops::builtin::BuiltinOpResolver resolver;
+            tflite::InterpreterBuilder builder(*model.get()->get(), resolver);
+            builder(&mInterpreter);
+            ungod::Logger::assertion((bool)mInterpreter, "Failed to build interpreter.");
+            if (mInterpreter)
+                mInterpreter->SetNumThreads(1);
+            return (bool)mInterpreter;
+        }
 
+        int Predictor::getInputTensorID(const std::string& name)
+        {
+            for (int i = 0; i < mInterpreter->inputs().size(); i++)
+                if (mInterpreter->GetInputName(i) == name)
+                    return i;
+            return -1;
+        }
     }
 }

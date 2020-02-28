@@ -27,23 +27,27 @@
 #define UNGOD_AI_PREDICTOR_H
 
 #include "ungod/AI/Model.h"
+#include "tensorflow/lite/interpreter.h"
+#include "tensorflow/lite/kernels/register.h"
 
 namespace ungod
 {
     namespace AI
     {
-        template<typename T, int DIM>
+        template<typename T>
         class Tensor
         {
-        static_assert(DIM > 0, "Tensor requires at least one dimension.");
         public:
-            Tensor(T* data, const std::array<T, DIM>& shape) : mData(data), mShape(shape) {}
+            Tensor(T* data, const std::vector<int>& shape) : mData(data), mShape(shape) 
+            {
+                ungod::Logger::assertion(mShape.size() > 0, "Tensor requires at least one dimension.");
+            }
 
-            void set(const std::array<T, DIM>& pos, T t);
+            void set(const std::vector<int>& pos, T t);
 
         private:
             T* mData;
-            std::array<T, DIM> mShape;
+            std::vector<int> mShape;
 
         private:
             int dimsBelow(int dim);
@@ -51,52 +55,84 @@ namespace ungod
 
 
         /** 
-        * \brief An async predictor that feeds an input to an underlying machine learning model
-        * and returns a future for the computed output.
+        * \brief An predictor that feeds an input to an underlying machine learning model and returns the computed output.
+        * Is also responsible for loading and interpreting a model before inference.
         */
         class Predictor
         {
         public:
             Predictor() = default;
 
-            Predictor(Model model);
+            bool setModel(Model model);
 
-            void setModel(Model model);
-
-            /** \brief Returns an input tensor by name */
+            /** \brief Returns input tensors to set. Reallocates on first invoke and every invoke with dims unqual to the 
+            * previous call. */
             template<typename T, int DIM>
-            Tensor<T, DIM> getInputTensor(const std::string& name);
+            std::unordered_map<std::string, Tensor<T>> getInputTensors(const std::vector<std::string>& names, const std::vector<std::vector< int >>& dims);
+
+            /** \brief Invokes the model and returns the computed output tensors. */
+
 
         private:
             Model mModel;
+            std::unique_ptr<tflite::Interpreter> mInterpreter;
+            int mCurNumNodes;
+            int mCurNumEdges;
+            std::unordered_map<std::string, std::vector< int >> mCurInputDims;
+
+        private:
+            int getInputTensorID(const std::string& name);
         };
 
 
 
 
-        template<typename T, int DIM>
-        void Tensor<T, DIM>::set(const std::array<T, DIM>& pos, T t)
+        template<typename T>
+        void Tensor<T>::set(const std::vector<int>& pos, T t)
         {
             T* toset = mData;
-            for (int dim = 0; dim < DIM; dim++)
+            for (int dim = 0; dim < mShape.size(); dim++)
                 toset += pos[dim] * dimsBelow(dim);
             (*toset) = t;
         }
 
-        template<typename T, int DIM>
-        int Tensor<T, DIM>::dimsBelow(int dim)
+        template<typename T>
+        int Tensor<T>::dimsBelow(int dim)
         {
             int dims = 1;
-            for (int i = dim + 1; i < DIM; i++)
+            for (int i = dim + 1; i < mShape.size(); i++)
                 dims *= mShape[dim];
             return dims;
         }
 
 
-        template<typename T, int DIM>
-        Tensor<T, DIM> Predictor::getInputTensor(const std::string& name)
+        template<typename T>
+        std::unordered_map<std::string, Tensor<T>> getInputTensors(const std::vector<std::string>& names, const std::vector<std::vector< int >>& dims)
         {
-
+            ungod::Logger::assertion(names.size() == dims.size(), "names and batch_sizes need equal length");
+            ungod::Logger::assertion(names.size() == this->mInterpreter->inputs().size(), "number of model inputs and requested tensors do not match");
+            std::unordered_map<std::string, Tensor<T>> inputs;
+            bool allocationRequired = false;
+            std::vector<int> ids{ names.size() };
+            for (int i = 0; i < names.size(); i++)
+            {
+                ids[i] = this->getInputTensorID(names[i]);
+                ungod::Logger::assertion(ids[i] != -1, "no input tensor with name " + names[i]);
+                auto batch = this->mCurInputDims.insert({ names[i], {-1} }).first;
+                if (batch->second != dims[i])
+                {
+                    allocationRequired = true;
+                    batch->second = dims[i];
+                    this->mInterpreter->ResizeInputTensor(ids[i], dims[i]);
+                }
+            }
+            if (allocationRequired)
+                ungod::Logger::assertion(this->mInterpreter->AllocateTensors() == kTfLiteOk, "can not allocate tensors");
+            for (int i = 0; i < names.size(); i++)
+            {
+                inputs.emplace(names[i], this->mInterpreter->typed_input_tensor<T>(ids[i]), dims[i]);
+            }
+            return inputs;
         }
     }
 }

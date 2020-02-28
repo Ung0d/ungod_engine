@@ -26,6 +26,7 @@
 #ifndef UNGOD_AI_MODEL_H
 #define UNGOD_AI_MODEL_H
 
+#include "ungod/base/Logger.h"
 #include "ungod/ressource_management/Asset.h"
 #include "tensorflow/lite/model.h"
 
@@ -33,22 +34,22 @@ namespace ungod
 {
     namespace AI
     {
-        using std::unique_ptr<tflite::FlatBufferModel> = AIModelBuffer;
+        using ModelBuffer = std::unique_ptr<tflite::FlatBufferModel>;
 
-        struct Model : public Asset<AIModelBuffer>
+        struct Model : public Asset<ModelBuffer>
         {
             Model(const std::string& filePath, const LoadPolicy policy = LoadPolicy::SYNC);
 
             Model();
         };
-
-        template<>
-        struct LoadBehavior<AIModelBuffer>
-        {
-            static bool loadFromFile(const std::string& filepath, AIModelBuffer& data);
-            static std::string getIdentifier() { return "AIModel"; }
-        };
     }
+
+    template<>
+    struct LoadBehavior<AI::ModelBuffer>
+    {
+        static bool loadFromFile(const std::string& filepath, AI::ModelBuffer& data);
+        static std::string getIdentifier() { return "AIModel"; }
+    };
 }
 
 

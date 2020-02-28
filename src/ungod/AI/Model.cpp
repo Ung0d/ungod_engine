@@ -29,14 +29,15 @@ namespace ungod
 {
     namespace AI
     {
-        Model::Model(const std::string& filePath, const LoadPolicy policy) : Asset<AIModelBuffer>(filePath, policy) {}
+        Model::Model(const std::string& filePath, const LoadPolicy policy) : Asset<ModelBuffer>(filePath, policy) {}
 
-        Model::Model() : Asset<AIModelBuffer>() {}
+        Model::Model() : Asset<ModelBuffer>() {}
+    }
 
-        bool LoadBehavior<tflite::FlatBufferModel>::loadFromFile(const std::string& filepath, AIModelBuffer& data)
-        {
-            data = tflite::FlatBufferModel::BuildFromFile(filename);
-            return data;
-        }
+    bool LoadBehavior<AI::ModelBuffer>::loadFromFile(const std::string& filepath, AI::ModelBuffer& data)
+    {
+        data = tflite::FlatBufferModel::BuildFromFile(filepath.c_str());
+        ungod::Logger::assertion((bool)data, "Failed to load model " + filepath);
+        return (bool)data;
     }
 }

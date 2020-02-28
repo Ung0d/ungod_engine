@@ -52,11 +52,6 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
                           0,1,2,3,0,0,
                           0,1,2,3,0,0,
                           0,1,2,3,0,0,
-                          0,1,2,3,0,0 },
-                        { 0,1,2,3,0,0,
-                          0,1,2,3,0,0,
-                          0,1,2,3,0,0,
-                          0,1,2,3,0,0,
                           0,1,2,3,0,0 }, 5, 6);
         ungod::SerializationContext context;
         context.serializeRootObject(tilemap);
@@ -75,7 +70,6 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
         BOOST_CHECK_EQUAL(tilemap.getMapSizeX(), 5u);
         BOOST_REQUIRE(tilemap.getTiledata(2,2));
         BOOST_CHECK_EQUAL(tilemap.getTiledata(2,2)->getTileID(), 2);
-        BOOST_CHECK_EQUAL(tilemap.getTiledata(2,2)->getMaterialID(), 2u);
     }
 
     //serialize world
@@ -182,7 +176,6 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
 		node2.setSize({ 1600, 1200 });
 		node2.setPosition({ 1600, 0 });
 
-		
 		/*ungod::World* world1 = node.addWorld(); //only use for test reset, dont generate new worlds AND load existing files
 		ungod::World* world2 = node.addWorld(); //only use for test reset, dont generate new worlds AND load existing files
 		node.save();
@@ -207,9 +200,9 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
 		BOOST_CHECK_EQUAL(node.getBounds().left, 0.0f);
 		BOOST_CHECK_EQUAL(node.getBounds().top, 0.0f);
 		BOOST_CHECK_EQUAL(node.getBounds().width, 1600.0f);
-		BOOST_CHECK_EQUAL(node.getBounds().height, 1200.0f);
+		BOOST_CHECK_EQUAL(node.getBounds().height, 1200.0f); 
 
-        state.save("test_output/renderlayers_state_sav.xml", true);
+        state.save("test_output/renderlayers_state_sav.xml", true); 
     }
     {
         ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
