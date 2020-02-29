@@ -53,7 +53,7 @@ namespace ungod
         * will be also the window title. If wished, the user can deliver a herzt value for the
         * update rate of the game. This value describes the count of cycles per second. Default is 50.
         * The user can also specify the number of maximum updates performed during a single cycle of the mainloop. */
-        Application(const std::string title, unsigned hertz = 50, unsigned maxUpdates = 3);
+        Application(unsigned hertz = 50, unsigned maxUpdates = 3);
 
         /** \brief Initialises the application but does not run it. */
         void initApplication();

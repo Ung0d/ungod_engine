@@ -24,12 +24,16 @@
 */
 
 #include "ungod/application/Application.h"
+#include "ungod/application/ScriptedGameState.h"
+#include "ungod/application/ScriptedMenuState.h"
 #include <boost/filesystem.hpp>
 
 namespace ungod
 {
     const std::string Application::CONFIG_LOAD_PATH = "databases/config.xml";
     const std::string Application::DEFAULT_CONFIG_XML = "<config>"\
+                                                       "<base title=\"UngodApp\"/>"\
+                                                       "<initial_state type=\"GameState\" script_file=\"init_state.lua\"/>"\
                                                        "<resolution width=\"800\" height=\"600\" fullscreen=\"0\" vsync=\"0\" framerate_limit=\"120\"/>"\
                                                        "<graphics_settings image_quality=\"0\"/>"\
                                                        "<light unshadow_vertex_shader=\"resource/unshadowShader.vert\" unshadow_frag_shader=\"resource/unshadowShader.frag\"\
@@ -40,10 +44,9 @@ namespace ungod
     const unsigned Application::DEFAULT_VIDEO_HEIGHT = 600;
     const unsigned Application::DEFAULT_VIDEO_BPP = 32;
 
-    Application::Application(const std::string title, unsigned hertz, unsigned maxUpdates) :
+    Application::Application(unsigned hertz, unsigned maxUpdates) :
         mDelta(1000.0f/hertz),
         mMaxUpdates(maxUpdates),
-        mTitle(title),
         mAssetmanager(),
         mStatemanager(*this),
         mScriptState(),
@@ -203,7 +206,8 @@ namespace ungod
         if (mConfig.getOr<bool>("resolution/fullscreen", false))
             mWindowStyle = sf::Style::Fullscreen;
         mVideoMode.bitsPerPixel = DEFAULT_VIDEO_BPP;
-        mWindow.create(mVideoMode, mTitle, mWindowStyle, mContextSettings);
+        std::string title = mConfig.getOr<std::string>("base/title", "UngodApp");
+        mWindow.create(mVideoMode, title, mWindowStyle, mContextSettings);
         mVsync = mConfig.getOr<bool>("resolution/vsync", false);
         if (mVsync)
             mWindow.setVerticalSyncEnabled(true);
@@ -246,6 +250,20 @@ namespace ungod
                if (item == "resolution/width" || item == "resolution/height" || item == "resolution/fullscreen" || item == "resolution/vsync" || item == "resolution/framerate_limit")
                     createWindow();
            });
+
+        //setup initial state
+        std::string type = mConfig.getOr<std::string>("initial_state/type", "GameState");
+        std::string scriptFile = mConfig.getOr<std::string>("initial_state/script_file", "init.lua");
+
+        if (type == "GameState")
+            mStatemanager.addState<ScriptedGameState>(0, scriptFile);
+        else if (type == "MenuState")
+            mStatemanager.addState<ScriptedMenuState>(0, scriptFile);
+        else
+        {
+            ungod::Logger::error("Unknown initial state identifier.");
+            terminate();
+        }
     }
 
 
