@@ -30,15 +30,15 @@
 
 namespace ungod
 {
-    const std::string Application::CONFIG_LOAD_PATH = "databases/config.xml";
+    const std::string Application::CONFIG_LOAD_PATH = "data/config.xml";
     const std::string Application::DEFAULT_CONFIG_XML = "<config>"\
                                                        "<base title=\"UngodApp\"/>"\
                                                        "<initial_state type=\"GameState\" script_file=\"init_state.lua\"/>"\
                                                        "<resolution width=\"800\" height=\"600\" fullscreen=\"0\" vsync=\"0\" framerate_limit=\"120\"/>"\
                                                        "<graphics_settings image_quality=\"0\"/>"\
-                                                       "<light unshadow_vertex_shader=\"resource/unshadowShader.vert\" unshadow_frag_shader=\"resource/unshadowShader.frag\"\
-                                                       light_vertex_shader=\"resource/lightOverShapeShader.vert\" light_frag_shader=\"resource/lightOverShapeShader.frag\"\
-                                                       default_penumbra_texture=\"resource/penumbraTexture.png\"/>"\
+                                                       "<light unshadow_vertex_shader=\"data/shaders/light/unshadowShader.vert\" unshadow_frag_shader=\"data/shaders/light/unshadowShader.frag\"\
+                                                       light_vertex_shader=\"data/shaders/light/lightOverShapeShader.vert\" light_frag_shader=\"data/shaders/light/lightOverShapeShader.frag\"\
+                                                       default_penumbra_texture=\"data/shaders/light/penumbraTexture.png\"/>"\
                                                        "</config>";
     const unsigned Application::DEFAULT_VIDEO_WIDTH = 800;
     const unsigned Application::DEFAULT_VIDEO_HEIGHT = 600;
@@ -262,7 +262,7 @@ namespace ungod
         else
         {
             ungod::Logger::error("Unknown initial state identifier.");
-            terminate();
+            quitApplication(ErrorCode::INIT_FAILED);
         }
     }
 

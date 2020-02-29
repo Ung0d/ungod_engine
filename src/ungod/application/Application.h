@@ -41,7 +41,8 @@ namespace ungod
                              QUIT_STATUS_NO_ACTIVE_STATE_FOUND = 1,
                              ERROR_DATA_MISSING = 100,
                              COULD_NOT_CREATE_CONFIG_FILE = 101,
-                             CORRUPTED_SAVE_FILE = 102};
+                             CORRUPTED_SAVE_FILE = 102,
+                             INIT_FAILED = 103};
 
     /** \brief The main application class. Usually the only thing one has to deal with in the
     * main() method of the program. Runs the main loop and manages the states. Also resposible for

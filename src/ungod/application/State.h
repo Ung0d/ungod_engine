@@ -90,7 +90,7 @@ namespace ungod
         /** \brief initializes the state if it was not initialized before. */
         void initState();
 
-        /** \brief Closes the state if it was not initialized before. */
+        /** \brief Closes the state if it was initialized before. */
         void closeState();
 
         /** \brief Returns the application that runs this state, if set. */
