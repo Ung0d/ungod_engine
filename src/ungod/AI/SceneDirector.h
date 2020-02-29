@@ -29,6 +29,7 @@
 #include <tuple>
 #include "ungod/AI/Predictor.h"
 #include "ungod/AI/SceneSpecs.h"
+#include "ungod/serialization/Serializable.h"
 
 namespace ungod
 {
@@ -43,7 +44,33 @@ namespace ungod
             /** \brief Periodically checks whether a thinking phase is over and if so,  */
 
         private:
-            World mWorld;
+            const World& mWorld;
+        };
+
+        /**
+        * \ingroup Components
+        * \brief A component for entities, that are affected by AI. The engine handles entities with this component as
+        * "mutable" when creating a SceneSimulator. Dynamic objects are copied since they will change their state when the AI
+        * system tries to look ahead through a tree search based simulation. */
+        class DynamicObjectComponent : public Serializable<DynamicObjectComponent>
+        {
+        }
+
+        /** \brief A resetable view on a scene with dynamic objects that can be used to conduct a simulation that looks ahead
+        * to decide on actions. Does not modify the underlying world and its contents when simulating. */
+        class SceneSimulator
+        {
+        public:
+            SceneSimulator() = default;
+
+            /** \brief Resets the simulator to the state where it was constructed. */
+            void reset();
+
+            /** \brief Applies the given actions to all actors. */
+            void applyActions(const std::vector<int>& actions);
+
+        private:
+
         };
     }
 }

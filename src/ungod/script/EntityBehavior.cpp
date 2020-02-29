@@ -44,7 +44,8 @@ namespace ungod
                                                                           "onButtonDown", "onButtonReleased", "onButtonPressed",
                                                                           "onMovementBegin", "onMovementEnd", "onDirectionChanged",
                                                                           "onAnimationBegin", "onAnimationEnd",
-                                                                          "onCustomEvent" };
+                                                                          "onCustomEvent",
+                                                                          "onAIGetState", "onAIAction"};
 
     EntityBehaviorManager::EntityBehaviorManager()
         : mBehaviorManager(IDENTIFIERS, ON_CREATION, ON_INIT, ON_EXIT, ON_STATIC_CONSTR, ON_STATIC_DESTR), mWorld(nullptr) {}

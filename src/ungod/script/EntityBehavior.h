@@ -204,7 +204,8 @@ namespace ungod
                          ON_BUTTON_DOWN, ON_BUTTON_RELEASED, ON_BUTTON_PRESSED,
                          ON_MOVEMENT_BEGIN, ON_MOVEMENT_END, ON_DIRECTION_CHANGED,
                          ON_ANIMATION_BEGIN, ON_ANIMATION_END,
-                         ON_CUSTOM_EVENT };
+                         ON_CUSTOM_EVENT,
+                         ON_AI_GET_STATE, ON_AI_ACTION};
 
         static const std::vector<const char*> IDENTIFIERS;
 
