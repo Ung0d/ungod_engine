@@ -908,6 +908,8 @@ namespace ungod
         {
             return res->second->makeInstance(instanceEnv, mConstructIndex, mInitIndex, mExitIndex, std::forward<INIT_PARAM>(param)...);
         }
+        else
+            ungod::Logger::error("Can not find a behavior " + key + ". Did you forgot to load it?");
         return StateBehaviorPtr<INIT_PARAM...>();
     }
 

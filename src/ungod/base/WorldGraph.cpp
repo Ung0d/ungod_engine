@@ -303,6 +303,26 @@ namespace ungod
 		return mNodes[i].get();
 	}
 
+    void WorldGraph::activateNode(const std::string& identifier)
+    {
+        WorldGraphNode* node = getNode(identifier);
+        if (node)
+        {
+            auto b = node->getBounds();
+            sf::Vector2f actPos{ b.left + b.width / 2, b.top + b.height / 2 };
+            if (!updateReferencePosition(actPos))
+            {
+                ungod::Logger::error("Can not activate node " + identifier + ". Does it have zero sizes?");
+                ungod::Logger::endl();
+            }
+        }
+        else
+        {
+            ungod::Logger::error("Tried to activate a world graph node that does not exist: " + identifier);
+            ungod::Logger::endl();
+        }
+    }
+
     WorldGraphNode* WorldGraph::getActiveNode()
     {
         if (mActive == -1)

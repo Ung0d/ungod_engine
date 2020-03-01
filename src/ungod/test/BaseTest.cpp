@@ -443,6 +443,8 @@ BOOST_AUTO_TEST_CASE( world_graph_test )
 	BOOST_CHECK_EQUAL(0.0f, world2->getSize().x);
 	BOOST_CHECK_EQUAL(0.0f, world2->getSize().y);
 	node.setSize({ 800,600 });
+    state.getWorldGraph().activateNode("nodeid"); //size is now set, node can be activated
+    BOOST_CHECK_EQUAL(state.getWorldGraph().getActiveNode(), &node);
 	BOOST_CHECK_EQUAL(800.0f, node.getBounds().width);
 	BOOST_CHECK_EQUAL(600.0f, node.getBounds().height);
 	BOOST_CHECK_EQUAL(800.0f, world1->getSize().x);

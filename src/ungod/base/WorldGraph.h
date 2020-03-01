@@ -199,6 +199,9 @@ namespace ungod
 		/** \brief Slow retrieval by index. */
 		WorldGraphNode* getNode(unsigned i);
 
+        /** \brief Activates a node by name. */
+        void activateNode(const std::string& identifier);
+
         /** \brief Returns the number of world graph nodes. */
         unsigned getNumberOfNodes() const { return (unsigned)mAdjacencies.getVertexCount(); }
 

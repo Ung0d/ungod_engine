@@ -9,7 +9,7 @@ struct EmbeddedTestApp
 {
 	EmbeddedTestApp()
 	{
-		embeddedApp = new ungod::Application("test_app");
+		embeddedApp = new ungod::Application();
 		embeddedApp->initApplication();
         ungod::Logger::info("Test application object constructed...");
         ungod::Logger::endl();	
