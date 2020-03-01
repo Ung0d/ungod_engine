@@ -79,13 +79,6 @@ namespace ungod
                             const std::string& lightVertex,
                             const std::string& lightFragment,
                             const std::string& penumbraTex);
-        void instantiate(Application& app,
-                            const std::string& unshadowVertex,
-                            const std::string& unshadowFragment,
-                            const std::string& lightVertex,
-                            const std::string& lightFragment,
-                            const std::string& penumbraTex,
-                            script::Environment global);
 
 		/** \brief Returns width and height of the world. */
 		virtual sf::Vector2f getSize() const override;

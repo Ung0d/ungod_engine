@@ -29,82 +29,82 @@
 *
 * Vocabulary:
 * static -- the static container of the script, equal for each instance, also contains the callback methods
-* instance -- the instance container of the script
-* states -- an object to help modify the script state
-* entity -- the entity that has the script attched
-* world -- a pointer to the world the entity is in
-* globalEnv -- a global container that is shared between scripts
+* instance --  a table that can be used to store data for the particular entity instance that is shared between all method calls
+* instance provides some additional members:
+* instance.entity : the underlying ungod entity
+* instance.states : an object to control things like state switches for the entity (if StateBehavior)
+* instance.world : the world the entitiy lives in
 *
-* inInit(static, instance, states, entity, world, globalEnv)
+* inInit(static, instance)
 * -- This method is invoked when a state is entered.
 *
-* onExit(static, instance, states, world, globalEnv)
+* onExit(static, instance)
 * -- This method is invoked when a state is left.
 *
-* onStaticConstr(static, states, world, globalEnv)
+* onStaticConstr(static)
 * -- This method is invoked when an instance of a script is created and no other instances exist yet
 *
-* onStaticDestr(static, states, world, globalEnv)
+* onStaticDestr(static)
 * -- This method is invoked if the last existing instance of a script dies
 *
-* onSerialize(static, instance, states, entity, serializer, context, world, globalEnv)
+* onSerialize(static, instance, serializer, context)
 * -- This method is invoked on serialization
 *
-* onDeserialize(static, instance, states, entity, deserializer, context, world, globalEnv)
+* onDeserialize(static, instance, deserializer, context)
 * -- This method is invoked on deserialization
 *
-* onUpdate(static, instance, states, entity, delta, world, globalEnv)
+* onUpdate(static, instance, delta)
 * -- This method is invoked constantly in a fixed interval of milliseconds, per default 5 times a second.
 *
-* onCreation(static, instance, states, entity, world, globalEnv)
+* onCreation(static, instance)
 * -- This method is invoked when a script is assigned to the EntityBehavior component of the given entity. (NOT neccessarily when the entity itself is created)
 *
-* onMouseEnter(static, instance, states, entity, world, globalEnv)
+* onMouseEnter(static, instance)
 * -- This method is invoked when mouse cursor enters the bounding box of the entity.
 *
-* onMouseExit(static, instance, states, entity, world, globalEnv)
+* onMouseExit(static, instance)
 * -- This method is invoked when mouse cursor exits the bounding box of the entity.
 *
-* onMouseClicked(static, instance, states, entity, world, globalEnv)
+* onMouseClicked(static, instance)
 * -- This method is invoked when mouse is clicked over the bounding box of the entity.
 *
-* onMouseReleased(static, instance, states, entity, world, globalEnv)
+* onMouseReleased(static, instance)
 * -- This method is invoked when mouse is released over the bounding box of the entity.
 *
-* onButtonDown(static, instance, states, e, binding, world, globalEnv)
+* onButtonDown(static, instance, binding)
 * -- This method is invoked when a button is downed.
 *
-* onButtonPressed(static, instance, states, e, binding, world, globalEnv)
+* onButtonPressed(static, instance, binding)
 * -- This method is invoked when a button is pressed. (intial press)
 *
-* onButtonReleased(static, instance, states, e, binding, world, globalEnv)
+* onButtonReleased(static, instance, binding)
 * -- This method is invoked when a button is relased.
 *
-* onMovementBegin(static, instance, states, e, vel, world, globalEnv)
+* onMovementBegin(static, instance, vel)
 * -- This method is invoked when an entity starts moving in some direction.
 *
-* onMovementEnd(static, instance, states, e, world, globalEnv)
+* onMovementEnd(static, instance)
 * -- This method is invoked when an moving entity stops its movement.
 *
-* onDirectionChanged(static, instance, states, e, old, current, world, globalEnv)
+* onDirectionChanged(static, instance, old, current)
 * -- This method is invoked when an entity changes its movement-direction.
 *
-* onCustomEvent(static, instance, states, e, event, world, globalEnv)
+* onCustomEvent(static, instance, event)
 * -- This method is invoked when a custom event occurs
 *
-* onAnimationBegin(static, instance, states, e, key, world, globalEnv)
+* onAnimationBegin(static, instance, key)
 * -- This method is invoked when a custom event occurs
 *
-* onAnimationEnd(static, instance, states, e, key, world, globalEnv)
+* onAnimationEnd(static, instance, key)
 * -- This method is invoked when a custom event occurs
 *
-* onCollisionBegin(static, instance, states, e, other, world, globalEnv)
+* onCollisionBegin(static, instance, other)
 * -- This method is invoked when a semantics collision is detected for 2 entities that did not collide previously
 *
-* onCollision(static, instance, states, e, other, mdv, c1, c2, world, globalEnv)
+* onCollision(static, instance, other, mdv, c1, c2)
 * -- This method is invoked every frame a semantics collision is detected for 2 entities
 *
-* onCollisionEnd(static, instance, states, e, other, world, globalEnv)
+* onCollisionEnd(static, instance, other)
 * -- This method is invoked when 2 entities stop semantics collision
 */
 
@@ -133,7 +133,7 @@ namespace ungod
     {
     friend class EntityBehaviorManager;
     private:
-        StateBehaviorPtr<Entity, World*, script::Environment> mBehavior;
+        StateBehaviorPtr<> mBehavior;
 
     public:
         EntityBehaviorComponent() = default;
@@ -214,7 +214,7 @@ namespace ungod
         EntityBehaviorManager(const script::SharedState& state, script::Environment main);
 
         /** \brief Initializes the manager. */
-        void init(World& world, script::Environment global, ungod::Application& app);
+        void init(World& world, ungod::Application& app);
 
         /** \brief Updates the manager and may invoke onUpdate scripts of entities. */
         void update(const std::list<Entity>& entities, float delta) const;
@@ -241,7 +241,7 @@ namespace ungod
         Optional<T> getGlobalVariable(const std::string& name) const;
 
         /** \brief Accesses the underlying behavior manager. */
-        BehaviorManager<Entity, World*, script::Environment>& getBehaviorManager();
+        BehaviorManager<>& getBehaviorManager();
 
         /** \brief Reloads all scripts and reassigns the behaviors to their corresponding entities.
         * Returns a list of all reloaded script files along with the error codes. */
@@ -249,12 +249,11 @@ namespace ungod
 
         /** \brief Reloads all scripts and reassigns the behaviors to their corresponding entities.
         * Returns a list of all reloaded script files along with the error codes. */
-        std::vector<std::pair<std::string, ScriptErrorCode>> reload(script::Environment global, ungod::Application& app, const script::SharedState& state, script::Environment main);
+        std::vector<std::pair<std::string, ScriptErrorCode>> reload(ungod::Application& app, const script::SharedState& state, script::Environment main);
 
     private:
-        BehaviorManager<Entity, World*, script::Environment> mBehaviorManager;
+        BehaviorManager<> mBehaviorManager;
         World* mWorld;
-        script::Environment mGlobalEnv;
         std::unordered_set<Entity> mMetaEntities; ///< stores entities with no transform components (at the time of script assignment) in order to process them
 
     private:
@@ -267,7 +266,7 @@ namespace ungod
         void buttonDown(const std::string& binding) const;
         void buttonReleased(const std::string& binding) const;
 
-        void scriptInternalInit(script::Environment global, ungod::Application& app);
+        void scriptInternalInit(ungod::Application& app);
         void scriptInternalReassign();
         void scriptInternalDissociate();
 
@@ -275,7 +274,7 @@ namespace ungod
         void callbackInvoker(std::size_t index, Entity e, PARAM&& ... param)
         {
             if (e.has<EntityBehaviorComponent>() && e.modify<EntityBehaviorComponent>().mBehavior)
-                e.modify<EntityBehaviorComponent>().mBehavior->execute(index, e, std::forward<PARAM>(param)...);
+                e.modify<EntityBehaviorComponent>().mBehavior->execute(index, std::forward<PARAM>(param)...);
         }
     };
 
@@ -295,7 +294,7 @@ namespace ungod
     template<typename T>
     Optional<T> EntityBehaviorManager::getGlobalVariable(const std::string& name) const
     {
-        return mGlobalEnv.get<Optional<T>>(name);
+        return mBehaviorManager.getGlobalEnvironment().get<Optional<T>>(name);
     }
 }
 

@@ -135,7 +135,7 @@ namespace ungod
         auto pen = mApp->getConfig().get<std::string>("light/default_penumbra_texture");
         if (unshadowVertex && unshadowFrag && lightVertex && lightFrag && pen)
         {
-            world->instantiate(*mApp, unshadowVertex.value(), unshadowFrag.value(), lightVertex.value(), lightFrag.value(), pen.value(), mApp->getGlobalScriptEnv());
+            world->instantiate(*mApp, unshadowVertex.value(), unshadowFrag.value(), lightVertex.value(), lightFrag.value(), pen.value());
         }
         else
         {

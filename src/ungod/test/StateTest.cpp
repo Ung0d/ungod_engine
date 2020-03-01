@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( state_test )
         BOOST_REQUIRE(check_update);
         BOOST_REQUIRE(*check_update);
 
-        BOOST_REQUIRE(EmbeddedTestApp::getApp().getStateManager().getState(2)); //successfully added a state with id 1
+        BOOST_REQUIRE(EmbeddedTestApp::getApp().getStateManager().getState(2)); //successfully added a state with id 2 in the script
 
         EmbeddedTestApp::getApp().getStateManager().getState(1)->expire();
         EmbeddedTestApp::getApp().getStateManager().getState(2)->expire();

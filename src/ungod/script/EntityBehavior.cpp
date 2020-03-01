@@ -11,7 +11,7 @@ namespace ungod
 
     bool EntityBehaviorComponent::hasValidEnvironment() const
     {
-        return valid() && static_cast<bool>(mBehavior->Behavior<StateBehavior<Entity, World*, script::Environment>*, Entity, World*, script::Environment>::getEnvironment());
+        return valid() && static_cast<bool>(mBehavior->Behavior<>::getEnvironment());
     }
 
     bool EntityBehaviorComponent::hasValidStateEnvironment(const std::string& stateName) const
@@ -21,7 +21,7 @@ namespace ungod
 
     script::Environment EntityBehaviorComponent::getEnvironment() const
     {
-        return mBehavior->Behavior<StateBehavior<Entity, World*, script::Environment>*, Entity, World*, script::Environment>::getEnvironment().value();
+        return mBehavior->Behavior<>::getEnvironment().value();
     }
 
     script::Environment EntityBehaviorComponent::getStateEnvironment(const std::string& stateName) const
@@ -53,31 +53,31 @@ namespace ungod
     EntityBehaviorManager::EntityBehaviorManager(const script::SharedState& state, script::Environment main)
         : mBehaviorManager(state, main, IDENTIFIERS, ON_CREATION, ON_INIT, ON_EXIT, ON_STATIC_CONSTR, ON_STATIC_DESTR), mWorld(nullptr) {}
 
-    void EntityBehaviorManager::init(World& world, script::Environment global, ungod::Application& app)
+    void EntityBehaviorManager::init(World& world, ungod::Application& app)
     {
         mWorld = &world;
 
-        scriptInternalInit(global, app);
+        scriptInternalInit(app);
 
         mWorld->onEntityCreation([this] (Entity e) { entityCreation(e); });
         mWorld->onEntityDestruction([this] (Entity e) { entityDestruction(e); });
-        mWorld->onEntitySerialized([this] (Entity e, MetaNode serializer, SerializationContext& context) { callbackInvoker(ON_SERIALIZED, e, serializer, context, mWorld, mGlobalEnv); });
-        mWorld->onEntityDeserialized([this] (Entity e, MetaNode deserializer, DeserializationContext& context) { callbackInvoker(ON_DESERIALIZED, e, deserializer, context, mWorld, mGlobalEnv); });
+        mWorld->onEntitySerialized([this] (Entity e, MetaNode serializer, SerializationContext& context) { callbackInvoker(ON_SERIALIZED, e, serializer, context); });
+        mWorld->onEntityDeserialized([this] (Entity e, MetaNode deserializer, DeserializationContext& context) { callbackInvoker(ON_DESERIALIZED, e, deserializer, context); });
 
         mWorld->getInputManager().onDown([this] (const std::string& binding) { buttonDown(binding); });
         mWorld->getInputManager().onReleased([this] (const std::string& binding) { buttonReleased(binding); });
         mWorld->getInputManager().onPressed([this] (const std::string& binding) { buttonPressed(binding); });
-        mWorld->getInputManager().onMouseClick([this] (Entity e) { callbackInvoker(ON_MOUSE_CLICK, e, mWorld, mGlobalEnv); });
-        mWorld->getInputManager().onMouseEnter([this] (Entity e) { callbackInvoker(ON_MOUSE_ENTER, e, mWorld, mGlobalEnv); });
-        mWorld->getInputManager().onMouseExit([this] (Entity e) { callbackInvoker(ON_MOUSE_EXIT, e, mWorld, mGlobalEnv); });
-        mWorld->getInputManager().onMouseReleased([this] (Entity e) { callbackInvoker(ON_MOUSE_RELEASED, e, mWorld, mGlobalEnv); });
+        mWorld->getInputManager().onMouseClick([this] (Entity e) { callbackInvoker(ON_MOUSE_CLICK, e); });
+        mWorld->getInputManager().onMouseEnter([this] (Entity e) { callbackInvoker(ON_MOUSE_ENTER, e); });
+        mWorld->getInputManager().onMouseExit([this] (Entity e) { callbackInvoker(ON_MOUSE_EXIT, e); });
+        mWorld->getInputManager().onMouseReleased([this] (Entity e) { callbackInvoker(ON_MOUSE_RELEASED, e); });
 
-        mWorld->getMovementManager().onBeginMovement([this] (Entity e, const sf::Vector2f& vel) { callbackInvoker(ON_MOVEMENT_BEGIN, e, vel, mWorld, mGlobalEnv); });
-        mWorld->getMovementManager().onEndMovement([this] (Entity e) { callbackInvoker(ON_MOVEMENT_END, e, mWorld, mGlobalEnv); });
-        mWorld->getMovementManager().onDirectionChanged([this] (Entity e, MovementComponent::Direction old, MovementComponent::Direction current) { callbackInvoker(ON_DIRECTION_CHANGED, e, old, current, mWorld, mGlobalEnv); });
+        mWorld->getMovementManager().onBeginMovement([this] (Entity e, const sf::Vector2f& vel) { callbackInvoker(ON_MOVEMENT_BEGIN, e, vel); });
+        mWorld->getMovementManager().onEndMovement([this] (Entity e) { callbackInvoker(ON_MOVEMENT_END, e); });
+        mWorld->getMovementManager().onDirectionChanged([this] (Entity e, MovementComponent::Direction old, MovementComponent::Direction current) { callbackInvoker(ON_DIRECTION_CHANGED, e, old, current); });
 
-        mWorld->getVisualsManager().onAnimationStart([this] (Entity e, const std::string& key) { callbackInvoker(ON_ANIMATION_BEGIN, e, key, mWorld, mGlobalEnv); });
-        mWorld->getVisualsManager().onAnimationStop([this] (Entity e, const std::string& key) { callbackInvoker(ON_ANIMATION_END, e, key, mWorld, mGlobalEnv); });
+        mWorld->getVisualsManager().onAnimationStart([this] (Entity e, const std::string& key) { callbackInvoker(ON_ANIMATION_BEGIN, e, key); });
+        mWorld->getVisualsManager().onAnimationStop([this] (Entity e, const std::string& key) { callbackInvoker(ON_ANIMATION_END, e, key); });
 
         mWorld->getSemanticsCollisionManager().onBeginCollision([this] (Entity e1, Entity e2) { entityCollisionEnter(e1, e2); });
         mWorld->getSemanticsCollisionManager().onCollision([this] (Entity e1, Entity e2, const sf::Vector2f& mdv, const Collider& c1, const Collider& c2)
@@ -93,7 +93,7 @@ namespace ungod
           {
               if (timer.mTimer.getElapsedTime().asMilliseconds() >= timer.mInterval && behavior.valid())
               {
-                  behavior.mBehavior->execute(ON_UPDATE, e, timer.mInterval, mWorld, mGlobalEnv);
+                  behavior.mBehavior->execute(ON_UPDATE, timer.mInterval);
                   timer.mTimer.restart();
               }
           });
@@ -106,7 +106,7 @@ namespace ungod
               EntityBehaviorComponent& behavior = e.modify<EntityBehaviorComponent>();
               if (timer.mTimer.getElapsedTime().asMilliseconds() >= timer.mInterval && behavior.valid())
               {
-                  behavior.mBehavior->execute(ON_UPDATE, e, timer.mInterval, mWorld, mGlobalEnv);
+                  behavior.mBehavior->execute(ON_UPDATE, timer.mInterval);
                   timer.mTimer.restart();
               }
             }
@@ -120,7 +120,7 @@ namespace ungod
           {
               if (behavior.valid())
               {
-                  behavior.mBehavior->execute(ON_CUSTOM_EVENT, e, event, mWorld, mGlobalEnv);
+                  behavior.mBehavior->execute(ON_CUSTOM_EVENT, event);
               }
           });
 
@@ -129,7 +129,7 @@ namespace ungod
           EntityBehaviorComponent& behavior = e.modify<EntityBehaviorComponent>();
           if (behavior.valid())
           {
-              behavior.mBehavior->execute(ON_CUSTOM_EVENT, e, event, mWorld, mGlobalEnv);
+              behavior.mBehavior->execute(ON_CUSTOM_EVENT, event);
           }
         }
     }
@@ -142,7 +142,10 @@ namespace ungod
     void EntityBehaviorManager::assignBehavior(Entity e, const std::string& key)
     {
         //assign a previously loaded behavior
-        e.modify<EntityBehaviorComponent>().mBehavior = mBehaviorManager.makeStateBehavior(key, mBehaviorManager.makeInstanceEnvironment(e.getID()), e, mWorld, mGlobalEnv);
+        script::Environment instance = mBehaviorManager.makeInstanceEnvironment(e.getID());
+        instance["entity"] = e;
+        instance["world"] = mWorld;
+        e.modify<EntityBehaviorComponent>().mBehavior = mBehaviorManager.makeStateBehavior(key, instance);
 
         //track entity if it has no transform
         if (!e.has<TransformComponent>())
@@ -153,8 +156,10 @@ namespace ungod
     {
         //assign a previously loaded behavior
         script::Environment instance = mBehaviorManager.makeInstanceEnvironment(e.getID());
+        instance["entity"] = e;
+        instance["world"] = mWorld;
         embedEnv(param, instance);
-        e.modify<EntityBehaviorComponent>().mBehavior = mBehaviorManager.makeStateBehavior(key, instance, e, mWorld, mGlobalEnv);
+        e.modify<EntityBehaviorComponent>().mBehavior = mBehaviorManager.makeStateBehavior(key, instance);
 
         //track entity if it has no transform
         if (!e.has<TransformComponent>())
@@ -163,7 +168,7 @@ namespace ungod
 
     void EntityBehaviorManager::dissociateBehavior(Entity e)
     {
-        e.modify<EntityBehaviorComponent>().mBehavior = StateBehaviorPtr<Entity, World*, script::Environment>();
+        e.modify<EntityBehaviorComponent>().mBehavior = StateBehaviorPtr<>();
     }
 
     void EntityBehaviorManager::setUpdateInterval(Entity e, float interval)
@@ -185,25 +190,25 @@ namespace ungod
     void EntityBehaviorManager::entityDestruction(Entity e) const
     {
         if (e.has<EntityBehaviorComponent>() && e.modify<EntityBehaviorComponent>().valid())
-            e.modify<EntityBehaviorComponent>().mBehavior->execute(ON_DESTRUCTION, e, mWorld, mGlobalEnv);
+            e.modify<EntityBehaviorComponent>().mBehavior->execute(ON_DESTRUCTION);
     }
 
     void EntityBehaviorManager::entityCollisionEnter(Entity e1, Entity e2) const
     {
         if (e1.has<EntityBehaviorComponent>() && e1.modify<EntityBehaviorComponent>().valid())
-            e1.modify<EntityBehaviorComponent>().mBehavior->execute(ON_COLLISION_ENTER, e1, e2, mWorld, mGlobalEnv);
+            e1.modify<EntityBehaviorComponent>().mBehavior->execute(ON_COLLISION_ENTER, e2);
     }
 
     void EntityBehaviorManager::entityCollisionExit(Entity e1, Entity e2) const
     {
         if (e1.has<EntityBehaviorComponent>() && e1.modify<EntityBehaviorComponent>().valid())
-            e1.modify<EntityBehaviorComponent>().mBehavior->execute(ON_COLLISION_EXIT, e1, e2, mWorld, mGlobalEnv);
+            e1.modify<EntityBehaviorComponent>().mBehavior->execute(ON_COLLISION_EXIT, e2);
     }
 
     void EntityBehaviorManager::entityCollision(Entity e1, Entity e2, const sf::Vector2f& mdv, const Collider& c1, const Collider& c2) const
     {
         if (e1.has<EntityBehaviorComponent>() && e1.modify<EntityBehaviorComponent>().valid())
-            e1.modify<EntityBehaviorComponent>().mBehavior->execute(ON_COLLISION, e1, e2, mWorld, mGlobalEnv);
+            e1.modify<EntityBehaviorComponent>().mBehavior->execute(ON_COLLISION, e2);
     }
 
     void EntityBehaviorManager::buttonPressed(const std::string& binding) const
@@ -213,7 +218,7 @@ namespace ungod
           {
               if (behavior.valid())
               {
-                  behavior.mBehavior->execute(ON_BUTTON_PRESSED, e, binding, mWorld, mGlobalEnv);
+                  behavior.mBehavior->execute(ON_BUTTON_PRESSED, binding);
               }
           });
 
@@ -222,7 +227,7 @@ namespace ungod
           EntityBehaviorComponent& behavior = e.modify<EntityBehaviorComponent>();
           if (behavior.valid())
           {
-              behavior.mBehavior->execute(ON_BUTTON_PRESSED, e, binding, mWorld, mGlobalEnv);
+              behavior.mBehavior->execute(ON_BUTTON_PRESSED, binding);
           }
         }
     }
@@ -234,7 +239,7 @@ namespace ungod
           {
               if (behavior.valid())
               {
-                  behavior.mBehavior->execute(ON_BUTTON_DOWN, e, binding, mWorld, mGlobalEnv);
+                  behavior.mBehavior->execute(ON_BUTTON_DOWN, binding);
               }
           });
 
@@ -243,7 +248,7 @@ namespace ungod
           EntityBehaviorComponent& behavior = e.modify<EntityBehaviorComponent>();
           if (behavior.valid())
           {
-              behavior.mBehavior->execute(ON_BUTTON_DOWN, e, binding, mWorld, mGlobalEnv);
+              behavior.mBehavior->execute(ON_BUTTON_DOWN, binding);
           }
         }
     }
@@ -255,7 +260,7 @@ namespace ungod
           {
               if (behavior.valid())
               {
-                  behavior.mBehavior->execute(ON_BUTTON_RELEASED, e, binding, mWorld, mGlobalEnv);
+                  behavior.mBehavior->execute(ON_BUTTON_RELEASED, binding);
               }
           });
 
@@ -264,12 +269,12 @@ namespace ungod
           EntityBehaviorComponent& behavior = e.modify<EntityBehaviorComponent>();
           if (behavior.valid())
           {
-              behavior.mBehavior->execute(ON_BUTTON_RELEASED, e, binding, mWorld, mGlobalEnv);
+              behavior.mBehavior->execute(ON_BUTTON_RELEASED, binding);
           }
         }
     }
 
-    void EntityBehaviorManager::scriptInternalInit(script::Environment global, ungod::Application& app)
+    void EntityBehaviorManager::scriptInternalInit(ungod::Application& app)
     {
         //register script functionality
         scriptRegistration::registerAssets(mBehaviorManager);
@@ -278,8 +283,6 @@ namespace ungod
         scriptRegistration::registerApplication(mBehaviorManager, app);
         scriptRegistration::registerWater(mBehaviorManager, app);
         scriptRegistration::registerTileMap(mBehaviorManager, app);
-
-        mGlobalEnv = global;
     }
 
     void EntityBehaviorManager::scriptInternalDissociate()
@@ -323,7 +326,7 @@ namespace ungod
         }
     }
 
-    BehaviorManager<Entity, World*, script::Environment>& EntityBehaviorManager::getBehaviorManager()
+    BehaviorManager<>& EntityBehaviorManager::getBehaviorManager()
     {
         return mBehaviorManager;
     }
@@ -336,7 +339,7 @@ namespace ungod
         auto err = mBehaviorManager.reload();
 
         //since the behavior now has a new state, initialize it properly
-        scriptInternalInit(mBehaviorManager.createEnvironment(), app);
+        scriptInternalInit(app);
 
         //reassign
         scriptInternalReassign();
@@ -344,7 +347,7 @@ namespace ungod
         return err;
     }
 
-    std::vector<std::pair<std::string, ScriptErrorCode>> EntityBehaviorManager::reload(script::Environment global, ungod::Application& app, const script::SharedState& state, script::Environment main)
+    std::vector<std::pair<std::string, ScriptErrorCode>> EntityBehaviorManager::reload(ungod::Application& app, const script::SharedState& state, script::Environment main)
     {
         scriptInternalDissociate();
 
@@ -352,7 +355,7 @@ namespace ungod
         auto err = mBehaviorManager.reload(state, main);
 
         //since the behavior now has a new state, initialize it properly
-        scriptInternalInit(global, app);
+        scriptInternalInit(app);
 
         //reassign
         scriptInternalReassign();

@@ -1,6 +1,6 @@
 <config>
 	<graphics_settings image_quality="0"/>
-	<base title="UngodApp"/>
+	<base title="Wild West"/>
 	<initial_state type="GameState" script_file="data/wild_west.lua"/>
 	<light unshadow_vertex_shader="data/shaders/light/unshadowShader.vert" unshadow_frag_shader="data/shaders/light/unshadowShader.frag" light_vertex_shader="data/shaders/light/lightOverShapeShader.vert" light_frag_shader="data/shaders/light/lightOverShapeShader.frag" default_penumbra_texture="data/shaders/light/penumbraTexture.png"/>
 	<resolution width="800" height="600" framerate_limit="120" fullscreen="0" vsync="0"/>

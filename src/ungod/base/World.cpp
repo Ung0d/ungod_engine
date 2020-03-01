@@ -82,17 +82,6 @@ namespace ungod
                             const std::string& lightFragment,
                             const std::string& penumbraTex)
     {
-        instantiate(app, unshadowVertex, unshadowFragment, lightVertex, lightFragment, penumbraTex, mBehaviorManager.getBehaviorManager().createEnvironment());
-    }
-
-    void World::instantiate(Application& app,
-                            const std::string& unshadowVertex,
-                            const std::string& unshadowFragment,
-                            const std::string& lightVertex,
-                            const std::string& lightFragment,
-                            const std::string& penumbraTex,
-                            script::Environment global)
-    {
         //connect signals
         mVisualsManager.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
                                           {
@@ -165,7 +154,7 @@ namespace ungod
         mLightSystem.init(app, &mQuadTree, app.getWindow().getSize(), unshadowVertex, unshadowFragment, lightVertex, lightFragment, penumbraTex);
 
         //init script behavior
-        mBehaviorManager.init(*this, global, app);
+        mBehaviorManager.init(*this, app);
     }
 
 	sf::Vector2f World::getSize() const

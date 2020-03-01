@@ -1,0 +1,1 @@
+Examples require a compiled ungod.exe file to run. No example specific compilation needed as everything is data-driven.
