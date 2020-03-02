@@ -21,9 +21,12 @@ function wild_west.onInit(static, state)
 
     --create an entity using the behavior script "miner" and add it to the world so it can be updated
     w.world:behavior():loadBehaviorScript("data/miner.lua")
-    w.miner = w.world:createEntity("miner")
+    w.miner = w.world:createEntity("miner", {name = "Bob"})
+    w.miner2 = w.world:createEntity("miner", {name = "Sven"})
+    w.miner:add():UpdateTimer()
+    w.miner2:add():UpdateTimer()
     w.world:add(w.miner)
-
+    w.world:add(w.miner2)
 end
 
 function wild_west.onClose(static, state)

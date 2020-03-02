@@ -64,6 +64,8 @@ namespace ungod
                                                                     "r", &sf::Color::r, "g", &sf::Color::g, "b", &sf::Color::b, "a", &sf::Color::a);
 
             state.registerFunction("distance", [] (const sf::Vector2f& p1, const sf::Vector2f& p2) { return distance(p1, p2); });
+
+            state.registerFunction("randProb", []() { return NumberGenerator::getFloatRandBetw(0,1); });
         }
     }
 }
