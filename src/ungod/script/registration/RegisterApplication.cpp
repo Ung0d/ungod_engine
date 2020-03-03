@@ -89,7 +89,9 @@ namespace ungod
                                    [&app](const sf::Vector2i& pos, const World& world)
                                    { return app.getWindow().mapPixelToCoords(pos, world.getState()->getCamera().getView()); }));
 
-            state.registerFunction("emit", [&app](const std::string& type, script::Environment data) { return app.emitCustomEvent(type, data); });
+            state.registerFunction("emit", sol::overload(
+                [&app](const std::string& type, script::Environment data) { return app.emitCustomEvent(type, data); },
+                [&app](const std::string& type, script::Environment data, float delay) { return app.emitCustomEvent(type, data, delay); }));
 
             state.registerFunction("setCursor", [&app](const std::string& cursor) { app.setCursor(cursor); });
 

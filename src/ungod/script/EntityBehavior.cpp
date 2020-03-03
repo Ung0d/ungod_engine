@@ -48,10 +48,10 @@ namespace ungod
                                                                           "onAIGetState", "onAIAction"};
 
     EntityBehaviorManager::EntityBehaviorManager()
-        : mBehaviorManager(IDENTIFIERS, ON_CREATION, ON_INIT, ON_EXIT, ON_STATIC_CONSTR, ON_STATIC_DESTR), mWorld(nullptr) {}
+        : mBehaviorManager(IDENTIFIERS, ON_CREATION, ON_INIT, ON_EXIT, ON_STATIC_CONSTR, ON_STATIC_DESTR), mWorld(nullptr), mEventHandler(ON_CUSTOM_EVENT) {}
 
     EntityBehaviorManager::EntityBehaviorManager(const script::SharedState& state, script::Environment main)
-        : mBehaviorManager(state, main, IDENTIFIERS, ON_CREATION, ON_INIT, ON_EXIT, ON_STATIC_CONSTR, ON_STATIC_DESTR), mWorld(nullptr) {}
+        : mBehaviorManager(state, main, IDENTIFIERS, ON_CREATION, ON_INIT, ON_EXIT, ON_STATIC_CONSTR, ON_STATIC_DESTR), mWorld(nullptr), mEventHandler(ON_CUSTOM_EVENT) {}
 
     void EntityBehaviorManager::init(World& world, ungod::Application& app)
     {
@@ -86,7 +86,7 @@ namespace ungod
     }
 
 
-    void EntityBehaviorManager::update(const std::list<Entity>& entities, float delta) const
+    void EntityBehaviorManager::update(const std::list<Entity>& entities, float delta) 
     {
         dom::Utility<Entity>::iterate<EntityBehaviorComponent, EntityUpdateTimer>(entities,
           [delta, this] (Entity e, EntityBehaviorComponent& behavior, EntityUpdateTimer& timer)
@@ -111,27 +111,13 @@ namespace ungod
               }
             }
         }
+
+        mEventHandler.dispatchDelayed();
     }
 
-    void EntityBehaviorManager::handleCustomEvent(const CustomEvent& event) const
+    void EntityBehaviorManager::handleCustomEvent(const CustomEvent& event) 
     {
-        dom::Utility<Entity>::iterate<EntityBehaviorComponent>(mWorld->getEntitiesInUpdateRange().getList(),
-          [&event, this] (Entity e, EntityBehaviorComponent& behavior)
-          {
-              if (behavior.valid())
-              {
-                  behavior.mBehavior->execute(ON_CUSTOM_EVENT, event);
-              }
-          });
-
-        for (const auto& e : mMetaEntities)
-        {
-          EntityBehaviorComponent& behavior = e.modify<EntityBehaviorComponent>();
-          if (behavior.valid())
-          {
-              behavior.mBehavior->execute(ON_CUSTOM_EVENT, event);
-          }
-        }
+        mEventHandler.handleCustomEvent(event); 
     }
 
     ScriptErrorCode EntityBehaviorManager::loadBehaviorScript(const std::string& filepath)
@@ -361,5 +347,17 @@ namespace ungod
         scriptInternalReassign();
 
         return err;
+    }
+
+    script::EventListenerLink EntityBehaviorManager::addEventListener(Entity e, const std::string& eventType)
+    {
+        return mEventHandler.addListener([e](const CustomEvent& evt, std::size_t callID)
+            {
+                auto& behavior = e.modify<EntityBehaviorComponent>();
+                if (behavior.valid())
+                {
+                    behavior.mBehavior->execute(callID, evt);
+                }
+            }, eventType);
     }
 }

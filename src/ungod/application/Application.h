@@ -110,7 +110,7 @@ namespace ungod
         const script::Environment& getGlobalScriptEnv() const;
 
         /** \brief Forwards a custom event to all transcendent states. */
-        void emitCustomEvent(const std::string& type, script::Environment data);
+        void emitCustomEvent(const std::string& type, script::Environment data, float delay = 0.0f);
 
         /** \brief Connects a callback to the on target size changed signal.*/
         owls::SignalLink<void, const sf::Vector2u&> onTargetSizeChanged(const std::function<void(const sf::Vector2u&)>& callback);

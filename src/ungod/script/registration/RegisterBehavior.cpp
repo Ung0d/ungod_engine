@@ -26,6 +26,7 @@
 #include "ungod/script/registration/RegisterBehavior.h"
 #include "ungod/script/EntityBehavior.h"
 #include "ungod/base/Entity.h"
+#include "ungod/base/World.h"
 
 namespace ungod
 {
@@ -55,6 +56,13 @@ namespace ungod
 			   [](EntityBehaviorManager& em, Entity e, const std::string& name, script::Environment param)
 			   { em.assignBehavior(e, name, param); });
 		   ebmanagerType["setUpdateInterval"] = [] (EntityBehaviorManager& ebm, Entity e, float interval) { ebm.setUpdateInterval(e, interval); };
+        
+
+           state.registerFunction("listen", 
+               [](Entity e, const std::string& type) { return e.getWorld().getBehaviorManager().addEventListener(e, type);  });
+
+           script::Usertype<script::EventListenerLink> evtListenerLink = state.registerUsertype<script::EventListenerLink>("ScriptEventListenerLink");
+           evtListenerLink["disconnect"] = &script::EventListenerLink::disconnect;
         }
     }
 }

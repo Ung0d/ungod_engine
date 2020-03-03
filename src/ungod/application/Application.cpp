@@ -330,9 +330,9 @@ namespace ungod
         mWindow.display();
     }
 
-    void Application::emitCustomEvent(const std::string& type, script::Environment data)
+    void Application::emitCustomEvent(const std::string& type, script::Environment data, float delay)
     {
-        CustomEvent event = makeCustomEvent(mScriptState, type, data);
+        CustomEvent event = makeCustomEvent(mScriptState, type, data, delay);
         mStatemanager.onCustomEvent(event);
     }
 

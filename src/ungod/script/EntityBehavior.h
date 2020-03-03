@@ -118,6 +118,7 @@
 #include "ungod/script/CustomEvent.h"
 #include "ungod/serialization/Serializable.h"
 #include "ungod/base/Entity.h"
+#include "ungod/script/EventHandler.h"
 
 namespace ungod
 {
@@ -217,10 +218,10 @@ namespace ungod
         void init(World& world, ungod::Application& app);
 
         /** \brief Updates the manager and may invoke onUpdate scripts of entities. */
-        void update(const std::list<Entity>& entities, float delta) const;
+        void update(const std::list<Entity>& entities, float delta);
 
         /** \brief Forwards the custom event to the script behaviors. */
-        void handleCustomEvent(const CustomEvent& event) const;
+        void handleCustomEvent(const CustomEvent& event);
 
         /** \brief Loads a new entity behavior script. The script is stored with the filename of the script as key (without path and file-extentions). */
         ScriptErrorCode loadBehaviorScript(const std::string& filepath);
@@ -251,10 +252,14 @@ namespace ungod
         * Returns a list of all reloaded script files along with the error codes. */
         std::vector<std::pair<std::string, ScriptErrorCode>> reload(ungod::Application& app, const script::SharedState& state, script::Environment main);
 
+        /** \brief Registers an entity as a listener to an event type. */
+        script::EventListenerLink addEventListener(Entity e, const std::string& eventType);
+
     private:
         BehaviorManager<> mBehaviorManager;
         World* mWorld;
         std::unordered_set<Entity> mMetaEntities; ///< stores entities with no transform components (at the time of script assignment) in order to process them
+        script::EventHandler mEventHandler;
 
     private:
         void entityCreation(Entity e) const;

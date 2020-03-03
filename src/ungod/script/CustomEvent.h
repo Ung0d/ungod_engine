@@ -34,14 +34,14 @@ namespace ungod
 
     /** \brief Factory method that instantiates a custom-event with the following structure: { type, data = { data... } },
     * where type is a string identifier and data is an arbitrary blob of information depending on the context. */
-    CustomEvent makeCustomEvent(const script::SharedState& state, const std::string& type, script::Environment& env);
+    CustomEvent makeCustomEvent(const script::SharedState& state, const std::string& type, script::Environment& env, float delay);
 
     /** \brief Factory method that instantiates a custom-event with the following structure: { type, data = { data... } },
     * where type is a string identifier and data is an arbitrary blob of information depending on the context. */
     template<typename ... PARAM>
-    CustomEvent makeCustomEvent(const script::SharedState& state, const std::string& type, PARAM&& ...param)
+    CustomEvent makeCustomEvent(const script::SharedState& state, const std::string& type, float delay, PARAM&& ...param)
     {
-        return state->create_table_with("type", type, "data", state->create_table_with(std::forward<PARAM>(param)...));
+        return state->create_table_with("type", type, "delay", delay, "data", state->create_table_with(std::forward<PARAM>(param)...));
     }
 }
 

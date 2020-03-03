@@ -198,10 +198,12 @@ BOOST_AUTO_TEST_CASE( script_test )
     }
 
     {
-        ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
-		ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+        EmbeddedTestApp::getApp().getStateManager().addState<ungod::ScriptedGameState>(0);
+        auto* state = EmbeddedTestApp::getApp().getStateManager().getState<ungod::ScriptedGameState>(0);
+		ungod::WorldGraphNode& node = state->getWorldGraph().createNode(*state, "nodeid", "nodefile");
 		node.setSize({ 15000, 15000 });
 		ungod::World* world = node.addWorld();
+        state->getWorldGraph().activateNode("nodeid");
         world->getBehaviorManager().loadBehaviorScript("test_data/entity_behavior.lua");
         world->getBehaviorManager().loadBehaviorScript("test_data/entity_behavior2.lua");
         Entity e = world->create(BaseComponents<TransformComponent, EntityBehaviorComponent, EntityUpdateTimer>(), "entity_behavior");
@@ -222,9 +224,20 @@ BOOST_AUTO_TEST_CASE( script_test )
         BOOST_REQUIRE(check_creation);
         BOOST_REQUIRE(*check_creation);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        auto check_event = e.get<EntityBehaviorComponent>().getStateVariable<int>("normal", "event_received");
+        BOOST_REQUIRE(check_event);
+        BOOST_REQUIRE_EQUAL(*check_event, 5);
+        auto check_delayed_event = e.get<EntityBehaviorComponent>().getStateVariable<int>("normal", "delayed_event_received");
+        BOOST_REQUIRE(check_delayed_event);
+        BOOST_REQUIRE_EQUAL(*check_delayed_event, 0);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
         world->update(20.0f, {0,0}, {800,600});
+
+        check_delayed_event = e.get<EntityBehaviorComponent>().getStateVariable<int>("normal", "delayed_event_received");
+        BOOST_REQUIRE(check_delayed_event);
+        BOOST_REQUIRE_EQUAL(*check_delayed_event, 13);
 
         check_update = e.get<EntityBehaviorComponent>().getStateVariable<bool>("normal", "check_update");
 
@@ -233,6 +246,8 @@ BOOST_AUTO_TEST_CASE( script_test )
 		world->destroy(e); //queue entity for destruction
 		world->destroy(e2); //queue entity for destruction
 		world->update(20.0f, {}, {}); //destroys entity in queue
+        state->expire();
+        EmbeddedTestApp::getApp().getStateManager().cleanup();
     }
 }
 

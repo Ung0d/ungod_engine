@@ -103,6 +103,8 @@ go_home = ungod.newStateBehavior("go_home")
 function go_home.onInit(static, miner)
     miner_global.changeLocation(miner, "home")
     print(miner.name .. ": Home sweet home!")
+    ungod.emit("hiHoneyAmHome", {sender = miner.entity})
+    miner.letsEatLink = ungod.listen(miner.entity, "letsEat")
 end
 
 function go_home.onUpdate(static, miner, delta)
@@ -111,6 +113,26 @@ function go_home.onUpdate(static, miner, delta)
       print(miner.name .. ": ZzZzZz")
     else
       print(miner.name .. ": What a God-darn fantastic nap! Time to find more gold!")
-      ungod.quitApplication()
     end
+end
+
+function go_home.onCustomEvent(static, miner, evt)
+  if evt.type == "letsEat" then
+    miner.states:switchTo("eating")
+  end
+end
+
+function go_home.onExit(static, miner)
+  miner.letsEatLink:disconnect()
+  miner.letsEatLink = nil
+end
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+eating = ungod.newStateBehavior("eating")
+
+function eating.onInit(static, miner)
+    miner_global.changeLocation(miner, "home")
+    print(miner.name .. ": Nom!")
+    ungod.quitApplication()
 end

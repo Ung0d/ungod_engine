@@ -27,8 +27,8 @@
 
 namespace ungod
 {
-    CustomEvent makeCustomEvent(const script::SharedState& state, const std::string& type, script::Environment& env)
+    CustomEvent makeCustomEvent(const script::SharedState& state, const std::string& type, script::Environment& env, float delay)
     {
-        return state->create_table_with("type", type, "data", env);
+        return state->create_table_with("type", type, "delay", delay, "data", env);
     }
 }
