@@ -31,7 +31,7 @@ namespace ungod
 {
     namespace AI
     {
-        MonteCarloNode::MonteCarloNode(float prior) : mVisitCount(0), mPrior(prior), mValueSum(0.0f) {}
+        /*MonteCarloNode::MonteCarloNode(float prior) : mVisitCount(0), mPrior(prior), mValueSum(0.0f) {}
 
         bool MonteCarloNode::isLeaf() const
         {
@@ -89,6 +89,6 @@ namespace ungod
         void TreeSearch::decide(const SceneSpecs& scene)
         {
 
-        }
+        }*/
     }
 }

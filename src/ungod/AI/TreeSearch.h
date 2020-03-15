@@ -36,17 +36,17 @@ namespace ungod
     {
         /** \brief A node in a monte carlo search tree.
         */
-        class MonteCarloNode
+       /* class MonteCarloNode
         {
         public:
             MonteCarloNode(float prior = 0.0f);
 
             bool isLeaf() const;
 
-            float value() const;
+            float value() const;*/
 
             /** \brief Creates a new child node for each valid action and computes priors based on predicted logits. */
-            void expand(const std::vector<float>& logits, const std::vector<bool>& valid);
+           /* void expand(const std::vector<float>& logits, const std::vector<bool>& valid);
 
             std::tuple<int, MonteCarloNode*> selectChild(float pbCBase, float pbCInit);
 
@@ -55,13 +55,13 @@ namespace ungod
             float mPrior;
             float mValueSum;
             std::unordered_map<int, std::unique_ptr<MonteCarloNode>> mChildren;
-        };
+        };*/
 
         /** 
         * \brief Class that runs monte carlo tree search with a predictor
         * to decide on actions for a scene of actors.
         */
-        class TreeSearch
+       /* class TreeSearch
         {
         public:
             TreeSearch(Predictor& predictor) : mPredictor(predictor) {}
@@ -73,7 +73,7 @@ namespace ungod
 
         private:
             void rolloutOne(const SceneSpecs& scene);
-        };
+        };*/
     }
 }
 

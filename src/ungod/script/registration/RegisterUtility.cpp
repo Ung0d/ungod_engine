@@ -25,6 +25,7 @@
 
 #include "ungod/script/registration/RegisterUtility.h"
 #include <SFML/System/Vector2.hpp>
+#include <SFML/System/Clock.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include "ungod/physics/Physics.h"
@@ -66,6 +67,12 @@ namespace ungod
             state.registerFunction("distance", [] (const sf::Vector2f& p1, const sf::Vector2f& p2) { return distance(p1, p2); });
 
             state.registerFunction("randProb", []() { return NumberGenerator::getFloatRandBetw(0,1); });
+
+            script::Usertype<sf::Clock> clockType = state.registerUsertype<sf::Clock>("Clock");
+            clockType["restart"] = &sf::Clock::restart;
+            clockType["elapsedSeconds"] = [](sf::Clock& clock) -> float { return clock.getElapsedTime().asSeconds(); };
+
+            state.registerFunction("makeClock", []() { return sf::Clock{}; });
         }
     }
 }
