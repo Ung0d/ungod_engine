@@ -255,6 +255,9 @@ namespace ungod
         /** \brief Registers an entity as a listener to an event type. */
         script::EventListenerLink addEventListener(Entity e, const std::string& eventType);
 
+        /** \brief Registers an arbitrary callable as a listener to an event type. */
+        script::EventListenerLink addEventListener(const script::ProtectedFunc& func, const std::string& eventType);
+
     private:
         BehaviorManager<> mBehaviorManager;
         World* mWorld;

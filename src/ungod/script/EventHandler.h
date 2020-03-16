@@ -54,8 +54,8 @@ namespace ungod
             };
         }
 
-        using EventListenerLink = owls::SignalLink<void, const CustomEvent&, std::size_t>;
-        using Signal = owls::Signal<const CustomEvent&, std::size_t>;
+        using EventListenerLink = owls::SignalLink<void, const CustomEvent&>;
+        using Signal = owls::Signal<const CustomEvent&>;
 
         /**
         * \brief A class that handles event listenings and emission from and to scripted entities.
@@ -63,7 +63,7 @@ namespace ungod
         class EventHandler
         {
         public:
-            EventHandler(std::size_t scriptCallID) : mCallID(scriptCallID) {}
+            EventHandler() = default;
 
             void handleCustomEvent(const CustomEvent& evt);
 
@@ -74,7 +74,6 @@ namespace ungod
 
         private:
             std::unordered_map< std::string, std::unique_ptr<Signal> > mListeners;
-            std::size_t mCallID;
             std::set<detail::DelayedEvent, detail::DelayedEventCompare> mDelayedEvents;
             sf::Clock mClock;
 

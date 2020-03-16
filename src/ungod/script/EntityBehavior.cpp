@@ -48,10 +48,10 @@ namespace ungod
                                                                           "onAIGetState", "onAIAction"};
 
     EntityBehaviorManager::EntityBehaviorManager()
-        : mBehaviorManager(IDENTIFIERS, ON_CREATION, ON_INIT, ON_EXIT, ON_STATIC_CONSTR, ON_STATIC_DESTR), mWorld(nullptr), mEventHandler(ON_CUSTOM_EVENT) {}
+        : mBehaviorManager(IDENTIFIERS, ON_CREATION, ON_INIT, ON_EXIT, ON_STATIC_CONSTR, ON_STATIC_DESTR), mWorld(nullptr) {}
 
     EntityBehaviorManager::EntityBehaviorManager(const script::SharedState& state, script::Environment main)
-        : mBehaviorManager(state, main, IDENTIFIERS, ON_CREATION, ON_INIT, ON_EXIT, ON_STATIC_CONSTR, ON_STATIC_DESTR), mWorld(nullptr), mEventHandler(ON_CUSTOM_EVENT) {}
+        : mBehaviorManager(state, main, IDENTIFIERS, ON_CREATION, ON_INIT, ON_EXIT, ON_STATIC_CONSTR, ON_STATIC_DESTR), mWorld(nullptr) {}
 
     void EntityBehaviorManager::init(World& world, ungod::Application& app)
     {
@@ -351,13 +351,18 @@ namespace ungod
 
     script::EventListenerLink EntityBehaviorManager::addEventListener(Entity e, const std::string& eventType)
     {
-        return mEventHandler.addListener([e](const CustomEvent& evt, std::size_t callID)
+        return mEventHandler.addListener([this, e](const CustomEvent& evt)
             {
                 auto& behavior = e.modify<EntityBehaviorComponent>();
                 if (behavior.valid())
                 {
-                    behavior.mBehavior->execute(callID, evt);
+                    behavior.mBehavior->execute(ON_CUSTOM_EVENT, evt);
                 }
             }, eventType);
+    }
+
+    script::EventListenerLink EntityBehaviorManager::addEventListener(const script::ProtectedFunc& func, const std::string& eventType)
+    {
+        return mEventHandler.addListener([func](const CustomEvent& evt) { func(evt);  }, eventType);
     }
 }

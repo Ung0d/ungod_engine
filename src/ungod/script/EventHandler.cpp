@@ -32,7 +32,7 @@ namespace ungod
         {
             auto signal = mListeners.find(evt["type"]);
             if (signal != mListeners.end())
-                signal->second->emit(evt, mCallID);
+                signal->second->emit(evt);
         }
     }
 }

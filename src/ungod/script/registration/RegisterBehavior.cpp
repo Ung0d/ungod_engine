@@ -58,8 +58,9 @@ namespace ungod
 		   ebmanagerType["setUpdateInterval"] = [] (EntityBehaviorManager& ebm, Entity e, float interval) { ebm.setUpdateInterval(e, interval); };
         
 
-           state.registerFunction("listen", 
-               [](Entity e, const std::string& type) { return e.getWorld().getBehaviorManager().addEventListener(e, type);  });
+           state.registerFunction("listen", sol::overload(
+               [](Entity e, const std::string& type) { return e.getWorld().getBehaviorManager().addEventListener(e, type);  },
+               [](script::ProtectedFunc func, World& world, const std::string& type) { world.getBehaviorManager().addEventListener(func, type);  }));
 
            script::Usertype<script::EventListenerLink> evtListenerLink = state.registerUsertype<script::EventListenerLink>("ScriptEventListenerLink");
            evtListenerLink["disconnect"] = &script::EventListenerLink::disconnect;
