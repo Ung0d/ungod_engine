@@ -1,5 +1,7 @@
 #include "ungod/base/Utility.h"
 #include <time.h>
+#include <boost/filesystem.hpp>
+#include <boost/range/iterator_range.hpp>
 
 namespace ungod
 {
@@ -32,5 +34,26 @@ namespace ungod
     {
         std::uniform_int_distribution<> dist(0,100);
         return dist(gen) < 100*true_prob;
+    }
+
+
+    std::vector<std::string> enumerateDirectory(const std::string& pathToDir)
+    {
+        boost::filesystem::path p(pathToDir);
+        std::vector<std::string> enumFiles;
+
+        if (boost::filesystem::is_directory(p)) 
+        {
+            for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(p), {}))
+                if (boost::filesystem::is_regular_file(entry.path())) 
+                    enumFiles.emplace_back(entry.path().filename().string());
+        }
+        else
+        {
+            ungod::Logger::warning(pathToDir + "is no directory. Can not enumerate.");
+            ungod::Logger::endl();
+        }
+
+        return enumFiles;
     }
 }

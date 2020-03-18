@@ -73,6 +73,10 @@ namespace ungod
             clockType["elapsedSeconds"] = [](sf::Clock& clock) -> float { return clock.getElapsedTime().asSeconds(); };
 
             state.registerFunction("makeClock", []() { return sf::Clock{}; });
+
+
+            //register a function, that enumerates all files in a directory
+            state.registerFunction("directoryFiles", &ungod::enumerateDirectory);
         }
     }
 }

@@ -93,7 +93,7 @@ namespace ungod
     {
         mMainEnv = script::Environment{};
         mScriptState = std::make_shared<script::State>();
-        mScriptState->open_libraries(sol::lib::base, sol::lib::math, sol::lib::package);
+        mScriptState->open_libraries(sol::lib::base, sol::lib::math, sol::lib::package, sol::lib::string);
         mMainEnv = mScriptState->create_named_table("ungod");
     }
 

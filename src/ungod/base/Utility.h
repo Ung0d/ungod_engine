@@ -84,6 +84,10 @@ namespace ungod
 
     ///compile string concatenation
      #define STRCAT(x,y) x y
+
+
+    //returns a vector of all filenames in a given directory
+    std::vector<std::string> enumerateDirectory(const std::string& pathToDir);
 }
 
 #endif // UTILITY_H
