@@ -101,7 +101,7 @@ namespace ungod
     {
         mMainEnv = script::Environment{};
         mScriptState = state;
-        mScriptState->open_libraries(sol::lib::base, sol::lib::math, sol::lib::package);
+        mScriptState->open_libraries(sol::lib::base, sol::lib::math, sol::lib::package, sol::lib::string);
         mMainEnv = main;
     }
 
