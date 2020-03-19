@@ -82,12 +82,12 @@ namespace ungod
             state.registerFunction("world2Screen", sol::overload([&app](const sf::Vector2f& pos, const ScriptedGameState& state)
                                    { return app.getWindow().mapCoordsToPixel(pos, state.getCamera().getView()); },
                                    [&app](const sf::Vector2f& pos, const World& world)
-                                   { return app.getWindow().mapCoordsToPixel(pos, world.getState()->getCamera().getView()); }));
+                                   { return app.getWindow().mapCoordsToPixel(world.getContainer()->mapToGlobalPosition(pos), world.getState()->getCamera().getView()); }));
 
             state.registerFunction("screen2World", sol::overload([&app](const sf::Vector2i& pos, const ScriptedGameState& state)
                                    { return app.getWindow().mapPixelToCoords(pos, state.getCamera().getView()); },
                                    [&app](const sf::Vector2i& pos, const World& world)
-                                   { return app.getWindow().mapPixelToCoords(pos, world.getState()->getCamera().getView()); }));
+                                   { return world.getContainer()->mapToLocalPosition(app.getWindow().mapPixelToCoords(pos, world.getState()->getCamera().getView())); }));
 
             state.registerFunction("emit", sol::overload(
                 [&app](const std::string& type, script::Environment data) { return app.emitCustomEvent(type, data); },

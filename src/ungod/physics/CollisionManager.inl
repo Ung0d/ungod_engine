@@ -314,33 +314,34 @@ void CollisionManager<CONTEXT>::checkCollisions(const std::list<Entity>& entitie
           if (result == mDoubleBuffers[!mBufferActive].end())
           {
               for (const auto& other : eset.second)
-              {
                   mCollisionBeginSignal(eset.first, other);
-              }
           }
       }
 
       for (const auto& eset : mDoubleBuffers[!mBufferActive]) //for each entity in the inactive buffer
       {
-          auto result = mDoubleBuffers[mBufferActive].find(eset.first);  //search in the active bugger
-          if (result == mDoubleBuffers[mBufferActive].end())
-          {
-              for (const auto& other : eset.second)  //entities does not collide with anything this frame
-              {
-                mCollisionEndSignal(eset.first, other);
-              }
-          }
-          else  //check for each static that the entity collided with last frame, whether it is still colliding with it this frame
-          {
-              for (const auto& other : eset.second)
-              {
-                  auto staticsResult = result->second.find(other);
-                  if (staticsResult == result->second.end())  //entity collided with this static last frame, but not this frame
-                  {
-                      mCollisionEndSignal(eset.first, other);
-                  }
-              }
-          }
+			if (eset.first)
+			{
+				auto result = mDoubleBuffers[mBufferActive].find(eset.first);  //search in the active bugger
+				if (result == mDoubleBuffers[mBufferActive].end())
+				{
+					for (const auto& other : eset.second)  //entity does not collide with anything this frame, send end signal to all
+						if (other) 
+							mCollisionEndSignal(eset.first, other);
+				}
+				else  //check for each static the entity collided with last frame, whether it is still colliding with it this frame
+				{
+					for (const auto& other : eset.second)
+					{
+						if (other)
+						{
+							auto staticsResult = result->second.find(other);
+							if (staticsResult == result->second.end())  //entity collided with this static last frame, but not this frame
+								mCollisionEndSignal(eset.first, other);
+						}
+					}
+				}
+			}
       }
 
       //swap buffers
