@@ -457,7 +457,10 @@ namespace quad
             }
             return std::get<0>(removeFromNode(root, deleteThis));
         }
-        return false;
+        if (mFather)
+            return false;
+        else
+            return std::get<0>(removeFromNode(root, deleteThis));
     }
 
 
