@@ -164,6 +164,8 @@ namespace ungod
 		/** \brief Maps a position in global coordinates to a position relative to the layer. */
 		sf::Vector2f mapToLocalPosition(const sf::Vector2f& position) const;
 
+        const ungod::Camera& getCamera() const { return mCamera; }
+
     private:
         ungod::Camera& mCamera;
         std::vector<std::pair<RenderLayerPtr, bool>> mRenderLayers;

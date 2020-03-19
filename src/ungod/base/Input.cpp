@@ -25,6 +25,8 @@
 
 #include "ungod/base/Input.h"
 #include "ungod/base/Transform.h"
+#include "ungod/visual/RenderLayer.h"
+#include "ungod/visual/Camera.h"
 
 namespace ungod
 {
@@ -382,10 +384,13 @@ namespace ungod
     }
 
 
-    void Doublebuffer::processMousePos(int x, int y, const sf::RenderTarget& target, quad::QuadTree<Entity>& quadtree, owls::Signal<Entity>& enter, owls::Signal<Entity>& exit)
+    void Doublebuffer::processMousePos(int x, int y, const sf::RenderTarget& target, quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer, owls::Signal<Entity>& enter, owls::Signal<Entity>& exit)
     {
-        //compute the actual world position of the mouse and pull entities that likely collide with that position
-        sf::Vector2f mouseWorldPos = target.mapPixelToCoords( {x, y} );
+        //compute the global position of the mouse
+        sf::Vector2f mouseWorldPos = target.mapPixelToCoords( {x, y}, renderlayer->getContainer()->getCamera().getView() );
+        //translate to the world local position
+        mouseWorldPos = renderlayer->getContainer()->mapToLocalPosition(mouseWorldPos);
+        //pull entities that likely collide with that position
         quad::PullResult<Entity> pull;
         quadtree.retrieve(pull, { mouseWorldPos.x, mouseWorldPos.y, 0.0f, 0.0f });
 
@@ -447,12 +452,12 @@ namespace ungod
         {
             case sf::Event::MouseMoved:
             {
-                mHoveredEntities.processMousePos(event.mouseMove.x, event.mouseMove.y, target, mQuadtree, mMouseEnterSignal, mMouseExitSignal);
+                mHoveredEntities.processMousePos(event.mouseMove.x, event.mouseMove.y, target, mQuadtree, mRenderLayer, mMouseEnterSignal, mMouseExitSignal);
                 break;
             }
             case sf::Event::MouseButtonPressed:
             {
-                mClickedEntities.processMousePos(event.mouseButton.x, event.mouseButton.y, target, mQuadtree, mMouseClickedSignal, mMouseReleasedSignal);
+                mClickedEntities.processMousePos(event.mouseButton.x, event.mouseButton.y, target, mQuadtree, mRenderLayer, mMouseClickedSignal, mMouseReleasedSignal);
                 break;
             }
             case sf::Event::MouseButtonReleased:

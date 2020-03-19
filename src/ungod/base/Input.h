@@ -36,6 +36,8 @@
 
 namespace ungod
 {
+    class RenderLayer;
+
     /** \brief A struct holding information about a key binding. */
     struct KeyBinding
     {
@@ -118,7 +120,7 @@ namespace ungod
 
         Doublebuffer() : swapper(true) {}
 
-        void processMousePos(int x, int y, const sf::RenderTarget& target, quad::QuadTree<Entity>& quadtree, owls::Signal<Entity>& enter, owls::Signal<Entity>& exit);
+        void processMousePos(int x, int y, const sf::RenderTarget& target, quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer, owls::Signal<Entity>& enter, owls::Signal<Entity>& exit);
 
         void clearBuffers();
     };
@@ -127,7 +129,7 @@ namespace ungod
     class InputManager : public InputHandler
     {
     public:
-        InputManager(quad::QuadTree<Entity>& quadtree) : InputHandler(), mQuadtree(quadtree) {}
+        InputManager(quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer) : InputHandler(), mQuadtree(quadtree), mRenderLayer(renderlayer){}
 
         /** \brief Evaluates an input-event and sends out signals. */
         void handleEvent(const sf::Event& event, const sf::RenderTarget& target);
@@ -149,6 +151,7 @@ namespace ungod
 
     private:
         quad::QuadTree<Entity>& mQuadtree;
+        RenderLayer const* mRenderLayer;
 
         Doublebuffer mHoveredEntities;
         Doublebuffer mClickedEntities;
