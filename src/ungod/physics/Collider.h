@@ -29,6 +29,7 @@
 #include <array>
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
+#include "ungod/physics/ParamStack.h"
 
 namespace ungod
 {
@@ -90,7 +91,10 @@ namespace ungod
 		void move(const sf::Vector2f& vec);
 
 		/** \brief Retrieves axis end pivots to check by SAT algorithm. */
-		void getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& pivots, unsigned i) const;
+		void getAxisAndPivots(const TransformComponent& t,
+							detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM>& axis,
+							detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM / 2>& pivots, 
+							unsigned i) const;
 
 		/** \brief Returns the center point of the collider. Requires an internal type-check. */
 		sf::Vector2f getCenter() const;
@@ -147,7 +151,10 @@ namespace ungod
 		sf::FloatRect getBoundingBox(sf::Transform t = sf::Transform()) const;
 
 		/** \brief Retrieves all axis and all pivot points to check for by SAT algorithm. */
-		void getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& points, unsigned) const;
+		void getAxisAndPivots(const TransformComponent& t,
+							detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM>& axis,
+							detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM / 2>& pivots, 
+							unsigned) const;
 
 		inline float getRotation() const { return mData.getParam(0); }
 		inline float getUpLeftX() const { return mData.getParam(1); }
@@ -237,7 +244,10 @@ namespace ungod
 		ConvexPolygonConstAggregator(const Collider& data);
 
 		/** \brief Retrieves all axis and all pivot points to check for by SAT algorithm. */
-		void getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& points, unsigned i) const;
+		void getAxisAndPivots(const TransformComponent& t,
+								detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM>& axis,
+								detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM / 2>& pivots, 
+								unsigned i) const;
 	};
 
 
@@ -249,7 +259,10 @@ namespace ungod
 		EdgeChainConstAggregator(const Collider& data);
 
 		/** \brief Retrieves all axis and all pivot points to check for by SAT algorithm. */
-		void getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& points, unsigned i) const;
+		void getAxisAndPivots(const TransformComponent& t,
+								detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM>& axis,
+								detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM / 2>& pivots, 
+								unsigned i) const;
 	};
 
 

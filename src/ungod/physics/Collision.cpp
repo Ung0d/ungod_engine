@@ -34,10 +34,8 @@ namespace ungod
 		bool collision = false;
 		float minMagn = std::numeric_limits<float>::max();
 		sf::Vector2f mdvMin; 
-		std::vector<sf::Vector2f> axis, pivots1, pivots2;
-		axis.reserve(Collider::MAX_PARAM); //reserve enough space to prevent reallocation even in worst case
-		pivots1.reserve((unsigned)(Collider::MAX_PARAM / 2));
-		pivots2.reserve((unsigned)(Collider::MAX_PARAM / 2));
+		static thread_local detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM> axis;
+		static thread_local detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM/2> pivots1, pivots2;
 		for (unsigned i = 0; i < c1.getNumRuns(); i++)
 			for (unsigned j = 0; j < c2.getNumRuns(); j++)
 		{
@@ -66,13 +64,15 @@ namespace ungod
 	}
 
 
-	std::pair<bool, sf::Vector2f> satAlgorithm(const std::vector<sf::Vector2f>& axis, const std::vector<sf::Vector2f>& pivots1, const std::vector<sf::Vector2f>& pivots2)
+	std::pair<bool, sf::Vector2f> satAlgorithm(const detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM>& axis, 
+											   const detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM/2>& pivots1,
+											   const detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM/2>& pivots2)
 	{
 		float overlap;
 		float smallestOverlap = std::numeric_limits<float>::max();
 		sf::Vector2f offset;
 
-		for (auto& a : axis)
+		for (int i = 0; i < axis.size(); ++i)
 		{
 			float c1Left = std::numeric_limits<float>::infinity();
 			float c1Right = -std::numeric_limits<float>::infinity();
@@ -81,16 +81,16 @@ namespace ungod
 
 			float projection;
 
-			for (auto& piv : pivots1)
+			for (int j = 0; j < pivots1.size(); ++j)
 			{
-				projection = dotProduct(a, piv);
+				projection = dotProduct(axis[i], pivots1[j]);
 				c1Right = std::max(c1Right, projection);
 				c1Left = std::min(c1Left, projection);
 			}
 
-			for (auto& piv : pivots2)
+			for (int j = 0; j < pivots2.size(); ++j)
 			{
-				projection = dotProduct(a, piv);
+				projection = dotProduct(axis[i], pivots2[j]);
 				c2Right = std::max(c2Right, projection);
 				c2Left = std::min(c2Left, projection);
 			}
@@ -104,7 +104,7 @@ namespace ungod
 			if (overlap < smallestOverlap)
 			{
 				smallestOverlap = overlap;
-				offset = a * overlap;
+				offset = axis[i] * overlap;
 			}
 		}
 

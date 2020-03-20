@@ -116,7 +116,10 @@ namespace ungod
 	}
 
 
-	void Collider::getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& pivots, unsigned i) const
+	void Collider::getAxisAndPivots(const TransformComponent& t, 
+									detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM>& axis,
+									detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM/2>& pivots,
+									unsigned i) const
 	{
 		switch (mType)
 		{
@@ -268,25 +271,28 @@ namespace ungod
 		return { minx, miny, maxx - minx, maxy - miny };
 	}
 
-	void RotatedRectConstAggregator::getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& points, unsigned) const
+	void RotatedRectConstAggregator::getAxisAndPivots(const TransformComponent& t,
+													detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM>& axis,
+													detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM / 2>& pivots, 
+													unsigned) const
 	{
 		sf::Transform finalTransf;
 		finalTransf *= t.getTransform();
 		finalTransf.rotate(getRotation(), getCenter());
 
-		points.emplace_back(finalTransf.transformPoint({ getUpLeftX(), getUpLeftY() }));
-		points.emplace_back(finalTransf.transformPoint({ getDownRightX(), getUpLeftY() }));
-		points.emplace_back(finalTransf.transformPoint({ getDownRightX(), getDownRightY() }));
-		points.emplace_back(finalTransf.transformPoint({ getUpLeftX(), getDownRightY() }));
+		pivots.push(finalTransf.transformPoint({ getUpLeftX(), getUpLeftY() }));
+		pivots.push(finalTransf.transformPoint({ getDownRightX(), getUpLeftY() }));
+		pivots.push(finalTransf.transformPoint({ getDownRightX(), getDownRightY() }));
+		pivots.push(finalTransf.transformPoint({ getUpLeftX(), getDownRightY() }));
 
-		auto n = points.size();
+		auto n = pivots.size();
 
-		auto v1 = points[n - 3] - points[n - 4];
+		auto v1 = pivots[n - 3] - pivots[n - 4];
 		normalize(v1);
-		axis.emplace_back(perpendicularVector(v1));
-		auto v2 = points[n - 1] - points[n - 4];
+		axis.push(perpendicularVector(v1));
+		auto v2 = pivots[n - 1] - pivots[n - 4];
 		normalize(v2);
-		axis.emplace_back(perpendicularVector(v2));
+		axis.push(perpendicularVector(v2));
 	}
 
 
@@ -413,32 +419,38 @@ namespace ungod
 
 	ConvexPolygonConstAggregator::ConvexPolygonConstAggregator(const Collider& data) : PointSetConstAggregator(data) {}
 
-	void ConvexPolygonConstAggregator::getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& points, unsigned) const
+	void ConvexPolygonConstAggregator::getAxisAndPivots(const TransformComponent& t,
+														detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM>& axis,
+														detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM / 2>& pivots, 
+														unsigned) const
 	{
 		for (unsigned i = 0; i < getNumberOfPoints(); i++)
-			points.emplace_back(t.getTransform().transformPoint({ getPointX(i), getPointY(i) }));
-		auto n = points.size();
+			pivots.push(t.getTransform().transformPoint({ getPointX(i), getPointY(i) }));
+		auto n = pivots.size();
 		for (unsigned i = 0; i < getNumberOfPoints(); i++)
 		{
 			unsigned inext = (i + 1) % getNumberOfPoints();
-			auto v = points[n - getNumberOfPoints() + inext] - points[n - getNumberOfPoints() + i];
+			auto v = pivots[n - getNumberOfPoints() + inext] - pivots[n - getNumberOfPoints() + i];
 			normalize(v);
-			axis.emplace_back(perpendicularVector(v));
+			axis.push(perpendicularVector(v));
 		}
 	}
 
 
 	EdgeChainConstAggregator::EdgeChainConstAggregator(const Collider& data) : PointSetConstAggregator(data) {}
 
-	void EdgeChainConstAggregator::getAxisAndPivots(const TransformComponent& t, std::vector<sf::Vector2f>& axis, std::vector<sf::Vector2f>& points, unsigned i) const
+	void EdgeChainConstAggregator::getAxisAndPivots(const TransformComponent& t,
+													detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM>& axis,
+													detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM / 2>& pivots, 
+													unsigned i) const
 	{
-		points.emplace_back(t.getTransform().transformPoint({ getPointX(i), getPointY(i) }));
-		points.emplace_back(t.getTransform().transformPoint({ getPointX(i+1), getPointY(i+1) }));
+		pivots.push(t.getTransform().transformPoint({ getPointX(i), getPointY(i) }));
+		pivots.push(t.getTransform().transformPoint({ getPointX(i+1), getPointY(i+1) }));
 
-		auto n = points.size();
-		auto v = points[n - 1] - points[n - 2];
+		auto n = pivots.size();
+		auto v = pivots[n - 1] - pivots[n - 2];
 		normalize(v);
-		axis.emplace_back(perpendicularVector(v));
+		axis.push(perpendicularVector(v));
 	}
 
 	/*CircleConstAggregator::CircleConstAggregator(const Collider& data) : detail::AggregatorBase(data) {}

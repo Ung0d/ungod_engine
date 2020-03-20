@@ -29,6 +29,7 @@
 #include "ungod/physics/Physics.h"
 #include "ungod/physics/Collider.h"
 #include "ungod/base/Transform.h"
+#include "ungod/physics/ParamStack.h"
 
 namespace ungod
 {
@@ -36,8 +37,9 @@ namespace ungod
     std::pair<bool, sf::Vector2f> doCollide( const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2 );
 
 	/** \brief Checks for overlap given axis to check and two point sets to check on each axis. */
-	std::pair<bool, sf::Vector2f> satAlgorithm(const std::vector<sf::Vector2f>& axis, 
-									const std::vector<sf::Vector2f>& pivots1, const std::vector<sf::Vector2f>& pivots2);
+	std::pair<bool, sf::Vector2f> satAlgorithm(const detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM>& axis,
+												const detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM / 2>& pivots1,
+												const detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM / 2>& pivots2);
 
 	/** \brief A free method that checks whether a given point is inside a collider of arbitrary type.*/
     bool containsPoint(const Collider& collider, const TransformComponent& transf, const sf::Vector2f& point);

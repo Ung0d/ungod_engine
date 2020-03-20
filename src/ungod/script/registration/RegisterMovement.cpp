@@ -126,6 +126,19 @@ namespace ungod
                                             };
                                        });
 
+            state.registerFunction("pursuit",
+                                    []() -> std::function< void(Entity, MovementManager&, const script::Environment&) >
+                                    {
+                                        return [](Entity e, MovementManager& mvm, const script::Environment& parameters)
+                                        {
+                                            mvm.pursuit(e,
+                                                detail::unpackParameter<Entity>(parameters, "target"),
+                                                detail::unpackParameter<float>(parameters, "speed"),
+                                                detail::unpackParameter<float>(parameters, "arrivalRadius"),
+                                                detail::unpackParameter<float>(parameters, "damp"));
+                                        };
+                                    });
+
             state.registerFunction("flee",
                                        [] () -> std::function< void(Entity, MovementManager&, const script::Environment&) >
                                        {
