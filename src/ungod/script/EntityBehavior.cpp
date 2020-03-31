@@ -122,7 +122,11 @@ namespace ungod
 
     ScriptErrorCode EntityBehaviorManager::loadBehaviorScript(const std::string& filepath)
     {
-        return mBehaviorManager.loadBehavior(filepath);
+        auto success = mBehaviorManager.loadBehavior(filepath);
+        boost::filesystem::path p = filepath;
+        detail::OptionalEnvironment staticEnv = mBehaviorManager.getStaticEnvironment(p.stem().string());
+        if (staticEnv) staticEnv.value()["world"] = mWorld;
+        return success;
     }
 
     void EntityBehaviorManager::assignBehavior(Entity e, const std::string& key)

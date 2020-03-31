@@ -70,7 +70,7 @@ namespace ungod
 
             state.registerUsertype<SteeringPattern<script::Environment>>("SteeringPattern");
 
-            state.registerUsertype<SteeringManager<script::Environment>>("SteeringManager"/*,
+            state.registerUsertype<SteeringManager<script::Environment>>("SteeringManager",
                                                    "setActive", &SteeringManager<script::Environment>::setActive,
                                                    "newPattern", &SteeringManager<script::Environment>::newPattern,
                                                    "getPattern", &SteeringManager<script::Environment>::getPattern,
@@ -82,7 +82,7 @@ namespace ungod
                                                    "removePattern", sol::overload([] (SteeringManager<script::Environment>& sm, const std::string& key) { sm.removePattern(key); },
                                                                                    [] (SteeringManager<script::Environment>& sm, SteeringPattern<script::Environment>* s) { sm.removePattern(s); }),
                                                    "attachSteering", sol::overload([] (SteeringManager<script::Environment>& sm, const std::string& key, const SteeringFunc<script::Environment>& steering) { sm.attachSteering(key, steering); },
-                                                                                   [] (SteeringManager<script::Environment>& sm, SteeringPattern<script::Environment>* s, const SteeringFunc<script::Environment>& steering) { sm.attachSteering(s, steering); })*/ );
+                                                                                   [] (SteeringManager<script::Environment>& sm, SteeringPattern<script::Environment>* s, const SteeringFunc<script::Environment>& steering) { sm.attachSteering(s, steering); }) );
 
 
             state.registerEnum< PathFollowingPolicy>("PathFollowingPolicy",

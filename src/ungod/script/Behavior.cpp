@@ -72,6 +72,14 @@ namespace ungod
                 mStatesPrototype.emplace(s.name, mStates.back());
             }
         }
+
+        script::Environment MetaStateBehavior::getStaticEnvironment() const
+        {
+            if (mGlobal.isValid())
+                return mGlobal.getEnvironment();
+            else
+                return mStates[0].getEnvironment();
+        }
     } //detail
 
     ScriptStateBase::ScriptStateBase()

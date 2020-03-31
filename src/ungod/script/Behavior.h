@@ -213,6 +213,9 @@ namespace ungod
             /** \brief Sets up internal caches. */
             void init(NamedEnvironment global, const std::list<NamedEnvironment>& states, const IdentifierLookup& callbackIdentifiers);
             void init(const std::list<NamedEnvironment>& states, const IdentifierLookup& callbackIdentifiers);
+
+            /** \brief Returns the script static environment (equal for all instances). */
+            script::Environment getStaticEnvironment() const;
         };
 
     } //detail
@@ -306,6 +309,9 @@ namespace ungod
         /** \brief Returns the underlying instance environment for the given state. */
         detail::OptionalEnvironment getEnvironment(const std::string& stateName) const;
 
+        /** \brief Returns the underlying static environment. */
+        script::Environment getStaticEnvironment() const;
+
         virtual ~StateBehavior();
     };
 
@@ -395,9 +401,12 @@ namespace ungod
         * behavior data can be created. The parent environment must be unique to the instance. */
         StateBehaviorPtr<INIT_PARAM...> makeStateBehavior(const std::string& key, script::Environment instanceEnv, INIT_PARAM ... param) const;
 
-        /** \brief Accesses a static variable of the given state. Call is safe. Returned optional value is empty if not found. */
+        /** \brief Accesses a static variable of the given behavior. Call is safe. Returned optional value is empty if not found. */
         template<typename T>
         Optional<T> getStaticVariable(const std::string& key, const std::string& variableName) const;
+
+        /** \brief Returns the static script environment of the given behavior. */
+        detail::OptionalEnvironment getStaticEnvironment(const std::string& key) const;
 
         /** \brief Creates a unique environment for a instance. Id must be unique. */
         template<typename ID>
@@ -719,6 +728,12 @@ namespace ungod
         return detail::OptionalEnvironment();
     }
 
+    template <typename ... INIT_PARAM>
+    script::Environment StateBehavior<INIT_PARAM...>::getStaticEnvironment() const
+    {
+        return mCurrent->getStaticEnvironment();
+    }
+
 
     template<typename CLASS, typename ... ARGS>
     script::Usertype<CLASS> ScriptStateBase::registerUsertype(const std::string& name, ARGS&&... args)
@@ -923,6 +938,7 @@ namespace ungod
     }
 
 
+    //TODO: this method is deprecated
     template <typename ... INIT_PARAM>
     template<typename T>
     Optional<T> BehaviorManager<INIT_PARAM...>::getStaticVariable(const std::string& key, const std::string& variableName) const
@@ -937,9 +953,28 @@ namespace ungod
         auto res2 = mStateBehaviors.find(key);
         if (res2 != mStateBehaviors.end())
         {
-            return res->second->getStaticEnvironment().get<Optional<T>>(variableName);
+            return res2->second->getStaticEnvironment().get<Optional<T>>(variableName);
         }
         return Optional<T>();
+    }
+
+    template <typename ... INIT_PARAM>
+    detail::OptionalEnvironment BehaviorManager<INIT_PARAM...>::getStaticEnvironment(const std::string& key) const
+    {
+        //look in the behaviors first...
+        auto res = mBehaviors.find(key);
+        if (res != mBehaviors.end())
+        {
+            return res->second->getStaticEnvironment();
+        }
+        //no? maybe in the state behaviors...
+        auto res2 = mStateBehaviors.find(key);
+        if (res2 != mStateBehaviors.end())
+        {
+            return res2->second->getStaticEnvironment();
+        }
+        else
+            return {};
     }
 
     template <typename ... INIT_PARAM>

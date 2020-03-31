@@ -66,16 +66,13 @@ namespace ungod
                 float slow = desMagn/radius;
                 desiredVelocity = desiredVelocity * slow * slow;
             }
-            accelerate(mu, desiredVelocity, speed);
+            accelerate(mu, desiredVelocity - mu.velocity, speed);
         }
     }
 
     void pursuit(MobilityUnit& mu, MobilityUnit& prey, const V2f& currentPosition, const V2f& targetPosition, float targetMaxVel, float speed, float radius, float damp)
     {
-        sf::Vector2f dist = targetPosition - currentPosition;
-        const float distmagn = magnitude(dist);
-        if (dist.x != 0 || dist.y != 0)
-            dist = dist*(1/distmagn);
+        const float distmagn = magnitude(targetPosition - currentPosition);
         sf::Vector2f estimatedPosition = targetPosition + damp*(distmagn / targetMaxVel) * prey.velocity;
         arrival(mu, currentPosition, estimatedPosition, speed, radius);
     }

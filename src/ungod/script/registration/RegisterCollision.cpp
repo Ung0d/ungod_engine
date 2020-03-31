@@ -52,8 +52,10 @@ namespace ungod
 
             state.registerFunction("makeRotatedRect", [](const sf::Vector2f& upleft, const sf::Vector2f& downRight, float rotation)
                 { return makeRotatedRect(upleft, downRight, rotation); });
-            state.registerFunction("makeConvexPolygon", &makeConvexPolygon);
-            state.registerFunction("makeEdgeChain", &makeEdgeChain);
+            state.registerFunction("makeConvexPolygon", [] (script::Environment points)
+                { return makeConvexPolygon(env2vec<sf::Vector2f>(points)); });
+            state.registerFunction("makeEdgeChain", [](script::Environment points)
+                { return makeEdgeChain(env2vec<sf::Vector2f>(points)); });
         }
     }
 }
