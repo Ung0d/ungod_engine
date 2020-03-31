@@ -107,7 +107,7 @@ namespace ungod
 			worldType["behavior"] = &World::getBehaviorManager;
 			worldType["tilemap"] = &World::getTileMapRenderer;
 			worldType["particles"] = &World::getParticleSystemManager;
-			worldType["partentChild"] = &World::getParentChildManager;
+			worldType["parentChild"] = &World::getParentChildManager;
 			worldType["setRenderDepth"] = &World::setRenderDepth;
 			worldType["setName"] = &World::setName;
 			worldType["getName"] = &World::getName;
