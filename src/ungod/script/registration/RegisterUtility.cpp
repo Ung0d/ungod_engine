@@ -39,12 +39,20 @@ namespace ungod
             state.registerUsertype<sf::Vector2f>("Vec2f",
                                                                 sol::constructors<sf::Vector2f(), sf::Vector2f(float x, float y)>(),
                                                                     "x", &sf::Vector2f::x,
-                                                                    "y", &sf::Vector2f::y);
+                                                                    "y", &sf::Vector2f::y,
+                                                                    sol::meta_function::addition, &sf::operator+<float>, 
+                                                                    sol::meta_function::subtraction, [](const sf::Vector2f& l, const sf::Vector2f& r) {return l - r; },
+                                                                    sol::meta_function::multiplication, sol::overload([](const sf::Vector2f& l, const sf::Vector2f& r) {return sf::Vector2f{ l.x * r.x,  l.y * r.y }; },
+                                                                                                                      [](const sf::Vector2f& l, float r) {return sf::Vector2f{ l.x*r, l.y*r }; }));
 
             state.registerUsertype<sf::Vector2i>("Vec2i",
                                                                 sol::constructors<sf::Vector2i(), sf::Vector2i(int x, int y)>(),
                                                                     "x", &sf::Vector2i::x,
-                                                                    "y", &sf::Vector2i::y);
+                                                                    "y", &sf::Vector2i::y,
+                                                                    sol::meta_function::addition, &sf::operator+<float>,
+                                                                    sol::meta_function::subtraction, [](const sf::Vector2i& l, const sf::Vector2i& r) {return l - r; },
+                                                                    sol::meta_function::multiplication, sol::overload([](const sf::Vector2i& l, const sf::Vector2i& r) {return sf::Vector2i{ l.x * r.x,  l.y * r.y }; },
+                                                                                                                    [](const sf::Vector2i& l, int r) {return sf::Vector2i{ l.x * r, l.y * r }; }));
 
             state.registerUsertype<sf::IntRect>("IntRect",
                                                                 sol::constructors<sf::IntRect(), sf::IntRect(const sf::Vector2i& pos, const sf::Vector2i& size), sf::IntRect(int left, int top, int width, int height)>(),

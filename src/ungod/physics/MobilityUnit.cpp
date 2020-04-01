@@ -95,10 +95,10 @@ namespace ungod
     {
         sf::Vector2f dispCircle = mu.velocity;
         if (dispCircle.x == 0 && dispCircle.y == 0)
-            dispCircle = {1,1};
+            dispCircle = { NumberGenerator::getFloatRandBetw(-1,1),NumberGenerator::getFloatRandBetw(-1,1) };
         normalize(dispCircle);
         sf::Vector2f displacementForce = dispCircle;
-        float angle = acos(displacementForce.x); //dot-product between dispCircle and unit-x-vector
+        float angle = atan2(displacementForce.y, displacementForce.x);
         angle += NumberGenerator::getFloatRandBetw(-angleRange,angleRange);
         displacementForce.x = cos(angle);
         displacementForce.y = sin(angle);
