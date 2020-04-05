@@ -126,11 +126,11 @@ namespace ungod
             vertices[0].position -= sf::Vector2f(std::get<0>(local), std::get<1>(local));
         }
 
-        auto global = mCurrentNode.parent().getAttributes<float, float, float, float, float>(
-                    {"global_width", 0}, {"global_height", 0}, {"global_offset_x", 0}, {"global_offset_y", 0}, {"global_duration", 100} );
-        auto local = mCurrentNode.getAttributes<float, float, float, float, float, float, float>(
+        auto global = mCurrentNode.parent().getAttributes<float, float, float, float, float, bool>(
+                    {"global_width", 0}, {"global_height", 0}, {"global_offset_x", 0}, {"global_offset_y", 0}, {"global_duration", 100}, { "mirrored", false });
+        auto local = mCurrentNode.getAttributes<float, float, float, float, float, float, float, bool>(
                     {"pos_x", 0}, {"pos_y", 0}, {"width", std::get<0>(global)}, {"height", std::get<1>(global)},
-                    {"offset_x", std::get<2>(global)}, {"offset_y", std::get<3>(global)}, {"duration", std::get<4>(global)} );
+                    {"offset_x", std::get<2>(global)}, {"offset_y", std::get<3>(global)}, {"duration", std::get<4>(global)}, { "mirrored", std::get<5>(global) });
 
         //set the vertices
         vertices[0].texCoords = sf::Vector2f(std::get<0>(local), std::get<1>(local));
@@ -142,6 +142,12 @@ namespace ungod
         vertices[1].position = curPos + sf::Vector2f(std::get<4>(local) + std::get<2>(local), std::get<5>(local));
         vertices[2].position = curPos + sf::Vector2f(std::get<4>(local) + std::get<2>(local), std::get<5>(local) + std::get<3>(local));
         vertices[3].position = curPos + sf::Vector2f(std::get<4>(local), std::get<5>(local) + std::get<3>(local));
+
+        if (std::get<7>(local))
+        {
+            std::swap(vertices[0].texCoords, vertices[1].texCoords);
+            std::swap(vertices[3].texCoords, vertices[2].texCoords);
+        }
 
         mTimer = std::get<6>(local);
     }
@@ -203,6 +209,7 @@ namespace ungod
 
     void Animation::startAnimation(MetaNode node, sf::Vertex* vertices)
     {
+        MetaNode remcur = mCurrentNode;
         mCurrentNode = node.firstNode();
         if (mCurrentNode)
         {
@@ -212,7 +219,7 @@ namespace ungod
             mOneTimeOnly = std::get<1>(res);
             mRunning = true;
             mReverse = false;
-            setupFrame(MetaNode(), vertices);
+            setupFrame(remcur, vertices);
         }
         else
             mRunning = false;

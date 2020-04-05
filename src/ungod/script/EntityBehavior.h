@@ -95,6 +95,9 @@
 * onAnimationBegin(static, instance, key)
 * -- This method is invoked when a custom event occurs
 *
+* onAnimationEndFrame(static, instance, key, frameIndex)
+* -- This method is invoked when a running animation changes its frame (also called on first frame)
+*
 * onAnimationEnd(static, instance, key)
 * -- This method is invoked when a custom event occurs
 *

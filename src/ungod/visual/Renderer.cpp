@@ -419,8 +419,8 @@ namespace ungod
         bool runningBefore = animation.mAnimation.isRunning();
         if (animation.mAnimation.update(delta, animation.mVertices))
         {
-            mVisualsManager->mAnimationFrameSignal(e, animation.getAnimation().getKey(), animation.mAnimation.getCurrentIndex());
             mVisualsManager->mContentsChangedSignal(e, animation.getAnimation().getBounds());
+            mVisualsManager->mAnimationFrameSignal(e, animation.getAnimation().getKey(), animation.mAnimation.getCurrentIndex());
         }
         if (runningBefore && !animation.mAnimation.isRunning())
             mVisualsManager->mAnimationStopSignal(e, animation.getAnimation().getKey());
