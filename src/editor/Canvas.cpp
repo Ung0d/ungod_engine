@@ -579,7 +579,7 @@ namespace uedit
                               const wxSize& cSize,
                               long cStyle) :
             wxControl(parent, id, cPosition, cSize, cStyle),
-            ungod::Application("editor_app")
+            ungod::Application()
     {
         //set up the ungod application
         loadConfig();

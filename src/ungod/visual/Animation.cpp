@@ -33,16 +33,17 @@ namespace ungod
         mTimer(0), mLoop(false), mReverse(false), mRunning(false), mOneTimeOnly(false),
         mCurrentIndex(0), mCurrentNode(nullptr), mSpeed(1.0f) {}
 
-    void Animation::update(float delta, sf::Vertex* vertices)
+    bool Animation::update(float delta, sf::Vertex* vertices)
     {
         if (mRunning)
         {
             mTimer -= delta*mSpeed;
             if (mTimer <= 0)
             {
-                nextImage(vertices);
+                return nextImage(vertices);
             }
         }
+        return false;
     }
 
     bool Animation::isLooping() const
@@ -145,7 +146,7 @@ namespace ungod
         mTimer = std::get<6>(local);
     }
 
-    void Animation::nextImage(sf::Vertex* vertices)
+    bool Animation::nextImage(sf::Vertex* vertices)
     {
         MetaNode previous = mCurrentNode;
         if (mReverse)
@@ -197,6 +198,7 @@ namespace ungod
         }
         if (mRunning)
             setupFrame(previous, vertices);
+        return mRunning;
     }
 
     void Animation::startAnimation(MetaNode node, sf::Vertex* vertices)

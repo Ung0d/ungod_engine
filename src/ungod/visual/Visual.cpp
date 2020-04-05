@@ -298,6 +298,7 @@ namespace ungod
         if (animation.mAnimation.isRunning())
         {
             mAnimationStopSignal(e, animation.mAnimation.getKey());
+            mAnimationFrameSignal(e, animation.mAnimation.getKey(), 0);
         }
         bool r = animation.mAnimation.startAnimation(data.mMeta, key, animation.mVertices);
         if (r)
@@ -401,6 +402,11 @@ namespace ungod
     void VisualsManager::onAnimationStop(const std::function<void(Entity, const std::string&)>& callback)
     {
         mAnimationStopSignal.connect(callback);
+    }
+
+    void VisualsManager::onAnimationFrame(const std::function<void(Entity, const std::string&, int)>& callback)
+    {
+        mAnimationFrameSignal.connect(callback);
     }
 
 

@@ -381,6 +381,9 @@ namespace ungod
         /** \brief Registers new callback for the AnimastionStop signal. */
         void onAnimationStop(const std::function<void(Entity, const std::string&)>& callback);
 
+        /** \brief Registers new callback for the AnimastionStop signal. */
+        void onAnimationFrame(const std::function<void(Entity, const std::string&, int)>& callback);
+
         /** \brief Returns the lower bound of the bounding rect around all contents of the given entity. */
         sf::Vector2f getLowerBound(Entity e);
 
@@ -501,6 +504,7 @@ namespace ungod
         owls::Signal<Entity, const sf::FloatRect&> mContentsChangedSignal;
         owls::Signal<Entity, bool> mVisibilityChangedSignal;
         owls::Signal<Entity, const std::string&> mAnimationStartSignal;
+        owls::Signal<Entity, const std::string&, int> mAnimationFrameSignal;
         owls::Signal<Entity, const std::string&> mAnimationStopSignal;
     };
 }

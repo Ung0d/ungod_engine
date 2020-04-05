@@ -42,7 +42,7 @@ namespace ungod
 
         /** \brief Updates the animation and may set the mext image. May also set the running flag to false,
         * if OnTimeOnly is active. */
-        void update(float delta, sf::Vertex* vertices);
+        bool update(float delta, sf::Vertex* vertices);
 
         /** \brief Returns true if the animation is looping. */
         bool isLooping() const;
@@ -84,7 +84,7 @@ namespace ungod
     private:
         void setupFrame(MetaNode previous, sf::Vertex* vertices);
 
-        void nextImage(sf::Vertex* vertices);
+        bool nextImage(sf::Vertex* vertices);
 
     private:
         float mTimer;

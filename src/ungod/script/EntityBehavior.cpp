@@ -43,7 +43,7 @@ namespace ungod
                                                                           "onUpdate",
                                                                           "onButtonDown", "onButtonReleased", "onButtonPressed",
                                                                           "onMovementBegin", "onMovementEnd", "onDirectionChanged",
-                                                                          "onAnimationBegin", "onAnimationEnd",
+                                                                          "onAnimationBegin", "onAnimationFrame", "onAnimationEnd",
                                                                           "onCustomEvent",
                                                                           "onAIGetState", "onAIAction"};
 
@@ -77,6 +77,7 @@ namespace ungod
         mWorld->getMovementManager().onDirectionChanged([this] (Entity e, MovementComponent::Direction old, MovementComponent::Direction current) { callbackInvoker(ON_DIRECTION_CHANGED, e, old, current); });
 
         mWorld->getVisualsManager().onAnimationStart([this] (Entity e, const std::string& key) { callbackInvoker(ON_ANIMATION_BEGIN, e, key); });
+        mWorld->getVisualsManager().onAnimationFrame([this](Entity e, const std::string& key, int frameIndex) { callbackInvoker(ON_ANIMATION_FRAME, e, key, frameIndex); });
         mWorld->getVisualsManager().onAnimationStop([this] (Entity e, const std::string& key) { callbackInvoker(ON_ANIMATION_END, e, key); });
 
         mWorld->getSemanticsCollisionManager().onBeginCollision([this] (Entity e1, Entity e2) { entityCollisionEnter(e1, e2); });

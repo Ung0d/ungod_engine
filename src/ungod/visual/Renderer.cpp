@@ -417,10 +417,12 @@ namespace ungod
         if (!animation.mVertices)
             return;
         bool runningBefore = animation.mAnimation.isRunning();
-        animation.mAnimation.update(delta, animation.mVertices);
-        if (runningBefore && !animation.mAnimation.isRunning())
+        if (animation.mAnimation.update(delta, animation.mVertices))
         {
-            mVisualsManager->mAnimationStopSignal(e, animation.getAnimation().getKey());
+            mVisualsManager->mAnimationFrameSignal(e, animation.getAnimation().getKey(), animation.mAnimation.getCurrentIndex());
+            mVisualsManager->mContentsChangedSignal(e, animation.getAnimation().getBounds());
         }
+        if (runningBefore && !animation.mAnimation.isRunning())
+            mVisualsManager->mAnimationStopSignal(e, animation.getAnimation().getKey());
     }
 }
