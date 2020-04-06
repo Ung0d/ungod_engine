@@ -236,7 +236,7 @@ namespace ungod
             //checkbox
             state.registerFunction("createCheckbox", []() { return tgui::CheckBox::create(); });
             state.registerUsertype<tgui::CheckBox>("CheckBox", sol::base_classes, sol::bases<tgui::RadioButton, tgui::Widget>());
-
+            */
             //progress_bar
             state.registerFunction("createProgressBar", []() { return tgui::ProgressBar::create(); });
             state.registerEnum<tgui::ProgressBar::FillDirection>("FillDirection",
@@ -260,7 +260,7 @@ namespace ungod
             { return { progbar.getRenderer()->getTextureBackground().getData()->rect.width, progbar.getRenderer()->getTextureBackground().getData()->rect.height};  };
             progressBarType["getFillSize"] = [] (tgui::ProgressBar& progbar) -> sf::Vector2i
             { return { progbar.getRenderer()->getTextureFill().getData()->rect.width, progbar.getRenderer()->getTextureFill().getData()->rect.height};  };
-
+            /*
             //picture
             state.registerFunction("createPicture", []() { return tgui::Picture::create();} );
             script::Usertype<tgui::Picture> pictureType = state.registerUsertype<tgui::Picture>("Picture",sol::base_classes, sol::bases<tgui::Widget>());
