@@ -61,6 +61,9 @@ namespace ungod
         /** \brief Returns the world-intrinsic position of the transforms center. */
         sf::Vector2f getCenterPosition() const;
 
+        /** \brief Returns the world position of the entity origin (0,0) . */
+        sf::Vector2f getOriginPosition() const;
+
         /** \brief Returns the local upper bounds of the transform. */
         const sf::Vector2f& getUpperBounds() const;
 

@@ -49,6 +49,11 @@ namespace ungod
         return mTransform.getTransform().transformPoint(0.5f*(mLowerBound + mUpperBound));
     }
 
+    sf::Vector2f TransformComponent::getOriginPosition() const
+    {
+        return mTransform.getTransform().transformPoint({ 0,0 });
+    }
+
 
     const sf::Vector2f& TransformComponent::getScale() const { return mTransform.getScale(); }
 

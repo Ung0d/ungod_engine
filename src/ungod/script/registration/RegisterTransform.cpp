@@ -36,6 +36,7 @@ namespace ungod
 			transfType["getSize"] = &TransformComponent::getSize;
 			transfType["getPosition"] = &TransformComponent::getPosition;
 			transfType["getCenterPosition"] = &TransformComponent::getCenterPosition;
+			transfType["getOriginPosition"] = &TransformComponent::getOriginPosition;
 			transfType["getUpperBounds"] = &TransformComponent::getUpperBounds;
 			transfType["getLowerBounds"] = &TransformComponent::getLowerBounds;
 			transfType["getScale"] = &TransformComponent::getScale;
