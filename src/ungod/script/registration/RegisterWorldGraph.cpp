@@ -41,7 +41,8 @@ namespace ungod
 			script::Usertype<WorldGraph> worldGraphType = state.registerUsertype<WorldGraph>("WorldGraph");
 			worldGraphType["createNode"] = &WorldGraph::createNode;
 			worldGraphType["activateNode"] = &WorldGraph::activateNode;
-			worldGraphType["getActivateNode"] = &WorldGraph::getActiveNode;
+			worldGraphType["getActiveNode"] = &WorldGraph::getActiveNode;
+			worldGraphType["getNodeByIdentifier"] = [](WorldGraph& wg, const std::string& id) { return wg.getNode(id); };
         }
     }
 }

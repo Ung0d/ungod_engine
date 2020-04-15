@@ -260,7 +260,7 @@ namespace ungod
             { return { progbar.getRenderer()->getTextureBackground().getData()->rect.width, progbar.getRenderer()->getTextureBackground().getData()->rect.height};  };
             progressBarType["getFillSize"] = [] (tgui::ProgressBar& progbar) -> sf::Vector2i
             { return { progbar.getRenderer()->getTextureFill().getData()->rect.width, progbar.getRenderer()->getTextureFill().getData()->rect.height};  };
-            /*
+            
             //picture
             state.registerFunction("createPicture", []() { return tgui::Picture::create();} );
             script::Usertype<tgui::Picture> pictureType = state.registerUsertype<tgui::Picture>("Picture",sol::base_classes, sol::bases<tgui::Widget>());
@@ -269,7 +269,7 @@ namespace ungod
                                       [] (tgui::Picture& pic, const tgui::Layout2d& layout) { pic.setSize(layout); });
             pictureType["getTextureSize"] = [] (tgui::Picture& pic) -> sf::Vector2i
             { return { pic.getRenderer()->getTexture().getData()->rect.width, pic.getRenderer()->getTexture().getData()->rect.height};  };
-
+            /*
             //scrollbar
             state.registerFunction("createScrollbar", []() { return tgui::Scrollbar::create(); });
             script::Usertype<tgui::Scrollbar> scrollbarType = state.registerUsertype<tgui::Scrollbar>("Scrollbar",sol::base_classes, sol::bases<tgui::Widget>());

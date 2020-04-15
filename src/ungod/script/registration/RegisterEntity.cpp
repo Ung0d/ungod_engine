@@ -54,6 +54,8 @@ namespace ungod
 			hasType["SoundEmitter"] = &Has::has<SoundEmitterComponent>;
 			hasType["MovementRigidbody"] = &Has::has<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
 			hasType["SemanticsRigidbody"] = &Has::has<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
+			hasType["MultiMovementRigidbody"] = &Has::has<MultiRigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
+			hasType["MultiSemanticsRigidbody"] = &Has::has<MultiRigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
 			hasType["Movement"] = &Has::has<MovementComponent>;
 			hasType["Steering"] = &Has::has<SteeringComponent<script::Environment>>;
 			hasType["PathFinder"] = &Has::has<PathFinderComponent>;
@@ -80,6 +82,8 @@ namespace ungod
 			getType["SoundEmitter"] = &Get::get<SoundEmitterComponent>;
 			getType["MovementRigidbody"] = &Get::get<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
 			getType["SemanticsRigidbody"] = &Get::get<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
+			getType["MultiMovementRigidbody"] = &Get::get<MultiRigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
+			getType["MultiSemanticsRigidbody"] = &Get::get<MultiRigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
 			getType["Movement"] = &Get::get<MovementComponent>;
 			getType["Steering"] = &Get::get<SteeringComponent<script::Environment>>;
 			getType["PathFinder"] = &Get::get<PathFinderComponent>;
@@ -109,6 +113,8 @@ namespace ungod
 				[](Add& e, ProfileHandle h) { e.addWithInstantiator<SoundEmitterComponent>(e.entity.instantiate<SoundEmitterComponent>(h)); });
 			addType["MovementRigidbody"] = [](Add& e) { e.add<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>(); };
 			addType["SemanticsRigidbody"] = &Add::add<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
+			addType["MultiMovementRigidbody"] = [](Add& e) { e.add<MultiRigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>(); };
+			addType["MultiSemanticsRigidbody"] = &Add::add<MultiRigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
 			addType["Movement"] = &Add::add<MovementComponent>;
 			addType["Steering"] = &Add::add<SteeringComponent<script::Environment>>;
 			addType["PathFinder"] = &Add::add<PathFinderComponent>;
@@ -140,6 +146,8 @@ namespace ungod
 			remType["SoundEmitter"] = &Rem::rem<SoundEmitterComponent>;
 			remType["MovementRigidbody"] = &Rem::rem<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
 			remType["SemanticsRigidbody"] = &Rem::rem<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
+			remType["MultiMovementRigidbody"] = &Rem::rem<MultiRigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
+			remType["MultiSemanticsRigidbody"] = &Rem::rem<MultiRigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
 			remType["Movement"] = &Rem::rem<MovementComponent>;
 			remType["Steering"] = &Rem::rem<SteeringComponent<script::Environment>>;
 			remType["PathFinder"] = &Rem::rem<PathFinderComponent>;
