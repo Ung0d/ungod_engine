@@ -113,8 +113,8 @@ namespace ungod
 				[](Add& e, ProfileHandle h) { e.addWithInstantiator<SoundEmitterComponent>(e.entity.instantiate<SoundEmitterComponent>(h)); });
 			addType["MovementRigidbody"] = [](Add& e) { e.add<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>(); };
 			addType["SemanticsRigidbody"] = &Add::add<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
-			addType["MultiMovementRigidbody"] = [](Add& e) { e.add<MultiRigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>(); };
-			addType["MultiSemanticsRigidbody"] = &Add::add<MultiRigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
+			addType["MultiMovementRigidbody"] = &Add::addMulti<MultiRigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
+			addType["MultiSemanticsRigidbody"] = &Add::addMulti<MultiRigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
 			addType["Movement"] = &Add::add<MovementComponent>;
 			addType["Steering"] = &Add::add<SteeringComponent<script::Environment>>;
 			addType["PathFinder"] = &Add::add<PathFinderComponent>;

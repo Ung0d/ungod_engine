@@ -195,12 +195,10 @@ namespace ungod
         void onEndCollision(const std::function<void(Entity, Entity)>& callback);
 
         /** \brief Checks for collision between 2 entities. Emits the given signal each time 2 colliders overlap. */
-        static void entityCollision(Entity e1, Entity e2,
-                                    owls::Signal<Entity, Entity, const sf::Vector2f&, const Collider&, const Collider&>& signal);
-        static void entityCollision(Entity e1, Entity e2,
+        void entityCollision(Entity e1, Entity e2);
+        void entityCollision(Entity e1, Entity e2,
                                     TransformComponent t1, TransformComponent t2,
-                                    RigidbodyComponent<CONTEXT>& r1,  RigidbodyComponent<CONTEXT>& r2,
-                                    owls::Signal<Entity, Entity, const sf::Vector2f&, const Collider&, const Collider&>& signal);
+                                    RigidbodyComponent<CONTEXT>& r1,  RigidbodyComponent<CONTEXT>& r2);
 
     private:
         using CollidingEntitiesMap = std::unordered_map<Entity, std::unordered_set<Entity> >;  //maps an moveable entities to all static entities it collides with
@@ -211,6 +209,9 @@ namespace ungod
         owls::Signal<Entity, Entity> mCollisionBeginSignal;
         owls::Signal<Entity, Entity, const sf::Vector2f&, const Collider&, const Collider&> mCollisionSignal;
         owls::Signal<Entity, Entity> mCollisionEndSignal;
+
+    private:
+        void notifyCollision(Entity e1, Entity e2, const sf::Vector2f& mdv, const Collider& c1, const Collider& c2);
     };
 }
 

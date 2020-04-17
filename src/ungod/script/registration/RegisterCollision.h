@@ -28,6 +28,7 @@
 
 #include "ungod/script/Behavior.h"
 #include "ungod/physics/CollisionManager.h"
+#include "ungod/script/registration/RegistrationDetail.h"
 
 namespace ungod
 {
@@ -38,6 +39,7 @@ namespace ungod
         void registerCollision(ScriptStateBase& state)
         {
             state.registerUsertype<RigidbodyComponent<CONTEXT>>(STRCAT("Rigidbody", NUM2STR(CONTEXT)));
+            detail::registerMultiComponent<RigidbodyComponent<CONTEXT>>(state, STRCAT("MultiRigidbody", NUM2STR(CONTEXT)));
 
             state.registerUsertype<CollisionManager<CONTEXT>>(STRCAT("CollisionManager", NUM2STR(CONTEXT)));
 

@@ -40,6 +40,7 @@ namespace ungod
 			transfType["getUpperBounds"] = &TransformComponent::getUpperBounds;
 			transfType["getLowerBounds"] = &TransformComponent::getLowerBounds;
 			transfType["getScale"] = &TransformComponent::getScale;
+			transfType["getBaseLineOffsets"] = &TransformComponent::getBaseLineOffsets;
 
 			script::Usertype<TransformManager> transfManagerType = state.registerUsertype<TransformManager>("TransformManager");
 			transfManagerType["setPosition"] = sol::overload([](TransformManager& tm, Entity e, float x, float y) { tm.setPosition(e, { x,y }); },

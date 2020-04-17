@@ -238,11 +238,6 @@ template<std::size_t CONTEXT>
 CollisionManager<CONTEXT>::CollisionManager(quad::QuadTree<Entity>& quadtree) :
     mQuadtree(&quadtree), mBufferActive(false)
 {
-    onCollision([this] (Entity e, Entity other, const sf::Vector2f&, const Collider&, const Collider&)
-                {
-                    auto result = mDoubleBuffers[mBufferActive].emplace(e, std::unordered_set<Entity>());
-					result.first->second.insert(other);
-                });
 }
 
 
@@ -265,17 +260,15 @@ void CollisionManager<CONTEXT>::onEndCollision(const std::function<void(Entity, 
 }
 
 template<std::size_t CONTEXT>
-void CollisionManager<CONTEXT>::entityCollision(Entity e1, Entity e2,
-                                                owls::Signal<Entity, Entity, const sf::Vector2f&, const Collider&, const Collider&>& signal)
+void CollisionManager<CONTEXT>::entityCollision(Entity e1, Entity e2)
 {
-    entityCollision(e1, e2, e1.modify<TransformComponent>(), e2.modify<TransformComponent>(), e1.modify<RigidbodyComponent<CONTEXT>>(), e2.modify<RigidbodyComponent<CONTEXT>>(), signal);
+    entityCollision(e1, e2, e1.modify<TransformComponent>(), e2.modify<TransformComponent>(), e1.modify<RigidbodyComponent<CONTEXT>>(), e2.modify<RigidbodyComponent<CONTEXT>>());
 }
 
 template<std::size_t CONTEXT>
 void CollisionManager<CONTEXT>::entityCollision(Entity e1, Entity e2,
                      TransformComponent t1, TransformComponent t2,
-                     RigidbodyComponent<CONTEXT>& r1,  RigidbodyComponent<CONTEXT>& r2,
-                    owls::Signal<Entity, Entity, const sf::Vector2f&, const Collider&, const Collider&>& signal)
+                     RigidbodyComponent<CONTEXT>& r1,  RigidbodyComponent<CONTEXT>& r2)
 {
     if (sf::FloatRect(t1.getPosition(), t1.getSize()).intersects(sf::FloatRect(t2.getPosition(), t2.getSize())))
     {
@@ -284,10 +277,18 @@ void CollisionManager<CONTEXT>::entityCollision(Entity e1, Entity e2,
         std::tie(collision, smallestOffset) = doCollide(r1.getCollider(), r2.getCollider(), t1, t2);
         if ( collision && e1 != e2 )
         {
-            signal(e1, e2, smallestOffset, r1.getCollider(), r2.getCollider());
-			signal(e2, e1, smallestOffset, r2.getCollider(), r1.getCollider());
+			notifyCollision(e1, e2, smallestOffset, r1.getCollider(), r2.getCollider());
+			notifyCollision(e2, e1, smallestOffset, r2.getCollider(), r1.getCollider());
         }
     }
+}
+
+template<std::size_t CONTEXT>
+void CollisionManager<CONTEXT>::notifyCollision(Entity e1, Entity e2, const sf::Vector2f& mdv, const Collider& c1, const Collider& c2)
+{
+	mCollisionSignal(e1, e2, mdv, c1, c2);
+	auto result = mDoubleBuffers[mBufferActive].emplace(e1, std::unordered_set<Entity>());
+	result.first->second.insert(e2);
 }
 
 template<std::size_t CONTEXT>
@@ -361,13 +362,13 @@ void CollisionManager<CONTEXT>::checkCollisions(Entity e, TransformComponent tra
 		dom::Utility<Entity>::iterate<TransformComponent, RigidbodyComponent<CONTEXT>>(result.getList(),
 			[e, &transf, &body, this](Entity other, TransformComponent& transfOther, RigidbodyComponent<CONTEXT>& bodyOther)
 			{
-				entityCollision(e, other, transf, transfOther, body, bodyOther, mCollisionSignal);
+				entityCollision(e, other, transf, transfOther, body, bodyOther);
 			});
 		dom::Utility<Entity>::iterate<TransformComponent, MultiRigidbodyComponent<CONTEXT>>(result.getList(),
 			[e, &transf, &body, this](Entity other, TransformComponent& transfOther, MultiRigidbodyComponent<CONTEXT>& bodyOther)
 			{
 				for (unsigned i = 0; i < bodyOther.getComponentCount(); i++)
-					entityCollision(e, other, transf, transfOther, body, bodyOther.getComponent(i), mCollisionSignal);
+					entityCollision(e, other, transf, transfOther, body, bodyOther.getComponent(i));
 			});
 	}
 }
