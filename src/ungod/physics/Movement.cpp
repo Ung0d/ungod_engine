@@ -144,19 +144,19 @@ namespace ungod
 
     void MovementManager::seek(Entity e, const sf::Vector2f& targetPos, float speed)
     {
-        ungod::seek(e.modify<MovementComponent>().mMobilityUnit, e.get<TransformComponent>().getPosition(), targetPos, speed);
+        ungod::seek(e.modify<MovementComponent>().mMobilityUnit, e.get<TransformComponent>().getCenterPosition(), targetPos, speed);
     }
 
 
     void MovementManager::flee(Entity e, const sf::Vector2f& targetPos, float speed)
     {
-        ungod::flee(e.modify<MovementComponent>().mMobilityUnit, e.get<TransformComponent>().getPosition(), targetPos, speed);
+        ungod::flee(e.modify<MovementComponent>().mMobilityUnit, e.get<TransformComponent>().getCenterPosition(), targetPos, speed);
     }
 
 
     void MovementManager::arrival(Entity e, const sf::Vector2f& targetPos, float speed, const int arrivalRadius)
     {
-        ungod::arrival(e.modify<MovementComponent>().mMobilityUnit, e.get<TransformComponent>().getPosition(), targetPos, speed, (float)arrivalRadius);
+        ungod::arrival(e.modify<MovementComponent>().mMobilityUnit, e.get<TransformComponent>().getCenterPosition(), targetPos, speed, (float)arrivalRadius);
     }
 
 
@@ -164,7 +164,7 @@ namespace ungod
                                  float speed, unsigned arrivalRadius, float damp)
     {
         ungod::pursuit(e.modify<MovementComponent>().mMobilityUnit, target.modify<MovementComponent>().mMobilityUnit,
-                e.get<TransformComponent>().getPosition(), target.get<TransformComponent>().getPosition(),
+                e.get<TransformComponent>().getCenterPosition(), target.get<TransformComponent>().getCenterPosition(),
                 target.modify<MovementComponent>().getMaxVelocity(), speed, (float)arrivalRadius, damp);
     }
 
@@ -173,7 +173,7 @@ namespace ungod
                                float speed, float evadeDistance, float damp)
     {
         ungod::evade(e.modify<MovementComponent>().mMobilityUnit, target.modify<MovementComponent>().mMobilityUnit,
-             e.get<TransformComponent>().getPosition(), target.get<TransformComponent>().getPosition(),
+             e.get<TransformComponent>().getCenterPosition(), target.get<TransformComponent>().getCenterPosition(),
              target.modify<MovementComponent>().getMaxVelocity(), speed, evadeDistance, damp);
     }
 

@@ -89,6 +89,10 @@ namespace ungod
         {
             flee(mu, currentPosition, estimatedPosition, speed);
         }
+        else
+        {
+            seek(mu, currentPosition, estimatedPosition, speed);
+        }
     }
 
     void displace(MobilityUnit& mu, float speed, float circleDistance, float angleRange)
