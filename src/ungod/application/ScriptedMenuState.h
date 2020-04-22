@@ -72,6 +72,8 @@ namespace ungod
 
         virtual void close() override;
 
+        virtual ~ScriptedMenuState();
+
     private:
         /** \brief Defines ids for script callbacks. */
         enum MenuScriptCallbacks { ON_INIT, ON_CLOSE,
@@ -100,7 +102,8 @@ namespace ungod
         Gui mGui;
         InputHandler mInputHandler;
         AudioManager mAudioManager;
-        Camera mCamera;
+
+        owls::SignalLink<void, const sf::Vector2u&> mTargetSizeChangedLink;
     };
 }
 

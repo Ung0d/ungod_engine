@@ -91,7 +91,7 @@ namespace ungod
         }
         else
         {
-            seek(mu, currentPosition, estimatedPosition, speed);
+            arrival(mu, currentPosition, estimatedPosition, speed, 20);
         }
     }
 

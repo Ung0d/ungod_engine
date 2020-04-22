@@ -32,7 +32,7 @@
 
 namespace ungod
 {
-    constexpr float sEpsilon = 0.001f;
+    constexpr float sEpsilon = 0.1f;
 
     using V2f = sf::Vector2f;
 

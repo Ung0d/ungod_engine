@@ -41,8 +41,7 @@ namespace ungod
         ScriptedMenuState::ScriptedMenuState(Application& app, StateID id, const std::string& scriptID) :
             State(app, id),
             mScriptCallbacks( app.getScriptState(), app.getGlobalScriptEnv(), { std::begin(MENU_CALLBACK_IDENTIFIERS), std::end(MENU_CALLBACK_IDENTIFIERS) } ),
-            mGui(app.getWindow()),
-            mCamera(app.getWindow())
+            mGui(app.getWindow())
         {
             //register functionality
             scriptRegistration::registerUtility(mScriptCallbacks);
@@ -58,6 +57,10 @@ namespace ungod
             mInputHandler.onDown([this] (const std::string& binding) { mScriptCallbacks.execute(ON_BUTTON_DOWN, binding, this); });
             mInputHandler.onReleased([this] (const std::string& binding) { mScriptCallbacks.execute(ON_BUTTON_RELEASED, binding, this); });
 
+            mTargetSizeChangedLink = app.onTargetSizeChanged([this, &app](const sf::Vector2u& ts)
+            {
+                    mGui.setView(sf::View{ sf::FloatRect{0.0f, 0.0f, float(ts.x), float(ts.y)} });
+            });
         }
 
 
@@ -70,7 +73,6 @@ namespace ungod
 
         void ScriptedMenuState::update(const float delta)
         {
-            mCamera.update(delta);
             mInputHandler.update();
             mAudioManager.update(delta);
             if (mIntervalTimer.getElapsedTime().asMilliseconds() >= UPDATE_INTERVAL)
@@ -83,9 +85,7 @@ namespace ungod
 
         void ScriptedMenuState::render(sf::RenderTarget& target, sf::RenderStates states)
         {
-            mCamera.renderBegin();
             mGui.draw();
-            mCamera.renderEnd();
         }
 
 
@@ -104,5 +104,10 @@ namespace ungod
         void ScriptedMenuState::close()
         {
             mScriptCallbacks.execute(ON_CLOSE, this);
+        }
+
+        ScriptedMenuState::~ScriptedMenuState()
+        {
+            mTargetSizeChangedLink.disconnect();
         }
 }
