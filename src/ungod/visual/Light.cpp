@@ -143,7 +143,7 @@ namespace ungod
         return mShape;
     }
 
-    const std::string PointLight::DEFAULT_TEXTURE_PATH = "resource/pointLightTexture.png";
+    const std::string PointLight::DEFAULT_TEXTURE_PATH = "data/shaders/light/pointLightTexture.png";
     constexpr float PointLight::DEFAULT_RADIUS;
     constexpr float PointLight::DEFAULT_SHADOW_EXTEND_MULTIPLIER;
 
@@ -835,7 +835,7 @@ namespace ungod
 
 		mDisplaySprite.setTexture(mCompositionTexture.getTexture(), true);
 		sf::View view = target.getView();
-		target.setView(target.getDefaultView());
+        target.setView(sf::View{ sf::FloatRect{0.0f,0.0f,(float)target.getSize().x,(float)target.getSize().y} });
 		target.draw(mDisplaySprite, lightstates);
 		target.setView(view);
     }

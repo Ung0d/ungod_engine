@@ -172,7 +172,7 @@ namespace ungod
             widgetType["showWithEffect"] = [] (tgui::Widget& widget, tgui::ShowAnimationType type, int32_t durationInMs) { widget.showWithEffect(type, sf::milliseconds(durationInMs)); };
 
             //container (base for certain widgets)
-            /*state.registerUsertype<tgui::Container>("Container",
+           state.registerUsertype<tgui::Container>("Container",
                                                                 "add", sol::overload( [] (tgui::Container& cont, const tgui::Widget::Ptr& widget, const std::string& name) { cont.add(widget, name); },
                                                                                       [] (tgui::Container& cont, const tgui::Group::Ptr& widget, const std::string& name) { cont.add(widget, name); },
                                                                                       [] (tgui::Container& cont, const tgui::Panel::Ptr& widget, const std::string& name) { cont.add(widget, name); },
@@ -200,18 +200,18 @@ namespace ungod
                                                                 "getTabs", [] (tgui::Container& cont, const std::string& name) { return cont.get<tgui::Tabs>(name); },
                                                                 "getChildWindow", [] (tgui::Container& cont, const std::string& name) { return cont.get<tgui::ChildWindow>(name); },
                                                                 "getTiledBackground", [] (tgui::Container& cont, const std::string& name) { return cont.get<tgui::TiledBackground>(name); },
-                                                                sol::base_classes, sol::bases<tgui::Widget>());*/
+                                                                sol::base_classes, sol::bases<tgui::Widget>());
 
             //group
-            /*state.registerFunction("createGroup", []() { return tgui::Group::create(); });
+            state.registerFunction("createGroup", []() { return tgui::Group::create(); });
             state.registerUsertype<tgui::Group>("Group",
                                                             "setSize", sol::overload( [] (tgui::Group& g, const sf::Vector2f& s) { g.setSize(s); },
                                                                                       [] (tgui::Group& g, float x, float y) { g.setSize({x,y}); },
                                                                                       [] (tgui::Group& g, const tgui::Layout2d& layout) { g.setSize(layout); }),
-                                                          sol::base_classes, sol::bases<tgui::Container, tgui::Widget>());*/
+                                                          sol::base_classes, sol::bases<tgui::Container, tgui::Widget>());
 
             //button
-            /*state.registerFunction("createButton", []() { return tgui::Button::create(); });
+            state.registerFunction("createButton", []() { return tgui::Button::create(); });
             script::Usertype<tgui::Button> buttonType = state.registerUsertype<tgui::Button>("Button", sol::base_classes, sol::bases<tgui::Widget>());
             buttonType["setText"] = [] (tgui::Button& button, const std::string& text) { button.setText(text); };
             buttonType["getText"] = [] (tgui::Button& button) -> std::string { return button.getText(); };
@@ -236,7 +236,7 @@ namespace ungod
             //checkbox
             state.registerFunction("createCheckbox", []() { return tgui::CheckBox::create(); });
             state.registerUsertype<tgui::CheckBox>("CheckBox", sol::base_classes, sol::bases<tgui::RadioButton, tgui::Widget>());
-            */
+            
             //progress_bar
             state.registerFunction("createProgressBar", []() { return tgui::ProgressBar::create(); });
             state.registerEnum<tgui::ProgressBar::FillDirection>("FillDirection",
@@ -269,7 +269,7 @@ namespace ungod
                                       [] (tgui::Picture& pic, const tgui::Layout2d& layout) { pic.setSize(layout); });
             pictureType["getTextureSize"] = [] (tgui::Picture& pic) -> sf::Vector2i
             { return { pic.getRenderer()->getTexture().getData()->rect.width, pic.getRenderer()->getTexture().getData()->rect.height};  };
-            /*
+            
             //scrollbar
             state.registerFunction("createScrollbar", []() { return tgui::Scrollbar::create(); });
             script::Usertype<tgui::Scrollbar> scrollbarType = state.registerUsertype<tgui::Scrollbar>("Scrollbar",sol::base_classes, sol::bases<tgui::Widget>());
@@ -382,7 +382,7 @@ namespace ungod
             childWindowType["setTitle"] = [] (tgui::ChildWindow& childwindow, const std::string& title) { childwindow.setTitle(title); };
             childWindowType["setTitleAlignment"] = &tgui::ChildWindow::setTitleAlignment;
             childWindowType["setResizable"] = &tgui::ChildWindow::setResizable;
-            childWindowType["getFullSize"] = &tgui::ChildWindow::getFullSize; */
+            childWindowType["getFullSize"] = &tgui::ChildWindow::getFullSize; 
         }
     }
 }

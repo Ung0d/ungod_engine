@@ -134,9 +134,11 @@ namespace ungod
     }
 
 
-    void Application::initCursor(const std::string& id, sf::Texture& texture)
+    void Application::initCursor(const std::string& id, const std::string& path)
     {
-        mCursors.emplace(id, &texture);
+        Image img{ path };
+        if (img.isLoaded())
+            auto c = mCursors.emplace(id, img);
     }
 
 
@@ -145,7 +147,7 @@ namespace ungod
         auto result = mCursors.find(id);
         if (result != mCursors.end())
         {
-            mActiveCursor.setTexture(*result->second, true);
+            mActiveCursor.setTexture(*result->second.get(), true);
             mWindow.setMouseCursorVisible(false);
         }
     }
@@ -216,6 +218,7 @@ namespace ungod
         mWindow.setIcon(icon.width, icon.height, icon.pixel_data);
         mWindow.clear(mBackgroundColor);
         mWindow.display();
+        mCursorCamera.init(mWindow);
     }
 
 
@@ -226,6 +229,7 @@ namespace ungod
         mWindow.setIcon(icon.width, icon.height, icon.pixel_data);
         mWindow.clear(sf::Color::Black);
         mWindow.display();
+        mCursorCamera.init(mWindow);
     }
 
 
@@ -283,6 +287,7 @@ namespace ungod
         while(mWindow.pollEvent(event))
         {
             mStatemanager.handleEvent(event);
+            mCursorCamera.handleEvent(event);
 
             //do own Event evaluation
             switch(event.type)
@@ -325,8 +330,11 @@ namespace ungod
     {
         mWindow.clear(mBackgroundColor);
         mStatemanager.render(mWindow, sf::RenderStates());
-        mActiveCursor.setPosition((float)sf::Mouse::getPosition(mWindow).x, (float)sf::Mouse::getPosition(mWindow).y);
+        mCursorCamera.renderBegin();
+        auto cursorPos = mWindow.mapPixelToCoords(sf::Mouse::getPosition(mWindow));
+        mActiveCursor.setPosition(cursorPos);
         mWindow.draw(mActiveCursor);
+        mCursorCamera.renderEnd();
         mWindow.display();
     }
 

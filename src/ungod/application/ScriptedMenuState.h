@@ -102,6 +102,7 @@ namespace ungod
         Gui mGui;
         InputHandler mInputHandler;
         AudioManager mAudioManager;
+        Camera mCamera;
 
         owls::SignalLink<void, const sf::Vector2u&> mTargetSizeChangedLink;
     };

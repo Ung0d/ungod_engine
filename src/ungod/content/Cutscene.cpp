@@ -61,15 +61,24 @@ namespace ungod
             {
                 mDataBuffers[bufferSwitch].textures.emplace_back();
                 mDataBuffers[bufferSwitch].textures.back().loadFromFile(scene->mLayers[i].second);
+                mDataBuffers[bufferSwitch].textures.back().setSmooth(true);
             }
         }
     }
 
     namespace CutsceneEffects
     {
-         void LayerTransition::init(sf::BigSprite& sprite)
+         void LayerTransition::init(sf::BigSprite& sprite, unsigned duration)
          {
             sprite.setPosition(mStartingPosition);
+            //compute adjusted scale that takes starting and end position of the moving layer into account
+           /* float startScaleX = (sprite.getGlobalBounds().width - mStartingPosition.x) / sprite.getGlobalBounds().width;
+            float startScaleY = (sprite.getGlobalBounds().height - mStartingPosition.y) / sprite.getGlobalBounds().height;
+            sf::Vector2f displacementOverDuration = duration/20.0f * mDirection *mSpeed;
+            float endScaleX = (sprite.getGlobalBounds().width - mStartingPosition.x + displacementOverDuration.x) / sprite.getGlobalBounds().width;
+            float endScaleY = (sprite.getGlobalBounds().height - mStartingPosition.y + displacementOverDuration.y) / sprite.getGlobalBounds().height;
+            float adjScale = std::max({ startScaleX , startScaleY, endScaleX, endScaleY });
+            sprite.scale({ adjScale, adjScale });*/
          }
 
          void LayerTransition::apply(sf::BigSprite& sprite, float delta)
@@ -81,6 +90,8 @@ namespace ungod
 
     Scene::Scene(unsigned duration) : mDuration(duration)
     {
+        mText.setOutlineThickness(1);
+        mText.setOutlineColor(sf::Color::Transparent);
     }
 
 
@@ -101,6 +112,23 @@ namespace ungod
             else
             {
                 Logger::warning("Tried to apply an effect to a scene, that does not exist.");
+                Logger::endl();
+            }
+        }
+    }
+
+
+    void Scene::initEffects()
+    {
+        for (const auto& effect : mEffects)
+        {
+            if (effect.second < mLayers.size())
+            {
+                effect.first->init(mLayers[effect.second].first, mDuration);
+            }
+            else
+            {
+                Logger::warning("Tried to initialize an effect for a scene, that does not exist.");
                 Logger::endl();
             }
         }
@@ -205,6 +233,7 @@ namespace ungod
                     setTextures();
                     mTimer.restart();
                     status = true;
+                    mScenes[mCurrent].initEffects();
                 }
             }
         }
@@ -252,14 +281,14 @@ namespace ungod
         }
         for (auto& layer : mScenes[mCurrent].mLayers)
         {
-            sf::Vector2f scaling;
-            scaling.x = mScreenSize.x / layer.first.getLocalBounds().width;
-            scaling.y = mScreenSize.y / layer.first.getLocalBounds().height;
-            float scale = (scaling.x+scaling.y)/2;
+            float sx = mScreenSize.x / layer.first.getLocalBounds().width;
+            float sy = mScreenSize.y / layer.first.getLocalBounds().height;
+            float scale = std::min(sx, sy);
             layer.first.setScale({scale, scale});
             layer.first.setPosition({-(layer.first.getLocalBounds().width*scale-mScreenSize.x)/2, -(layer.first.getLocalBounds().height*scale-mScreenSize.y)/2});
         }
-        mScenes[mCurrent].mText.setPosition({mScreenSize.x*mScenes[mCurrent].mTextPosition.x, mScreenSize.y*mScenes[mCurrent].mTextPosition.y});
+        mScenes[mCurrent].mText.setPosition({mScreenSize.x*mScenes[mCurrent].mTextPosition.x - mScenes[mCurrent].mText.getGlobalBounds().width/2, 
+                                             mScreenSize.y*mScenes[mCurrent].mTextPosition.y - mScenes[mCurrent].mText.getGlobalBounds().height / 2 });
     }
 
 

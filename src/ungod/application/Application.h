@@ -33,6 +33,8 @@
 #include "ungod/ressource_management/AssetHandler.h"
 #include "ungod/script/Script.h"
 #include "ungod/application/ConfigFile.h"
+#include "ungod/visual/Image.h"
+#include "ungod/visual/Camera.h"
 
 namespace ungod
 {
@@ -72,7 +74,7 @@ namespace ungod
         void quitApplication(ErrorCode error = ErrorCode::QUIT_STATUS_OK);
 
         /** \brief Loads a new cursor and tags it with a key. */
-        void initCursor(const std::string& id, sf::Texture& texture);
+        void initCursor(const std::string& id, const std::string& path);
 
         /** \brief Activates a previously loaded cursor. */
         void setCursor(const std::string& id);
@@ -150,9 +152,10 @@ namespace ungod
         float mUpdateCounter;
         float mAccumulator;
         sf::Clock mUpdateTimer;
-        std::unordered_map<std::string, sf::Texture*> mCursors;
+        std::unordered_map<std::string, Image> mCursors;
         sf::Sprite mActiveCursor;
         sf::Color mBackgroundColor;
+        Camera mCursorCamera;
         //signals
         owls::Signal<const sf::Vector2u&> mTargetSizeChanged;
         //statics

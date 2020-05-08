@@ -79,7 +79,7 @@ namespace ungod
         class LayerEffectBase
         {
         public:
-            virtual void init(sf::BigSprite& sprite) {}
+            virtual void init(sf::BigSprite& sprite, unsigned duration) {}
             virtual void apply(sf::BigSprite& sprite, float delta) = 0;
         };
 
@@ -89,7 +89,7 @@ namespace ungod
             LayerTransition(const sf::Vector2f& direction, const sf::Vector2f& startingPos, float speed) :
                 mStartingPosition(startingPos), mDirection(direction), mSpeed(speed) {}
 
-            virtual void init(sf::BigSprite& sprite) override;
+            virtual void init(sf::BigSprite& sprite, unsigned duration) override;
             virtual void apply(sf::BigSprite& sprite, float delta) override;
 
         private:
@@ -122,6 +122,9 @@ namespace ungod
 
         /** \brief Applies effects to all layers. */
         void applyEffects(float delta);
+
+        /** \brief Initializes the effects on all layers. */
+        void initEffects();
 
         /** \brief Renders the scene. */
         void render(sf::RenderTarget& target, sf::RenderStates states) const;

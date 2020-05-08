@@ -47,8 +47,8 @@ namespace ungod
 			{ scene.addEffectToLayer<CutsceneEffects::LayerTransition>(index, direction, startingPos, speed); };
 			sceneType["setText"] = & Scene::setText;
 			sceneType["setTextPosition"] = & Scene::setTextPosition;
-			sceneType["setTextFillColor"] = & Scene::setText;
-			sceneType["setTextOutlineColor"] = & Scene::setTextPosition;
+			sceneType["setTextFillColor"] = & Scene::setTextFillColor;
+			sceneType["setTextOutlineColor"] = & Scene::setTextOutlineColor;
 			sceneType["setTextSize"] = & Scene::setTextSize;
         }
     }

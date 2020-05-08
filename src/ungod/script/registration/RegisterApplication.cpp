@@ -94,6 +94,7 @@ namespace ungod
                 [&app](const std::string& type, script::Environment data, float delay) { return app.emitCustomEvent(type, data, delay); }));
 
             state.registerFunction("setCursor", [&app](const std::string& cursor) { app.setCursor(cursor); });
+            state.registerFunction("initCursor", [&app](const std::string& cursor, const std::string& path) { app.initCursor(cursor, path); });
 
             state.registerFunction("randFloat", [&app](float bot, float top) { return ungod::NumberGenerator::getFloatRandBetw(bot, top); });
             state.registerFunction("randInt", [](int bot, int top) { return ungod::NumberGenerator::getRandBetw(bot, top); });
