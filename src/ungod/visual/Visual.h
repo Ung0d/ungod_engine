@@ -56,8 +56,8 @@ namespace ungod
     public:
         VisualsComponent();
 
-        /** \brief Returns a ptr to the underlying texture, if loaded. */
-        sf::Texture* getTexture();
+        /** \brief Returns a reference to the underlying texture if it is loaded. Else it returns a reference to the default texture. */
+        const sf::Texture& getTexture();
 
         /** \brief Returns true if a texture is successfully loaded. */
         bool isLoaded() const;

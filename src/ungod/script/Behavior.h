@@ -827,7 +827,7 @@ namespace ungod
         exposeBehaviorFactories( mMainEnv, global, states );
 
         //run the script that is now able to make use of the factories
-        bool exec = script.runScript();
+        bool exec = script.run();
 
         //remove the factories to avoid dangling refs to the local vars stored in the lambdas
         removeBehaviorFactories( mMainEnv );

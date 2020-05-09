@@ -95,7 +95,7 @@ namespace ungod
     private:
         float mIntervalMin;
         float mIntervalMax;
-        std::vector<MusicData> mData;
+        std::vector<std::unique_ptr<MusicData>> mData;
         std::size_t mCurrentlyPlaying;
         bool mRandom;
         bool mSilence;

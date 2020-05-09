@@ -90,7 +90,7 @@ namespace ungod
      if (flip)
         states.transform.scale(1.0f, -1.0f);
       states.transform.translate(0.0f, offsety);
-      states.texture = vis.getTexture();
+      states.texture = &vis.getTexture();
 
       if (e.has<WaterComponent>())
       {
@@ -121,7 +121,7 @@ namespace ungod
           }
           if (e.has<ParticleSystemComponent>())
           {
-              e.modify<ParticleSystemComponent>().mParticleSystem->render(vis.getTexture(), target, states);
+              e.modify<ParticleSystemComponent>().mParticleSystem->render(&vis.getTexture(), target, states);
           }
       }
     }

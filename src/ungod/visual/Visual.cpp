@@ -38,7 +38,7 @@ namespace ungod
     }
 
 
-    sf::Texture* VisualsComponent::getTexture()
+    const sf::Texture& VisualsComponent::getTexture()
     {
         return mImage.get();
     }
@@ -178,7 +178,7 @@ namespace ungod
         std::size_t index = newTextureRect(vertices, {0,0,0,0});
         if (vis.isLoaded())
         {
-            setArrayTextureRect(vertices, sf::FloatRect{0.0f,0.0f, (float)vis.getTexture()->getSize().x, (float)vis.getTexture()->getSize().y}, index);
+            setArrayTextureRect(vertices, sf::FloatRect{0.0f,0.0f, (float)vis.getTexture().getSize().x, (float)vis.getTexture().getSize().y}, index);
             setTextureRectPosition(e, {0,0}, index);
         }
         return index;
@@ -188,7 +188,7 @@ namespace ungod
     {
         visuals.mImage.load(imageID, LoadPolicy::ASYNC);
         visuals.mVisible = true;
-        visuals.mImage.get([this, &visuals, callback](sf::Texture& texture)
+        visuals.mImage.get([this, &visuals, callback](const sf::Texture&)
           {
               callback(visuals);
           });
@@ -589,7 +589,7 @@ namespace ungod
     void VisualsManager::loadBigTexture(Entity e, BigSpriteComponent& bigSprite, const std::string& filepath, LoadPolicy policy)
     {
         bigSprite.mBigImage.load(filepath, policy);
-        bigSprite.mBigImage.get([this, &bigSprite, e](sf::BigTexture& btxt)
+        bigSprite.mBigImage.get([this, &bigSprite, e](const sf::BigTexture&)
           {
               if (e.valid())
               {
@@ -601,9 +601,9 @@ namespace ungod
 
     void VisualsManager::setBigSpriteTexture(Entity e, BigSpriteComponent& bigSprite)
     {
-        if (bigSprite.mBigSprite.getBigTexture() == bigSprite.mBigImage.get())
+        if (bigSprite.mBigSprite.getBigTexture() == &bigSprite.mBigImage.get())
             return;
-        bigSprite.mBigSprite.setTexture(*bigSprite.mBigImage.get());
+        bigSprite.mBigSprite.setTexture(bigSprite.mBigImage.get());
         mContentsChangedSignal(e, bigSprite.mBigSprite.getGlobalBounds());
     }
 

@@ -179,21 +179,24 @@ namespace ungod
     template<typename T, typename ... PARAM>
     AssetData<T, PARAM...>* AssetHandler<T, PARAM...>::getData(const std::string& path, const LoadPolicy policy, PARAM&& ... param)
     { 
-        std::unordered_map< std::string, std::shared_ptr<AssetData<T, PARAM...>> >::iterator res;
-        std::shared_ptr<AssetData<T, PARAM...>> data;
         {
             std::shared_lock lock(mLoadDropMutex);
-            res = mAssetData.find(path);
+            auto res = mAssetData.find(path);
             if (res != mAssetData.end())
             {
-                res.first->second->referenceCount++; //atomic
-                return res.first->second.get();
+                res->second->referenceCount++; //atomic
+                return res->second.get();
             }
-            else
-                data = res.first->second;
         }
         //not loaded yet
         std::unique_lock lock(mLoadDropMutex);
+        auto res = mAssetData.emplace(path, std::make_shared<AssetData<T, PARAM...>>());
+        auto data = res.first->second;
+        if (!res.second) //second check to prevent race conditions
+        {
+            data->referenceCount++; //atomic
+            return data.get(); // when this return happens, the asset data is already in a prepared state (either fully loaded or loading with valid future)
+        }
         data->referenceCount = 1;
         data->isLoaded = false;
         data->filepath = path;
@@ -205,7 +208,7 @@ namespace ungod
             Logger::endl();
 
             data->future = std::async(std::launch::deferred, &AssetHandler<T, PARAM...>::syncLoad,
-                                        this, data, path, std::forward<PARAM>(param)...);
+                this, data, path, std::forward<PARAM>(param)...);
             data->future.wait();
         }
         else //load async
@@ -215,7 +218,7 @@ namespace ungod
             Logger::endl();
 
             data->future = std::async(std::launch::async, &AssetHandler<T, PARAM...>::asyncLoad,
-				this, std::weak_ptr<AssetData<T, PARAM...>>{data}, path, std::forward<PARAM>(param)...);
+                this, std::weak_ptr<AssetData<T, PARAM...>>{data}, path, std::forward<PARAM>(param)...);
 
             mPending.emplace_back(data);
         }

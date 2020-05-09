@@ -51,20 +51,20 @@ namespace ungod
 
 
     /** \brief For images that do not fit into the hardwares internal texture size. */
-    class BigImage : public Asset<sf::BigTexture, bool, bool>
+    class BigImage : public Asset<sf::BigTexture, bool>
     {
     public:
-        BigImage(const std::string& filePath, const LoadPolicy policy = LoadPolicy::SYNC, bool smooth = false, bool repeated = false);
+        BigImage(const std::string& filePath, const LoadPolicy policy = LoadPolicy::SYNC, bool smooth = false);
 
         BigImage();
 
-        void load(const std::string filePath, const LoadPolicy policy = LoadPolicy::SYNC, bool smooth = false, bool repeated = false);
+        void load(const std::string filePath, const LoadPolicy policy = LoadPolicy::SYNC, bool smooth = false);
     };
 
     template<>
-    struct LoadBehavior<sf::BigTexture, bool, bool>
+    struct LoadBehavior<sf::BigTexture, bool>
     {
-        static bool loadFromFile(const std::string& filepath, sf::BigTexture& data, bool smooth, bool repeated);
+        static bool loadFromFile(const std::string& filepath, sf::BigTexture& data, bool smooth);
         static std::string getIdentifier() { return "BigImage"; }
     };
 }

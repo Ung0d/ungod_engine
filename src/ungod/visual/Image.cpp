@@ -29,13 +29,13 @@
 
 namespace ungod
 {
-    Image::Image(const std::string& filePath, const LoadPolicy policy, bool smooth, bool repeated) : Asset<sf::Texture>(filePath, policy, smooth, repeated) {}
+    Image::Image(const std::string& filePath, const LoadPolicy policy, bool smooth, bool repeated) : Asset<sf::Texture, bool, bool>(filePath, policy, std::move(smooth), std::move(repeated)) {}
 
-    Image::Image() : Asset<sf::Texture>() {}
+    Image::Image() : Asset<sf::Texture, bool, bool>() {}
 
     void Image::load(const std::string filePath, const LoadPolicy policy, bool smooth, bool repeated)
     {
-        Asset<sf::Texture>::load(filePath, policy, smooth, repeated);
+        Asset<sf::Texture, bool, bool>::load(filePath, policy, std::move(smooth), std::move(repeated));
     }
 
     bool LoadBehavior<sf::Texture, bool, bool>::loadFromFile(const std::string& filepath, sf::Texture& data, bool smooth, bool repeated)
@@ -47,20 +47,19 @@ namespace ungod
     }
 
 
-    BigImage::BigImage(const std::string& filePath, const LoadPolicy policy, bool smooth, bool repeated) : Asset<sf::BigTexture>(filePath, policy, smooth, repeated) {}
+    BigImage::BigImage(const std::string& filePath, const LoadPolicy policy, bool smooth) : Asset<sf::BigTexture, bool>(filePath, policy, std::move(smooth)) {}
 
-    BigImage::BigImage() : Asset<sf::BigTexture>() {}
+    BigImage::BigImage() : Asset<sf::BigTexture, bool>() {}
 
-    void BigImage::load(const std::string filePath, const LoadPolicy policy, bool smooth, bool repeated)
+    void BigImage::load(const std::string filePath, const LoadPolicy policy, bool smooth)
     {
-        Asset<sf::BigTexture>::load(filePath, policy, smooth, repeated);
+        Asset<sf::BigTexture, bool>::load(filePath, policy, std::move(smooth));
     }
 
-    bool LoadBehavior<sf::BigTexture, bool, bool>::loadFromFile(const std::string& filepath, sf::BigTexture& data, bool smooth, bool repeated)
+    bool LoadBehavior<sf::BigTexture, bool>::loadFromFile(const std::string& filepath, sf::BigTexture& data, bool smooth)
     {
         bool success = data.loadFromFile(filepath);
         data.setSmooth(smooth);
-        data.setRepeated(repeated);
         return success;
     }
 }

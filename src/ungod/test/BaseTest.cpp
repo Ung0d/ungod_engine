@@ -477,6 +477,46 @@ BOOST_AUTO_TEST_CASE(copy_between_worlds_test)
 	world2->addEntity(e2); //adding to the quadtree automatically destroys entities when world is destroyed
 }
 
+BOOST_AUTO_TEST_CASE(multiple_threads_request_asset_test)
+{
+    //same asset
+    {
+        auto loader = []()
+        {
+            ungod::Image img("test_data/test_sheet.png", ungod::LoadPolicy::ASYNC);
+            return img;
+        };
+        auto r1 = std::async(loader);
+        auto r2 = std::async(loader);
+        r1.wait();
+        r2.wait();
+        ungod::Image img1 = r1.get();
+        ungod::Image img2 = r2.get();
+        img1.getWait();
+        img2.getWait();
+        BOOST_CHECK(img1.isLoaded());
+        BOOST_CHECK(img2.isLoaded());
+    }
+    //different assets
+    {
+        auto loader = [](const std::string& file)
+        {
+            ungod::Image img(file, ungod::LoadPolicy::ASYNC);
+            return img;
+        };
+        auto r1 = std::async(std::launch::async, loader, "test_data/test_sheet.png");
+        auto r2 = std::async(std::launch::async, loader, "test_data/blech_warrior.png");
+        r1.wait();
+        r2.wait();
+        ungod::Image img1 = r1.get();
+        ungod::Image img2 = r2.get();
+        img1.getWait();
+        img2.getWait();
+        BOOST_CHECK(img1.isLoaded());
+        BOOST_CHECK(img2.isLoaded());
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END() 
 
 

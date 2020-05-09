@@ -58,7 +58,7 @@ namespace ungod
         mData.loaded = mData.music.openFromFile(fileID);
         if (mData.loaded)
         {
-            mDatafilepath = fileID];
+            mData.filepath = fileID;
             mData.music.setLoop(true);
         }
     }
@@ -85,12 +85,12 @@ namespace ungod
 
     void MusicPlayerSingle::setVolume(float volume)
     {
-        mData.music.>setVolume(volume);
+        mData.music.setVolume(volume);
     }
 
     float MusicPlayerSingle::getVolume() const
     {
-        return mData.music.>getVolume();
+        return mData.music.getVolume();
     }
 
     Playlist::Playlist(const std::vector< std::string >& fileIDs, bool random, float intervalMin, float intervalMax) :
@@ -99,11 +99,12 @@ namespace ungod
         mData.resize(fileIDs.size());
         for (unsigned i = 0; i < fileIDs.size(); ++i)
         {
-            mData[i].loaded = mData[i].music.openFromFile(fileIDs[i]);
-            if (mData[i].loaded)
+            mData[i] = std::make_unique<MusicData>();
+            mData[i]->loaded = mData[i]->music.openFromFile(fileIDs[i]);
+            if (mData[i]->loaded)
             {
-                mData[i].filepath = fileIDs[i];
-                mData[i].music.setLoop(false);
+                mData[i]->filepath = fileIDs[i];
+                mData[i]->music.setLoop(false);
             }
         }
         if (random)
@@ -116,7 +117,7 @@ namespace ungod
     {
         for (const auto& data : mData)
         {
-            if (!data.loaded)
+            if (!data->loaded)
                 return false;
         }
         return true;
@@ -126,38 +127,38 @@ namespace ungod
     {
         mSilence = false;
         mStopped = false;
-        mData[mCurrentlyPlaying].music.play();
+        mData[mCurrentlyPlaying]->music.play();
     }
 
     void Playlist::pause()
     {
-        mData[mCurrentlyPlaying].music.pause();
+        mData[mCurrentlyPlaying]->music.pause();
     }
 
     void Playlist::stop()
     {
         mStopped = true;
-        mData[mCurrentlyPlaying].music.stop();
+        mData[mCurrentlyPlaying]->music.stop();
     }
 
     void Playlist::setVolume(float volume)
     {
-        for (const auto& data : mData)
+        for (auto& data : mData)
         {
-            data.music.get()->setVolume(volume);
+            data->music.setVolume(volume);
         }
     }
 
     float Playlist::getVolume() const
     {
-        return mData[0].music.getVolume();
+        return mData[0]->music.getVolume();
     }
 
     void Playlist::update(float delta)
     {
         MusicPlayerBase::update(delta);
 
-        if (mStopped || mData[mCurrentlyPlaying].music.getStatus() == sf::SoundSource::Status::Paused)
+        if (mStopped || mData[mCurrentlyPlaying]->music.getStatus() == sf::SoundSource::Status::Paused)
             return;
 
         if (mSilence)
@@ -167,7 +168,7 @@ namespace ungod
                 mSilence = false;
                 if (mRandom)
                 {
-                    mCurrentlyPlaying = NumberGenerator::getRandBetw(0, (unsigned)mMusic.size()-1);
+                    mCurrentlyPlaying = NumberGenerator::getRandBetw(0, (unsigned)mData.size()-1);
                 }
                 else
                 {
@@ -182,7 +183,7 @@ namespace ungod
         }
         else
         {
-            if (mData[mCurrentlyPlaying].music.getStatus() == sf::SoundSource::Status::Stopped)
+            if (mData[mCurrentlyPlaying]->music.getStatus() == sf::SoundSource::Status::Stopped)
             {
                 mSilence = true;
                 mTimer = NumberGenerator::getFloatRandBetw(mIntervalMin, mIntervalMax);

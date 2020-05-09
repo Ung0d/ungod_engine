@@ -281,7 +281,7 @@ namespace ungod
 
         mSoundslots[free].mProfile = profile;
         mSoundslots[free].mIndex = index;
-        mSoundslots[free].mSound.setBuffer(*(mSoundslots[free].mProfile.mIter->second.mSounds[index]->sound.get()));
+        mSoundslots[free].mSound.setBuffer(mSoundslots[free].mProfile.mIter->second.mSounds[index]->sound.get());
 
         mSoundslots[free].mSound.setVolume( 100.0f * mVolumeSettings[volumeSetting] * scaling );
         mSoundslots[free].mSound.setPitch(pitch);

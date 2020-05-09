@@ -62,7 +62,7 @@ namespace ungod
 		windowPosition = states.transform.getInverse().transformPoint(windowPosition);
 
         bool active = false;
-        if (mVertices.getVertexCount() && mImage.get()->getSize().x > 0)
+        if (mVertices.getVertexCount() && mImage.get().getSize().x > 0)
         {
             unsigned metaX = std::max(0, (int)(std::round(windowPosition.x - getPosition().x) / (getScale().x*mTileWidth)));
             unsigned metaY = std::max(0, (int)(std::round(windowPosition.y - getPosition().y) / (getScale().y*mTileHeight)));
@@ -122,7 +122,7 @@ namespace ungod
         }
 
         states.transform *= getTransform();
-        states.texture = mImage.get();
+        states.texture = &mImage.get();
         target.draw(mVertices, states);
 
         return active;

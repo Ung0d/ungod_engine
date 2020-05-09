@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE( script_test )
 
         BOOST_REQUIRE(script.isLoaded());
 
-        script.get()->run();
+        script.run();
 
         auto env = state.get<Optional<script::Environment>>("a");
 
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( script_test )
 
         BOOST_REQUIRE(script.isLoaded());
 
-        script.runScript();
+        script.run();
         script.invokeCallback(testme);
 
         auto testmeplus1 = state.get<Optional<int>>("testmeplus1");

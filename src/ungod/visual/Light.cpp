@@ -312,12 +312,9 @@ namespace ungod
 
     void PointLight::loadTexture(const std::string& path)
     {
-        mTexture.load(path);
+        mTexture.load(path, LoadPolicy::ASYNC, true);
         if (mTexture.isLoaded())
-        {
-            mTexture.get()->setSmooth(true);
-            mSprite.setTexture(*mTexture.get(), true);
-        }
+            mSprite.setTexture(mTexture.get(), true);
         mSprite.setOrigin({ mSprite.getTextureRect().width*0.5f, mSprite.getTextureRect().height*0.5f });
     }
 
@@ -782,12 +779,10 @@ namespace ungod
 
         setImageSize(imageSize);
 
-        mPenumbraTexture.load(penumbraTexture);
-
+        mPenumbraTexture.load(penumbraTexture, LoadPolicy::ASYNC, true);
         if (mPenumbraTexture.isLoaded())
         {
-            mPenumbraTexture.get()->setSmooth(true);
-            mUnshadowShader.setUniform("penumbraTexture", *mPenumbraTexture.get());
+            mUnshadowShader.setUniform("penumbraTexture", mPenumbraTexture.get());
         }
         else
         {

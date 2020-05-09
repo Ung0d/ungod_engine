@@ -135,7 +135,7 @@ namespace ungod
         boost::filesystem::path p{filepath};
         detail::NamedEnvironment env {mScriptState->create_named_table(p.stem().string()), p.stem().string()};
 
-        if (!mScript.runScript())
+        if (!mScript.run())
             return SCRIPT_EXECUTION_ERROR;
 
         mCallbackCache.init(env, mIdentifiers);

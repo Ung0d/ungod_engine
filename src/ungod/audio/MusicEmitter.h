@@ -56,6 +56,8 @@ namespace ungod
 
         MusicEmitterComponent();
 
+        MusicEmitterComponent(const MusicEmitterComponent&);
+
         /** \brief Returns the filepath of the music file or "" if unloaded. **/
         std::string getFilePath() const;
 

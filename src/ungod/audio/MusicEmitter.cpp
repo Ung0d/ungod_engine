@@ -33,6 +33,17 @@ namespace ungod
 {
     MusicEmitterComponent::MusicEmitterComponent() : mDistanceCap(DEFAULT_DISTANCE_CAP), mVolume(1.0f), mActive(true), mBound(false) {}
 
+    MusicEmitterComponent::MusicEmitterComponent(const MusicEmitterComponent& other) : 
+        mDistanceCap(other.mDistanceCap), mVolume(other.mVolume), mActive(other.mActive), mBound(other.mBound)
+    {
+        if (other.mMusicData.loaded)
+        {
+            mMusicData.filepath = other.mMusicData.filepath;
+            mMusicData.loaded = other.mMusicData.loaded;
+            mMusicData.music.openFromFile(mMusicData.filepath);
+            mMusicData.music.setLoop(true);
+        }
+    }
 
     std::string MusicEmitterComponent::getFilePath() const
     {
@@ -73,7 +84,7 @@ namespace ungod
         if (data.loaded)
         {
             data.filepath = fileID;
-            data.musicsetLoop(true);
+            data.music.setLoop(true);
         }
     }
 
@@ -91,7 +102,7 @@ namespace ungod
             {
                 if (mCurrentlyPlaying[i].first && mCurrentlyPlaying[i].first->mMusicData.loaded)
                 {
-                    mCurrentlyPlaying[i].first->mMusiData.music.stop();
+                    mCurrentlyPlaying[i].first->mMusicData.music.stop();
                     mCurrentlyPlaying[i].first = nullptr;
                     mCurrentlyPlaying[i].second = nullptr;
                 }
@@ -133,7 +144,7 @@ namespace ungod
         dom::Utility<Entity>::iterate<TransformComponent, MusicEmitterComponent>(result.getList(),
               [this, listenerWorldPos, listener] (Entity e, TransformComponent& transf, MusicEmitterComponent& emitter)
               {
-                  if (emitter.mActive && !emitter.mBound && emitter.mMusic.isLoaded())
+                  if (emitter.mActive && !emitter.mBound && emitter.mMusicData.loaded)
                   {
                       float dist = distance(transf.getCenterPosition(), listenerWorldPos);
                       if (dist < emitter.mDistanceCap)
@@ -162,8 +173,8 @@ namespace ungod
                             {
                                 if (mCurrentlyPlaying[indexToUse].first)
                                 {
-                                    if (mCurrentlyPlaying[indexToUse].first->mMusic.isLoaded())
-                                        mCurrentlyPlaying[indexToUse].first->mMusic.get()->stop();
+                                    if (mCurrentlyPlaying[indexToUse].first->mMusicData.loaded)
+                                        mCurrentlyPlaying[indexToUse].first->mMusicData.music.stop();
                                     mCurrentlyPlaying[indexToUse].first->mBound = false;
                                     mCurrentlyPlaying[indexToUse].first = nullptr;
                                     mCurrentlyPlaying[indexToUse].second = nullptr;
@@ -188,13 +199,13 @@ namespace ungod
 
             if ( distance(mCurrentlyPlaying[i].second->getCenterPosition(), listener->getWorldPosition()) > mCurrentlyPlaying[i].first->mDistanceCap )
             {
-                if (mCurrentlyPlaying[i].first->mMusic.isLoaded())
-                    mCurrentlyPlaying[i].first->mMusic.get()->stop();
+                if (mCurrentlyPlaying[i].first->mMusicData.loaded)
+                    mCurrentlyPlaying[i].first->mMusicData.music.stop();
                 mCurrentlyPlaying[i].first->mBound = false;
                 mCurrentlyPlaying[i].first = nullptr;
                 mCurrentlyPlaying[i].second = nullptr;
             }
-            else if (mCurrentlyPlaying[i].first->mMusic.isLoaded())
+            else if (mCurrentlyPlaying[i].first->mMusicData.loaded)
             {
                 float scaling = listener->getScaling(mCurrentlyPlaying[i].second->getCenterPosition() , mCurrentlyPlaying[i].first->mDistanceCap);
                 mCurrentlyPlaying[i].first->mMusicData.music.setVolume( 100.0f * mCurrentlyPlaying[i].first->mVolume * scaling );

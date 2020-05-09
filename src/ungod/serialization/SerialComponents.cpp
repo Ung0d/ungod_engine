@@ -212,8 +212,8 @@ namespace ungod
 
     void SerialBehavior<MusicEmitterComponent, Entity, const World&, const Application&>::serialize(const MusicEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&)
     {
-        if (data.mMusic.isLoaded())
-            context.serializeProperty("file", data.mMusic.getFilePath(), serializer);
+        if (data.mMusicData.loaded)
+            context.serializeProperty("file", data.mMusicData.filepath, serializer);
 
         if (data.mDistanceCap != MusicEmitterComponent::DEFAULT_DISTANCE_CAP)
             context.serializeProperty("dc", data.mDistanceCap, serializer);

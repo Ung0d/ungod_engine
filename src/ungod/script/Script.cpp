@@ -3,10 +3,13 @@
 
 namespace ungod
 {
-    namespace script
+    Script::Script(const std::string& filepath, script::StateRef state) { load(filepath, state); }
+
+    bool Script::load(const std::string& filepath, script::StateRef state)
     {
-        bool ScriptData::load(const std::string& filepath, StateRef state)
+        if (boost::filesystem::exists(filepath))
         {
+            mFilepath.clear();
             mValid = false;
             //load script data
             mState = state;
@@ -24,6 +27,7 @@ namespace ungod
                     Logger::error(err.what());
                     Logger::endl();
                 }
+                mFilepath = filepath;
                 return true;
             }
             catch (const std::exception& e)
@@ -36,76 +40,47 @@ namespace ungod
                 return false;
             }
         }
-
-        bool ScriptData::run()
-        {
-            auto res = mCallback();
-
-            if (!res.valid())
-            {
-                sol::error err = res;
-                Logger::error("Error while running script.");
-                Logger::endl();
-                Logger::error(err.what());
-                Logger::endl();
-                return false;
-            }
-            return true;
-        }
-
-        bool ScriptData::isValid()
-        {
-            return mValid;
-        }
-
-        void ScriptData::reset()
-        {
-            mValid = false;
-            mCallback = script::ProtectedFunc();
-            mState = script::OptionalStateRef();
-        }
-    }
-
-    bool LoadBehavior<script::ScriptData, script::StateRef>::loadFromFile(const std::string& filepath, script::ScriptData& data, script::StateRef state)
-    {
-        if ( boost::filesystem::exists(filepath) )
-        {
-            return data.load(filepath, state);
-        }
         else
+        {
+            Logger::error("Script file ");
+            Logger::error(filepath);
+            Logger::error(" does not exists.");
+            Logger::endl();
             return false;
+        }
     }
 
+    const std::string& Script::getFilePath() const { return mFilepath; }
 
-    Script::Script() : Asset<script::ScriptData, script::StateRef>() {}
+    bool Script::isLoaded() const { return mFilepath.size() > 0; }
 
-    Script::Script(const std::string& filepath, script::StateRef state)
-         : Asset<script::ScriptData, script::StateRef>(filepath, LoadPolicy::SYNC, std::forward<script::StateRef>(state)) {}
-
-    void Script::load(const std::string& filepath, script::StateRef state)
+    bool Script::run()
     {
-        Asset<script::ScriptData, script::StateRef>::load(filepath, LoadPolicy::SYNC, std::forward<script::StateRef>(state));
-    }
+        auto res = mCallback();
 
-    script::ScriptData* Script::get() const { return Asset<script::ScriptData, script::StateRef>::get(); }
-
-    std::string Script::getFilePath() const { return Asset<script::ScriptData, script::StateRef>::getFilePath(); }
-
-    bool Script::isLoaded() const { return Asset<script::ScriptData, script::StateRef>::isLoaded(); }
-
-    bool Script::runScript()
-    {
-        return get()->run();
+        if (!res.valid())
+        {
+            sol::error err = res;
+            Logger::error("Error while running script.");
+            Logger::endl();
+            Logger::error(err.what());
+            Logger::endl();
+            return false;
+        }
+        return true;
     }
 
     bool Script::isValid() const
     {
-        return get()->isValid();
+        return mValid;
     }
 
-    void Script::reset() const
+    void Script::reset() 
     {
-        get()->reset();
+        mValid = false;
+        mFilepath.clear();
+        mCallback = script::ProtectedFunc();
+        mState = script::OptionalStateRef();
     }
 
 
@@ -113,18 +88,18 @@ namespace ungod
     InvokeableScript::InvokeableScript(const std::string& filepath, const std::string& methodName, script::StateRef state)
         : Script(filepath, state), mMethodName(methodName) {}
 
-    void InvokeableScript::load(const std::string& filepath, const std::string& methodName, script::StateRef state)
+    bool InvokeableScript::load(const std::string& filepath, const std::string& methodName, script::StateRef state)
     {
-        Script::load(filepath, state);
         mMethodName = methodName;
+        return Script::load(filepath, state);
     }
 
-    bool InvokeableScript::runScript()
+    bool InvokeableScript::run()
     {
-        if ( get()->run() )
+        if (Script::run())
         {
-            if (get()->getState())
-                mFunc = get()->getState()->get<script::OptionalProtectedFunc>( mMethodName );
+            if (mState)
+                mFunc = mState->get<script::OptionalProtectedFunc>( mMethodName );
             return true;
         }
         return false;

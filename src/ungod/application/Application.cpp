@@ -147,7 +147,7 @@ namespace ungod
         auto result = mCursors.find(id);
         if (result != mCursors.end())
         {
-            mActiveCursor.setTexture(*result->second.get(), true);
+            mActiveCursor.setTexture(result->second.get(), true);
             mWindow.setMouseCursorVisible(false);
         }
     }
