@@ -26,6 +26,8 @@
 #ifndef ASSET_HANDLER_H
 #define ASSET_HANDLER_H
 
+#include <mutex>  
+#include <shared_mutex>
 #include <unordered_map>
 #include "ungod/base/Logger.h"
 #include "ungod/ressource_management/AssetData.h"
@@ -74,7 +76,9 @@ namespace ungod
     private:
         std::unordered_map< std::string, std::shared_ptr<AssetData<T, PARAM...>> > mAssetData;  ///<stores loaded assets under fileID as key
         std::list< std::weak_ptr<AssetData<T, PARAM...>> > mPending; ///<stores asset data that is loading asyc and invokes callbacks on main thread if finished
+        mutable std::shared_mutex mLoadDropMutex; ///< protects loading and dropping
 
+    private:
         /**
         * \brief Tells the handler that an asset requires AssetData refering to the given path.
         * If its no loaded yet the data is loaded with the given policy.
@@ -174,40 +178,46 @@ namespace ungod
 
     template<typename T, typename ... PARAM>
     AssetData<T, PARAM...>* AssetHandler<T, PARAM...>::getData(const std::string& path, const LoadPolicy policy, PARAM&& ... param)
-    {
-        auto empl = mAssetData.insert( {path, std::make_shared<AssetData<T, PARAM...>>()} );
-        const std::shared_ptr<AssetData<T, PARAM...>>& data = empl.first->second;
-        if (empl.second) //not loaded yet
+    { 
+        std::unordered_map< std::string, std::shared_ptr<AssetData<T, PARAM...>> >::iterator res;
+        std::shared_ptr<AssetData<T, PARAM...>> data;
         {
-            data->referenceCount = 1;
-            data->isLoaded = false;
-            data->filepath = path;
-
-            if (policy == LoadPolicy::SYNC)
+            std::shared_lock lock(mLoadDropMutex);
+            res = mAssetData.find(path);
+            if (res != mAssetData.end())
             {
-                Logger::info("Now sync loading asset ");
-                Logger::info(path);
-                Logger::endl();
-
-                data->future = std::async(std::launch::deferred, &AssetHandler<T, PARAM...>::syncLoad,
-                                          this, data, path, std::forward<PARAM>(param)...);
-                data->future.wait();
+                res.first->second->referenceCount++; //atomic
+                return res.first->second.get();
             }
-            else //load async
-            {
-                Logger::info("Now async loading asset ");
-                Logger::info(path);
-                Logger::endl();
-
-                data->future = std::async(std::launch::async, &AssetHandler<T, PARAM...>::asyncLoad,
-					this, std::weak_ptr<AssetData<T, PARAM...>>{data}, path, std::forward<PARAM>(param)...);
-
-                mPending.emplace_back(data);
-            }
+            else
+                data = res.first->second;
         }
-        else
+        //not loaded yet
+        std::unique_lock lock(mLoadDropMutex);
+        data->referenceCount = 1;
+        data->isLoaded = false;
+        data->filepath = path;
+
+        if (policy == LoadPolicy::SYNC)
         {
-            data->referenceCount++;
+            Logger::info("Now sync loading asset ");
+            Logger::info(path);
+            Logger::endl();
+
+            data->future = std::async(std::launch::deferred, &AssetHandler<T, PARAM...>::syncLoad,
+                                        this, data, path, std::forward<PARAM>(param)...);
+            data->future.wait();
+        }
+        else //load async
+        {
+            Logger::info("Now async loading asset ");
+            Logger::info(path);
+            Logger::endl();
+
+            data->future = std::async(std::launch::async, &AssetHandler<T, PARAM...>::asyncLoad,
+				this, std::weak_ptr<AssetData<T, PARAM...>>{data}, path, std::forward<PARAM>(param)...);
+
+            mPending.emplace_back(data);
         }
         return data.get();
     }
@@ -215,6 +225,7 @@ namespace ungod
     template<typename T, typename ... PARAM>
     void AssetHandler<T, PARAM...>::drop(AssetData<T, PARAM...>* data, Asset<T, PARAM...>* requester)
     {
+        std::unique_lock lock(mLoadDropMutex);
         data->referenceCount--;
         for(auto callbackPair = data->callbackStack.begin();
             callbackPair != data->callbackStack.end();)

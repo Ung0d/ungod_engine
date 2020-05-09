@@ -84,23 +84,27 @@ namespace ungod
 
         /**
         * \brief Returns a ptr to the loaded asset or the default asset if the asset is empty.
-        * If the LoadPolicy was ALoadPolicy::SYNC, than this method will return the default asset as long as
-        * the loading thread is working.
+        * If the LoadPolicy was async, than this method will return the default asset as long as
+        * the loading thread is working. Returns a const reference and follows read/write lock semantics.
+        * Therefore: Call does never block by itself, but may be blocked by a modifing thread.
         */
-        T* get() const;
+        const T& get() const;
 
         /**
         * \brief Returns a ptr to the loaded asset or the default asset if the asset is empty.
-        * If the LoadPolicy was ALoadPolicy::SYNC, than this method will wait if the thread loading the
-        * asset is not ready yet. The return value is NEVER NULL.
+        * If the LoadPolicy was async, than this method will wait if the thread loading the
+        * asset is not ready yet. The return value is NEVER NULL. Returns a const reference and follows read/write lock semantics.
+        * Therefore: Call does never block by itself, but may be blocked by a modifing thread.
         */
-        T* getDeferred() const;
+        const T& getWait() const;
 
         /** \brief Invokes a callback on the loaded asset. Invokes only if loading was successfully.
         * Will invoke the callback with the default asset if the asset is empty or broken.
-        * If the LoadPolicy was ALoadPolicy::SYNC the callback is stored and invoked once the loading-thread has done its job.
+        * If the LoadPolicy was async the callback is stored and invoked once the loading-thread has done its job.
+        * Passes a const reference and follows read/write lock semantics.
+        * Therefore: Call does never block by itself, but may be blocked by a modifing thread.
         */
-        void get(std::function<void(T&)> callback) const;
+        void get(std::function<void(const T&)> callback) const;
 
         /**
         * \brief Returns true if and only if the asset is loaded and ready to use. Will return false if
@@ -203,28 +207,28 @@ namespace ungod
     }
 
     template<typename T, typename ... PARAM>
-    T* Asset<T, PARAM...>::get() const
+    const T& Asset<T, PARAM...>::get() const
     {
         if (isLoaded())
         {
-            return mData->asset.get();
+            return *mData->asset;
         }
-        else return &getDefault();
+        else return getDefault();
     }
 
     template<typename T, typename ... PARAM>
-    T* Asset<T, PARAM...>::getDeferred() const
+    const T& Asset<T, PARAM...>::getWait() const
     {
         if (mData)
         {
             mData->future.wait();
-            return mData->asset.get();
+            return *mData->asset;
         }
-        else return &getDefault();
+        else return getDefault();
     }
 
     template<typename T, typename ... PARAM>
-    void Asset<T, PARAM...>::get(std::function<void(T&)> callback) const
+    void Asset<T, PARAM...>::get(std::function<void(const T&)> callback) const
     {
         if (mData)
         {
