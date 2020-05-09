@@ -69,7 +69,7 @@ namespace ungod
         bool isActive() const;
 
     private:
-        Music mMusic;
+        MusicData mMusicData;
         float mDistanceCap;
         float mVolume;
         bool mActive;

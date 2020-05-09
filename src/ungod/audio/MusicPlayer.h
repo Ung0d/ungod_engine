@@ -73,7 +73,7 @@ namespace ungod
         virtual float getVolume() const override;
 
     private:
-        Music mMusic;
+        MusicData mData;
     };
 
 
@@ -95,7 +95,7 @@ namespace ungod
     private:
         float mIntervalMin;
         float mIntervalMax;
-        std::vector<Music> mMusic;
+        std::vector<MusicData> mData;
         std::size_t mCurrentlyPlaying;
         bool mRandom;
         bool mSilence;

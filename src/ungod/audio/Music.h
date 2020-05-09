@@ -32,13 +32,11 @@
 
 namespace ungod
 {
-    using Music = Asset<sf::Music>;
-
-    template<>
-    struct LoadBehavior<sf::Music>
+    struct MusicData
     {
-        static bool loadFromFile(const std::string& filepath, sf::Music& data);
-        static std::string getIdentifier() { return "Music"; }
+        sf::Music music;
+        bool loaded;
+        std::string filepath;
     };
 }
 

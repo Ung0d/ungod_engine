@@ -36,7 +36,7 @@ namespace ungod
 
     std::string MusicEmitterComponent::getFilePath() const
     {
-        return mMusic.getFilePath();
+        return mMusicData.filepath;
     }
 
 
@@ -68,9 +68,13 @@ namespace ungod
 
     void MusicEmitterMixer::loadMusic(Entity e, const std::string& fileID)
     {
-        e.modify<MusicEmitterComponent>().mMusic.load(fileID);
-        if (e.modify<MusicEmitterComponent>().mMusic.isLoaded())
-            e.modify<MusicEmitterComponent>().mMusic.get()->setLoop(true);
+        auto& data = e.modify<MusicEmitterComponent>().mMusicData;
+        data.loaded = data.music.openFromFile(fileID);
+        if (data.loaded)
+        {
+            data.filepath = fileID;
+            data.musicsetLoop(true);
+        }
     }
 
     void MusicEmitterMixer::setDistanceCap(Entity e, float cap)
@@ -85,9 +89,9 @@ namespace ungod
         {
             for (unsigned i = 0; i < MUSIC_PLAY_CAP; i++)
             {
-                if (mCurrentlyPlaying[i].first && mCurrentlyPlaying[i].first->mMusic.isLoaded())
+                if (mCurrentlyPlaying[i].first && mCurrentlyPlaying[i].first->mMusicData.loaded)
                 {
-                    mCurrentlyPlaying[i].first->mMusic.get()->stop();
+                    mCurrentlyPlaying[i].first->mMusiData.music.stop();
                     mCurrentlyPlaying[i].first = nullptr;
                     mCurrentlyPlaying[i].second = nullptr;
                 }
@@ -108,9 +112,9 @@ namespace ungod
             if (!mCurrentlyPlaying[i].first)
                 continue;
 
-            if (mCurrentlyPlaying[i].first->mMusic.isLoaded())
+            if (mCurrentlyPlaying[i].first->mMusicData.loaded)
             {
-                mCurrentlyPlaying[i].first->mMusic.get()->stop();
+                mCurrentlyPlaying[i].first->mMusicData.music.stop();
             }
             mCurrentlyPlaying[i].first->mBound = false;
             mCurrentlyPlaying[i].first = nullptr;
@@ -168,8 +172,8 @@ namespace ungod
                                 mCurrentlyPlaying[indexToUse].second = &transf;
                                 mCurrentlyPlaying[indexToUse].first->mBound = true;
                                 float scaling = listener->getScaling(mCurrentlyPlaying[indexToUse].second->getCenterPosition() , mCurrentlyPlaying[indexToUse].first->mDistanceCap);
-                                mCurrentlyPlaying[indexToUse].first->mMusic.get()->setVolume( 100.0f * mCurrentlyPlaying[indexToUse].first->mVolume * scaling );
-                                mCurrentlyPlaying[indexToUse].first->mMusic.get()->play();
+                                mCurrentlyPlaying[indexToUse].first->mMusicData.music.setVolume( 100.0f * mCurrentlyPlaying[indexToUse].first->mVolume * scaling );
+                                mCurrentlyPlaying[indexToUse].first->mMusicData.music.play();
                             }
                       }
                   }
@@ -193,7 +197,7 @@ namespace ungod
             else if (mCurrentlyPlaying[i].first->mMusic.isLoaded())
             {
                 float scaling = listener->getScaling(mCurrentlyPlaying[i].second->getCenterPosition() , mCurrentlyPlaying[i].first->mDistanceCap);
-                mCurrentlyPlaying[i].first->mMusic.get()->setVolume( 100.0f * mCurrentlyPlaying[i].first->mVolume * scaling );
+                mCurrentlyPlaying[i].first->mMusicData.music.setVolume( 100.0f * mCurrentlyPlaying[i].first->mVolume * scaling );
             }
         }
     }
