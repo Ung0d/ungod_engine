@@ -69,7 +69,7 @@ namespace ungod
         Asset(const Asset<T, PARAM...>& toCopy);
 
         /** \brief Loads a new asset data and drops the old one (if the asset was non-empty). */
-        void load(const std::string filePath);
+        void load(const std::string filePath, PARAM&& ... param);
 
         /** \brief Loads a new asset data and drops the old one (if the asset was non-empty). */
         void load(const std::string filePath, const LoadPolicy policy, PARAM&& ... param);
@@ -176,9 +176,9 @@ namespace ungod
     {}
 
     template <typename T, typename ... PARAM>
-    void Asset<T, PARAM...>::load(const std::string filePath)
+    void Asset<T, PARAM...>::load(const std::string filePath, PARAM&& ... param)
     {
-        load(filePath, LoadPolicy::SYNC);
+        load(filePath, LoadPolicy::SYNC, std::forward<PARAM>(param)...);
     }
 
     template <typename T, typename ... PARAM>
