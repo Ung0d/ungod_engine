@@ -87,16 +87,13 @@ namespace ungod
     }
 
 
-    TransformManager::TransformManager(quad::QuadTree<Entity>& quadtree) : mQuadTree(quadtree) {}
-
-
     void TransformManager::setPosition(Entity e, const sf::Vector2f& position)
     {
         e.modify<TransformComponent>().mTransform.setPosition(position);
         //emit signal
         mPositionChangedSignal.emit(e, position);
         //update quadtree
-        mQuadTree.changedProperties(e);
+        e.notifyChangedTransform();
     }
 
 
@@ -112,7 +109,7 @@ namespace ungod
         mSizeChangedSignal.emit(e, e.modify<TransformComponent>().getSize());
         mScaleChangedSignal.emit(e, scale);
         //update quadtree
-        mQuadTree.changedProperties(e);
+        e.notifyChangedTransform();
     }
 
 
@@ -122,7 +119,7 @@ namespace ungod
         //emit signal
         mPositionChangedSignal.emit(e, e.modify<TransformComponent>().getPosition());
         //update quadtree
-        mQuadTree.changedProperties(e);
+        e.notifyChangedTransform();
     }
 
 
@@ -219,7 +216,7 @@ namespace ungod
             //emit signal
             mSizeChangedSignal(e, e.get<TransformComponent>().getSize());
             //update quadtree
-            mQuadTree.changedProperties(e);
+            e.notifyChangedTransform();
         }
     }
 
@@ -252,7 +249,7 @@ namespace ungod
             //emit signal
             mSizeChangedSignal(e, e.get<TransformComponent>().getSize());
             //update quadtree
-            mQuadTree.changedProperties(e);
+            e.notifyChangedTransform();
         }
     }
 }

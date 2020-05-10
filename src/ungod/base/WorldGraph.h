@@ -26,6 +26,7 @@
 #ifndef UNGOD_WORLD_GRAPH_H
 #define UNGOD_WORLD_GRAPH_H
 
+#include "ungod/audio/Audio.h"
 #include "quadtree/QuadTree.h"
 #include "ungod/utility/Graph.h"
 #include <SFML/Graphics/Rect.hpp>

@@ -27,7 +27,6 @@
 #define UNGOD_WORLD_H
 
 #include "ungod/base/Entity.h"
-#include "ungod/base/Transform.h"
 #include "ungod/base/ParentChild.h"
 #include "ungod/visual/Visual.h"
 #include "ungod/visual/Renderer.h"
@@ -37,7 +36,6 @@
 #include "ungod/physics/Steering.h"
 #include "ungod/base/Input.h"
 #include "ungod/base/EntityUtility.h"
-#include "ungod/audio/Audio.h"
 #include "ungod/visual/Light.h"
 #include "ungod/serialization/SerialWorld.h"
 #include "ungod/physics/CollisionContexts.h"
@@ -308,7 +306,6 @@ namespace ungod
         quad::QuadTree<Entity> mQuadTree;
         VisualsManager mVisualsManager;
         Renderer mRenderer;
-        TransformManager mTransformManager;
         CollisionManager<MOVEMENT_COLLISION_CONTEXT> mMovementCollisionManager;
         CollisionManager<SEMANTICS_COLLISION_CONTEXT> mSemanticsCollisionManager;
         MovementManager mMovementManager;
@@ -317,7 +314,6 @@ namespace ungod
         RigidbodyManager<MOVEMENT_COLLISION_CONTEXT> mMovementRigidbodyManager;
 		RigidbodyManager<SEMANTICS_COLLISION_CONTEXT> mSemanticsRigidbodyManager;
         InputManager mInputManager;
-        AudioManager mAudioManager;
         LightSystem mLightSystem;
         InitializerManager mInitializerManager;
         TileMapRenderer mTileMapRenderer;

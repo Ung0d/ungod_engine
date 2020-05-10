@@ -135,8 +135,6 @@ namespace ungod
     * \brief Manages all sound files. Objects can request sounds and the manager will
     * handle the output of that requests. Note that a sound in the manager is
     * independent from the lifetime of the object.
-    * Audiomanager is singleton and cant be directly created. It exists internally
-    * as a static variable in SoundEmitter class.
     */
     class AudioManager : public Serializable<AudioManager>
     {
@@ -165,39 +163,36 @@ namespace ungod
 
     public:
         AudioManager();
-		AudioManager(ScriptedGameState* master, const World& world);
+		AudioManager(ScriptedGameState* master);
         AudioManager(AudioManager const&) = delete;
         AudioManager& operator=(AudioManager const&) = delete;
 
-        /** \brief Sets up a given number of music tracks. Typically a call like initMusic(2) will
-        * satisfy most needs for a music and an ambient track. Musics are accessable through indices. */
-        void initMusic(std::size_t num);
 
         /** \brief Loads a music track for the given index. */
-        void loadMusic(const std::string& fileID, std::size_t index);
+        int loadMusic(const std::string& fileID);
 
         /** \brief Bundles multiple music tracks to a playlist and loops either randomly or sequencial through this list. */
-        void loadPlaylist(const std::vector<std::string>& fileIDs, std::size_t index, bool randomPlay = true, float intervalMin = DEFAULT_SILENCE_MIN, float intervalMax = DEFAULT_SILENCE_MAX);
+        int loadPlaylist(const std::vector<std::string>& fileIDs, bool randomPlay = true, float intervalMin = DEFAULT_SILENCE_MIN, float intervalMax = DEFAULT_SILENCE_MAX);
 
         /** \brief Plays a music track with the given index. */
-        void playMusic(std::size_t index);
+        void playMusic(int id);
 
         /** \brief Pause the music track with the given index. */
-        void pauseMusic(std::size_t index);
+        void pauseMusic(int id);
 
         /** \brief Stops the music track with the given index. */
-        void stopMusic(std::size_t index);
+        void stopMusic(int id);
 
         /** \brief Fades out the volume of the music track with the given index
         * over the given period of time in milliseconds. */
-        void fadeoutMusic(float milliseconds, std::size_t index);
+        void fadeoutMusic(float milliseconds, int id);
 
         /** \brief Fades in the volume of the music track with the given index
         * over the given period of time in milliseconds. */
-        void fadeinMusic(float milliseconds, std::size_t index);
+        void fadeinMusic(float milliseconds, int id);
 
         /** \brief Sets the volume of the music with given index. */
-        void setMusicVolume(float volume, std::size_t index);
+        void setMusicVolume(float volume, int id);
 
         /** \brief Returns the music emitter mixer. */
         MusicEmitterMixer& getMusicEmitterMixer() { return mMusicEmitterMixer; }

@@ -36,7 +36,7 @@ namespace ungod
     /**
     * \ingroup Components
     * \brief A component that contains the transform matrix of an object
-    * along with its size. Provides methods to alter the members. */
+    * along with its size. */
     class TransformComponent : public Serializable<TransformComponent>
     {
     friend class TransformManager;
@@ -97,7 +97,7 @@ namespace ungod
     class TransformManager
     {
     public:
-        TransformManager(quad::QuadTree<Entity>& quadtree);
+        TransformManager() = default;
 
         /** \brief Sets position for the given entity. Emits a position changed signal. */
         void setPosition(Entity e, const sf::Vector2f& position);
@@ -131,7 +131,7 @@ namespace ungod
         /** \brief Registers new callback for the UpperBound-request. */
         void onUpperBoundRequest(const std::function<sf::Vector2f(Entity)>& callback);
 
-        /** \brief Callback if the "contents" (for example a sprite rect) of a entity has changed.
+        /** \brief Callback if the contents (for example a sprite rect) of a entity have changed.
         * The TransformManager does not care about what kind of content that was, it just processes
         * the bounding rect of the altered content and checks if it is still inside the transform-bounds. */
         void handleContentsChanged(Entity e, const sf::FloatRect& rect);
@@ -141,7 +141,6 @@ namespace ungod
         void handleContentsRemoved(Entity e);
 
     private:
-        quad::QuadTree<Entity>& mQuadTree;
         owls::Signal<Entity, const sf::Vector2f&> mPositionChangedSignal;
         owls::Signal<Entity, const sf::Vector2f&> mScaleChangedSignal;
         owls::Signal<Entity, const sf::Vector2f&> mSizeChangedSignal;

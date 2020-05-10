@@ -81,17 +81,10 @@ namespace ungod
     }
 
 
-    void AudioManager::initMusic(std::size_t num)
+    int AudioManager::loadMusic(const std::string& fileID)
     {
-        mMusic.reserve(num);
-        for (std::size_t i = 0; i < num; ++i)
-            mMusic.emplace_back();
-        mMusicVolumes.resize(num, 1.0f);
-    }
-
-    void AudioManager::loadMusic(const std::string& fileID, std::size_t index)
-    {
-        mMusic[index] = std::unique_ptr<MusicPlayerBase>( new MusicPlayerSingle(fileID) );
+        mMusic.emplace_back(std::unique_ptr<MusicPlayerBase>( new MusicPlayerSingle(fileID) ));
+        return (int)mMusic.size() - 1;
     }
 
     void AudioManager::loadPlaylist(const std::vector<std::string>& fileIDs, std::size_t index, bool randomPlay, float intervalMin, float intervalMax)

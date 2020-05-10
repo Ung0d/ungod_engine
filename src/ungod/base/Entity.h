@@ -103,14 +103,14 @@ namespace ungod
         void add(dom::ComponentInstantiator<C> ci) const;
 
         /**
-        * \brief Gets a const reference to the requested component. Assumes that the component exists.
+        * \brief Gets a const reference to the requested component. 
         * Throws an "No-Component-Found"-error if has<C>() is false when this method is called. O(1).
         */
         template<typename C>
         const C& get() const;
 
         /**
-        * \brief Gets a const reference to the requested component. Assumes that the component exists.
+        * \brief Gets a const reference to the requested component. 
         * Throws an "No-Component-Found"-error if has<C>() is false when this method is called. O(1).
         */
         template<typename C>
@@ -152,6 +152,10 @@ namespace ungod
 		/** \brief Returns the global (world independent) center position of the entity. Undefined
 		* if no transform component is assigned. */
 		sf::Vector2f getGlobalCenterPosition() const;
+
+        /** \brief Notifies the entities containing node that its transform (position or size) has changed.
+        * Fits the position in the quad tree accordingly. */
+        void notifyChangedTransform() const; /////TODO
 
     private:
         dom::EntityHandle<> mHandle;

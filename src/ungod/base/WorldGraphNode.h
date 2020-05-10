@@ -27,6 +27,7 @@
 #define UNGOD_WORLD_GRAPH_NODE_H
 
 #include "quadtree/QuadTree.h"
+#include "ungod/base/Transform.h"
 #include "ungod/utility/Graph.h"
 #include <SFML/Graphics/Rect.hpp>
 #include "ungod/serialization/Serializable.h"
@@ -125,6 +126,8 @@ namespace ungod
         RenderLayerContainer mLayers;
         std::string mIdentifier;
         std::string mDataFile;
+
+        TransformManager mTransformManager;
     };
 
 
