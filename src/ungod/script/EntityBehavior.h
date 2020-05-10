@@ -24,16 +24,25 @@
 */
 
 /**
+*
 * A short tutorial on how to write Entity-script files. Basically you can define an arbitrary subset of the set of
 * possible methods. You just need to know which methods exists, when they are called and what parameters they get.
 *
+*
 * Vocabulary:
 * static -- the static container of the script, equal for each instance, also contains the callback methods
-* instance --  a table that can be used to store data for the particular entity instance that is shared between all method calls
-* instance provides some additional members:
-* instance.entity : the underlying ungod entity
-* instance.states : an object to control things like state switches for the entity (if StateBehavior)
-* instance.world : the world the entitiy lives in
+* entity --  a table that can be used to store data for the particular entity instance that is shared between all method calls
+* entity provides some additional members:
+* entity.handle : the underlying ungod entity handle
+* entity.states : an object to control things like state switches for the entity (if StateBehavior)
+* entity.node : the world graph node the entitiy lives in
+*
+*
+* A note about the handle inside the entity environment: It is NOT safe to store references to this handle or to any component 
+* accessable through the handle directly in script. They are designed for spontaneous access only. Handles can change when entity contents
+* are moved in memory, e.g. when an entity changes nodes. However, the environment is guaranteed to persist for the runtime of the game 
+* (and can therefore be stored). Also it is guaranteed that it always contains a valid handle to the underlying entity.
+*
 *
 * inInit(static, instance)
 * -- This method is invoked when a state is entered.

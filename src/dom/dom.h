@@ -487,8 +487,8 @@ namespace dom
         template<typename ... C>
         EntityHandle<CINDEX, COMP_TOTAL> checkedCopyEntity( const EntityHandle<CINDEX, COMP_TOTAL>& e );
 
-		/** \brief Makes a copy of the given entity. The new entity will share all
-		* Components and component-contents with the given entity. */
+		/** \brief Makes a copy of the given entity of another universe. The new entity will have a copied version
+        * of all Components. */
 		template<typename ... C>
 		EntityHandle<CINDEX, COMP_TOTAL> checkedForeignCopyEntity(const EntityHandle<CINDEX, COMP_TOTAL>& e);
 
