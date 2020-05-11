@@ -190,4 +190,145 @@ namespace ungod
             }
         }
     }
+
+
+
+
+    MusicManager::MusicManager() : mMuteMusic(false), mIDCounter(0) {}
+
+    int MusicManager::loadMusic(const std::string& fileID)
+    {
+        std::unique_lock lock(mLoadMutex);
+        mMusic.emplace(mIDCounter, std::unique_ptr<MusicPlayerBase>(new MusicPlayerSingle(fileID)));
+        mMusicVolumes.emplace(mIDCounter, 1.0f);
+        return mIDCounter++;
+    }
+
+    int MusicManager::loadPlaylist(const std::vector<std::string>& fileIDs bool randomPlay, float intervalMin, float intervalMax)
+    {
+        std::unique_lock lock(mLoadMutex);
+        if (fileIDs.size() == 0)
+        {
+            ungod::Logger::warning("Tried to load a music playlist with empty file list.");
+            ungod::Logger::endl();
+            return;
+        }
+        mMusic.emplace(mIDCounter, std::unique_ptr<MusicPlayerBase>(new Playlist(fileIDs, randomPlay, intervalMin, intervalMax)));
+        mMusicVolumes.emplace(mIDCounter, 1.0f);
+        return mIDCounter++;
+    }
+
+    void MusicManager::playMusic(int id)
+    {
+        std::shared_lock lock(mLoadMutex);
+        if (mMuteMusic)
+            return;
+
+        MusicPlayerBase* music = assertID(id);
+        if (!music) return;
+
+        music->setVolume(100.0f * mMusicVolumes[index]);
+        music->play();
+    }
+
+    void MusicManager::pauseMusic(int id)
+    {
+        std::shared_lock lock(mLoadMutex);
+        MusicPlayerBase* music = assertID(id);
+        if (!music) return;
+        music->pause();
+    }
+
+    void MusicManager::stopMusic(int id)
+    {
+        std::shared_lock lock(mLoadMutex);
+        MusicPlayerBase* music = assertID(id);
+        if (!music) return;
+        music->stop();
+    }
+
+    void MusicManager::fadeoutMusic(float milliseconds, int id)
+    {
+        std::shared_lock lock(mLoadMutex);
+        MusicPlayerBase* music = assertID(id);
+        if (!music) return;
+        music->mFadingActive = true;
+        music->mFadingDirection = true;
+        music->mMilliseconds = milliseconds;
+    }
+
+    void MusicManager::fadeinMusic(float milliseconds, int id)
+    {
+        std::shared_lock lock(mLoadMutex);
+        MusicPlayerBase* music = assertID(id);
+        if (!music) return;
+        music->mFadingActive = true;
+        music->mFadingDirection = false;
+        music->mMilliseconds = milliseconds;
+    }
+
+    void MusicManager::setMusicVolume(float volume, int id)
+    {
+        std::shared_lock lock(mLoadMutex);
+        MusicPlayerBase* music = assertID(id);
+        if (!music) return;
+        mMusicVolumes[index] = volume;
+        music->setVolume(100.0f * volume);
+    }
+
+    void MusicManager::unloadMusic(int id)
+    {
+        std::unique_lock lock(mLoadMutex);
+        mMusic.erase(id);
+        mMusicVolumes.erase(id);
+    }
+
+    void MusicManager::update(float delta)
+    {
+        for (auto& music : mMusic)
+        {
+            if (music->isLoaded())
+                music->update(delta);
+        }
+    }
+
+    void MusicManager::setMuteMusic(bool mute)
+    {
+        mMuteMusic = mute;
+        if (mute)
+        {
+            for (const auto& music : mMusic)
+            {
+                music->stop();
+            }
+        }
+    }
+
+    MusicPlayerBase* MusicManager::assertID(int id)
+    {
+        auto res = mMusic.find(id);
+        if (res == mMusic.end())
+        {
+            ungod::Logger::warning("Can not find a music track with the given id.");
+            ungod::Logger::endl();
+            return nullptr;
+        }
+
+        if (!res->second->isLoaded())
+        {
+            ungod::Logger::warning("Music was not successfully loaded.");
+            ungod::Logger::endl();
+            return nullptr;
+        }
+        return res->second.get();
+    }
+
+    MusicManager::~MusicManager()
+    {
+        for (auto& music : mMusic)
+        {
+            if (music->isLoaded())
+                music->stop();
+        }
+    }
 }

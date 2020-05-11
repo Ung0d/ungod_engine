@@ -86,7 +86,7 @@ namespace ungod
         static constexpr std::size_t MUSIC_PLAY_CAP = 5;  ///maximum number of sounds playable concurrently
         static constexpr float DEFAULT_MAX_DISTANCE_CAP = 3000.0f;
 
-        MusicEmitterMixer();
+        MusicEmitterMixer(const AudioListener& listener);
 
         /** \brief Loads the music for the music emitter. */
         void loadMusic(Entity e, const std::string& fileID);
@@ -104,11 +104,12 @@ namespace ungod
         void muteAll();
 
         /** \brief updates the music volumes and may starts new emitters */
-        void update(float delta, AudioListener* listener, quad::QuadTree<Entity>* quadtree);
+        void update(float delta, quad::QuadTree<Entity>* quadtree);
 
     private:
         std::array<std::pair<MusicEmitterComponent*, TransformComponent*>, MUSIC_PLAY_CAP> mCurrentlyPlaying;
         float mMaxDistanceCap;
+        const AudioListener& mListener;
     };
 }
 

@@ -28,6 +28,8 @@
 
 #include <array>
 #include <vector>
+#include <mutex>  
+#include <shared_mutex>
 #include <SFML/Audio.hpp>
 #include "owls/Signal.h"
 #include "ungod/audio/Sound.h"
@@ -86,6 +88,8 @@ namespace ungod
 
         std::string getKey() const;
 
+        bool valid() const;
+
     private:
         std::pair<const std::string, SoundProfile>* mIter;
     };
@@ -132,82 +136,27 @@ namespace ungod
 
 
     /**
-    * \brief Manages all sound files. Objects can request sounds and the manager will
-    * handle the output of that requests. Note that a sound in the manager is
-    * independent from the lifetime of the object.
+    * \brief Manages all sound files and connects them to entities who can then play the sounds
+    * via the SoundManager or their WorldNode. 
     */
-    class AudioManager : public Serializable<AudioManager>
+    class SoundProfileManager 
     {
     friend class SoundEmitterComponent;
-     friend struct SerialBehavior<AudioManager>;
-    friend struct DeserialBehavior<AudioManager>;
     private:
-        static constexpr std::size_t SOUND_PLAY_CAP = 32;  ///maximum number of sounds playable concurrently
-        static constexpr float DEFAULT_SILENCE_MIN = 0.0f;
-        static constexpr float DEFAULT_SILENCE_MAX = 0.0f;
-
-        std::array<SoundSlot, SOUND_PLAY_CAP> mSoundslots;
-        std::vector< std::unique_ptr<MusicPlayerBase> > mMusic;
-        std::vector<float> mMusicVolumes;
         ProfileMap mSoundProfiles;
-        std::vector<float> mVolumeSettings;
-        owls::Signal<std::string, std::size_t> mSoundBegin;
-        owls::Signal<std::string, std::size_t> mSoundEnd;
-        std::vector<std::size_t> mMusicPlaying;
-        float mSilenceIntervalMin;
-        float mSilenceIntervalMax;
-        bool mMuteMusic;
-        bool mMuteSound;
-        std::unique_ptr<AudioListener> mListener;  //per default this is a camera listener, that listens to the state camera
-        MusicEmitterMixer mMusicEmitterMixer;
+        std::vector<float> mVolumeSettings; 
+        mutable std::shared_mutex mManagerMutex;
 
     public:
-        AudioManager();
-		AudioManager(ScriptedGameState* master);
-        AudioManager(AudioManager const&) = delete;
-        AudioManager& operator=(AudioManager const&) = delete;
-
-
-        /** \brief Loads a music track for the given index. */
-        int loadMusic(const std::string& fileID);
-
-        /** \brief Bundles multiple music tracks to a playlist and loops either randomly or sequencial through this list. */
-        int loadPlaylist(const std::vector<std::string>& fileIDs, bool randomPlay = true, float intervalMin = DEFAULT_SILENCE_MIN, float intervalMax = DEFAULT_SILENCE_MAX);
-
-        /** \brief Plays a music track with the given index. */
-        void playMusic(int id);
-
-        /** \brief Pause the music track with the given index. */
-        void pauseMusic(int id);
-
-        /** \brief Stops the music track with the given index. */
-        void stopMusic(int id);
-
-        /** \brief Fades out the volume of the music track with the given index
-        * over the given period of time in milliseconds. */
-        void fadeoutMusic(float milliseconds, int id);
-
-        /** \brief Fades in the volume of the music track with the given index
-        * over the given period of time in milliseconds. */
-        void fadeinMusic(float milliseconds, int id);
-
-        /** \brief Sets the volume of the music with given index. */
-        void setMusicVolume(float volume, int id);
-
-        /** \brief Returns the music emitter mixer. */
-        MusicEmitterMixer& getMusicEmitterMixer() { return mMusicEmitterMixer; }
+        SoundProfileManager();
+        SoundProfileManager(SoundProfileManager const&) = delete;
+        SoundProfileManager& operator=(SoundProfileManager const&) = delete;
 
         /** \brief Instantiates a new SoundProfile in the manager and returns a ptr to it. */
         ProfileHandle initSoundProfile(const std::string& key);
 
         /** \brief Returns a handle to the given sound profile if it was initialized before. Elsewise it returns an invalid handle. */
-        ProfileHandle getSoundProfile(const std::string& key);
-
-        /** \brief Connects the given sound profile with the given entity. */
-        void connectProfile(Entity e, const std::string& profileKey);
-        void connectProfile(Entity e, ProfileHandle profile);
-        void connectProfile(SoundEmitterComponent& emitter, const std::string& profileKey);
-        void connectProfile(SoundEmitterComponent& emitter, ProfileHandle profile);
+        ProfileHandle getSoundProfile(const std::string& key) const;
 
         /** \brief Prepares the given SoundProfile to hold num sounds. */
         void initSounds(const std::string& key, std::size_t num);
@@ -224,13 +173,6 @@ namespace ungod
         void expireSounds( const std::string& key);
         void expireSounds( ProfileHandle profile);
 
-        /** \brief Plays the sound effect with given id of the entity e. Emits a sound-begin and a sound-end signal. */
-        void playSound(Entity e, std::size_t index, std::size_t volumeSetting = 0, float pitch = 1.0f);
-
-        /** \brief Plays the sound with given index from the given sound profile. */
-        void playSound(const std::string& key, std::size_t index, float scaling = 1.0f, std::size_t volumeSetting = 0, float pitch = 1.0f);
-        void playSound(ProfileHandle profile, std::size_t index, float scaling = 1.0f, std::size_t volumeSetting = 0, float pitch = 1.0f);
-
         /** \brief Returns the load path of the sound with the given index. */
         std::string getLoadPath( const std::string& key, std::size_t index);
         std::string getLoadPath( ProfileHandle profile, std::size_t index);
@@ -241,8 +183,48 @@ namespace ungod
         /** \brief Sets the volume of the settings with the given index in the interval [0,1]. */
         void setVolume(std::size_t index, float volume);
 
-        /** \brief Mutes all music. Stops all songs and playlists currently playing. */
-        void setMuteMusic(bool mute = true);
+        /** \brief Returns the volume level in range [0,1] */
+        void getVolume(std::size_t index);
+    };
+
+    /**
+    * \brief Manages all sound files and connects them to entities who can then play the sounds
+    * via the SoundManager or their WorldNode.
+    */
+    class SoundManager
+    {
+    friend class SoundEmitterComponent;
+    private:
+        static constexpr std::size_t SOUND_PLAY_CAP = 32;  ///maximum number of sounds playable concurrently
+        static constexpr float DEFAULT_SILENCE_MIN = 0.0f;
+        static constexpr float DEFAULT_SILENCE_MAX = 0.0f;
+
+        std::array<SoundSlot, SOUND_PLAY_CAP> mSoundslots;
+        owls::Signal<std::string, std::size_t> mSoundBegin;
+        owls::Signal<std::string, std::size_t> mSoundEnd;
+        float mSilenceIntervalMin;
+        float mSilenceIntervalMax;
+        bool mMuteSound;
+        SoundProfileManager& mSoundProfileMngr;
+        const AudioListener& mListener;
+
+    public:
+        SoundManager(SoundProfileManager& soundprofilemngr, const AudioListener& listener);
+        SoundManager(SoundManager const&) = delete;
+        SoundManager& operator=(SoundManager const&) = delete;
+
+        /** \brief Connects the given sound profile with the given entity. */
+        void connectProfile(Entity e, const std::string& profileKey);
+        void connectProfile(Entity e, ProfileHandle profile);
+        void connectProfile(SoundEmitterComponent& emitter, const std::string& profileKey);
+        void connectProfile(SoundEmitterComponent& emitter, ProfileHandle profile);
+
+        /** \brief Plays the sound effect with given id of the entity e. Emits a sound-begin and a sound-end signal. */
+        void playSound(Entity e, std::size_t index, std::size_t volumeSetting = 0, float pitch = 1.0f);
+
+        /** \brief Plays the sound with given index from the given sound profile. */
+        void playSound(const std::string& key, std::size_t index, float scaling = 1.0f, std::size_t volumeSetting = 0, float pitch = 1.0f);
+        void playSound(ProfileHandle profile, std::size_t index, float scaling = 1.0f, std::size_t volumeSetting = 0, float pitch = 1.0f);
 
         /** \brief Mutes all sounds. Stops all sounds currently playing. */
         void setMuteSound(bool mute = true);
@@ -250,18 +232,18 @@ namespace ungod
         /**
         * \brief Internal update that clears out expired sounds.
         */
-        void update(float delta, quad::QuadTree<Entity>* quadtree = nullptr);
+        void update(float delta);
 
         /** \brief Connects a callback for the sound begin signal. Arguments are
         * the name of the profile as string and the index of the sound. */
-        void onSoundBegin( const std::function<void(std::string, std::size_t)>& callback );
+        void onSoundBegin(const std::function<void(std::string, std::size_t)>& callback);
 
         /** \brief Connects a callback for the sound end signal. Arguments are
         * the name of the profile as string and the index of the sound. */
-        void onSoundEnd( const std::function<void(std::string, std::size_t)>& callback );
+        void onSoundEnd(const std::function<void(std::string, std::size_t)>& callback);
 
-        /** \brief Cleanup and destruction. */
-        ~AudioManager();
+        /** \brief Stops playing of all active sounds. */
+        ~SoundManager();
     };
 }
 

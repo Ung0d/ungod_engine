@@ -69,7 +69,8 @@ namespace ungod
     }
 
 
-    MusicEmitterMixer::MusicEmitterMixer() : mMaxDistanceCap(DEFAULT_MAX_DISTANCE_CAP)
+    MusicEmitterMixer::MusicEmitterMixer(const AudioListener& listener) : 
+        mMaxDistanceCap(DEFAULT_MAX_DISTANCE_CAP), mListener(listener)
     {
         for (unsigned i = 0; i < MUSIC_PLAY_CAP; i++)
         {
@@ -133,16 +134,16 @@ namespace ungod
         }
     }
 
-    void MusicEmitterMixer::update(float delta, AudioListener* listener, quad::QuadTree<Entity>* quadtree)
+    void MusicEmitterMixer::update(float delta, quad::QuadTree<Entity>* quadtree)
     {
         //check if new emitters are in range
         quad::PullResult<Entity> result;
 
-        sf::Vector2f listenerWorldPos = listener->getWorldPosition();
+        sf::Vector2f listenerWorldPos = mListener->getWorldPosition();
         quadtree->retrieve(result, { listenerWorldPos.x-mMaxDistanceCap*0.5f, listenerWorldPos.y-mMaxDistanceCap*0.5f, mMaxDistanceCap, mMaxDistanceCap });
 
         dom::Utility<Entity>::iterate<TransformComponent, MusicEmitterComponent>(result.getList(),
-              [this, listenerWorldPos, listener] (Entity e, TransformComponent& transf, MusicEmitterComponent& emitter)
+              [this, listenerWorldPos, mListener] (Entity e, TransformComponent& transf, MusicEmitterComponent& emitter)
               {
                   if (emitter.mActive && !emitter.mBound && emitter.mMusicData.loaded)
                   {
@@ -182,7 +183,7 @@ namespace ungod
                                 mCurrentlyPlaying[indexToUse].first = &emitter;
                                 mCurrentlyPlaying[indexToUse].second = &transf;
                                 mCurrentlyPlaying[indexToUse].first->mBound = true;
-                                float scaling = listener->getScaling(mCurrentlyPlaying[indexToUse].second->getCenterPosition() , mCurrentlyPlaying[indexToUse].first->mDistanceCap);
+                                float scaling = mListener->getScaling(mCurrentlyPlaying[indexToUse].second->getCenterPosition() , mCurrentlyPlaying[indexToUse].first->mDistanceCap);
                                 mCurrentlyPlaying[indexToUse].first->mMusicData.music.setVolume( 100.0f * mCurrentlyPlaying[indexToUse].first->mVolume * scaling );
                                 mCurrentlyPlaying[indexToUse].first->mMusicData.music.play();
                             }
