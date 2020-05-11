@@ -219,12 +219,6 @@ namespace ungod
 		/** \brief Returns a reference to the semantics rigidbody manager. */
 		RigidbodyManager<SEMANTICS_COLLISION_CONTEXT>& getSemanticsRigidbodyManager() { return mSemanticsRigidbodyManager; }
 
-        /** \brief Returns a reference to the inout manager. */
-        InputManager& getInputManager();
-
-        /** \brief Returns a reference to the audio manager. */
-        AudioManager& getAudioManager();
-
         /** \brief Returns a reference to the renderer. */
         Renderer& getRenderer();
 
@@ -313,7 +307,6 @@ namespace ungod
         PathPlanner mPathPlanner;
         RigidbodyManager<MOVEMENT_COLLISION_CONTEXT> mMovementRigidbodyManager;
 		RigidbodyManager<SEMANTICS_COLLISION_CONTEXT> mSemanticsRigidbodyManager;
-        InputManager mInputManager;
         LightSystem mLightSystem;
         InitializerManager mInitializerManager;
         TileMapRenderer mTileMapRenderer;

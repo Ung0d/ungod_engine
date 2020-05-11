@@ -89,24 +89,6 @@ namespace ungod
     /// audio ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    template <>
-    struct SerialIdentifier<AudioManager>
-    {
-        static std::string get()  { return "AudioManager"; }
-    };
-
-    template <>
-    struct SerialBehavior<AudioManager>
-    {
-        static void serialize(const AudioManager& data, MetaNode serializer, SerializationContext& context);
-    };
-
-    template <>
-    struct DeserialBehavior<AudioManager>
-    {
-        static void deserialize(AudioManager& data, MetaNode deserializer, DeserializationContext& context);
-    };
-
 
     template <>
     struct SerialIdentifier<SoundEmitterComponent>

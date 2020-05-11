@@ -286,6 +286,7 @@ namespace ungod
         sf::Event event;
         while(mWindow.pollEvent(event))
         {
+            mInputHandler.handleEvent(event);
             mStatemanager.handleEvent(event);
             mCursorCamera.handleEvent(event);
 
@@ -321,7 +322,9 @@ namespace ungod
         while (mAccumulator >= mDelta && ++mUpdateCounter <= mMaxUpdates)
         {
              mAssetmanager.update();
+             mInputHandler.update();
              mStatemanager.update(mDelta);
+             mMusicManager.update(mDelta);
              mAccumulator -= mDelta;
         }
     }

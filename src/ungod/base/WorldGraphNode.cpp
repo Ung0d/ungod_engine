@@ -34,7 +34,18 @@
 namespace ungod
 {
     WorldGraphNode::WorldGraphNode(WorldGraph& wg, unsigned index, ScriptedGameState& gamestate, const std::string& identifier, const std::string& datafile)
-        : mWorldGraph(wg), mIndex(index), mIsLoaded(false), mGamestate(gamestate), mLayers(mGamestate.getCamera()), mIdentifier(identifier), mDataFile(datafile) {}
+        : mWorldGraph(wg), 
+        mIndex(index), 
+        mIsLoaded(false), 
+        mGamestate(gamestate), 
+        mLayers(mGamestate.getCamera()), 
+        mIdentifier(identifier), 
+        mDataFile(datafile),
+        mListener(std::unique_ptr<AudioListener>(new CameraListener(gamestate.getCamera(), world))),
+        mMusicEmitterMixer(*mListener),
+        mSoundManager(wg.getSoundProfileManager(), *mListener)
+    {
+    }
 
     void WorldGraphNode::load()
     {
@@ -104,10 +115,14 @@ namespace ungod
     void WorldGraphNode::update(float delta)
     {
         mLayers.update(delta);
+
+        if (quadtree && !mMuteSound) //todo where to get the quadtree from??
+            mMusicEmitterMixer.update(delta, static_cast<AudioListener*>(mListener.get()), quadtree);
     }
 
     void WorldGraphNode::handleInput(const sf::Event& event, const sf::RenderTarget& target)
     {
+        mInputEventManager.handleEvent(event, target);
         mLayers.handleInput(event, mGamestate.getApp()->getWindow());
     }
 

@@ -33,6 +33,10 @@
 
 namespace ungod
 {
+     WorldGraph::WorldGraph(unsigned distance) : mActive(-1), mDistance(distance)
+     {
+     }
+
      bool WorldGraph::updateReferencePosition(const sf::Vector2f& pos)
      {
         mReferencePosition = pos;
@@ -118,6 +122,8 @@ namespace ungod
         //update the nodes
         for (const auto& i : mCurrentNeighborhood)
             mNodes[i]->update(delta);
+
+        mAudioManager.update(delta);
     }
 
     void WorldGraph::handleInput(const sf::Event& event, const sf::RenderTarget& target)

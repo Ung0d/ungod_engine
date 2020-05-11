@@ -35,17 +35,19 @@ namespace ungod
         {
             state.registerUsertype<ProfileHandle>("SoundProfileHandle");
 
+			script::Usertype<MusicManager> mmType = state.registerUsertype<MusicManager>("MusicManager");
+			mmType["loadMusic"] = &MusicManager::loadMusic;
+			mmType["loadPlaylist"] = [](MusicManager& mm, script::Environment files, bool randomPlay, float intervalMin, float intervalMax)
+			{ mm.loadPlaylist(env2vec<std::string>(files), index, randomPlay, intervalMin, intervalMax); };
+			mmType["playMusic"] = &MusicManager::playMusic;
+			mmType["pauseMusic"] = &MusicManager::pauseMusic;
+			mmType["stopMusic"] = &MusicManager::stopMusic;
+			mmType["fadeoutMusic"] = &MusicManager::fadeoutMusic;
+			mmType["fadeinMusic"] = &MusicManager::fadeinMusic;
+			mmType["setMusicVolume"] = &MusicManager::setMusicVolume;
+			mmType["unloadMusic"] = &MusicManager::unloadMusic;
+
 			script::Usertype<AudioManager> amType = state.registerUsertype<AudioManager>("AudioManager");
-			amType["initMusic"] = & AudioManager::initMusic;
-			amType["loadMusic"] = & AudioManager::loadMusic;
-			amType["loadPlaylist"] = [](AudioManager& am, script::Environment files, std::size_t index, bool randomPlay, float intervalMin, float intervalMax)
-			{ am.loadPlaylist(env2vec<std::string>(files), index, randomPlay, intervalMin, intervalMax); };
-			amType["playMusic"] = & AudioManager::playMusic;
-			amType["pauseMusic"] = & AudioManager::pauseMusic;
-			amType["stopMusic"] = & AudioManager::stopMusic;
-			amType["fadeoutMusic"] = & AudioManager::fadeoutMusic;
-			amType["fadeinMusic"] = & AudioManager::fadeinMusic;
-			amType["setMusicVolume"] = & AudioManager::setMusicVolume;
 			amType["initSoundProfile"] = & AudioManager::initSoundProfile;
 			amType["getSoundProfile"] = & AudioManager::getSoundProfile;
 			amType["connectProfile"] = sol::overload([](AudioManager& am, Entity e, const std::string& profileKey)
@@ -68,7 +70,6 @@ namespace ungod
 			amType["setVolume"] = & AudioManager::setVolume;
 			amType["setMuteMusic"] = & AudioManager::setMuteMusic;
 			amType["setMuteSound"] = & AudioManager::setMuteSound;
-			amType["getMusicEmitterMixer"] = & AudioManager::getMusicEmitterMixer;
 
 			script::Usertype<MusicEmitterMixer> mixerType = state.registerUsertype<MusicEmitterMixer>("MusicEmitterMixer");
 			mixerType["loadMusic"] = & MusicEmitterMixer::loadMusic;

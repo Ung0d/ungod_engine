@@ -117,96 +117,15 @@ namespace ungod
     /// audio ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    void SerialBehavior<AudioManager>::serialize(const AudioManager& data, MetaNode serializer, SerializationContext& context)
-    {
-        //TODO deserial and serial of music... not really important at the moment since music is usually loaded scriptwise anyway
-        //serialize music
-        /*MetaNode musicNode = context.appendSubnode(serializer, "music");
-        context.serializeProperty("count", data.mMusic.size(), musicNode);
-        for (unsigned i = 0; i < data.mMusic.size(); ++i)
-        {
-            MetaNode musicEntry = context.appendSubnode(musicNode, "m");
-            context.serializeProperty("filepath", data.mMusic[i].mMusic.getFilePath(), musicEntry);
-            context.serializeProperty("volume", data.mMusicVolumes[i], musicEntry);
-        }*/
-
-        //serializing sound profile
-        MetaNode profilesNode = context.appendSubnode(serializer, "sound_profiles");
-        for (const auto& entry : data.mSoundProfiles)
-        {
-            MetaNode profile = context.appendSubnode(profilesNode, entry.first);
-            context.serializeProperty("count", entry.second.mSounds.size(), profile);
-            for (const auto& bundle : entry.second.mSounds)
-            {
-                MetaNode soundNode = context.appendSubnode(profile, "s");
-                context.serializeProperty("filepath", bundle->sound.getFilePath(), soundNode);
-            }
-        }
-
-        //serialize sound volumes
-        MetaNode volumesNode = context.appendSubnode(serializer, "sound_volumes");
-        context.serializeProperty("count", data.mVolumeSettings.size(), volumesNode);
-        for (const auto& volume : data.mVolumeSettings)
-        {
-            MetaNode volNode = context.appendSubnode(volumesNode, "v");
-            context.serializeProperty("volume", volume, volNode);
-        }
-    }
-
-    void DeserialBehavior<AudioManager>::deserialize(AudioManager& data, MetaNode deserializer, DeserializationContext& context)
-    {
-        /*MetaNode musicNode = deserializer.firstNode("music");
-        if (musicNode)
-        {
-            data.initMusic(musicNode.getAttribute<std::size_t>("count", 0u));
-            std::size_t i = 0;
-            forEachSubnode(musicNode, [&data, &i] (MetaNode sub)
-            {
-                auto result = sub.getAttributes<std::string, float>({"filepath", ""}, {"volume",1.0f});
-                data.loadMusic(std::get<0>(result), i);
-                data.setMusicVolume(std::get<1>(result), i);
-                ++i;
-            }, "m");
-        }*/
-        MetaNode profilesNode = deserializer.firstNode("sound_profiles");
-        if (profilesNode)
-        {
-            forEachSubnode(profilesNode, [&data] (MetaNode sub)
-            {
-                auto handle = data.initSoundProfile(sub.name());
-                data.initSounds(handle, sub.getAttribute<std::size_t>("count", 0u));
-                std::size_t i = 0;
-                forEachSubnode(sub, [&data, &handle, &i] (MetaNode soundNode)
-                {
-                    data.loadSound(handle, soundNode.getAttribute<std::string>("filepath", ""), i);
-                    ++i;
-                });
-            });
-        }
-        MetaNode volumesNode = deserializer.firstNode("sound_volumes");
-        if (volumesNode)
-        {
-            data.initVolumeSettings(volumesNode.getAttribute<std::size_t>("count", 0u));
-            std::size_t i = 0;
-            forEachSubnode(volumesNode, [&data, &i] (MetaNode sub)
-            {
-                data.setVolume(i, sub.getAttribute<float>("volume", 1.0f));
-                ++i;
-            }, "m");
-        }
-    }
-
-
-
     void SerialBehavior<SoundEmitterComponent, Entity, const World&, const Application&>::serialize(const SoundEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&)
     {
-        context.serializeProperty("key", data.mProfile.getKey(), serializer);
+        //context.serializeProperty("key", data.mProfile.getKey(), serializer);
     }
 
     void DeserialBehavior<SoundEmitterComponent, Entity, World&, const Application&>::deserialize(SoundEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&)
     {
-        std::string key = deserializer.getAttribute<std::string>("key", "");
-        world.getAudioManager().connectProfile(data, key);
+        //std::string key = deserializer.getAttribute<std::string>("key", "");
+        //world.getAudioManager().connectProfile(data, key);
     }
 
 

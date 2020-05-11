@@ -45,9 +45,9 @@ namespace ungod
      friend struct SerialBehavior<WorldGraph>;
     friend struct DeserialBehavior<WorldGraph, ScriptedGameState&>;
     public:
-        WorldGraph(unsigned distance = 1) : mActive(-1), mDistance(distance) {}
+        WorldGraph(unsigned distance = 1);
 
-        /** \brief Updates the reference position. If the active world changes, unload an load occurs. Returns true if the avtive node has changed. */
+        /** \brief Updates the reference position. If the active world changes, new nodes are loaded and old ones unloaded as needed. Returns true if the active node has changed. */
         bool updateReferencePosition(const sf::Vector2f& pos);
 
         /** \brief Render the world scene. */

@@ -79,6 +79,8 @@ namespace ungod
             state.registerFunction("isFullscreen", [&app]() { return app.isFullscreen(); });
             state.registerFunction("isVsyncEnabled", [&app]() { return app.vsyncEnabled(); });
 
+            state.registerFunction("getMusicManager", [&app]() { return app.getMusicManager; });
+
             state.registerFunction("world2Screen", sol::overload([&app](const sf::Vector2f& pos, const ScriptedGameState& state)
                                    { return app.getWindow().mapCoordsToPixel(pos, state.getCamera().getView()); },
                                    [&app](const sf::Vector2f& pos, const World& world)

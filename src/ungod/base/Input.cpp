@@ -441,7 +441,6 @@ namespace ungod
 
     void InputManager::handleEvent(const sf::Event& event, const sf::RenderTarget& target)
     {
-        InputHandler::handleEvent(event);
         processMouse(event, target);
     }
 

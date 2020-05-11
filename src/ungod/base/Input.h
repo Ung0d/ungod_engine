@@ -32,12 +32,9 @@
 #include "owls/Signal.h"
 #include "ungod/base/Utility.h"
 #include "ungod/serialization/MetaNode.h"
-#include "ungod/base/Entity.h"
 
 namespace ungod
 {
-    class RenderLayer;
-
     /** \brief A struct holding information about a key binding. */
     struct KeyBinding
     {
@@ -110,56 +107,6 @@ namespace ungod
         * maps that to a string that describes the underlying key/button.
         */
         static std::string bindingAsString(std::pair<int, int> binding);
-    };
-
-    /** \brief Helper class to maintain a swapable double-buffer of entities. */
-    struct Doublebuffer
-    {
-        std::array< std::unordered_set< Entity >, 2 > entities;
-        bool swapper;
-
-        Doublebuffer() : swapper(true) {}
-
-        void processMousePos(int x, int y, const sf::RenderTarget& target, quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer, owls::Signal<Entity>& enter, owls::Signal<Entity>& exit);
-
-        void clearBuffers();
-    };
-
-    /** \brief Sets world and entity functionality on top of the InputHandler like entity hovered signals. */
-    class InputManager : public InputHandler
-    {
-    public:
-        InputManager(quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer) : InputHandler(), mQuadtree(quadtree), mRenderLayer(renderlayer){}
-
-        /** \brief Evaluates an input-event and sends out signals. */
-        void handleEvent(const sf::Event& event, const sf::RenderTarget& target);
-
-        /** \brief Evaluates input and emits mouseEnter, mouseclick and mouseExit signals. */
-        void processMouse(const sf::Event& event, const sf::RenderTarget& target);
-
-        /** \brief Registers new callback for the MouseEnter signal. */
-        void onMouseEnter(const std::function<void(Entity)>& callback);
-
-        /** \brief Registers new callback for the MouseClick signal. */
-        void onMouseClick(const std::function<void(Entity)>& callback);
-
-        /** \brief Registers new callback for the MouseExit signal. */
-        void onMouseExit(const std::function<void(Entity)>& callback);
-
-        /** \brief Registers new callback for the MouseReleased signal. */
-        void onMouseReleased(const std::function<void(Entity)>& callback);
-
-    private:
-        quad::QuadTree<Entity>& mQuadtree;
-        RenderLayer const* mRenderLayer;
-
-        Doublebuffer mHoveredEntities;
-        Doublebuffer mClickedEntities;
-
-        owls::Signal<Entity> mMouseEnterSignal;
-        owls::Signal<Entity> mMouseClickedSignal;
-        owls::Signal<Entity> mMouseExitSignal;
-        owls::Signal<Entity> mMouseReleasedSignal;
     };
 }
 

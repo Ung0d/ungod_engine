@@ -33,6 +33,8 @@
 #include "ungod/serialization/Serializable.h"
 #include "ungod/visual/RenderLayer.h"
 #include "ungod/base/ComponentSignalBase.h"
+#include "ungod/audio/MusicEmitter.h"
+#include "ungod/base/InputEvents.h"
 #include <set>
 
 namespace ungod
@@ -117,6 +119,9 @@ namespace ungod
 
 		void setActive(unsigned i, bool active = true);
 
+        /** \brief Returns the music emitter mixer. */
+        MusicEmitterMixer& getMusicEmitterMixer() { return mMusicEmitterMixer; }
+
     private:
 
         WorldGraph& mWorldGraph;
@@ -128,6 +133,10 @@ namespace ungod
         std::string mDataFile;
 
         TransformManager mTransformManager;
+        std::unique_ptr<AudioListener> mListener;
+        MusicEmitterMixer mMusicEmitterMixer;
+        SoundManager mSoundManager;
+        InputEventManager mInputEventManager;
     };
 
 

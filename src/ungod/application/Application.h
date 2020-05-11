@@ -35,6 +35,9 @@
 #include "ungod/application/ConfigFile.h"
 #include "ungod/visual/Image.h"
 #include "ungod/visual/Camera.h"
+#include "ungod/audio/MusicPlayer.h"
+#include "ungod/audio/Audio.h"
+#include "ungod/base/Input.h"
 
 namespace ungod
 {
@@ -126,6 +129,15 @@ namespace ungod
         /** \brief Returns true if and only if vsync is enabled. */
         bool vsyncEnabled() const { return mVsync; }
 
+        /** \brief Accesses the music manager to load and play music tracks or playlists. */
+        MusicManager& getMusicManager() { return mMusicManager; }
+
+        /** \brief Returns the audio manager. */
+        SoundProfileManager& getSoundProfileManager() { return mSoundProfileManager; }
+
+        /** \brief Returns a reference to the inout manager. */
+        InputHandler& getInputHandler() { return mInputHandler; }
+
     private:
         //const
         const float mDelta;
@@ -142,6 +154,11 @@ namespace ungod
         unsigned long mWindowStyle;
         sf::ContextSettings mContextSettings;
         bool mVsync;
+        //audio
+        MusicManager mMusicManager;
+        SoundProfileManager mSoundProfileManager;
+        //input
+        InputHandler mInputHandler;
         //configuration
         Configuration mConfig;
         //behavior
