@@ -46,7 +46,8 @@ namespace ungod
             mDebugTexrects(true),
             mDebugColliders(true),
             mDebugAudioEmitters(true),
-            mDebugLightEmitters(true)
+            mDebugLightEmitters(true),
+            mEntityBehaviorManager(mApp->getScriptState(), mApp->getGlobalScriptEnv())
     {
         runScript(gameScriptID);
     }
@@ -62,7 +63,8 @@ namespace ungod
             mDebugTexrects(true),
             mDebugColliders(true),
             mDebugAudioEmitters(true),
-            mDebugLightEmitters(true)
+            mDebugLightEmitters(true),
+            mEntityBehaviorManager(mApp->getScriptState(), mApp->getGlobalScriptEnv())
     {
     }
 

@@ -611,15 +611,6 @@ namespace ungod
             world.getInitializerManager().initialize(e, std::get<1>(result), world);
     }
 
-
-    void SerialBehavior<EntityBehaviorManager, Entity, const World&, const Application&>::serialize(const EntityBehaviorManager& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&)
-    {
-    }
-
-    void DeserialBehavior<EntityBehaviorManager, Entity, World&, const Application&>::deserialize(EntityBehaviorManager& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&)
-    {
-    }
-
     void SerialBehavior<EntityBehaviorComponent, Entity, const World&, const Application&>::serialize(const EntityBehaviorComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&)
     {
     }

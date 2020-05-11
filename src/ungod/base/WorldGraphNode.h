@@ -35,6 +35,7 @@
 #include "ungod/base/ComponentSignalBase.h"
 #include "ungod/audio/MusicEmitter.h"
 #include "ungod/base/InputEvents.h"
+#include "ungod/script/EntityBehavior.h"
 #include <set>
 
 namespace ungod
@@ -137,6 +138,7 @@ namespace ungod
         MusicEmitterMixer mMusicEmitterMixer;
         SoundManager mSoundManager;
         InputEventManager mInputEventManager;
+        EntityBehaviorHandler mEntityBehaviorHandler;
     };
 
 

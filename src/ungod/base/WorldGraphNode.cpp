@@ -43,7 +43,8 @@ namespace ungod
         mDataFile(datafile),
         mListener(std::unique_ptr<AudioListener>(new CameraListener(gamestate.getCamera(), world))),
         mMusicEmitterMixer(*mListener),
-        mSoundManager(wg.getSoundProfileManager(), *mListener)
+        mSoundManager(wg.getSoundProfileManager(), *mListener),
+        mEntityBehaviorHandler(gamestate.getEntityBehaviorManager())
     {
     }
 

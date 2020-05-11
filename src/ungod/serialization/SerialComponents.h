@@ -437,24 +437,6 @@ namespace ungod
     };
 
 
-
-    template <>
-    struct SerialIdentifier<EntityBehaviorManager>
-    {
-        static std::string get()  { return "EntityBehaviorManager"; }
-    };
-    template <>
-    struct SerialBehavior<EntityBehaviorManager, Entity, const World&, const Application&>
-    {
-        static void serialize(const EntityBehaviorManager& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
-    };
-    template <>
-    struct DeserialBehavior<EntityBehaviorManager, Entity, World&, const Application&>
-    {
-        static void deserialize(EntityBehaviorManager& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
-    };
-
-
     template <>
     struct SerialIdentifier<EntityBehaviorComponent>
     {

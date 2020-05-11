@@ -32,6 +32,7 @@
 #include "ungod/serialization/SerialGameState.h"
 #include "ungod/visual/RenderLayer.h"
 #include "ungod/base/WorldGraph.h"
+#include "ungod/script/EntityBehavior.h"
 
 namespace ungod
 {
@@ -115,6 +116,9 @@ namespace ungod
         const WorldGraph& getWorldGraph() const { return mWorldGraph; }
         WorldGraph& getWorldGraph() { return mWorldGraph; }
 
+        /** \brief Returns a reference to the behavior manager. */
+        EntityBehaviorManager& getEntityBehaviorManager() { return mEntityBehaviorManager; }
+
     public:
         virtual void init() override;
 
@@ -167,6 +171,8 @@ namespace ungod
         bool mDebugColliders;
         bool mDebugAudioEmitters;
         bool mDebugLightEmitters;
+
+        EntityBehaviorManager mEntityBehaviorManager;
     };
 }
 

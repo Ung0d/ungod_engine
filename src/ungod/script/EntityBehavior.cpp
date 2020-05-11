@@ -35,18 +35,6 @@ namespace ungod
     }
 
 
-    const std::vector<const char*> EntityBehaviorManager::IDENTIFIERS = { "onInit", "onExit", "onCreation", "onDestruction",
-                                                                          "onStaticConstr", "onStaticDestr",
-                                                                          "onSerialize", "onDeserialize",
-                                                                          "onCollisionEnter", "onCollision", "onCollisionExit",
-                                                                          "onMouseEnter", "onMouseExit", "onMouseClick", "onMouseReleased",
-                                                                          "onUpdate",
-                                                                          "onButtonDown", "onButtonReleased", "onButtonPressed",
-                                                                          "onMovementBegin", "onMovementEnd", "onDirectionChanged",
-                                                                          "onAnimationBegin", "onAnimationFrame", "onAnimationEnd",
-                                                                          "onCustomEvent",
-                                                                          "onAIGetState", "onAIAction"};
-
     EntityBehaviorManager::EntityBehaviorManager()
         : mBehaviorManager(IDENTIFIERS, ON_CREATION, ON_INIT, ON_EXIT, ON_STATIC_CONSTR, ON_STATIC_DESTR), mWorld(nullptr) {}
 

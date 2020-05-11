@@ -34,6 +34,7 @@
 #include "ungod/serialization/SerialRenderLayer.h"
 #include "ungod/script/CustomEvent.h"
 #include "owls/Signal.h"
+#include "quadtree/Quadtree.h"
 
 namespace ungod
 {
@@ -93,6 +94,7 @@ namespace ungod
         float mRenderDepth;
         std::string mName;
 		RenderLayerContainer* mContainer;
+        quad::QuadTree<Entity> mQuadTree;
 
     public:
         virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, const sf::RenderTarget& target) const override

@@ -55,12 +55,11 @@ namespace ungod
     class Camera;
 
     /**
-    * \brief A master-class based on dom::Universe that produces and destroys entities and combined
-    * with a quad-tree for efficient retrieval of selections of entities.
+    * \brief A renderlayer with a quadtree representing a world of entities.
     */
-    class World : public RenderLayer, public ComponentSignalBase
+    class World : public RenderLayer
     {
-     friend struct SerialBehavior<World, const sf::RenderTarget&>;
+    friend struct SerialBehavior<World, const sf::RenderTarget&>;
     friend struct DeserialBehavior<World, const sf::RenderTarget&>;
 
     public:
@@ -229,9 +228,6 @@ namespace ungod
         /** \brief Returns a reference to the initializer system. */
         InitializerManager& getInitializerManager();
 
-        /** \brief Returns a reference to the behavior manager. */
-        EntityBehaviorManager& getBehaviorManager();
-
         /** \brief Returns a reference to the tilemap renderer. */
         TileMapRenderer& getTileMapRenderer();
 
@@ -297,7 +293,6 @@ namespace ungod
     private:
         ScriptedGameState* mMaster;
         EntityBehaviorManager mBehaviorManager;
-        quad::QuadTree<Entity> mQuadTree;
         VisualsManager mVisualsManager;
         Renderer mRenderer;
         CollisionManager<MOVEMENT_COLLISION_CONTEXT> mMovementCollisionManager;
@@ -318,13 +313,15 @@ namespace ungod
         owls::Signal<Entity, MetaNode, SerializationContext&> mEntitySerializedSignal;
         owls::Signal<Entity, MetaNode, DeserializationContext&> mEntityDeserializedSignal;
 
-        quad::PullResult< Entity > mInUpdateRange;
-        quad::PullResult< Entity > mRenderedEntities;
 
         std::forward_list<Entity> mEntitiesToDestroy;
 
         bool mRenderLight;
 
+        quad::QuadTree<Entity> mQuadTree;
+
+        quad::PullResult< Entity > mInUpdateRange;
+        quad::PullResult< Entity > mRenderedEntities;
 
         struct EntityTag   {};
         struct NameTag {};

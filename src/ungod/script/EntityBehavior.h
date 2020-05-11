@@ -202,26 +202,35 @@ namespace ungod
     };
 
 
-    /** \brief A manager object that couples the ungod::Entity object with script-defined behavior.
-    * That means, there is a set of actions defined here, that are catched by this manager and
-    * evaluated in script files. */
-    class EntityBehaviorManager : public Serializable<EntityBehaviorManager>
+    enum SCRIPT_EVENT_IDS {
+        ON_INIT, ON_EXIT, ON_CREATION, ON_DESTRUCTION,
+        ON_STATIC_CONSTR, ON_STATIC_DESTR,
+        ON_SERIALIZED, ON_DESERIALIZED,
+        ON_COLLISION_ENTER, ON_COLLISION, ON_COLLISION_EXIT,
+        ON_MOUSE_ENTER, ON_MOUSE_EXIT, ON_MOUSE_CLICK, ON_MOUSE_RELEASED,
+        ON_UPDATE,
+        ON_BUTTON_DOWN, ON_BUTTON_RELEASED, ON_BUTTON_PRESSED,
+        ON_MOVEMENT_BEGIN, ON_MOVEMENT_END, ON_DIRECTION_CHANGED,
+        ON_ANIMATION_BEGIN, ON_ANIMATION_FRAME, ON_ANIMATION_END,
+        ON_CUSTOM_EVENT,
+        ON_AI_GET_STATE, ON_AI_ACTION
+    };
+
+    constexpr const char*[] IDENTIFIERS = { "onInit", "onExit", "onCreation", "onDestruction",
+                                            "onStaticConstr", "onStaticDestr",
+                                            "onSerialize", "onDeserialize",
+                                            "onCollisionEnter", "onCollision", "onCollisionExit",
+                                            "onMouseEnter", "onMouseExit", "onMouseClick", "onMouseReleased",
+                                            "onUpdate",
+                                            "onButtonDown", "onButtonReleased", "onButtonPressed",
+                                            "onMovementBegin", "onMovementEnd", "onDirectionChanged",
+                                            "onAnimationBegin", "onAnimationFrame", "onAnimationEnd",
+                                            "onCustomEvent",
+                                            "onAIGetState", "onAIAction" };
+
+    class EntityBehaviorManager
     {
     public:
-        enum EVENT_IDS { ON_INIT, ON_EXIT, ON_CREATION, ON_DESTRUCTION,
-                         ON_STATIC_CONSTR, ON_STATIC_DESTR,
-                         ON_SERIALIZED, ON_DESERIALIZED,
-                         ON_COLLISION_ENTER, ON_COLLISION, ON_COLLISION_EXIT,
-                         ON_MOUSE_ENTER, ON_MOUSE_EXIT, ON_MOUSE_CLICK, ON_MOUSE_RELEASED,
-                         ON_UPDATE,
-                         ON_BUTTON_DOWN, ON_BUTTON_RELEASED, ON_BUTTON_PRESSED,
-                         ON_MOVEMENT_BEGIN, ON_MOVEMENT_END, ON_DIRECTION_CHANGED,
-                         ON_ANIMATION_BEGIN, ON_ANIMATION_FRAME, ON_ANIMATION_END,
-                         ON_CUSTOM_EVENT,
-                         ON_AI_GET_STATE, ON_AI_ACTION};
-
-        static const std::vector<const char*> IDENTIFIERS;
-
         EntityBehaviorManager();
 
         EntityBehaviorManager(const script::SharedState& state, script::Environment main);
@@ -229,25 +238,8 @@ namespace ungod
         /** \brief Initializes the manager. */
         void init(World& world, ungod::Application& app);
 
-        /** \brief Updates the manager and may invoke onUpdate scripts of entities. */
-        void update(const std::list<Entity>& entities, float delta);
-
-        /** \brief Forwards the custom event to the script behaviors. */
-        void handleCustomEvent(const CustomEvent& event);
-
         /** \brief Loads a new entity behavior script. The script is stored with the filename of the script as key (without path and file-extentions). */
         ScriptErrorCode loadBehaviorScript(const std::string& filepath);
-
-        /** \brief Assigns a behavior to the given entity. The behavior must have been loaded beforehand. */
-        void assignBehavior(Entity e, const std::string& name);
-        void assignBehavior(Entity e, const std::string& name, script::Environment param);
-
-        /** \brief Dissociates the current behavior from the entity, if any. */
-        void dissociateBehavior(Entity e);
-
-        /** \brief Sets the update interval of the given entity. */
-        void setUpdateInterval(Entity e, float interval);
-        void setUpdateInterval(EntityUpdateTimer& timer, float interval);
 
         /** \brief Returns a script variable defined in global environment. Call is safe. If the variable is not defined, an empty optional is returned. */
         template<typename T>
@@ -264,6 +256,36 @@ namespace ungod
         * Returns a list of all reloaded script files along with the error codes. */
         std::vector<std::pair<std::string, ScriptErrorCode>> reload(ungod::Application& app, const script::SharedState& state, script::Environment main);
 
+    private:
+        BehaviorManager<> mBehaviorManager;
+    };
+
+
+    /** \brief A manager object that couples the ungod::Entity object with script-defined behavior.
+    * That means, there is a set of actions defined here, that are catched by this manager and
+    * evaluated in script files. */
+    class EntityBehaviorHandler
+    {
+    public:
+        EntityBehaviorHandler(const EntityBehaviorManager& entityBehaviorManager);
+
+        /** \brief Updates the manager and may invoke onUpdate scripts of entities. */
+        void update(const std::list<Entity>& entities, float delta);
+
+        /** \brief Forwards the custom event to the script behaviors. */
+        void handleCustomEvent(const CustomEvent& event);
+
+        /** \brief Assigns a behavior to the given entity. The behavior must have been loaded beforehand. */
+        void assignBehavior(Entity e, const std::string& name);
+        void assignBehavior(Entity e, const std::string& name, script::Environment param);
+
+        /** \brief Dissociates the current behavior from the entity, if any. */
+        void dissociateBehavior(Entity e);
+
+        /** \brief Sets the update interval of the given entity. */
+        void setUpdateInterval(Entity e, float interval);
+        void setUpdateInterval(EntityUpdateTimer& timer, float interval);
+
         /** \brief Registers an entity as a listener to an event type. */
         script::EventListenerLink addEventListener(Entity e, const std::string& eventType);
 
@@ -271,7 +293,7 @@ namespace ungod
         script::EventListenerLink addEventListener(const script::ProtectedFunc& func, const std::string& eventType);
 
     private:
-        BehaviorManager<> mBehaviorManager;
+        const EntityBehaviorManager& mEntityBehaviorManager;
         World* mWorld;
         std::unordered_set<Entity> mMetaEntities; ///< stores entities with no transform components (at the time of script assignment) in order to process them
         script::EventHandler mEventHandler;
