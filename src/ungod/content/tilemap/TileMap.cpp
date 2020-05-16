@@ -40,6 +40,12 @@ namespace ungod
     }
 
 
+    void TileMap::setMetaMap(const MetaMap& meta)
+    {
+        mMeta = meta;
+    }
+
+
     bool TileMap::render(sf::RenderTarget& target, const sf::Texture* tex, sf::RenderStates states)
     {
         if (!mTiles.ids)
@@ -148,7 +154,7 @@ namespace ungod
     }
 
 
-    void TileMap::setTileDims(const MetaMap& meta, unsigned tileWidth, unsigned tileHeight,
+    void TileMap::setTileDims(unsigned tileWidth, unsigned tileHeight,
                            const std::vector<std::string>& keymap)
     {
         mTileWidth = tileWidth;
@@ -156,12 +162,12 @@ namespace ungod
         mKeymap = keymap;
         mTilePositions.reserve(mKeymap.size());
         for (const auto& key : mKeymap)
-            keylookup(meta, key);
+            keylookup(key);
     }
 
-    void TileMap::keylookup(const MetaMap& meta, const std::string& key)
+    void TileMap::keylookup(const std::string& key)
     {
-        MetaNode tilenode = meta.getNodeWithKey(key);
+        MetaNode tilenode = mMeta.getNodeWithKey(key);
         if (tilenode)
         {
             auto data = tilenode.getAttributes<unsigned, unsigned>( {"pos_x", 0u}, {"pos_y", 0u} );
@@ -169,15 +175,15 @@ namespace ungod
         }
         else
         {
-            ungod::Logger::warning("Cant find a ground tile with key", key);
+            ungod::Logger::warning("Cant find a ground tile with key", key, ". \n Is a val id metamap linked?");
             mTilePositions.emplace_back(0,0); //need to insert a default position to ensure index-consistency
         }
     }
 
-    void TileMap::addKey(const MetaMap& meta, const std::string& key)
+    void TileMap::addKey(const std::string& key)
     {
         mKeymap.emplace_back(key);
-        keylookup(meta, key);
+        keylookup(key);
     }
 
     int TileMap::getTileID(const sf::Vector2f& position) const

@@ -56,13 +56,15 @@ namespace ungod
         const std::vector<std::string>& keymap)
     {
         const auto& metadata = e.get<SpriteMetadataComponent>();
-        e.modify<TileMapComponent>().mTileMap.setTileDims(metadata.getMetaMap(), tileWidth, tileHeight, keymap);
+        e.modify<TileMapComponent>().mTileMap.setMetaMap(metadata.getMetaMap());
+        e.modify<TileMapComponent>().mTileMap.setTileDims(tileWidth, tileHeight, keymap);
     }
 
     void TileMapHandler::addKey(Entity e, const std::string& key)
     {
         const auto& metadata = e.get<SpriteMetadataComponent>();
-        e.modify<TileMapComponent>().mTileMap.addKey(metadata.getMetaMap(), key);
+        e.modify<TileMapComponent>().mTileMap.setMetaMap(metadata.getMetaMap());
+        e.modify<TileMapComponent>().mTileMap.addKey(key);
     }
 
     void TileMapHandler::floodFillTileMap(TileMapComponent& tilemap, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs)

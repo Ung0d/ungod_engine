@@ -420,22 +420,6 @@ namespace ungod
     /// entity behavior ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    template <>
-    struct SerialIdentifier<Initializer>
-    {
-        static std::string get()  { return "IN"; }
-    };
-    template <>
-    struct SerialBehavior<Initializer, Entity, const World&>
-    {
-        static void serialize(const Initializer& data, MetaNode serializer, SerializationContext& context, Entity, const World&);
-    };
-    template <>
-    struct DeserialBehavior<Initializer, Entity, World&>
-    {
-        static void deserialize(Initializer& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world);
-    };
-
 
     template <>
     struct SerialIdentifier<EntityBehaviorComponent>

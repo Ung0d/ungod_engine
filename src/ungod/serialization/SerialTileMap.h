@@ -53,25 +53,6 @@ namespace ungod
     {
         static void deserialize(TileMap& data, MetaNode deserializer, DeserializationContext& context);
     };
-
-
-    template <>
-    struct SerialIdentifier<FootstepSoundProfile>
-    {
-        static std::string get()  { return "FootstepSoundProfile"; }
-    };
-
-    template <>
-    struct SerialBehavior<FootstepSoundProfile>
-    {
-        static void serialize(const FootstepSoundProfile& data, MetaNode serializer, SerializationContext& context);
-    };
-
-    template <>
-    struct DeserialBehavior<FootstepSoundProfile, AudioManager&, TileMap&>
-    {
-        static void deserialize(FootstepSoundProfile& data, MetaNode deserializer, DeserializationContext& context, AudioManager& mgr, TileMap& ground);
-    };
 }
 
 #endif //UNGOD_SERIAL_GROUND_H

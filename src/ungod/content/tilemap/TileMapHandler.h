@@ -23,8 +23,8 @@
 *    source distribution.
 */
 
-#ifndef UNGOD_TILEMAP_RENDERER_H
-#define UNGOD_TILEMAP_RENDERER_H
+#ifndef UNGOD_TILEMAP_HANDLER_H
+#define UNGOD_TILEMAP_HANDLER_H
 
 #include <SFML/Graphics/RenderTexture.hpp>
 #include "ungod/content/tilemap/TileMap.h"
@@ -116,5 +116,5 @@ namespace ungod
     };
 }
 
-#endif // UNGOD_TILEMAP_RENDERER_H
+#endif // UNGOD_TILEMAP_HANDLER_H
 

@@ -27,6 +27,7 @@
 #define UNGOD_TILEMAP_H
 
 #include <SFML/Graphics.hpp>
+#include "ungod/serialization/Serializable.h"
 #include <memory>
 
 namespace ungod
@@ -42,8 +43,10 @@ namespace ungod
     * them, which intersects the screen. Base of the map is a 2D-vector containing
     * int values representing the number of the tile in the texture (line by line).
     */
-    class TileMap : public sf::Transformable
+    class TileMap : public sf::Transformable : public Serializable<TileMap>
     {
+    friend struct SerialBehavior<TileMap>;
+    friend struct DeserialBehavior<TileMap>;
     private:
         sf::VertexArray mVertices; ///<contains only as much vertices, as required to cover the screen area
         std::vector<sf::Vector2u> mTilePositions; ///<tex positions for each tile type
@@ -57,6 +60,8 @@ namespace ungod
         unsigned mMapSizeX;
         unsigned mMapSizeY;
 
+        const MetaMap& mMeta;
+
         /** \brief Internal reset of the visible part of the ground. */
         void refineSize(unsigned width, unsigned height);
 
@@ -65,6 +70,9 @@ namespace ungod
     public:
         //constructors
         TileMap();
+
+        /** \brief Links a meta map to the tile maps that provides texture positions given string keys. */
+        void setMetaMap(const MetaMap& meta);
 
         /** \brief Returns true if at least one active tile was rendered. */
         bool render(sf::RenderTarget& target, const sf::Texture* tex, sf::RenderStates states);
@@ -77,12 +85,11 @@ namespace ungod
         void setTile(int id, unsigned x, unsigned y);
 
         /** \brief Sets the key data that connects tile ids to texture infos. */
-        void setTileDims(const MetaMap& meta, 
-                       unsigned tileWidth, unsigned tileHeight,
+        void setTileDims(unsigned tileWidth, unsigned tileHeight,
                        const std::vector<std::string>& keymap = {});
 
         /** \brief Adds a single new key to the end of the current keymap. */
-        void addKey(const MetaMap& meta, const std::string& key);
+        void addKey(const std::string& key);
 
         //getters
         float getTileWidth() const {return getScale().x*mTileWidth;}
