@@ -27,6 +27,7 @@
 #include "ungod/application/ScriptedGameState.h"
 #include "ungod/application/ScriptedMenuState.h"
 #include <boost/filesystem.hpp>
+#include "ungod/script/Registration.h"
 
 namespace ungod
 {
@@ -75,10 +76,7 @@ namespace ungod
         if (mIsInit)
             return;
 
-        Logger::info("Now initializing application ");
-        Logger::info(mTitle);
-        Logger::info("...");
-        Logger::endl();
+        Logger::info("Now initializing application", mTitle, "...");
 
         mIsInit = true;
         loadConfig();
@@ -88,10 +86,7 @@ namespace ungod
 
     ErrorCode Application::runApplication()
     {
-        Logger::info("Now running application ");
-        Logger::info(mTitle);
-        Logger::info("...");
-        Logger::endl();
+        Logger::info("Now running application", mTitle, "...");
         mRunning = true;
         mainloop();
         mConfig.save();
@@ -237,17 +232,7 @@ namespace ungod
     {
         mRunning = true;
 
-        //setup script stuff
-        mScriptState = std::make_shared<script::State>();
-        mGlobalScriptEnvironment = mScriptState->create_named_table("ungod");
-
-        //load images in normal or low quality?
-        //auto graphicsConfig = mConfig.getNodeWithKey("graphics_settings");
-        //if (graphicsConfig)
-        //{
-            /*Image::quality = (ImageQuality)ungod::getAttribute<std::underlying_type<ImageQuality>::type>(
-                                        "image_quality", graphics_config, IMAGE_QUALITY_NORMAL);*/
-        //}
+        resetScriptState();
 
         mConfig.onConfigurationChanged([this] (Configuration& config, const std::string& item)
            {
@@ -286,7 +271,7 @@ namespace ungod
         sf::Event event;
         while(mWindow.pollEvent(event))
         {
-            mInputHandler.handleEvent(event);
+            mInputManager.handleEvent(event);
             mStatemanager.handleEvent(event);
             mCursorCamera.handleEvent(event);
 
@@ -322,7 +307,7 @@ namespace ungod
         while (mAccumulator >= mDelta && ++mUpdateCounter <= mMaxUpdates)
         {
              mAssetmanager.update();
-             mInputHandler.update();
+             mInputManager.update();
              mStatemanager.update(mDelta);
              mMusicManager.update(mDelta);
              mAccumulator -= mDelta;
@@ -347,8 +332,51 @@ namespace ungod
         mStatemanager.onCustomEvent(event);
     }
 
+    void Application::resetScriptState()
+    {
+        //setup script stuff
+        mScriptState = std::make_shared<script::State>();
+        mGlobalScriptEnvironment = mScriptState->create_named_table("ungod");
+
+        ScriptStateBase scriptBase{ mScriptState, getGlobalScriptEnv() };
+
+        //register functionality
+        scriptRegistration::registerAssets(scriptBase);
+        scriptRegistration::registerUtility(scriptBase);
+        scriptRegistration::registerGui(scriptBase);
+        scriptRegistration::registerInput(scriptBase);
+        scriptRegistration::registerAudio(scriptBase);
+        scriptRegistration::registerMenuState(scriptBase);
+        scriptRegistration::registerGameState(scriptBase);
+        scriptRegistration::registerApplication(scriptBase, *this);
+        scriptRegistration::registerWater(scriptBase, *this);
+        scriptRegistration::registerTileMap(scriptBase, *this);
+        scriptRegistration::registerWorldGraph(scriptBase);
+        scriptRegistration::registerEntity(scriptBase);
+        scriptRegistration::registerSerialization(scriptBase);
+        scriptRegistration::registerTransform(scriptBase);
+        scriptRegistration::registerMovement(scriptBase);
+        scriptRegistration::registerVisuals(scriptBase, *this);
+        scriptRegistration::registerCollision<MOVEMENT_COLLISION_CONTEXT>(scriptBase);
+        scriptRegistration::registerCollision<SEMANTICS_COLLISION_CONTEXT>(scriptBase);
+        scriptRegistration::registerRigidbody(scriptBase);
+        scriptRegistration::registerLight(scriptBase);
+        scriptRegistration::registerBehavior(scriptBase);
+        scriptRegistration::registerParticleSystem(scriptBase);
+        scriptRegistration::registerParentChild(scriptBase);
+        scriptRegistration::registerCutscene(scriptBase);
+        scriptRegistration::registerCutsceneState(scriptBase);
+
+        mScriptStateChanged();
+    }
+
     owls::SignalLink<void, const sf::Vector2u&> Application::onTargetSizeChanged(const std::function<void(const sf::Vector2u&)>& callback)
     {
         return mTargetSizeChanged.connect(callback);
+    }
+
+    owls::SignalLink<void> Application::onScriptStateChanged(const std::function<void()>& callback)
+    {
+        mScriptStateChanged.connect(callback);
     }
 }

@@ -119,33 +119,33 @@ namespace ungod
     }
 
 
-    void VisualsManager::initTextureRects(Entity e, std::size_t num)
+    void VisualsHandler::initTextureRects(Entity e, std::size_t num)
     {
         e.modify<VertexArrayComponent>().mVertices.initRects(num);
         e.modify<VertexArrayComponent>().mKeys.resize(num);
     }
 
-    void VisualsManager::setSpriteTextureRect(Entity e, SpriteComponent& sprite, const sf::FloatRect& rect)
+    void VisualsHandler::setSpriteTextureRect(Entity e, SpriteComponent& sprite, const sf::FloatRect& rect)
     {
         sprite.mSprite.setTextureRect(rect);
         sprite.mKey = std::string{};
         mContentsChangedSignal.emit(e, sprite.getSprite().getBounds());
     }
 
-    void VisualsManager::setSpritePosition(Entity e, SpriteComponent& sprite, const sf::Vector2f& position)
+    void VisualsHandler::setSpritePosition(Entity e, SpriteComponent& sprite, const sf::Vector2f& position)
     {
         sprite.mSprite.setPosition(position);
         mContentsChangedSignal.emit(e, sprite.getSprite().getBounds());
     }
 
-    void VisualsManager::setArrayTextureRect(VertexArrayComponent& vertices, const sf::FloatRect& rect, std::size_t index)
+    void VisualsHandler::setArrayTextureRect(VertexArrayComponent& vertices, const sf::FloatRect& rect, std::size_t index)
     {
         vertices.mVertices.setTextureRect(rect, index);
         if (index < vertices.mKeys.size())
             vertices.mKeys[index] = std::string{};
     }
 
-    void VisualsManager::setTextureRectPosition(Entity e, const sf::Vector2f& position, std::size_t index)
+    void VisualsHandler::setTextureRectPosition(Entity e, const sf::Vector2f& position, std::size_t index)
     {
         VertexArrayComponent& vertices = e.modify<VertexArrayComponent>();
         vertices.mVertices.setRectPosition(position, index);
@@ -153,7 +153,7 @@ namespace ungod
         mContentsChangedSignal.emit(e, vertices.mVertices.getBounds());
     }
 
-    void VisualsManager::setPoints(Entity e, VertexArrayComponent& vertices, std::size_t index, const sf::Vector2f& p1,
+    void VisualsHandler::setPoints(Entity e, VertexArrayComponent& vertices, std::size_t index, const sf::Vector2f& p1,
                                    const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4)
     {
         vertices.mVertices.setPoints(p1, p2, p3, p4, index);
@@ -162,18 +162,18 @@ namespace ungod
     }
 
 
-   const sf::Vector2f& VisualsManager::getPoint(Entity e, std::size_t rectIndex, std::size_t pointIndex)
+   const sf::Vector2f& VisualsHandler::getPoint(Entity e, std::size_t rectIndex, std::size_t pointIndex)
    {
         return e.get<VertexArrayComponent>().getVertices().getPoint(rectIndex, pointIndex);
    }
 
-    std::size_t VisualsManager::newTextureRect(VertexArrayComponent& vertices, const sf::FloatRect& rect)
+    std::size_t VisualsHandler::newTextureRect(VertexArrayComponent& vertices, const sf::FloatRect& rect)
     {
         std::size_t index = vertices.mVertices.newTextureRect(rect);
         return index;
     }
 
-    std::size_t VisualsManager::newTextureRect(Entity e, VertexArrayComponent& vertices, VisualsComponent& vis)
+    std::size_t VisualsHandler::newTextureRect(Entity e, VertexArrayComponent& vertices, VisualsComponent& vis)
     {
         std::size_t index = newTextureRect(vertices, {0,0,0,0});
         if (vis.isLoaded())
@@ -184,7 +184,7 @@ namespace ungod
         return index;
     }
 
-    void VisualsManager::loadTexture(VisualsComponent& visuals, const std::string& imageID, std::function<void(VisualsComponent&)> callback)
+    void VisualsHandler::loadTexture(VisualsComponent& visuals, const std::string& imageID, std::function<void(VisualsComponent&)> callback)
     {
         visuals.mImage.load(imageID, LoadPolicy::ASYNC);
         visuals.mVisible = true;
@@ -194,19 +194,19 @@ namespace ungod
           });
     }
 
-    void VisualsManager::loadTexture(VisualsComponent& visuals, const std::string& imageID, const LoadPolicy policy)
+    void VisualsHandler::loadTexture(VisualsComponent& visuals, const std::string& imageID, const LoadPolicy policy)
     {
         visuals.mImage.load(imageID, policy);
         visuals.mVisible = true;
     }
 
-    void VisualsManager::loadMetadata(Entity e, const std::string& metaID)
+    void VisualsHandler::loadMetadata(Entity e, const std::string& metaID)
     {
         SpriteMetadataComponent& data = e.modify<SpriteMetadataComponent>();
         data.mMeta.load(metaID, LoadPolicy::SYNC);
     }
 
-    void VisualsManager::setSpriteTextureRect(Entity e, SpriteComponent& sprite, const SpriteMetadataComponent& data, const std::string& key)
+    void VisualsHandler::setSpriteTextureRect(Entity e, SpriteComponent& sprite, const SpriteMetadataComponent& data, const std::string& key)
     {
         auto node = data.mMeta.getNodeWithKey(key);
         if (node)
@@ -224,7 +224,7 @@ namespace ungod
         }
     }
 
-    void VisualsManager::setArrayTextureRect(Entity e, std::size_t index, const std::string& key)
+    void VisualsHandler::setArrayTextureRect(Entity e, std::size_t index, const std::string& key)
     {
         SpriteMetadataComponent& data = e.modify<SpriteMetadataComponent>();
         auto node = data.mMeta.getNodeWithKey(key);
@@ -248,7 +248,7 @@ namespace ungod
     }
 
 
-    std::size_t VisualsManager::newTextureRect(Entity e, const std::string& key)
+    std::size_t VisualsHandler::newTextureRect(Entity e, const std::string& key)
     {
         auto index = newTextureRect(e, sf::FloatRect{0.0f,0.0f,0.0f,0.0f});
         setArrayTextureRect(e, index, key);
@@ -256,42 +256,42 @@ namespace ungod
     }
 
 
-    void VisualsManager::setVisible(Entity e, bool visible)
+    void VisualsHandler::setVisible(Entity e, bool visible)
     {
         e.modify<VisualsComponent>().mVisible = visible;
         mVisibilityChangedSignal(e, visible);
     }
 
 
-    void VisualsManager::setHideForCamera(Entity e, bool hideForCamera)
+    void VisualsHandler::setHideForCamera(Entity e, bool hideForCamera)
     {
         e.modify<VisualsComponent>().mHideForCamera = hideForCamera;
     }
 
 
-    void VisualsManager::bindSpriteToAnimation(SpriteComponent& sprite, AnimationComponent& animation)
+    void VisualsHandler::bindSpriteToAnimation(SpriteComponent& sprite, AnimationComponent& animation)
     {
         animation.mVertices = sprite.mSprite.getVertices();
     }
 
-    void VisualsManager::bindArrayToAnimation(VertexArrayComponent& vertices, AnimationComponent& animation, std::size_t index)
+    void VisualsHandler::bindArrayToAnimation(VertexArrayComponent& vertices, AnimationComponent& animation, std::size_t index)
     {
         animation.mVertices = &vertices.mVertices.getVertexArray()[0];
     }
 
-    bool VisualsManager::setAnimationState(Entity e, const std::string& key)
+    bool VisualsHandler::setAnimationState(Entity e, const std::string& key)
     {
         return setAnimationState(e, e.get<SpriteMetadataComponent>(), e.modify<AnimationComponent>(), key);
     }
 
 
-    bool VisualsManager::setAnimationState(Entity e, const std::string& key, std::size_t multiAnimationIndex)
+    bool VisualsHandler::setAnimationState(Entity e, const std::string& key, std::size_t multiAnimationIndex)
     {
         return setAnimationState(e, e.get<SpriteMetadataComponent>(), e.modify<MultiAnimationComponent>().getComponent(multiAnimationIndex), key);
     }
 
 
-    bool VisualsManager::setAnimationState(Entity e, const SpriteMetadataComponent& data, AnimationComponent& animation, const std::string& key)
+    bool VisualsHandler::setAnimationState(Entity e, const SpriteMetadataComponent& data, AnimationComponent& animation, const std::string& key)
     {
         if (!animation.mVertices)
             return false;
@@ -310,56 +310,56 @@ namespace ungod
     }
 
 
-    bool VisualsManager::newAnimationState(Entity e, const std::string& key)
+    bool VisualsHandler::newAnimationState(Entity e, const std::string& key)
     {
         auto index = newTextureRect(e, sf::FloatRect{0.0f,0.0f,0.0f,0.0f});
         bindArrayToAnimation(e, index);
         return setAnimationState(e, key);
     }
 
-    void VisualsManager::setRunning(Entity e, bool running)
+    void VisualsHandler::setRunning(Entity e, bool running)
     {
         e.modify<AnimationComponent>().mAnimation.setRunning(running);
     }
 
 
-    void VisualsManager::setRunning(Entity e, bool running, std::size_t animationIndex)
+    void VisualsHandler::setRunning(Entity e, bool running, std::size_t animationIndex)
     {
         e.modify<MultiAnimationComponent>().getComponent(animationIndex).mAnimation.setRunning(running);
     }
 
 
-    void VisualsManager::setAnimationSpeed(Entity e, float speed)
+    void VisualsHandler::setAnimationSpeed(Entity e, float speed)
     {
         e.modify<AnimationComponent>().mAnimation.setSpeed(speed);
     }
 
 
-    void VisualsManager::setAnimationSpeed(Entity e, float speed, std::size_t animationIndex)
+    void VisualsHandler::setAnimationSpeed(Entity e, float speed, std::size_t animationIndex)
     {
         e.modify<MultiAnimationComponent>().getComponent(animationIndex).mAnimation.setSpeed(speed);
     }
 
 
-    void VisualsManager::setSpriteColor(SpriteComponent& sprite, const sf::Color& color)
+    void VisualsHandler::setSpriteColor(SpriteComponent& sprite, const sf::Color& color)
     {
         sprite.mSprite.setColor(color);
     }
 
 
-    void VisualsManager::setArrayRectColor(VertexArrayComponent& vertices, const sf::Color& color, std::size_t index)
+    void VisualsHandler::setArrayRectColor(VertexArrayComponent& vertices, const sf::Color& color, std::size_t index)
     {
         vertices.mVertices.setRectColor(color, index);
     }
 
-    void VisualsManager::setOpacity(Entity e, float opacity)
+    void VisualsHandler::setOpacity(Entity e, float opacity)
     {
         e.modify<VisualsComponent>().mOpacity = opacity;
         componentOpacitySet(e, opacity);
     }
 
 
-    void VisualsManager::componentOpacitySet(Entity e, float opacity)
+    void VisualsHandler::componentOpacitySet(Entity e, float opacity)
     {
         if (e.has<SpriteComponent>())
         {
@@ -384,58 +384,58 @@ namespace ungod
     }
 
 
-    void VisualsManager::onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback)
+    void VisualsHandler::onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback)
     {
         mContentsChangedSignal.connect(callback);
     }
 
-    void VisualsManager::onVisibilityChanged(const std::function<void(Entity, bool)>& callback)
+    void VisualsHandler::onVisibilityChanged(const std::function<void(Entity, bool)>& callback)
     {
         mVisibilityChangedSignal.connect(callback);
     }
 
-    void VisualsManager::onAnimationStart(const std::function<void(Entity, const std::string&)>& callback)
+    void VisualsHandler::onAnimationStart(const std::function<void(Entity, const std::string&)>& callback)
     {
         mAnimationStartSignal.connect(callback);
     }
 
-    void VisualsManager::onAnimationStop(const std::function<void(Entity, const std::string&)>& callback)
+    void VisualsHandler::onAnimationStop(const std::function<void(Entity, const std::string&)>& callback)
     {
         mAnimationStopSignal.connect(callback);
     }
 
-    void VisualsManager::onAnimationFrame(const std::function<void(Entity, const std::string&, int)>& callback)
+    void VisualsHandler::onAnimationFrame(const std::function<void(Entity, const std::string&, int)>& callback)
     {
         mAnimationFrameSignal.connect(callback);
     }
 
 
-    sf::Vector2f VisualsManager::getLowerBound(Entity e)
+    sf::Vector2f VisualsHandler::getLowerBound(Entity e)
     {
         return getLowerBoundInternal(e, [] (const Sprite& sprite) -> sf::FloatRect { return sprite.getBounds(); });
     }
 
 
-    sf::Vector2f VisualsManager::getUpperBound(Entity e)
+    sf::Vector2f VisualsHandler::getUpperBound(Entity e)
     {
         return getUpperBoundInternal(e, [] (const Sprite& sprite) -> sf::FloatRect { return sprite.getBounds(); });
     }
 
 
-    sf::Vector2f VisualsManager::getUntransformedLowerBound(Entity e)
+    sf::Vector2f VisualsHandler::getUntransformedLowerBound(Entity e)
     {
         return getLowerBoundInternal(e, [] (const Sprite& sprite) -> sf::FloatRect { return sprite.getUntransformedBounds(); });
     }
 
 
-    sf::Vector2f VisualsManager::getUntransformedUpperBound(Entity e)
+    sf::Vector2f VisualsHandler::getUntransformedUpperBound(Entity e)
     {
         return getUpperBoundInternal(e, [] (const Sprite& sprite) -> sf::FloatRect { return sprite.getUntransformedBounds(); });
     }
 
 
 
-    sf::Vector2f VisualsManager::getLowerBoundInternal(Entity e, const std::function<sf::FloatRect(const Sprite&)>& boundsGetter)
+    sf::Vector2f VisualsHandler::getLowerBoundInternal(Entity e, const std::function<sf::FloatRect(const Sprite&)>& boundsGetter)
     {
         sf::Vector2f lowerBounds(0,0);
         if (e.has<VertexArrayComponent>())
@@ -468,7 +468,7 @@ namespace ungod
     }
 
 
-    sf::Vector2f VisualsManager::getUpperBoundInternal(Entity e, const std::function<sf::FloatRect(const Sprite&)>& boundsGetter)
+    sf::Vector2f VisualsHandler::getUpperBoundInternal(Entity e, const std::function<sf::FloatRect(const Sprite&)>& boundsGetter)
     {
         sf::Vector2f upperBounds(0,0);
         if (e.has<VertexArrayComponent>())
@@ -501,7 +501,7 @@ namespace ungod
     }
 
 
-    void VisualsManager::moveVisuals(Entity e, const sf::Vector2f& vec)
+    void VisualsHandler::moveVisuals(Entity e, const sf::Vector2f& vec)
     {
         if (e.has<VertexArrayComponent>())
         {
@@ -531,62 +531,62 @@ namespace ungod
 		}
     }
 
-    void VisualsManager::setRotation(Entity e, SpriteComponent& sprite, float rotation)
+    void VisualsHandler::setRotation(Entity e, SpriteComponent& sprite, float rotation)
     {
         sprite.mSprite.setRotation(rotation);
         mContentsChangedSignal(e, sprite.mSprite.getBounds());
     }
 
-    void VisualsManager::setScale(Entity e, SpriteComponent& sprite, const sf::Vector2f& scale)
+    void VisualsHandler::setScale(Entity e, SpriteComponent& sprite, const sf::Vector2f& scale)
     {
         sprite.mSprite.setScale(scale);
         mContentsChangedSignal(e, sprite.mSprite.getBounds());
     }
 
-    void VisualsManager::setOrigin(Entity e, SpriteComponent& sprite, const sf::Vector2f& origin)
+    void VisualsHandler::setOrigin(Entity e, SpriteComponent& sprite, const sf::Vector2f& origin)
     {
         sprite.mSprite.setOrigin(origin);
         mContentsChangedSignal(e, sprite.mSprite.getBounds());
     }
 
 
-    void VisualsManager::setAffectorCallback(VisualAffectorComponent& affector, const VisualAffectorComponentCallback& callback)
+    void VisualsHandler::setAffectorCallback(VisualAffectorComponent& affector, const VisualAffectorComponentCallback& callback)
     {
         affector.mCallback = callback;
         affector.mActive = true;
     }
 
-    void VisualsManager::flipVertexX(VertexArrayComponent& vertices)
+    void VisualsHandler::flipVertexX(VertexArrayComponent& vertices)
     {
         vertices.mVertices.flipX();
     }
 
-    void VisualsManager::flipVertexY(VertexArrayComponent& vertices)
+    void VisualsHandler::flipVertexY(VertexArrayComponent& vertices)
     {
         vertices.mVertices.flipY();
     }
 
-    void VisualsManager::flipVertexX(VertexArrayComponent& vertices, unsigned i)
+    void VisualsHandler::flipVertexX(VertexArrayComponent& vertices, unsigned i)
     {
         vertices.mVertices.flipX(i);
     }
 
-    void VisualsManager::flipVertexY(VertexArrayComponent& vertices, unsigned i)
+    void VisualsHandler::flipVertexY(VertexArrayComponent& vertices, unsigned i)
     {
         vertices.mVertices.flipY(i);
     }
 
-    void VisualsManager::flipSpriteX(SpriteComponent& sprite)
+    void VisualsHandler::flipSpriteX(SpriteComponent& sprite)
     {
         sprite.mSprite.flipX();
     }
 
-    void VisualsManager::flipSpriteY(SpriteComponent& sprite)
+    void VisualsHandler::flipSpriteY(SpriteComponent& sprite)
     {
         sprite.mSprite.flipY();
     }
 
-    void VisualsManager::loadBigTexture(Entity e, BigSpriteComponent& bigSprite, const std::string& filepath, LoadPolicy policy)
+    void VisualsHandler::loadBigTexture(Entity e, BigSpriteComponent& bigSprite, const std::string& filepath, LoadPolicy policy)
     {
         bigSprite.mBigImage.load(filepath, policy);
         bigSprite.mBigImage.get([this, &bigSprite, e](const sf::BigTexture&)
@@ -599,7 +599,7 @@ namespace ungod
           });
     }
 
-    void VisualsManager::setBigSpriteTexture(Entity e, BigSpriteComponent& bigSprite)
+    void VisualsHandler::setBigSpriteTexture(Entity e, BigSpriteComponent& bigSprite)
     {
         if (bigSprite.mBigSprite.getBigTexture() == &bigSprite.mBigImage.get())
             return;
@@ -607,35 +607,35 @@ namespace ungod
         mContentsChangedSignal(e, bigSprite.mBigSprite.getGlobalBounds());
     }
 
-    void VisualsManager::setBigSpriteVisibility(BigSpriteComponent& bigSprite, bool visible)
+    void VisualsHandler::setBigSpriteVisibility(BigSpriteComponent& bigSprite, bool visible)
     {
         bigSprite.mVisible = visible;
     }
 
-    void VisualsManager::setBigSpritePosition(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& position)
+    void VisualsHandler::setBigSpritePosition(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& position)
     {
         bigSprite.mBigSprite.setPosition(position);
         mContentsChangedSignal(e, bigSprite.mBigSprite.getGlobalBounds());
     }
 
-    void VisualsManager::setBigSpriteColor(BigSpriteComponent& bigSprite, const sf::Color& color)
+    void VisualsHandler::setBigSpriteColor(BigSpriteComponent& bigSprite, const sf::Color& color)
     {
         bigSprite.mBigSprite.setColor(color);
     }
 
-    void VisualsManager::setBigSpriteScale(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& scale)
+    void VisualsHandler::setBigSpriteScale(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& scale)
     {
         bigSprite.mBigSprite.setScale(scale);
         mContentsChangedSignal(e, bigSprite.mBigSprite.getGlobalBounds());
     }
 
-    void VisualsManager::setBigSpriteOrigin(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& origin)
+    void VisualsHandler::setBigSpriteOrigin(Entity e, BigSpriteComponent& bigSprite, const sf::Vector2f& origin)
     {
         bigSprite.mBigSprite.setOrigin(origin);
         mContentsChangedSignal(e, bigSprite.mBigSprite.getGlobalBounds());
     }
 
-    void VisualsManager::setBigSpriteRotation(Entity e, BigSpriteComponent& bigSprite, const float angle)
+    void VisualsHandler::setBigSpriteRotation(Entity e, BigSpriteComponent& bigSprite, const float angle)
     {
         bigSprite.mBigSprite.setRotation(angle);
         mContentsChangedSignal(e, bigSprite.mBigSprite.getGlobalBounds());

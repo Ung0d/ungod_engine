@@ -81,9 +81,7 @@ namespace ungod
         }
         else
         {
-            Logger::warning(item);
-            Logger::warning(" is no valid specifier for a config item. Use the format 'group/item'.");
-            Logger::endl();
+            Logger::warning(item, "is no valid specifier for a config item. Use the format 'group/item'.");
             return {item,""};
         }
     }

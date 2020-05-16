@@ -78,7 +78,7 @@ namespace ungod
         void setShaders(bool flag);
 
         /** \brief Renders all registered Watertiles with shaders and reflections (if activated). */
-        bool render(sf::RenderTarget& target, sf::RenderStates states, World& world);
+        bool render(sf::RenderTarget& target, sf::RenderTexture& rendertex, sf::RenderStates states, World& world);
 
         /** \brief Sets the distortion-factor for the water shader. Controls the severity of the effect */
         void setDistortionFactor(float distortion);

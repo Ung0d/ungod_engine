@@ -33,11 +33,11 @@
 
 namespace ungod
 {
-     WorldGraph::WorldGraph(unsigned distance) : mActive(-1), mDistance(distance)
+     WorldGraph::WorldGraph(unsigned distance) : mActive(-1), mDistance(distance), mTopologyChanged(false)
      {
      }
 
-     bool WorldGraph::updateReferencePosition(const sf::Vector2f& pos)
+     bool WorldGraph::updateReferencePosition(const sf::Vector2f& pos, bool ignoreIdentity)
      {
         mReferencePosition = pos;
         WorldGraphNode* node = getNode(pos);
@@ -50,7 +50,7 @@ namespace ungod
         std::set<unsigned> neighborhoodnew;
         if (node)
         {
-            if (mActive != -1 && node->getIndex() == (unsigned)mActive)
+            if (mActive != -1 && node->getIndex() == (unsigned)mActive && ignoreIdentity)
                 return false; //nothing to do
             mActive = node->getIndex();
             graph::BFS bfs{mAdjacencies};
@@ -79,7 +79,8 @@ namespace ungod
 
         mCurrentNeighborhood = neighborhoodnew;
 
-		mReferencePositionChanged(pos);
+        if (node && mActive != -1)
+		    mReferencePositionChanged(*this, *node, *mNodes[mActive]);
 
 		Logger::info("New active node: ");
 		Logger::info(node->getIdentifier());
@@ -107,22 +108,9 @@ namespace ungod
 
     void WorldGraph::update(float delta)
     {
-        //check for out of bounds cases
-        //if an entity gets out of the bounds of the node, it is currently attached to
-        //and inside the bounds of another node, we move the entity to the new node
-        //and set a blocking timer, that prevents ooB checks for that entity for the next few seconds.
-        //if an entity gets ooB but is not inside another active node, it remains in the current node
-        //as long as there is no new node encountered
-        if (mActive != -1)
-        {
-            //get list of currently active entities in the active node
-
-        }
-
-        //update the nodes
         for (const auto& i : mCurrentNeighborhood)
             mNodes[i]->update(delta);
-
+        checkOutOfBounds();
         mAudioManager.update(delta);
     }
 
@@ -192,11 +180,13 @@ namespace ungod
     void WorldGraph::connect(WorldGraphNode& n1, WorldGraphNode& n2)
     {
         mAdjacencies.addEdge(n1.getIndex(), n2.getIndex());
+        updateReferencePosition(mReferencePosition, false);
     }
 
     void WorldGraph::disconnect(WorldGraphNode& n1, WorldGraphNode& n2)
     {
         mAdjacencies.removeEdge(n1.getIndex(), n2.getIndex());
+        updateReferencePosition(mReferencePosition, false);
     }
 
     WorldGraphNode& WorldGraph::createNode(ScriptedGameState& gamestate, const std::string& identifier, const std::string& datafile)
@@ -204,6 +194,7 @@ namespace ungod
         mNodes.emplace_back(std::make_unique<WorldGraphNode>(*this, (unsigned)mNodes.size(), gamestate, identifier, datafile));
         notifyBoundsChanged(mNodes.back().get());
         mAdjacencies.setVertexCount((unsigned)mAdjacencies.getVertexCount()+1);
+        updateReferencePosition(mReferencePosition, false);
         return *mNodes.back();
     }
 
@@ -257,6 +248,64 @@ namespace ungod
         if (left != qtBounds.position.x || top != qtBounds.position.y || width != qtBounds.size.x || height != qtBounds.size.y)
             mWorldQT.setBoundary({left, top, width, height});
 		mWorldQT.insert(node);
+    }
+
+    void WorldGraph::checkOutOfBounds()
+    {
+        for (const auto& i : mCurrentNeighborhood)
+        {
+            //check for out of bounds cases in each active world
+            //if an entity gets out of the bounds of the node, it is currently attached to
+            //and inside the bounds of another node, we move the entity to the new node
+            //and set a blocking timer, that prevents ooB checks for that entity for the next few seconds.
+            //if an entity gets ooB but is not inside another active node, it remains in the current node
+            //as long as there is no new node encountered
+            //only entities with movement components can be transfered
+            for (unsigned j = 0; j < mNodes[i]->getNumWorld(); j++)
+            {
+                //we can efficiently retrieve all candidates for oob cases by accessing the root node container of the quadtree
+                const auto& oobCandidates = mNodes[i]->getWorld(j)->getQuadTree().getContainer();
+                for (auto e : oobCandidates)
+                {
+                    //skip entities that just left their node
+                    auto res = mJustLeft.find(e);
+                    if (res != mJustLeft.end())
+                        continue;
+
+                    if (!mNodes[i]->getWorld(j)->getQuadTree().isInsideBounds(e))
+                    {
+                        //find a new node for the entity
+                        quad::PullResult<WorldGraphNode*> result;
+                        mWorldQT.retrieve(result, 
+                            { e.getGlobalPosition().x, e.getGlobalPosition().y, 
+                              e.get<TransformComponent>().getSize().x, e.get<TransformComponent>().getSize().y });
+                        WorldGraphNode* newNode = nullptr;
+                        for (auto* node : result.getList())
+                        {
+                            if (node != mNodes[i].get() &&
+                                node->getBounds().intersects({ e.getGlobalPosition().x, e.getGlobalPosition().y,
+                              e.get<TransformComponent>().getSize().x, e.get<TransformComponent>().getSize().y }))
+                            {
+                                newNode = node;
+                                break;
+                            }
+                        }
+                        if (newNode)
+                        {
+
+                        }
+                    }
+                }
+            }
+        }
+        //forget entities above timer
+        for (auto iter = mJustLeft.begin(); iter != mJustLeft.end(); iter++) 
+        {
+            if (iter->second.getElapsedTime().asSeconds() > NODE_TRANSITION_TIMER_S) 
+                iter = aMap.erase(iter);
+            else 
+                ++iter;
+        }
     }
 
 

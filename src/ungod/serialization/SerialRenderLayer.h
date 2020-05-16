@@ -34,6 +34,7 @@ namespace ungod
     class RenderLayer;
     class RenderLayerContainer;
     class ScriptedGameState;
+    class Entity;
 
 
     template <>
@@ -43,15 +44,15 @@ namespace ungod
     };
 
     template <>
-    struct SerialBehavior<RenderLayer, const sf::RenderTarget&>
+    struct SerialBehavior<RenderLayer>
     {
-        static void serialize(const RenderLayer& data, MetaNode serializer, SerializationContext& context, const sf::RenderTarget& target);
+        static void serialize(const RenderLayer& data, MetaNode serializer, SerializationContext& context);
     };
 
     template <>
-    struct DeserialBehavior<RenderLayer, const sf::RenderTarget&>
+    struct DeserialBehavior<RenderLayer, std::forward_list<Entity>&>
     {
-        static void deserialize(RenderLayer& data, MetaNode deserializer, DeserializationContext& context, const sf::RenderTarget& target);
+        static void deserialize(RenderLayer& data, MetaNode deserializer, DeserializationContext& context, std::forward_list<Entity>& scriptEntities);
     };
 
 
@@ -62,15 +63,15 @@ namespace ungod
     };
 
     template <>
-    struct SerialBehavior<RenderLayerContainer, const sf::RenderTarget&>
+    struct SerialBehavior<RenderLayerContainer>
     {
-        static void serialize(const RenderLayerContainer& data, MetaNode serializer, SerializationContext& context, const sf::RenderTarget& target);
+        static void serialize(const RenderLayerContainer& data, MetaNode serializer, SerializationContext& context);
     };
 
     template <>
-    struct DeserialBehavior<RenderLayerContainer, const sf::RenderTarget&, ScriptedGameState&>
+    struct DeserialBehavior<RenderLayerContainer, std::forward_list<Entity>&>
     {
-        static void deserialize(RenderLayerContainer& data, MetaNode deserializer, DeserializationContext& context, const sf::RenderTarget& target, ScriptedGameState& gamestate);
+        static void deserialize(RenderLayerContainer& data, MetaNode deserializer, DeserializationContext& context, std::forward_list<Entity>& scriptEntities);
     };
 }
 

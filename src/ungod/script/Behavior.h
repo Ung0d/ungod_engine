@@ -507,11 +507,7 @@ namespace ungod
                 if (!result.valid())
                 {
                     sol::error err = result;
-                    Logger::warning("An error occured during execution of script ");
-                    Logger::warning(mName);
-                    Logger::endl();
-                    Logger::warning(err.what());
-                    Logger::endl();
+                    Logger::warning("An error occured during execution of script", mName, "\n", err.what());
                 }
             }
         }
@@ -691,10 +687,7 @@ namespace ungod
         }
         else
         {
-            Logger::warning("Cant find the requested state ");
-            Logger::warning(newState);
-            Logger::warning(". Discarding state switch.");
-            Logger::endl();
+            Logger::warning("Cant find the requested state", newState, ". Discarding state switch.");
         }
     }
 
@@ -846,18 +839,14 @@ namespace ungod
                 auto res = mBehaviors.emplace(scriptName, std::make_unique<detail::MetaBehavior>(scriptName, mStaticConstIndex, mStaticDestIndex));
                 if (res.second) //entry is new
                     res.first->second->init( *global, mIdentifiers );
-                ungod::Logger::info("Created script ");
-                ungod::Logger::info(scriptName);
-                ungod::Logger::endl();
+                ungod::Logger::info("Created script", scriptName);
             }
             else
             {
                 auto res = mStateBehaviors.emplace(scriptName, std::make_unique<detail::MetaStateBehavior>(scriptName, mStaticConstIndex, mStaticDestIndex));
                 if (res.second) //entry is new
                     res.first->second->init( *global, states, mIdentifiers );
-                ungod::Logger::info("Created state script ");
-                ungod::Logger::info(scriptName);
-                ungod::Logger::endl();
+                ungod::Logger::info("Created state script", scriptName);
             }
         }
         else if (states.size() > 0)
@@ -865,9 +854,7 @@ namespace ungod
             auto res = mStateBehaviors.emplace(scriptName, std::make_unique<detail::MetaStateBehavior>(scriptName, mStaticConstIndex, mStaticDestIndex));
             if (res.second) //entry is new
                 res.first->second->init( states, mIdentifiers );
-            ungod::Logger::info("Created state script ");
-            ungod::Logger::info(scriptName);
-            ungod::Logger::endl();
+            ungod::Logger::info("Created state script", scriptName);
         }
 
         return SCRIPT_OK;
@@ -884,10 +871,7 @@ namespace ungod
             return loc;
         }
         else
-        {
             Logger::warning("Multiple global behaviors defined in a script. The surplus behavior discarded.");
-            Logger::endl();
-        }
         return global->env;
     }
 
@@ -930,10 +914,7 @@ namespace ungod
             return res->second->makeInstance(instanceEnv, mConstructIndex, mInitIndex, mExitIndex, std::forward<INIT_PARAM>(param)...);
         }
         else
-        {
             ungod::Logger::error("Can not find a behavior " + key + ". Did you forget to load it?");
-            ungod::Logger::endl();
-        }
         return StateBehaviorPtr<INIT_PARAM...>();
     }
 

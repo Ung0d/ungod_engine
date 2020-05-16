@@ -23,8 +23,8 @@
 *    source distribution.
 */
 
-#ifndef INPUT_H
-#define INPUT_H
+#ifndef UNGOD_INPUT_H
+#define UNGOD_INPUT_H
 
 #include <SFML/Window/Event.hpp>
 #include <list>
@@ -47,13 +47,13 @@ namespace ungod
     };
 
     /** \brief A class that manages player input. */
-    class InputHandler
+    class InputManager
     {
     public:
         enum InputType {MOUSE_INPUT = 0, KEYBOARD_INPUT = 1};
 
         /** \brief Default constructor. */
-        InputHandler() {}
+        InputManager() {}
 
         /** \brief Evaluates an input-event and sends out signals. */
         void handleEvent(const sf::Event& event);
@@ -110,4 +110,4 @@ namespace ungod
     };
 }
 
-#endif // INPUT_H
+#endif // UNGOD_INPUT_H

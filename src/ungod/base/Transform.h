@@ -39,9 +39,9 @@ namespace ungod
     * along with its size. */
     class TransformComponent : public Serializable<TransformComponent>
     {
-    friend class TransformManager;
-    friend struct SerialBehavior<TransformComponent, Entity, const World&, const Application&>;
-    friend struct DeserialBehavior<TransformComponent, Entity, World&, const Application&>;
+    friend class TransformHandler;
+    friend struct SerialBehavior<TransformComponent, Entity, const World&>;
+    friend struct DeserialBehavior<TransformComponent, Entity, World&>;
     public:
         TransformComponent() : mTransform(), mUpperBound(0, 0), mLowerBound(0, 0), mBaseLineOffsets(0.0f, 0.0f) {}
 
@@ -94,10 +94,10 @@ namespace ungod
 
 
     /** \brief A manager structure that handles all operations that modify transform components. */
-    class TransformManager
+    class TransformHandler
     {
     public:
-        TransformManager() = default;
+        TransformHandler(quad::QuadTree<Entity>& quadtree) : mQuadTree(quadtree) {}
 
         /** \brief Sets position for the given entity. Emits a position changed signal. */
         void setPosition(Entity e, const sf::Vector2f& position);
@@ -141,6 +141,7 @@ namespace ungod
         void handleContentsRemoved(Entity e);
 
     private:
+        quad::QuadTree<Entity>& mQuadTree;
         owls::Signal<Entity, const sf::Vector2f&> mPositionChangedSignal;
         owls::Signal<Entity, const sf::Vector2f&> mScaleChangedSignal;
         owls::Signal<Entity, const sf::Vector2f&> mSizeChangedSignal;

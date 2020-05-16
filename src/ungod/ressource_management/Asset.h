@@ -271,7 +271,6 @@ namespace ungod
     template <typename T, typename ... PARAM>
     Asset<T, PARAM...>::~Asset()
     {
-        Logger::endl();
         drop();
     }
 }

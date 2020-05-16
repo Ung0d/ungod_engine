@@ -58,8 +58,8 @@ namespace ungod
     class Entity : public Serializable<Entity>
     {
     friend class World;
-     friend struct SerialBehavior< Entity, const World&, const Application& >;
-     friend struct DeserialBehavior< Entity, World&, const Application& >;
+     friend struct SerialBehavior< Entity, const World&>;
+     friend struct DeserialBehavior< Entity, World&>;
 
     public:
         /** \brief Default constructs a invalid entity. */
@@ -153,10 +153,6 @@ namespace ungod
 		* if no transform component is assigned. */
 		sf::Vector2f getGlobalCenterPosition() const;
 
-        /** \brief Notifies the entities containing node that its transform (position or size) has changed.
-        * Fits the position in the quad tree accordingly. */
-        void notifyChangedTransform() const; /////TODO
-
     private:
         dom::EntityHandle<> mHandle;
         InstantiationBase* mInstantiation;
@@ -174,7 +170,7 @@ namespace ungod
 
 
     /** \brief Base class for all EntityInstantiations for polymorphic storage. */
-    class InstantiationBase : public PolymorphicSerializable<InstantiationBase, Entity, const World&, const Application&>
+    class InstantiationBase : public PolymorphicSerializable<InstantiationBase, Entity, const World&>
     {
     friend class Entity;
     friend class World;
@@ -241,9 +237,9 @@ namespace ungod
         static const std::bitset< dom::DEFAULT_COMPONENT_COUNT > sOptionalsLookupTable;
 
     public:
-        virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, Entity&& e, const World& world, const Application& app) const override
+        virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, Entity&& e, const World& world) const override
         {
-            deferredSerialize<EntityInstantiation< BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >, Entity, const World&, const Application&>(*this, serializer, context, Entity(e), world, app);
+            deferredSerialize<EntityInstantiation< BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >, Entity, const World&>(*this, serializer, context, Entity(e), world);
         }
 
         virtual std::string getSerialIdentifier() const override

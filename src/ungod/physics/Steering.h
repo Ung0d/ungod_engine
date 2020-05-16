@@ -32,7 +32,7 @@
 namespace ungod
 {
     template<class GETTER> class SteeringManager;
-    template<class GETTER> using SteeringFunc = std::function< void(Entity, MovementManager&, const GETTER& getter) >;
+    template<class GETTER> using SteeringFunc = std::function< void(Entity, MovementHandler&, const GETTER& getter) >;
 
     /** \brief A class that models a collection of single steering-commands
     * that are bundled to a complex behavior. */
@@ -81,25 +81,12 @@ namespace ungod
     public:
         SteeringManager() {}
 
-        /** \brief Performs steerings for the given period of deltatime. */
-        void update(const std::list<Entity>& entities, float delta, MovementManager& mvm);
-
-        /** \brief Actives or deactives steering for the given entity. */
-        void setActive(Entity e, bool active);
-
         /** \brief Initilizes a new steering pattern with the given key. */
         SteeringPattern<GETTER>* newPattern(const std::string& key);
 
         /** \brief Returns a handle to the given pattern for faster access. Useful when chaining
         * multiple operations on the same pattern. */
         SteeringPattern<GETTER>* getPattern(const std::string& key);
-
-        /** \brief Connects a steering pattern to the given entity. */
-        void connectPattern(Entity e, const std::string& key, const GETTER& param);
-        void connectPattern(Entity e, SteeringPattern<GETTER>* pattern, const GETTER& param);
-
-        /** \brief Disconnects the steering pattern from the given entity. */
-        void disconnectPattern(Entity e);
 
         /** \brief Attaches a steering to the pattern. */
         void attachSteering(const std::string& key, const SteeringFunc<GETTER>& steering);
@@ -114,36 +101,39 @@ namespace ungod
     };
 
 
-
-
-
-
-
-
-
+    /** \brief A handler for connecting predefined steerings to entities. */
     template <class GETTER>
-    void SteeringManager<GETTER>::update(const std::list<Entity>& entities, float delta, MovementManager& mvm)
+    class SteeringHandler
     {
-        dom::Utility<Entity>::iterate<TransformComponent, SteeringComponent<GETTER>>(entities,
-          [delta, &mvm, this] (Entity e, TransformComponent& transf, SteeringComponent<GETTER>& steering)
-          {
-               if (!steering.mActive)
-                    return;
+    public:
+        SteeringHandler() : mSteeringManager(nullptr) {}
 
-               auto& funcs = steering.mSteeringPattern->mSteeringFuncs;
-               for (const auto& f : funcs)
-               {
-                   f(e, mvm, steering.mParam);
-               }
-          });
-    }
+        void init(const SteeringManager<GETTER>& steeringMngr) { mSteeringManager = &steeringMngr; }
+
+        /** \brief Performs steerings for the given period of deltatime. */
+        void update(const std::list<Entity>& entities, float delta, MovementHandler& mvm);
+
+        /** \brief Actives or deactives steering for the given entity. */
+        void setActive(Entity e, bool active);
+
+        /** \brief Connects a steering pattern to the given entity. */
+        void connectPattern(Entity e, const std::string& key, const GETTER& param);
+        void connectPattern(Entity e, SteeringPattern<GETTER>* pattern, const GETTER& param);
+
+        /** \brief Disconnects the steering pattern from the given entity. */
+        void disconnectPattern(Entity e);
+
+    private:
+        const SteeringManager<GETTER>* mSteeringManager;
+    };
 
 
-    template <class GETTER>
-    void SteeringManager<GETTER>::setActive(Entity e, bool active)
-    {
-        e.modify<SteeringComponent<GETTER>>().mActive = active;
-    }
+
+
+
+
+
+
 
 
     template <class GETTER>
@@ -156,32 +146,6 @@ namespace ungod
     SteeringPattern<GETTER>* SteeringManager<GETTER>::getPattern(const std::string& key)
     {
         return &mPatterns.find(key)->second;
-    }
-
-    template <class GETTER>
-    void SteeringManager<GETTER>::connectPattern(Entity e, const std::string& key, const GETTER& param)
-    {
-        connectPattern(e, getPattern(key), param);
-    }
-
-    template <class GETTER>
-    void SteeringManager<GETTER>::connectPattern(Entity e, SteeringPattern<GETTER>* pattern, const GETTER& param)
-    {
-        SteeringComponent<GETTER>& sc = e.modify<SteeringComponent<GETTER>>();
-        sc.mSteeringPattern = pattern;
-        sc.mParam = param;
-        sc.mInit = true;
-        sc.mActive = true;
-    }
-
-    template <class GETTER>
-    void SteeringManager<GETTER>::disconnectPattern(Entity e)
-    {
-        SteeringComponent<GETTER>& sc = e.modify<SteeringComponent<GETTER>>();
-        sc.mSteeringPattern = nullptr;
-        sc.mInit = false;
-        sc.mActive = false;
-        sc.mParam = {};
     }
 
     template <class GETTER>
@@ -206,6 +170,58 @@ namespace ungod
     void SteeringManager<GETTER>::removePattern(SteeringPattern<GETTER>* profile)
     {
         mPatterns.erase(profile->getIdentifier());
+    }
+
+
+
+    template <class GETTER>
+    void SteeringHandler<GETTER>::update(const std::list<Entity>& entities, float delta, MovementHandler& mvm)
+    {
+        dom::Utility<Entity>::iterate<TransformComponent, SteeringComponent<GETTER>>(entities,
+            [delta, &mvm, this](Entity e, TransformComponent& transf, SteeringComponent<GETTER>& steering)
+            {
+                if (!steering.mActive)
+                    return;
+
+                auto& funcs = steering.mSteeringPattern->mSteeringFuncs;
+                for (const auto& f : funcs)
+                {
+                    f(e, mvm, steering.mParam);
+                }
+            });
+    }
+
+
+    template <class GETTER>
+    void SteeringHandler<GETTER>::setActive(Entity e, bool active)
+    {
+        e.modify<SteeringComponent<GETTER>>().mActive = active;
+    }
+
+    template <class GETTER>
+    void SteeringHandler<GETTER>::connectPattern(Entity e, const std::string& key, const GETTER& param)
+    {
+        connectPattern(e, mSteeringManager->getPattern(key), param);
+    }
+
+    template <class GETTER>
+    void SteeringHandler<GETTER>::connectPattern(Entity e, SteeringPattern<GETTER>* pattern, const GETTER& param)
+    {
+        SteeringComponent<GETTER>& sc = e.modify<SteeringComponent<GETTER>>();
+        sc.mSteeringPattern = pattern;
+        sc.mParam = param;
+        sc.mInit = true;
+        sc.mActive = true;
+    }
+
+    template <class GETTER>
+    void SteeringHandler<GETTER>::disconnectPattern(Entity e)
+    {
+        SteeringComponent<GETTER>& sc = e.modify<SteeringComponent<GETTER>>();
+        sc.mSteeringPattern = nullptr;
+        sc.mInit = false;
+        sc.mActive = false;
+        sc.mParam = {};
     }
 }
 

@@ -35,7 +35,7 @@ namespace ungod
         //calculate the "sway-offset" that determines how wide the grass sways in this frame
         float swayOffset = windForce * 0.1f * delta;
 
-        VisualsManager& vm = mWorld->getVisualsManager();
+        VisualsHandler& vm = mWorld->getVisualsManager();
 
         dom::Utility<Entity>::iterate< GrassPatch, VertexArray >(entities,
           [delta, &vm, swayRange, swayOffset, this] (Entity e, GrassPatch& grass, VertexArray& vertices)

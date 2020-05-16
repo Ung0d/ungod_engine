@@ -25,6 +25,7 @@
 
 #include "ungod/visual/RenderLayer.h"
 #include "ungod/visual/Camera.h"
+#include <algorithm>
 
 namespace ungod
 {
@@ -58,7 +59,7 @@ namespace ungod
         return mName;
     }
 
-    bool RenderLayerContainer::render(sf::RenderTarget& target, sf::RenderStates states) const
+    bool RenderLayerContainer::render(sf::RenderTarget& target, Camera& camera, sf::RenderStates states) const
     {
         sf::Vector2f layerWorldPos{ mBounds.left, mBounds.top };
 		states.transform.translate(layerWorldPos);
@@ -67,15 +68,15 @@ namespace ungod
         {
             if (layer.second)
             {
-                mCamera.renderBegin(layer.first.get());
+                camera.renderBegin(layer.first.get());
 				check = check && layer.first->render(target, states);
-                mCamera.renderEnd();
+                camera.renderEnd();
             }
         }
         return check;
     }
 
-    bool RenderLayerContainer::renderDebug(sf::RenderTarget& target, sf::RenderStates states, bool bounds, bool texrects, bool colliders, bool audioemitters, bool lights) const
+    bool RenderLayerContainer::renderDebug(sf::RenderTarget& target, Camera& camera, sf::RenderStates states, bool bounds, bool texrects, bool colliders, bool audioemitters, bool lights) const
     {
 		states.transform.translate({ mBounds.left, mBounds.top });
         bool check = true;
@@ -83,15 +84,15 @@ namespace ungod
         {
             if (layer.second)
             {
-				mCamera.renderBegin(layer.first.get());
+                camera.renderBegin(layer.first.get());
                 check = check && layer.first->renderDebug(target, states, bounds, texrects, colliders, audioemitters, lights);
-                mCamera.renderEnd();
+                camera.renderEnd();
             }
         }
         return check;
     }
 
-    void RenderLayerContainer::update(float delta)
+    void RenderLayerContainer::update(float delta, const Camera& camera)
     {
         while (!mToMove.empty())
         {
@@ -113,7 +114,7 @@ namespace ungod
         {
             if (layer.second)
             {
-                sf::View camview = mCamera.getView();
+                sf::View camview = camera.getView();
 				sf::Vector2f viewpos = mapToLocalPosition(sf::Vector2f{ camview.getCenter().x - camview.getSize().x / 2,camview.getCenter().y - camview.getSize().y / 2 });
 				layer.first->update(delta, viewpos*layer.first->getRenderDepth(), camview.getSize());
             }
@@ -140,20 +141,26 @@ namespace ungod
         }
     }
 
-    RenderLayer* RenderLayerContainer::registerLayer(RenderLayerPtr&& layer, std::size_t i)
+    RenderLayer* RenderLayerContainer::registerLayer(const RenderLayerPtr& layer, std::size_t i)
     {
         RenderLayer* rl = layer.get();
 		rl->setSize(getSize());
 		rl->mContainer = this;
         if (i < mRenderLayers.size())
         {
-            mRenderLayers.emplace(mRenderLayers.begin() + i, std::move(layer), true);
+            mRenderLayers.emplace(mRenderLayers.begin() + i, layer, true);
         }
         else
         {
-            mRenderLayers.emplace_back(std::move(layer), true);
+            mRenderLayers.emplace_back(layer, true);
         }
         return rl;
+    }
+
+    void RenderLayerContainer::removeLayer(RenderLayer* layer)
+    {
+        auto pred = [layer](const std::pair<RenderLayerPtr, bool>& p) { p.first.get() == layer;  }
+        mRenderLayers.erase(std::remove_if(mRenderLayers.begin(), mRenderLayers.end(), pred), mRenderLayers.end());
     }
 
     void RenderLayerContainer::moveLayerUp(std::size_t i)

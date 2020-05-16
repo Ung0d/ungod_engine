@@ -93,11 +93,11 @@ namespace ungod
         /** \brief Closes the state if it was initialized before. */
         void closeState();
 
-        /** \brief Returns the application that runs this state, if set. */
-        Application* getApp() const { return mApp; }
+        /** \brief Returns the application that runs this state. */
+        Application& getApp() const { return mApp; }
 
     protected:
-        Application* mApp;
+        Application& mApp;
         bool mInitialized;
         bool mExpired;
         ContextSettings mSettings;

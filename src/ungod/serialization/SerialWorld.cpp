@@ -30,9 +30,9 @@
 
 namespace ungod
 {
-    void SerialBehavior<World, const sf::RenderTarget&>::serialize(const World& data, MetaNode serializer, SerializationContext& context, const sf::RenderTarget& target)
+    void SerialBehavior<World>::serialize(const World& data, MetaNode serializer, SerializationContext& context)
     {
-        SerialBehavior<RenderLayer, const sf::RenderTarget&>::serialize(data, serializer, context, target);
+        SerialBehavior<RenderLayer>::serialize(data, serializer, context);
 
         quad::Bounds bounds = data.mQuadTree.getBoundary();
         context.serializeProperty("ambient_light_r", data.getLightSystem().getAmbientColor().r, serializer);
@@ -63,9 +63,9 @@ namespace ungod
         }
     }
 
-    void DeserialBehavior<World, const sf::RenderTarget&>::deserialize(World& data, MetaNode deserializer, DeserializationContext& context, const sf::RenderTarget& target)
+    void DeserialBehavior<World, const sf::RenderTarget&>::deserialize(World& data, MetaNode deserializer, DeserializationContext& context)
     {
-        DeserialBehavior<RenderLayer, const sf::RenderTarget&>::deserialize(data, deserializer, context, target);
+        DeserialBehavior<RenderLayer>::deserialize(data, deserializer, context);
 
         initDeserial(context, data);
 
@@ -87,7 +87,7 @@ namespace ungod
         //If for some reason (e.g. because of a broken file) an entity can be deserialized in the name map,
         //but this entitiy is not deserialized along with the instantiations above, then the assigner will be
         //invalid indeed, however, it will never be called and dies with the context object
-        //therefore, this code is safe IF AND ONLY IF THE ASSUMPTION IS FULFILLED
+        //therefore, this code is safe 
         MetaNode nameMapNode = deserializer.firstNode("name_map");
         if (!nameMapNode)
             return;

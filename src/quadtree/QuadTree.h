@@ -186,6 +186,8 @@ namespace quad
         /** \brief Removes the given object from this subnode of the tree. */
         std::tuple<bool, QuadTreeNode*> removeFromNode(QuadTree<T,MAX_CAPACITY,MAX_LEVEL>& root, T deleteThis);
 
+        const std::vector< T >& getContainer() const { return mContainer; }
+
         ~QuadTreeNode() {}
 
     private:

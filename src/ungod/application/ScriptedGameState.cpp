@@ -24,7 +24,6 @@
 */
 
 #include "ungod/application/ScriptedGameState.h"
-#include "ungod/script/Registration.h"
 #include "ungod/application/Application.h"
 #include "ungod/script/CustomEvent.h"
 #include "ungod/base/World.h"
@@ -40,14 +39,15 @@ namespace ungod
             mScriptCallbacks( app.getScriptState(), app.getGlobalScriptEnv(), { std::begin(GAME_CALLBACK_IDENTIFIERS), std::end(GAME_CALLBACK_IDENTIFIERS) } ),
             mGameScriptID(),
             mCamera(app.getWindow()),
-            mWorldGraph(this),
+            mWorldGraph(),
             mRenderDebug(false),
             mDebugBounds(true),
             mDebugTexrects(true),
             mDebugColliders(true),
             mDebugAudioEmitters(true),
             mDebugLightEmitters(true),
-            mEntityBehaviorManager(mApp->getScriptState(), mApp->getGlobalScriptEnv())
+            mEntityBehaviorManager(mApp),
+            mLightManager(mApp)
     {
         runScript(gameScriptID);
     }
@@ -57,14 +57,15 @@ namespace ungod
             mScriptCallbacks( app.getScriptState(), app.getGlobalScriptEnv(), { std::begin(GAME_CALLBACK_IDENTIFIERS), std::end(GAME_CALLBACK_IDENTIFIERS) } ),
             mGameScriptID(),
             mCamera(app.getWindow()),
-            mWorldGraph(this),
+            mWorldGraph(),
             mRenderDebug(false),
             mDebugBounds(true),
             mDebugTexrects(true),
             mDebugColliders(true),
             mDebugAudioEmitters(true),
             mDebugLightEmitters(true),
-            mEntityBehaviorManager(mApp->getScriptState(), mApp->getGlobalScriptEnv())
+            mEntityBehaviorManager(mApp),
+            mLightManager(mApp)
     {
     }
 
@@ -72,23 +73,19 @@ namespace ungod
     {
         mGameScriptID = gameScriptID;
 
-        //register functionality
-        scriptRegistration::registerAssets(mScriptCallbacks);
-        scriptRegistration::registerWorld(mScriptCallbacks, *mApp);
-        scriptRegistration::registerGui(mScriptCallbacks);
-        scriptRegistration::registerGameState(mScriptCallbacks);
-        scriptRegistration::registerApplication(mScriptCallbacks, *mApp);
-        scriptRegistration::registerWater(mScriptCallbacks, *mApp);
-        scriptRegistration::registerTileMap(mScriptCallbacks, *mApp);
-
         //set up the script behavior
         mScriptCallbacks.loadScript(gameScriptID);
+
+        mScriptStateChangedLink = mApp.onScriptStateChanged([this]()
+            {
+                mScriptCallbacks.reload(mApp.getScriptState(), mApp.getGlobalScriptEnv());
+            });
     }
 
 
     void ScriptedGameState::handleEvent(const sf::Event& curEvent)
     {
-        mWorldGraph.handleInput(curEvent, mApp->getWindow());
+        mWorldGraph.handleInput(curEvent, mApp.getWindow());
         mCamera.handleEvent(curEvent);
     }
 
@@ -96,17 +93,8 @@ namespace ungod
     void ScriptedGameState::update(const float delta)
     {
         mCamera.update(delta);
-
         mWorldGraph.update(delta);
-
         mScriptCallbacks.execute(ON_UPDATE, this, delta);
-
-        //if (mIntervalTimer.getElapsedTime().asMilliseconds() >= UPDATE_INTERVAL)
-        //{
-            //mIntervalTimer.restart();
-
-           //mScriptCallbacks.execute(ON_UPDATE, this, UPDATE_INTERVAL);
-        //}
     }
 
 
@@ -122,59 +110,6 @@ namespace ungod
     {
         mScriptCallbacks.execute(ON_CUSTOM_EVENT, this, event);
         mWorldGraph.handleCustomEvent(event);
-    }
-
-
-    RenderLayerPtr ScriptedGameState::makeWorld()
-    {
-        World* world = new World( mApp->getScriptState(), mApp->getGlobalScriptEnv(), this );
-
-        //instantate the world
-        auto unshadowVertex = mApp->getConfig().get<std::string>("light/unshadow_vertex_shader");
-        auto unshadowFrag = mApp->getConfig().get<std::string>("light/unshadow_frag_shader");
-        auto lightVertex = mApp->getConfig().get<std::string>("light/light_vertex_shader");
-        auto lightFrag = mApp->getConfig().get<std::string>("light/light_frag_shader");
-        auto pen = mApp->getConfig().get<std::string>("light/default_penumbra_texture");
-        if (unshadowVertex && unshadowFrag && lightVertex && lightFrag && pen)
-        {
-            world->instantiate(*mApp, unshadowVertex.value(), unshadowFrag.value(), lightVertex.value(), lightFrag.value(), pen.value());
-        }
-        else
-        {
-            Logger::error("Can not instantiate the world, because the config file seems to be corrupted.");
-            Logger::endl();
-            Logger::error("Consider deleting it and let the application generate a fresh one.");
-            Logger::endl();
-        }
-
-        //set up signal callbacks
-        world->getTransformManager().onPositionChanged([this] (Entity e, const sf::Vector2f& position) { mScriptCallbacks.execute(ON_POSITION_CHANGED, this, e, position); });
-        world->getTransformManager().onSizeChanged([this] (Entity e, const sf::Vector2f& size) { mScriptCallbacks.execute(ON_SIZE_CHANGED, this, e, size); });
-        world->getMovementManager().onBeginMovement([this] (Entity e, const sf::Vector2f& vel) { mScriptCallbacks.execute(ON_BEGIN_MOVEMENT, this, e, vel); });
-        world->getMovementManager().onEndMovement([this] (Entity e) { mScriptCallbacks.execute(ON_END_MOVEMENT, this, e); });
-        world->getMovementManager().onDirectionChanged([this] (Entity e, MovementComponent::Direction oldDirec, MovementComponent::Direction newDirec) { mScriptCallbacks.execute(ON_DIRECTION_CHANGED, this, e, oldDirec, newDirec); });
-        world->getVisualsManager().onVisibilityChanged([this] (Entity e, bool visibility) { mScriptCallbacks.execute(ON_VISIBILITY_CHANGED, this, e, visibility); });
-        world->getVisualsManager().onAnimationStart([this] (Entity e, const std::string& key) { mScriptCallbacks.execute(ON_ANIMATION_START, this, e, key); });
-        world->getVisualsManager().onAnimationStop([this] (Entity e, const std::string& key) { mScriptCallbacks.execute(ON_ANIMATION_STOP, this, e, key); });
-        world->getMovementCollisionManager().onCollision([this] (Entity e1, Entity e2, const sf::Vector2f& mdv, const Collider& c1, const Collider& c2) { mScriptCallbacks.execute(ON_MOV_COLLISION, this, e1, e2, mdv, c1, c2); });
-        world->getMovementCollisionManager().onBeginCollision([this] (Entity e1, Entity e2) { mScriptCallbacks.execute(ON_BEGIN_MOV_COLLISION, this, e1, e2); });
-        world->getMovementCollisionManager().onEndCollision([this] (Entity e1, Entity e2) { mScriptCallbacks.execute(ON_END_MOVE_COLLISION, this, e1, e2); });
-        world->getSemanticsCollisionManager().onCollision([this] (Entity e1, Entity e2, const sf::Vector2f& mdv, const Collider& c1, const Collider& c2) { mScriptCallbacks.execute(ON_SEM_COLLISION, this, e1, e2, mdv, c1, c2); });
-        world->getSemanticsCollisionManager().onBeginCollision([this] (Entity e1, Entity e2) { mScriptCallbacks.execute(ON_BEGIN_SEM_COLLISION, this, e1, e2); });
-        world->getSemanticsCollisionManager().onEndCollision([this] (Entity e1, Entity e2) { mScriptCallbacks.execute(ON_END_SEM_COLLISION, this, e1, e2); });
-        world->getInputManager().onPressed([this] (const std::string& binding) { mScriptCallbacks.execute(ON_PRESSED, this, binding); });
-        world->getInputManager().onDown([this] (const std::string& binding) { mScriptCallbacks.execute(ON_DOWN, this, binding); });
-        world->getInputManager().onReleased([this] (const std::string& binding) { mScriptCallbacks.execute(ON_RELEASED, this, binding); });
-        world->getInputManager().onMouseEnter([this] (Entity e) { mScriptCallbacks.execute(ON_MOUSE_ENTER, this, e); });
-        world->getInputManager().onMouseClick([this] (Entity e) { mScriptCallbacks.execute(ON_MOUSE_CLICK, this, e); });
-        world->getInputManager().onMouseExit([this] (Entity e) { mScriptCallbacks.execute(ON_MOUSE_EXIT, this, e); });
-        world->getInputManager().onMouseReleased([this] (Entity e) { mScriptCallbacks.execute(ON_MOUSE_RELEASED, this, e); });
-
-
-        //register instantiations for deseilization
-        registerTypes(*world);
-
-        return RenderLayerPtr{world};
     }
 
 
@@ -209,6 +144,11 @@ namespace ungod
     void ScriptedGameState::close()
     {
         mScriptCallbacks.execute(ON_CLOSE, this);
+    }
+
+    ScriptedGameState::~ScriptedGameState()
+    {
+        mScriptStateChangedLink.disconnect();
     }
 }
 

@@ -43,7 +43,7 @@
 
 namespace ungod
 {
-    class World; class VisualsManager; class Renderer; class Camera;
+    class World; class VisualsHandler; class Renderer; class Camera;
 
     /**
     * \ingroup Components
@@ -51,7 +51,7 @@ namespace ungod
     * This texture can be futher used by Visuals, Sprite and Animation components. */
     class VisualsComponent : public Serializable<VisualsComponent>
     {
-    friend class VisualsManager;
+    friend class VisualsHandler;
      friend struct SerialBehavior<VisualsComponent, Entity, const World&, const Application&>;
     public:
         VisualsComponent();
@@ -88,7 +88,7 @@ namespace ungod
     * The only restriction is a single texture per entity. */
     class VertexArrayComponent : public Serializable<VertexArrayComponent>
     {
-    friend class VisualsManager;
+    friend class VisualsHandler;
     friend class Renderer;
      friend struct SerialBehavior<VertexArrayComponent, Entity, const World&, const Application&>;
     public:
@@ -109,7 +109,7 @@ namespace ungod
     * \brief A component that models a single sprite. */
     class SpriteComponent : public Serializable<SpriteComponent>
     {
-    friend class VisualsManager;
+    friend class VisualsHandler;
     friend class Renderer;
     friend struct
 		 SerialBehavior<SpriteComponent, Entity, const World&, const Application&>;
@@ -130,7 +130,7 @@ namespace ungod
     * \brief MultiVisualTransform is only useful in combination with MultiVisuals. */
     using MultiSpriteComponent = MultiComponent<SpriteComponent>;
 
-    using VisualAffectorComponentCallback = std::function<void(Entity, float, VisualsManager&, VisualsComponent&)>;
+    using VisualAffectorComponentCallback = std::function<void(Entity, float, VisualsHandler&, VisualsComponent&)>;
 
     /**
     * \ingroup Components
@@ -138,7 +138,7 @@ namespace ungod
     * a VisualsTransform) every frame. */
     class VisualAffectorComponent : public Serializable<VisualAffectorComponent>
     {
-    friend class VisualsManager;
+    friend class VisualsHandler;
     friend class Renderer;
     public:
         VisualAffectorComponent();
@@ -166,7 +166,7 @@ namespace ungod
     */
     class SpriteMetadataComponent : public Serializable<SpriteMetadataComponent>
     {
-    friend class VisualsManager;
+    friend class VisualsHandler;
      friend struct SerialBehavior<SpriteMetadataComponent, Entity, const World&, const Application&>;
     public:
         /** \brief Default constructs a SpriteMetadta. */
@@ -194,7 +194,7 @@ namespace ungod
     */
     class AnimationComponent : public Serializable<AnimationComponent>
     {
-    friend class VisualsManager;
+    friend class VisualsHandler;
     friend class Renderer;
      friend struct SerialBehavior<AnimationComponent, Entity, const World&, const Application&>;
     public:
@@ -222,7 +222,7 @@ namespace ungod
     */
     class BigSpriteComponent : public Serializable<BigSpriteComponent>
     {
-    friend class VisualsManager;
+    friend class VisualsHandler;
     friend class Renderer;
      friend struct SerialBehavior<BigSpriteComponent, Entity, const World&, const Application&>;
     public:
@@ -249,11 +249,11 @@ namespace ungod
 
 
     /** \brief Helper class that manages all actions performed on Visuals-components. Emits events. */
-    class VisualsManager
+    class VisualsHandler
     {
     friend class Renderer;
     public:
-        VisualsManager() = default;
+        VisualsHandler() = default;
 
         /** \brief Inits a given number of texture rects that have to be defined afterwards.
         * Requires VertexArray component. */

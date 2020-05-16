@@ -120,6 +120,9 @@ namespace ungod
         /** \brief Connects a callback to the on target size changed signal.*/
         owls::SignalLink<void, const sf::Vector2u&> onTargetSizeChanged(const std::function<void(const sf::Vector2u&)>& callback);
 
+        /** \brief Connects a callback to the on target size changed signal.*/
+        owls::SignalLink<void> onScriptStateChanged(const std::function<void()>& callback);
+
         /** \brief Restores the default value of a config property. */
         void restoreDefaultConfigProperty(const std::string& name);
 
@@ -135,8 +138,11 @@ namespace ungod
         /** \brief Returns the audio manager. */
         SoundProfileManager& getSoundProfileManager() { return mSoundProfileManager; }
 
-        /** \brief Returns a reference to the inout manager. */
-        InputHandler& getInputHandler() { return mInputHandler; }
+        /** \brief Returns a reference to the input manager. */
+        InputManager& getInputManager() { return mInputManager; }
+
+        /** \brief Clears the script state. */
+        void resetScriptState();
 
     private:
         //const
@@ -158,7 +164,7 @@ namespace ungod
         MusicManager mMusicManager;
         SoundProfileManager mSoundProfileManager;
         //input
-        InputHandler mInputHandler;
+        InputManager mInputManager;
         //configuration
         Configuration mConfig;
         //behavior
@@ -175,6 +181,7 @@ namespace ungod
         Camera mCursorCamera;
         //signals
         owls::Signal<const sf::Vector2u&> mTargetSizeChanged;
+        owls::Signal<> mScriptStateChanged;
         //statics
         static const std::string CONFIG_LOAD_PATH;
         static const std::string DEFAULT_CONFIG_XML;

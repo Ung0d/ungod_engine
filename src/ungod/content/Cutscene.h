@@ -181,10 +181,6 @@ namespace ungod
         /** \brief If the screen size changes, this changes the size of the internal layers. */
         void setScreenSize(const sf::Vector2u& screensize);
 
-        /** \brief Returns a reference to the underlying audio manager. */
-        AudioManager& getAudioManager() {return mAudioManager;}
-        const AudioManager& getAudioManager() const {return mAudioManager;}
-
         /** \brief Returns the index of the current active scene. */
         unsigned getSceneIndex() const { return mCurrent; }
 
@@ -200,7 +196,6 @@ namespace ungod
         unsigned mCurrent;
         sf::Clock mTimer;
         detail::SceneDataLoader mDataLoader;
-        AudioManager mAudioManager;
         sf::Vector2u mScreenSize;
         sf::Font mFont;
         bool mFadingEnabled;

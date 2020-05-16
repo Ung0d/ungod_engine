@@ -27,22 +27,27 @@
 #define UNGOD_WORLD_H
 
 #include "ungod/base/Entity.h"
+#include "ungod/audio/Audio.h"
 #include "ungod/base/ParentChild.h"
+#include "ungod/visual/RenderLayer.h"
+#include "ungod/base/ComponentSignalBase.h"
+#include "ungod/audio/MusicEmitter.h"
+#include "ungod/base/InputEvents.h"
+#include "ungod/script/EntityBehavior.h"
 #include "ungod/visual/Visual.h"
-#include "ungod/visual/Renderer.h"
 #include "ungod/physics/Movement.h"
 #include "ungod/physics/Path.h"
-#include "ungod/physics/CollisionManager.h"
+#include "ungod/physics/CollisionHandler.h"
 #include "ungod/physics/Steering.h"
 #include "ungod/base/Input.h"
 #include "ungod/base/EntityUtility.h"
-#include "ungod/visual/Light.h"
+#include "ungod/visual/LightHandler.h"
 #include "ungod/serialization/SerialWorld.h"
 #include "ungod/physics/CollisionContexts.h"
 #include "ungod/script/EntityBehavior.h"
 #include "ungod/visual/RenderLayer.h"
 #include "ungod/application/ScriptedGameState.h"
-#include "ungod/visual/TileMapRenderer.h"
+#include "ungod/content/tilemap/TileMapHandler.h"
 #include "ungod/base/ComponentSignalBase.h"
 #include "ungod/content/EntityTypes.h"
 #include "ungod/content/particle_system/ParticleComponent.h"
@@ -57,25 +62,18 @@ namespace ungod
     /**
     * \brief A renderlayer with a quadtree representing a world of entities.
     */
-    class World : public RenderLayer
+    class World : public RenderLayer, public ComponentSignalBase
     {
     friend struct SerialBehavior<World, const sf::RenderTarget&>;
     friend struct DeserialBehavior<World, const sf::RenderTarget&>;
 
     public:
-        /** \brief Default constructs a "void". */
-        World(ScriptedGameState* master);
+        /** \brief Creates an empty world. */
+        World();
 
-        /** \brief Constructs a "void" and shares access with an existing script state. */
-        World(const script::SharedState& cState, script::Environment cMain, ScriptedGameState* master);
-
-        /** \brief Must be called to instantiate the world. */
-        void instantiate(Application& app,
-                            const std::string& unshadowVertex,
-                            const std::string& unshadowFragment,
-                            const std::string& lightVertex,
-                            const std::string& lightFragment,
-                            const std::string& penumbraTex);
+        /** \brief Must be called to instantiate the world. 
+        * Using an uninitialized world by any means is undefined behavior. */
+        void init(ScriptedGameState& master);
 
 		/** \brief Returns width and height of the world. */
 		virtual sf::Vector2f getSize() const override;
@@ -173,11 +171,11 @@ namespace ungod
         /** \brief Create a complete copy of the entity with all it components. */
         Entity makeCopy(Entity e);
 
-		/** \brief COpies an entity from another world to this world 
+		/** \brief Copies an entity from another world to this world 
 		* i.e. returns a new entity which is an exact copy of e but now attached to this world. */
 		Entity makeForeignCopy(Entity e);
 
-        /** \brief Tells the world that there exists a instantiation with the given components.
+        /** \brief Tells the world that there exists an instantiation with the given components.
         * This call is mandatory for all instantiations that shall be deserialized. */
         template<typename... BASE, typename... OPTIONAL>
         void registerInstantiation(BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>);
@@ -185,51 +183,73 @@ namespace ungod
         /** \brief Handles the given custom event. Forwards it to all entities with script components. */
         virtual void handleCustomEvent(const CustomEvent& event) override;
 
-        /** \brief Returns a reference to the internal universe. */
-        dom::Universe<>& getUniverse();
+        /** \brief For low level entity management. */
+        dom::Universe<>& getUniverse() { return *this; }
+        const dom::Universe<>& getUniverse() const { return *this; }
 
-        /** \brief Returns a reference to the internal quad tree. */
-        quad::QuadTree<Entity>& getQuadTree();
+        /** \brief For spartial layout. */
+        quad::QuadTree<Entity>& getQuadTree() { return mQuadTree; }
+        const quad::QuadTree<Entity>& getQuadTree() const { return mQuadTree; }
 
-        /** \brief Returns a reference to the transform manager. */
-        TransformManager& getTransformManager();
+        /** \brief For binding scripts to entities and handling event calls. */
+        EntityBehaviorHandler& getBehaviorHandler() { return mEntityBehaviorHandler; }
+        const EntityBehaviorHandler& getBehaviorHandler() const { return mEntityBehaviorHandler; }
 
-        /** \brief Returns a reference to the movement manager. */
-        MovementManager& getMovementManager();
+        /** \brief For altering entity transforms. */
+        TransformHandler& getTransformHandler() { return mTransformHandler; }
+        const TransformHandler& getTransformHandler() const { return mTransformHandler; }
 
-        /** \brief Returns a reference to the steering manager. */
-        SteeringManager<script::Environment>& getSteeringManager();
+        /** \brief For handling mouse interactions with entities. */
+        InputEventHandler& getInputEventHandler() { return mInputEventHandler; }
+        const InputEventHandler& getInputEventHandler() const { return mInputEventHandler; }
+
+        /** \brief For entity movement. */
+        MovementHandler& getMovementHandler() { return mMovementHandler; }
+        const MovementHandler& getMovementHandler() const { return mMovementHandler; }
+
+        /** \brief For connecting steering behaviors to entities. */
+        SteeringHandler<script::Environment>& getSteeringHandler() { return mSteeringHandler; }
+        const SteeringHandler<script::Environment>& getSteeringHandler() const { return mSteeringHandler; }
+
+        /** \brief Returns a reference to the visuals manager. */
+        VisualsHandler& getVisualsHandler() { return mVisualsHandler; }
+        const VisualsHandler& getVisualsHandler() const { return mVisualsHandler; }
+
+        /** \brief For handling movement collisions. */
+        CollisionHandler<MOVEMENT_COLLISION_CONTEXT>& getMovementCollisionHandler() { return mMovementCollisionHandler; }
+
+        /** \brief For handling semantics collisions. */
+        CollisionHandler<SEMANTICS_COLLISION_CONTEXT>& getSemanticsCollisionHandler() { return mSemanticsCollisionHandler; }
+
+        /** \brief For defining movement rigidbodies. */
+        RigidbodyHandler<MOVEMENT_COLLISION_CONTEXT>& getMovementRigidbodyHandler() { return mMovementRigidbodyHandler; }
+
+        /** \brief For definining semantics rigidbodies. */
+        RigidbodyHandler<SEMANTICS_COLLISION_CONTEXT>& getSemanticsRigidbodyHandler() { return mSemanticsRigidbodyHandler; }
+
+        /** \brief For music tracks and continous sounds embedded in the world. */
+        MusicEmitterMixer& getMusicEmitterMixer() { return mMusicEmitterMixer; }
+        const MusicEmitterMixer& getMusicEmitterMixer() const { return mMusicEmitterMixer; }
+
+        /** \brief For connecting entities to sound profiles and playing sounds. */
+        SoundHandler& getSoundHandler() { return mSoundHandler; }
+        const SoundHandler& getSoundHandler() const { return mSoundHandler; }
+
+        /** \brief For rendering and setting up lights. */
+        LightHandler& getLightHandler() { return mLightHandler; }
+        const LightHandler& getLightHandler() const { return mLightHandler; }
+
+        /** \brief For handling tilemaps and water. */
+        TileMapHandler& getTileMapHandler() { return mTileMapHandler; }
+        const TileMapHandler& getTileMapHandler() const { return mTileMapHandler; }
+
+
+
+
+
 
         /** \brief Returns a reference to the pathplanner. */
         PathPlanner& getPathPlanner();
-
-        /** \brief Returns a reference to the visuals manager. */
-        VisualsManager& getVisualsManager();
-
-        /** \brief Returns a reference to the movement collision manager. */
-		CollisionManager<MOVEMENT_COLLISION_CONTEXT>& getMovementCollisionManager() { return mMovementCollisionManager; }
-
-        /** \brief Returns a reference to the collision manager. */
-        CollisionManager<SEMANTICS_COLLISION_CONTEXT>& getSemanticsCollisionManager() { return mSemanticsCollisionManager; }
-
-        /** \brief Returns a reference to the movement rigidbody manager. */
-		RigidbodyManager<MOVEMENT_COLLISION_CONTEXT>& getMovementRigidbodyManager() { return mMovementRigidbodyManager; }
-
-		/** \brief Returns a reference to the semantics rigidbody manager. */
-		RigidbodyManager<SEMANTICS_COLLISION_CONTEXT>& getSemanticsRigidbodyManager() { return mSemanticsRigidbodyManager; }
-
-        /** \brief Returns a reference to the renderer. */
-        Renderer& getRenderer();
-
-        /** \brief Returns a reference to the light system. */
-        LightSystem& getLightSystem();
-        const LightSystem& getLightSystem() const;
-
-        /** \brief Returns a reference to the initializer system. */
-        InitializerManager& getInitializerManager();
-
-        /** \brief Returns a reference to the tilemap renderer. */
-        TileMapRenderer& getTileMapRenderer();
 
         /** \brief Returns a reference to the particle-system-manager. */
         ParticleSystemManager& getParticleSystemManager();
@@ -237,17 +257,19 @@ namespace ungod
         /** \brief Returns a reference to the parent-child-manager. */
         ParentChildManager& getParentChildManager();
 
-        /** \brief Registers new callback for the EntityCreation-signal. */
-        owls::SignalLink<void, Entity> onEntityCreation(const std::function<void(Entity)>& callback);
 
-        /** \brief Registers new callback for the EntityDestruction-signal. */
-        owls::SignalLink<void, Entity> onEntityDestruction(const std::function<void(Entity)>& callback);
 
         /** \brief Registers new callback for the Entity-serialized-signal. */
         owls::SignalLink<void, Entity, MetaNode, SerializationContext&> onEntitySerialized(const std::function<void(Entity, MetaNode, SerializationContext&)>& callback);
 
         /** \brief Registers new callback for the Entity-deserialized-signal. */
         owls::SignalLink<void, Entity, MetaNode, DeserializationContext&> onEntityDeserialized(const std::function<void(Entity, MetaNode, DeserializationContext&)>& callback);
+
+        /** \brief Registers new callback for the EntityCreation-signal. */
+        owls::SignalLink<void, Entity> onEntityCreation(const std::function<void(Entity)>& callback);
+
+        /** \brief Registers new callback for the EntityDestruction-signal. */
+        owls::SignalLink<void, Entity> onEntityDestruction(const std::function<void(Entity)>& callback);
 
         /** \brief Returns a list of entities that are in update range during the current frame. */
         const quad::PullResult<Entity>& getEntitiesInUpdateRange() const;
@@ -292,33 +314,39 @@ namespace ungod
 
     private:
         ScriptedGameState* mMaster;
-        EntityBehaviorManager mBehaviorManager;
-        VisualsManager mVisualsManager;
-        Renderer mRenderer;
-        CollisionManager<MOVEMENT_COLLISION_CONTEXT> mMovementCollisionManager;
-        CollisionManager<SEMANTICS_COLLISION_CONTEXT> mSemanticsCollisionManager;
-        MovementManager mMovementManager;
-        SteeringManager<script::Environment> mSteeringManager;
+        quad::QuadTree<Entity> mQuadTree;
+        EntityBehaviorHandler mEntityBehaviorHandler;
+        TransformHandler mTransformHandler;
+        InputEventHandler mInputEventHandler;
+        MovementHandler mMovementHandler;
+        SteeringHandler<script::Environment> mSteeringHandler;
         PathPlanner mPathPlanner;
-        RigidbodyManager<MOVEMENT_COLLISION_CONTEXT> mMovementRigidbodyManager;
-		RigidbodyManager<SEMANTICS_COLLISION_CONTEXT> mSemanticsRigidbodyManager;
-        LightSystem mLightSystem;
-        InitializerManager mInitializerManager;
-        TileMapRenderer mTileMapRenderer;
+        VisualsHandler mVisualsHandler;
+        CollisionHandler<MOVEMENT_COLLISION_CONTEXT> mMovementCollisionHandler;
+        CollisionHandler<SEMANTICS_COLLISION_CONTEXT> mSemanticsCollisionHandler;
+        RigidbodyHandler<MOVEMENT_COLLISION_CONTEXT> mMovementRigidbodyHandler;
+        RigidbodyHandler<SEMANTICS_COLLISION_CONTEXT> mSemanticsRigidbodyHandler;
+        std::unique_ptr<AudioListener> mListener;
+        MusicEmitterMixer mMusicEmitterMixer;
+        SoundHandler mSoundHandler;
+        LightHandler mLightHandler;
+        TileMapHandler mTileMapHandler;
+
         ParticleSystemManager mParticleSystemManager;
         ParentChildManager mParentChildManager;
+
         std::unordered_map<std::string, std::function<void(DeserializationContext&, MetaNode)>> mDeserialMap;
+
         owls::Signal<Entity> mEntityCreationSignal;
         owls::Signal<Entity> mEntityDestructionSignal;
         owls::Signal<Entity, MetaNode, SerializationContext&> mEntitySerializedSignal;
         owls::Signal<Entity, MetaNode, DeserializationContext&> mEntityDeserializedSignal;
 
-
         std::forward_list<Entity> mEntitiesToDestroy;
+
 
         bool mRenderLight;
 
-        quad::QuadTree<Entity> mQuadTree;
 
         quad::PullResult< Entity > mInUpdateRange;
         quad::PullResult< Entity > mRenderedEntities;
@@ -330,9 +358,9 @@ namespace ungod
         NameBimap mEntityNames;
 
     public:
-        virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, const sf::RenderTarget& target) const override
+        virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context) const override
         {
-            deferredSerialize<World>(*this, serializer, context, target);
+            deferredSerialize<World>(*this, serializer, context);
         }
         virtual std::string getSerialIdentifier() const override
         {
@@ -343,8 +371,8 @@ namespace ungod
 		/** \brief Sets the world to a new size. */
 		virtual void setSize(const sf::Vector2f& layersize) override;
 
-		//destroys all entities queued for destruction, automatically called during update and on destruction of the world
-		void destroyQueued();
+        //destroys all entities queued for destruction, automatically called during update and on destruction of the world
+        void destroyQueued();
     };
 
 
@@ -356,7 +384,7 @@ namespace ungod
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    #include "ungod/physics/CollisionManager.inl"
+    #include "ungod/physics/CollisionHandler.inl"
 
 
 
@@ -377,7 +405,7 @@ namespace ungod
         dom::Universe<>::create<BASE...>(num, [this, f, cb, co, script] (dom::EntityHandle<> e)
         {
             Entity en(std::move(e), cb, co);
-            mBehaviorManager.assignBehavior(en, script);
+            mMaster->getEntityBehaviorManager().assignBehavior(en, script);
             mEntityCreationSignal(en);
             f( en );
         });
@@ -389,7 +417,7 @@ namespace ungod
         dom::Universe<>::create<BASE...>(num, [this, f, cb, co, script, param] (dom::EntityHandle<> e)
         {
             Entity en(std::move(e), cb, co);
-            mBehaviorManager.assignBehavior(en, script, param);
+            mMaster->getEntityBehaviorManager().assignBehavior(en, script, param);
             mEntityCreationSignal(en);
             f( en );
         });
@@ -408,7 +436,7 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, OptionalComponents<OPTIONAL...> co, const std::string& script)
     {
         Entity e(dom::Universe<>::create<BASE...>(), cb, co);
-        mBehaviorManager.assignBehavior(e, script);
+        mMaster->getEntityBehaviorManager().assignBehavior(e, script);
         mEntityCreationSignal(e);
         return e;
     }
@@ -417,7 +445,7 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, OptionalComponents<OPTIONAL...> co, const std::string& script, script::Environment param)
     {
         Entity e(dom::Universe<>::create<BASE...>(), cb, co);
-        mBehaviorManager.assignBehavior(e, script, param);
+        mMaster->getEntityBehaviorManager().assignBehavior(e, script, param);
         mEntityCreationSignal(e);
         return e;
     }
@@ -435,7 +463,7 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, const std::string& script)
     {
         Entity e(dom::Universe<>::create<BASE...>(), cb, OptionalComponents<>());
-        mBehaviorManager.assignBehavior(e, script);
+        mMaster->getEntityBehaviorManager().assignBehavior(e, script);
         mEntityCreationSignal(e);
         return e;
     }
@@ -444,7 +472,7 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, const std::string& script, script::Environment param)
     {
         Entity e(dom::Universe<>::create<BASE...>(), cb, OptionalComponents<>());
-        mBehaviorManager.assignBehavior(e, script, param);
+        mMaster->getEntityBehaviorManager().assignBehavior(e, script, param);
         mEntityCreationSignal(e);
         return e;
     }
@@ -462,7 +490,7 @@ namespace ungod
     Entity World::create(OptionalComponents<OPTIONAL...> co, const std::string& script)
     {
         Entity e(dom::Universe<>::create(), BaseComponents<>(), co);
-        mBehaviorManager.assignBehavior(e, script);
+        mMaster->getEntityBehaviorManager().assignBehavior(e, script);
         mEntityCreationSignal(e);
         return e;
     }
@@ -471,7 +499,7 @@ namespace ungod
     Entity World::create(OptionalComponents<OPTIONAL...> co, const std::string& script, script::Environment param)
     {
         Entity e(dom::Universe<>::create(), BaseComponents<>(), co);
-        mBehaviorManager.assignBehavior(e, script, param);
+        mMaster->getEntityBehaviorManager().assignBehavior(e, script, param);
         mEntityCreationSignal(e);
         return e;
     }
@@ -489,7 +517,7 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, OptionalComponents<OPTIONAL...> co, dom::ComponentInstantiator<BASE>... ci,  const std::string& script)
     {
         Entity e(dom::Universe<>::create<BASE...>(ci...), cb, co);
-        mBehaviorManager.assignBehavior(e, script);
+        mMaster->getEntityBehaviorManager().assignBehavior(e, script);
         mEntityCreationSignal(e);
         return e;
     }
@@ -498,7 +526,7 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, OptionalComponents<OPTIONAL...> co, dom::ComponentInstantiator<BASE>... ci,  const std::string& script, script::Environment param)
     {
         Entity e(dom::Universe<>::create<BASE...>(ci...), cb, co);
-        mBehaviorManager.assignBehavior(e, script, param);
+        mMaster->getEntityBehaviorManager().assignBehavior(e, script, param);
         mEntityCreationSignal(e);
         return e;
     }
@@ -516,7 +544,7 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, dom::ComponentInstantiator<BASE>... ci,  const std::string& script)
     {
         Entity e(dom::Universe<>::create<BASE...>(ci...), cb, OptionalComponents<>());
-        mBehaviorManager.assignBehavior(e, script);
+        mMaster->getEntityBehaviorManager().assignBehavior(e, script);
         mEntityCreationSignal(e);
         return e;
     }
@@ -525,7 +553,7 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, dom::ComponentInstantiator<BASE>... ci,  const std::string& script, script::Environment param)
     {
         Entity e(dom::Universe<>::create<BASE...>(ci...), cb, OptionalComponents<>());
-        mBehaviorManager.assignBehavior(e, script, param);
+        mMaster->getEntityBehaviorManager().assignBehavior(e, script, param);
         mEntityCreationSignal(e);
         return e;
     }
@@ -543,9 +571,12 @@ namespace ungod
                                 [&entities, this] (std::size_t init)
                                 {
                                     entities.reserve(init);
-                                    create(BaseComponents<BASE...>(), OptionalComponents<OPTIONAL...>(), init, [&entities] (Entity e) { entities.emplace_back(std::move(e)); });
+                                    dom::Universe<>::create<BASE...>(init, [this, &entities](dom::EntityHandle<> e)
+                                        {
+                                            entities.emplace_back(std::move(std::move(e)), BaseComponents<BASE...>(), OptionalComponents<OPTIONAL...>());
+                                        });
                                 },
-                                [&entities] (std::size_t i) -> Entity& { return entities[i]; }, *this, *mMaster->getApp(), BaseComponents<BASE...>(), OptionalComponents<OPTIONAL...>()),
+                                [&entities] (std::size_t i) -> Entity& { return entities[i]; }, *this, BaseComponents<BASE...>(), OptionalComponents<OPTIONAL...>()),
                             SerialIdentifier<Instantiation>::get(), deserializer );
 
 

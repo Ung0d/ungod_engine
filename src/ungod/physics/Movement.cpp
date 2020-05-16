@@ -32,9 +32,9 @@
 namespace ungod
 {
     MovementComponent::MovementComponent() :
-        mMaxForce(MovementManager::sMaxForce),
-        mMaxVelocity(MovementManager::sMaxVelocity),
-        mBaseSpeed(MovementManager::sBaseSpeed) {}
+        mMaxForce(MovementHandler::sMaxForce),
+        mMaxVelocity(MovementHandler::sMaxVelocity),
+        mBaseSpeed(MovementHandler::sBaseSpeed) {}
 
 
     const sf::Vector2f& MovementComponent::getVelocity() const
@@ -70,13 +70,13 @@ namespace ungod
 
 
 
-    MovementManager::MovementManager(quad::QuadTree<Entity>& quadtree,
-                                     TransformManager& transformer) :
+    MovementHandler::MovementHandler(quad::QuadTree<Entity>& quadtree,
+                                     TransformHandler& transformer) :
                                          mQuadtree(&quadtree), mTransformer(&transformer),
                                          mBeginMovingSignal(), mEndMovingSignal() {}
 
 
-    void MovementManager::update(const std::list<Entity>& entities, float delta)
+    void MovementHandler::update(const std::list<Entity>& entities, float delta)
     {
         dom::Utility<Entity>::iterate<TransformComponent, MovementComponent>(entities,
           [delta, this] (Entity e, TransformComponent& transf, MovementComponent& movement)
@@ -130,37 +130,37 @@ namespace ungod
     }
 
 
-    void MovementManager::accelerate(Entity e, const sf::Vector2f& acceleration)
+    void MovementHandler::accelerate(Entity e, const sf::Vector2f& acceleration)
     {
         ungod::accelerate(e.modify<MovementComponent>().mMobilityUnit, acceleration, 1.0f);
     }
 
 
-    void MovementManager::resetAcceleration(Entity e)
+    void MovementHandler::resetAcceleration(Entity e)
     {
         ungod::resetAcceleration(e.modify<MovementComponent>().mMobilityUnit);
     }
 
 
-    void MovementManager::seek(Entity e, const sf::Vector2f& targetPos, float speed)
+    void MovementHandler::seek(Entity e, const sf::Vector2f& targetPos, float speed)
     {
         ungod::seek(e.modify<MovementComponent>().mMobilityUnit, e.get<TransformComponent>().getCenterPosition(), targetPos, speed);
     }
 
 
-    void MovementManager::flee(Entity e, const sf::Vector2f& targetPos, float speed)
+    void MovementHandler::flee(Entity e, const sf::Vector2f& targetPos, float speed)
     {
         ungod::flee(e.modify<MovementComponent>().mMobilityUnit, e.get<TransformComponent>().getCenterPosition(), targetPos, speed);
     }
 
 
-    void MovementManager::arrival(Entity e, const sf::Vector2f& targetPos, float speed, const int arrivalRadius)
+    void MovementHandler::arrival(Entity e, const sf::Vector2f& targetPos, float speed, const int arrivalRadius)
     {
         ungod::arrival(e.modify<MovementComponent>().mMobilityUnit, e.get<TransformComponent>().getCenterPosition(), targetPos, speed, (float)arrivalRadius);
     }
 
 
-    void MovementManager::pursuit(Entity e, Entity target,
+    void MovementHandler::pursuit(Entity e, Entity target,
                                  float speed, unsigned arrivalRadius, float damp)
     {
         ungod::pursuit(e.modify<MovementComponent>().mMobilityUnit, target.modify<MovementComponent>().mMobilityUnit,
@@ -169,7 +169,7 @@ namespace ungod
     }
 
 
-    void MovementManager::evade(Entity e, Entity target,
+    void MovementHandler::evade(Entity e, Entity target,
                                float speed, float evadeDistance, float damp)
     {
         ungod::evade(e.modify<MovementComponent>().mMobilityUnit, target.modify<MovementComponent>().mMobilityUnit,
@@ -178,19 +178,19 @@ namespace ungod
     }
 
 
-    void MovementManager::stop(Entity e)
+    void MovementHandler::stop(Entity e)
     {
         ungod::stop(e.modify<MovementComponent>().mMobilityUnit);
     }
 
 
-    void MovementManager::displace(Entity e, float speed, float circleDistance, float angleRange)
+    void MovementHandler::displace(Entity e, float speed, float circleDistance, float angleRange)
     {
         ungod::displace(e.modify<MovementComponent>().mMobilityUnit, speed, circleDistance, angleRange);
     }
 
 
-    void MovementManager::avoidObstacles(Entity e, float avoidStrength, float maxSight)
+    void MovementHandler::avoidObstacles(Entity e, float avoidStrength, float maxSight)
     {
         /*sf::Vector2f sightAhead;
         sightAhead.x = transf.getPosition().x + currentVelocity.x * maxSight / movement.getMaximumVelocity();
@@ -233,48 +233,48 @@ namespace ungod
         }*/
     }
 
-    void MovementManager::directMovement(Entity e, const sf::Vector2f& vec)
+    void MovementHandler::directMovement(Entity e, const sf::Vector2f& vec)
     {
         accelerate( e, vec );
     }
 
-    void MovementManager::slowDown(Entity e, float strength)
+    void MovementHandler::slowDown(Entity e, float strength)
     {
 
     }
 
-    void MovementManager::onBeginMovement(const std::function<void(Entity, const sf::Vector2f&)>& callback)
+    void MovementHandler::onBeginMovement(const std::function<void(Entity, const sf::Vector2f&)>& callback)
     {
         mBeginMovingSignal.connect(callback);
     }
 
-    void MovementManager::onEndMovement(const std::function<void(Entity)>& callback)
+    void MovementHandler::onEndMovement(const std::function<void(Entity)>& callback)
     {
         mEndMovingSignal.connect(callback);
     }
 
-    void MovementManager::onDirectionChanged(const std::function<void(Entity, MovementComponent::Direction, MovementComponent::Direction)>& callback)
+    void MovementHandler::onDirectionChanged(const std::function<void(Entity, MovementComponent::Direction, MovementComponent::Direction)>& callback)
     {
         mDirectionChangedSignal.connect(callback);
     }
 
-    void MovementManager::handleCollision(Entity e, Entity other, const sf::Vector2f& vec,
+    void MovementHandler::handleCollision(Entity e, Entity other, const sf::Vector2f& vec,
                                           const Collider&, const Collider&)
     {
         mTransformer->move(e, vec);
     }
 
-    void MovementManager::setMaximumForce(Entity e, float maxForce)
+    void MovementHandler::setMaximumForce(Entity e, float maxForce)
     {
         e.modify<MovementComponent>().mMaxForce = maxForce;
     }
 
-    void MovementManager::setMaximumVelocity(Entity e, float maxVelocity)
+    void MovementHandler::setMaximumVelocity(Entity e, float maxVelocity)
     {
         e.modify<MovementComponent>().mMaxVelocity = maxVelocity;
     }
 
-    void MovementManager::setBaseSpeed(Entity e, float baseSpeed)
+    void MovementHandler::setBaseSpeed(Entity e, float baseSpeed)
     {
         e.modify<MovementComponent>().mBaseSpeed = baseSpeed;
     }

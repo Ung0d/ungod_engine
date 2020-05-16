@@ -23,26 +23,39 @@
 *    source distribution.
 */
 
-#ifndef INPUT_H
-#define INPUT_H
+#ifndef UNGOD_INPUT_EVENT_HANDLER_H
+#define UNGOD_INPUT_EVENT_HANDLER_H
 
+#include <unordered_set>
 #include "ungod/base/Entity.h"
+#include "ungod/visual/Camera.h"
+#include "owls/Signal.h"
 
 namespace ungod
 {
     class RenderLayer;
 
+    /** \brief Helper class to maintain a swapable double-buffer of entities. */
+    struct Doublebuffer
+    {
+        std::array< std::unordered_set< Entity >, 2 > entities;
+        bool swapper;
+
+        Doublebuffer() : swapper(true) {}
+
+        void processMousePos(int x, int y, const sf::RenderTarget& target, const Camera& cam, quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer, owls::Signal<Entity>& enter, owls::Signal<Entity>& exit);
+
+        void clearBuffers();
+    };
+
     /** \brief Implements entity with mouse interactions like entity hovered signals. */
-    class InputEventManager 
+    class InputEventHandler 
     {
     public:
-        InputEventManager(quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer) : InputHandler(), mQuadtree(quadtree), mRenderLayer(renderlayer){}
+        InputEventHandler(quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer) : mQuadtree(quadtree), mRenderLayer(renderlayer){}
 
         /** \brief Evaluates an input-event and sends out signals. */
-        void handleEvent(const sf::Event& event, const sf::RenderTarget& target);
-
-        /** \brief Evaluates input and emits mouseEnter, mouseclick and mouseExit signals. */
-        void processMouse(const sf::Event& event, const sf::RenderTarget& target);
+        void handleEvent(const sf::Event& event, const sf::RenderTarget& target, const Camera& cam);
 
         /** \brief Registers new callback for the MouseEnter signal. */
         void onMouseEnter(const std::function<void(Entity)>& callback);
@@ -70,4 +83,4 @@ namespace ungod
     };
 }
 
-#endif // INPUT_H
+#endif // UNGOD_INPUT_EVENT_HANDLER_H

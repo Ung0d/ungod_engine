@@ -29,7 +29,6 @@
 #include "ungod/application/State.h"
 #include "ungod/script/Behavior.h"
 #include "ungod/script/CustomEvent.h"
-#include "ungod/base/Input.h"
 #include "ungod/audio/Audio.h"
 #include "ungod/gui/Gui.h"
 #include "ungod/visual/Camera.h"
@@ -59,10 +58,7 @@ namespace ungod
         Gui& getGui() { return mGui; }
 
         /** \brief Access the underlying audio-manager. */
-        AudioManager& getAudioManager() { return mAudioManager; }
-
-        /** \brief Access the underlying input-handler. */
-        InputHandler& getInputHandler() { return mInputHandler; }
+        SoundHandler& getSoundHandler() { return mSoundHandler; }
 
         /** \brief Accesses the underlying script environment. */
         script::Environment getEnvironment() const { return mScriptCallbacks.getEnvironment(); }
@@ -78,17 +74,13 @@ namespace ungod
         /** \brief Defines ids for script callbacks. */
         enum MenuScriptCallbacks { ON_INIT, ON_CLOSE,
                                ON_UPDATE, ON_CUSTOM_EVENT,
-                               ON_BUTTON_PRESSED, ON_BUTTON_DOWN, ON_BUTTON_RELEASED,
                                NUM_CALLBACK /*Dont use*/ };
 
         /** \brief Defines names for script callbacks. */
         static constexpr std::array<const char*, NUM_CALLBACK>  MENU_CALLBACK_IDENTIFIERS = {"onInit",
                                                                           "onClose",
                                                                           "onUpdate",
-                                                                          "onCustomEvent",
-                                                                          "onButtonPressed",
-                                                                          "onButtonDown",
-                                                                          "onButtonReleased"};
+                                                                          "onCustomEvent"};
 
     protected:
 
@@ -100,11 +92,12 @@ namespace ungod
         std::string mMenuScriptID;
 
         Gui mGui;
-        InputHandler mInputHandler;
-        AudioManager mAudioManager;
+        SoundHandler mSoundHandler;
+        GlobalListener mListener;
         Camera mCamera;
 
         owls::SignalLink<void, const sf::Vector2u&> mTargetSizeChangedLink;
+        owls::SignalLink<void> mScriptStateChangedLink;
     };
 }
 

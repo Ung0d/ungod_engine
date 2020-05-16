@@ -86,7 +86,9 @@ namespace ungod
         static constexpr std::size_t MUSIC_PLAY_CAP = 5;  ///maximum number of sounds playable concurrently
         static constexpr float DEFAULT_MAX_DISTANCE_CAP = 3000.0f;
 
-        MusicEmitterMixer(const AudioListener& listener);
+        MusicEmitterMixer();
+
+        void init(const AudioListener* listener);
 
         /** \brief Loads the music for the music emitter. */
         void loadMusic(Entity e, const std::string& fileID);
@@ -109,7 +111,7 @@ namespace ungod
     private:
         std::array<std::pair<MusicEmitterComponent*, TransformComponent*>, MUSIC_PLAY_CAP> mCurrentlyPlaying;
         float mMaxDistanceCap;
-        const AudioListener& mListener;
+        const AudioListener* mListener;
     };
 }
 

@@ -41,11 +41,12 @@ namespace ungod
         }
     }
 
-    TileMapRenderer::TileMapRenderer(Application& app, World& world) : mWorld(world)
+    void TileMapRenderer::init(Application& app, World* world) 
     {
-        mAppSignalLink = app.onTargetSizeChanged([this] (const sf::Vector2u& targetsize)
+        mAppSignalLink.disconnect();
+        mAppSignalLink = app.onTargetSizeChanged([this, world] (const sf::Vector2u& targetsize)
                                   {
-										mWorld.iterateOverComponents<WaterComponent>([&targetsize](WaterComponent& component)
+                                            world->iterateOverComponents<WaterComponent>([&targetsize](WaterComponent& component)
 											{
 												component.mWater.targetsizeChanged(targetsize);
 											});

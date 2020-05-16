@@ -35,7 +35,7 @@
 namespace ungod
 {
     class TransformComponent;
-    class TransformManager;
+    class TransformHandler;
     class Collider;
 
     /** \brief
@@ -45,7 +45,7 @@ namespace ungod
     */
     class MovementComponent : public ungod::Serializable<MovementComponent>
     {
-    friend class MovementManager;
+    friend class MovementHandler;
      friend struct SerialBehavior<MovementComponent, Entity, const World&, const Application&>;
     friend struct DeserialBehavior<MovementComponent, Entity, World&, const Application&>;
     public:
@@ -83,11 +83,11 @@ namespace ungod
 
     /** \brief Manager class for all movement actions. Emits signals if
     * entities start or end moving processes. */
-    class MovementManager
+    class MovementHandler
     {
     public:
-        MovementManager(quad::QuadTree<Entity>& quadtree,
-                        TransformManager& transformer);
+        MovementHandler(quad::QuadTree<Entity>& quadtree,
+                        TransformHandler& transformer);
 
         /** \brief Performs movements for the given period of deltatime. */
         void update(const std::list<Entity>& entities, float delta);
@@ -158,7 +158,7 @@ namespace ungod
 
     private:
         quad::QuadTree<Entity>* mQuadtree;
-        TransformManager* mTransformer;
+        TransformHandler* mTransformer;
 
         //signals
         owls::Signal<Entity, const sf::Vector2f&> mBeginMovingSignal;

@@ -54,7 +54,7 @@ namespace ungod
     */
     class TileMapComponent : public Serializable<TileMapComponent>
     {
-    friend class TileMapRenderer;
+    friend class TileMapHandler;
 	friend class Renderer;
     friend struct DeserialBehavior<TileMapComponent, Entity, World&, const Application&>;
     public:
@@ -73,7 +73,7 @@ namespace ungod
     */
     class WaterComponent : public Serializable<WaterComponent>
     {
-    friend class TileMapRenderer;
+    friend class TileMapHandler;
 	friend class Renderer;
     friend struct DeserialBehavior<WaterComponent, Entity, World&, const Application&>;
 
@@ -85,11 +85,13 @@ namespace ungod
         Water mWater;
     };
 
-    /** \brief A class that manages and renders all existing tilemaps and water-entities. */
-    class TileMapRenderer
+    /** \brief A class that manages all existing tilemaps and water-entities. */
+    class TileMapHandler
     {
     public:
-        TileMapRenderer(Application& app, World& world);
+        TileMapHandler() : mWorld(nullptr) {}
+
+        void init(Application& app, World* world);
 
         /** \brief Reserves the given number of tiles for an entity that has a tilemap component attached. */
         bool reserveTileCount(Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY);
@@ -227,10 +229,9 @@ namespace ungod
         void waterCallback(Entity e, WaterComponent& wc, const std::function<void(Water&)>& callback);
 
 
-        ~TileMapRenderer();
+        ~TileMapHandler();
 
     private:
-		World& mWorld;
         owls::SignalLink<void, const sf::Vector2u&> mAppSignalLink;
 		owls::Signal<Entity, const sf::FloatRect&> mContentsChangedSignal;
     };

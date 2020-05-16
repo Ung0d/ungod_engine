@@ -28,8 +28,6 @@
 
 #include <array>
 #include <vector>
-#include <mutex>  
-#include <shared_mutex>
 #include <SFML/Audio.hpp>
 #include "owls/Signal.h"
 #include "ungod/audio/Sound.h"
@@ -60,7 +58,8 @@ namespace ungod
     * Also provides counters that indicate for each sound, how many slots does use it currently. */
     class SoundProfile
     {
-    friend class AudioManager;
+    friend class SoundProfileManager;
+    friend class SoundHandler;
     friend class SoundSlot;
     friend class ProfileHandle;
      friend struct SerialBehavior<AudioManager>;
@@ -78,7 +77,8 @@ namespace ungod
     /** \brief A handle for a sound profile. In contact with the user. */
     class ProfileHandle
     {
-    friend class AudioManager;
+    friend class SoundProfileManager;
+    friend class SoundHandler;
     public:
         ProfileHandle(std::pair<const std::string, SoundProfile>* profile);
         ProfileHandle();
@@ -100,9 +100,9 @@ namespace ungod
     * emit sound effects. */
     class SoundEmitterComponent : public Serializable<SoundEmitterComponent>
     {
-    friend class AudioManager;
-     friend struct SerialBehavior<SoundEmitterComponent, Entity, const World&, const Application&>;
-    friend struct DeserialBehavior<SoundEmitterComponent, Entity, World&, const Application&>;
+    friend class SoundHandler;
+     friend struct SerialBehavior<SoundEmitterComponent, Entity, const World&>;
+    friend struct DeserialBehavior<SoundEmitterComponent, Entity, World&>;
 
     static constexpr float DEFAULT_DISTANCE_CAP = 500.0f;
 
@@ -120,7 +120,7 @@ namespace ungod
     */
     class SoundSlot
     {
-    friend class AudioManager;
+    friend class SoundHandler;
     private:
         sf::Sound mSound;
         bool mPlaying;
@@ -137,7 +137,7 @@ namespace ungod
 
     /**
     * \brief Manages all sound files and connects them to entities who can then play the sounds
-    * via the SoundManager or their WorldNode. 
+    * via the SoundHandler or their WorldNode. 
     */
     class SoundProfileManager 
     {
@@ -145,7 +145,6 @@ namespace ungod
     private:
         ProfileMap mSoundProfiles;
         std::vector<float> mVolumeSettings; 
-        mutable std::shared_mutex mManagerMutex;
 
     public:
         SoundProfileManager();
@@ -156,7 +155,7 @@ namespace ungod
         ProfileHandle initSoundProfile(const std::string& key);
 
         /** \brief Returns a handle to the given sound profile if it was initialized before. Elsewise it returns an invalid handle. */
-        ProfileHandle getSoundProfile(const std::string& key) const;
+        ProfileHandle getSoundProfile(const std::string& key);
 
         /** \brief Prepares the given SoundProfile to hold num sounds. */
         void initSounds(const std::string& key, std::size_t num);
@@ -184,34 +183,32 @@ namespace ungod
         void setVolume(std::size_t index, float volume);
 
         /** \brief Returns the volume level in range [0,1] */
-        void getVolume(std::size_t index);
+        float getVolume(std::size_t index);
     };
 
     /**
     * \brief Manages all sound files and connects them to entities who can then play the sounds
     * via the SoundManager or their WorldNode.
     */
-    class SoundManager
+    class SoundHandler
     {
     friend class SoundEmitterComponent;
     private:
         static constexpr std::size_t SOUND_PLAY_CAP = 32;  ///maximum number of sounds playable concurrently
-        static constexpr float DEFAULT_SILENCE_MIN = 0.0f;
-        static constexpr float DEFAULT_SILENCE_MAX = 0.0f;
 
         std::array<SoundSlot, SOUND_PLAY_CAP> mSoundslots;
         owls::Signal<std::string, std::size_t> mSoundBegin;
         owls::Signal<std::string, std::size_t> mSoundEnd;
-        float mSilenceIntervalMin;
-        float mSilenceIntervalMax;
         bool mMuteSound;
-        SoundProfileManager& mSoundProfileMngr;
-        const AudioListener& mListener;
+        SoundProfileManager* mSoundProfileMngr;
+        const AudioListener* mListener;
 
     public:
-        SoundManager(SoundProfileManager& soundprofilemngr, const AudioListener& listener);
-        SoundManager(SoundManager const&) = delete;
-        SoundManager& operator=(SoundManager const&) = delete;
+        SoundHandler();
+        SoundHandler(SoundHandler const&) = delete;
+        SoundHandler& operator=(SoundHandler const&) = delete;
+
+        void init(SoundProfileManager& soundprofilemngr, const AudioListener* listener)
 
         /** \brief Connects the given sound profile with the given entity. */
         void connectProfile(Entity e, const std::string& profileKey);
@@ -243,7 +240,7 @@ namespace ungod
         void onSoundEnd(const std::function<void(std::string, std::size_t)>& callback);
 
         /** \brief Stops playing of all active sounds. */
-        ~SoundManager();
+        ~SoundHandler();
     };
 }
 

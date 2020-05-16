@@ -35,7 +35,6 @@ namespace ungod
 {
     class Entity;
     class World;
-    class Application;
     class InstantiationBase;
     template<typename BASE, typename OPTIONAL>
     class EntityInstantiation;
@@ -105,33 +104,33 @@ namespace ungod
     };
 
     template<typename ... CB, typename ... CO>
-    struct SerialBehavior< EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >, Entity, const World& , const Application&>
+    struct SerialBehavior< EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >, Entity, const World&>
     {
         static void serialize(const EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >& data,
-                              MetaNode serializer, SerializationContext& context, Entity e, const World&, const Application& app);
+                              MetaNode serializer, SerializationContext& context, Entity e, const World&);
     };
 
     template<typename ... CB, typename ... CO>
-    struct DeserialBehavior< EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >, Entity, World& , const Application&>
+    struct DeserialBehavior< EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >, Entity, World&>
     {
         static void deserialize(EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >& data,
-                                MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application& app);
+                                MetaNode deserializer, DeserializationContext& context, Entity e, World& world);
     };
 
 
     template<>
-    struct SerialBehavior< Entity, const World&, const Application& >
+    struct SerialBehavior< Entity, const World&>
     {
-        inline static void serialize(const Entity& data, MetaNode serializer, SerializationContext& context, const World& world, const Application& app);
+        inline static void serialize(const Entity& data, MetaNode serializer, SerializationContext& context, const World& world);
     };
 
 
     //non-polymorphic instantiation deserialize
     template<typename ... BASE, typename ... OPTIONAL>
-    struct DeserialBehavior< Entity, World&, const Application&, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >
+    struct DeserialBehavior< Entity, World&, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >
     {
         inline static void deserialize(Entity& data, MetaNode deserializer, DeserializationContext& context,
-                                       World& world, const Application& app, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>);
+                                       World& world, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>);
     };
 
     template <>

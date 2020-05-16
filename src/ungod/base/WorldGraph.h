@@ -32,6 +32,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include "ungod/serialization/Serializable.h"
 #include "ungod/visual/RenderLayer.h"
+#include "ungod/base/WorldGraphNode.h"
 #include <set>
 
 namespace ungod
@@ -48,7 +49,7 @@ namespace ungod
         WorldGraph(unsigned distance = 1);
 
         /** \brief Updates the reference position. If the active world changes, new nodes are loaded and old ones unloaded as needed. Returns true if the active node has changed. */
-        bool updateReferencePosition(const sf::Vector2f& pos);
+        bool updateReferencePosition(const sf::Vector2f& pos, bool ignoreIdentity = true);
 
         /** \brief Render the world scene. */
         bool render(sf::RenderTarget& target, sf::RenderStates states) const;
@@ -102,6 +103,9 @@ namespace ungod
 
         /** \brief Update the internals if the bounds of a given node have changed. */
         void notifyBoundsChanged(WorldGraphNode* node);
+          
+        /** \brief Checks in all active nodes and their attached worlds for out of bounds cases and may transfers these entities to new nodes. */
+        void checkOutOfBounds();
 
 		const graph::UndirectedAdjacencyLists& getALlists() const { return mAdjacencies; }
 
@@ -109,9 +113,9 @@ namespace ungod
 
 		/** \brief Connects a callback to the reference position changed event, which is emitted, if a new graph 
 		* node is set as a new center node during some update. Parameter is the new reference position in world coodinates. */
-		inline decltype(auto) onReferencePositionChanged(const std::function<void(sf::Vector2f)>& callback)
+		inline decltype(auto) onActiveNodeChanged(const std::function<void(WorldGraph&, WorldGraphNode&, WorldGraphNode&)>& callback)
 		{
-			return mReferencePositionChanged.connect(callback);
+			return mActiveNodeChanged.connect(callback);
 		}
 
     private:
@@ -122,7 +126,9 @@ namespace ungod
         graph::UndirectedAdjacencyLists mAdjacencies;
         std::set<unsigned> mCurrentNeighborhood;
         sf::Vector2f mReferencePosition;
-		owls::Signal<sf::Vector2f> mReferencePositionChanged;
+        std::map<Entity, sf::Clock> mJustLeft;
+		owls::Signal<WorldGraph&, WorldGraphNode&, WorldGraphNode&> mActiveNodeChanged;
+        constexpr static float NODE_TRANSITION_TIMER_S = 10.0f;
     };
 
 

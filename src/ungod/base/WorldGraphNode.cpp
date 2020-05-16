@@ -26,7 +26,6 @@
 #include "ungod/base/WorldGraph.h"
 #include "ungod/base/World.h"
 #include "ungod/application/Application.h"
-#include "ungod/serialization/DeserialInit.h"
 #include "ungod/serialization/SerialGraph.h"
 #include "ungod/serialization/SerialRenderLayer.h"
 
@@ -36,57 +35,49 @@ namespace ungod
     WorldGraphNode::WorldGraphNode(WorldGraph& wg, unsigned index, ScriptedGameState& gamestate, const std::string& identifier, const std::string& datafile)
         : mWorldGraph(wg), 
         mIndex(index), 
+        mLoadingInProcess(false),
         mIsLoaded(false), 
         mGamestate(gamestate), 
-        mLayers(mGamestate.getCamera()), 
+        mChunk(),
+        mLayers(), 
         mIdentifier(identifier), 
-        mDataFile(datafile),
-        mListener(std::unique_ptr<AudioListener>(new CameraListener(gamestate.getCamera(), world))),
-        mMusicEmitterMixer(*mListener),
-        mSoundManager(wg.getSoundProfileManager(), *mListener),
-        mEntityBehaviorHandler(gamestate.getEntityBehaviorManager())
+        mDataFile(datafile)
     {
+        setSize({ DEFAULT_SIZE , DEFAULT_SIZE });
     }
 
     void WorldGraphNode::load()
     {
-        DeserializationContext context;
-        initContext(context);
-        if (!context.read(mDataFile))
-            return;
-        context.deserializeRootObject(mLayers, static_cast<const sf::RenderTarget&>(mGamestate.getApp()->getWindow()), mGamestate);
-        mIsLoaded = true;
+        mChunk.load(mFilePath, LoadPolicy::ASYNC, mGamestate);
+        mLoadingInProcess = true;
 
-		Logger::info("Node loaded: ");
-		Logger::info(getIdentifier());
-		Logger::endl();
+		Logger::info("Started loading of node:", getIdentifier());
     }
 
     void WorldGraphNode::unload()
     {
+        save();
         mLayers.clearEverything();
         mIsLoaded = false;
 
-		Logger::info("Node unloaded: ");
-		Logger::info(getIdentifier());
-		Logger::endl();
+		Logger::info("Node unloaded:", getIdentifier());
     }
 
 	void WorldGraphNode::save()
 	{
 		SerializationContext context;
-		context.serializeRootObject(mLayers, static_cast<const sf::RenderTarget&>(mGamestate.getApp()->getWindow()));
+		context.serializeRootObject(mLayers, mGamestate);
 		context.save(mDataFile);
 	}
 
 	sf::FloatRect WorldGraphNode::getBounds() const
 	{
-		return {mLayers.getPosition().x, mLayers.getPosition().y , mLayers.getSize().x , mLayers.getSize().y };
+		return { mLayers.getPosition().x, mLayers.getPosition().y , mLayers.getSize().x , mLayers.getSize().y };
 	}
 
     World* WorldGraphNode::addWorld(unsigned i)
     {
-        return static_cast<World*>(mLayers.registerLayer(mGamestate.makeWorld(), i));
+        return static_cast<World*>(mLayers.registerLayer(RenderLayerPtr{new World(mGamestate)}, i));
     }
 
     World* WorldGraphNode::addWorld()
@@ -104,21 +95,41 @@ namespace ungod
 
     bool WorldGraphNode::render(sf::RenderTarget& target, sf::RenderStates states) const
     {
-        return mLayers.render(target, states);
+        return mLayers.render(target, mGamestate.getCamera(), states);
     }
 
     bool WorldGraphNode::renderDebug(sf::RenderTarget& target, sf::RenderStates states,
                      bool bounds, bool texrects, bool colliders, bool audioemitters, bool lightemitters) const
     {
-        return mLayers.renderDebug(target, states, bounds, texrects, colliders, audioemitters, lightemitters);
+        return mLayers.renderDebug(target, mGamestate.getCamera(), states, bounds, texrects, colliders, audioemitters, lightemitters);
     }
 
     void WorldGraphNode::update(float delta)
     {
-        mLayers.update(delta);
+        if (mLoadingInProcess)
+            if (mChunk.isLoaded())
+            {
+                mLoadingInProcess = false;
+                mIsLoaded = true;
+                Logger::info("Loaded node:", getIdentifier());
+                //init loaded worlds
+                for (unsigned i = 0; i < mChunk.get().container.getVector().size(); i++)
+                {
+                    getWorld(i)->init(mGamestate);
+                    mLayer.registerLayer(mChunk.get().container.getVector()[i].first);
+                }
+                //run queued scripts
+                while (!mChunk.get().scriptEntities.empty())
+                {
+                    mChunk.get().scriptEntities.front();
 
-        if (quadtree && !mMuteSound) //todo where to get the quadtree from??
-            mMusicEmitterMixer.update(delta, static_cast<AudioListener*>(mListener.get()), quadtree);
+                    mChunk.get().scriptEntities.pop();
+                }
+                //emit entity creation signals
+                mChunk.drop();
+            }
+        else if (mIsLoaded)
+            mLayers.update(delta, mGamestate.getCamera());
     }
 
     void WorldGraphNode::handleInput(const sf::Event& event, const sf::RenderTarget& target)
@@ -165,6 +176,16 @@ namespace ungod
 	{
 		mLayers.setActive(i, active);
 	}
+
+    void WorldGraphNode::destroy(Entity e)
+    {
+        mEntitiesToDestroy.push_front(e);
+    }
+
+    void WorldGraphNode::notifyChangedTransform(Entity e) const
+    {
+
+    }
 
     void SerialBehavior<WorldGraphNode>::serialize(const WorldGraphNode& data, MetaNode serializer, SerializationContext& context)
     {

@@ -41,15 +41,15 @@ namespace ungod
     };
 
     template <>
-    struct SerialBehavior<World, const sf::RenderTarget&>
+    struct SerialBehavior<World>
     {
-        static void serialize(const World& data, MetaNode serializer, SerializationContext& context, const sf::RenderTarget& target);
+        static void serialize(const World& data, MetaNode serializer, SerializationContext& context);
     };
 
     template <>
-    struct DeserialBehavior<World, const sf::RenderTarget&>
+    struct DeserialBehavior<World>
     {
-        static void deserialize(World& data, MetaNode deserializer, DeserializationContext& context, const sf::RenderTarget& target);
+        static void deserialize(World& data, MetaNode deserializer, DeserializationContext& context);
     };
 }
 

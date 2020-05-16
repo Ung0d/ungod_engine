@@ -115,10 +115,7 @@ namespace ungod
     {
         if (!sf::Shader::isAvailable())
         {
-            ungod::Logger::warning("Shaders are not available on the operating system.");
-            ungod::Logger::endl();
-            ungod::Logger::warning("Water is rendered with disabled shaders");
-            ungod::Logger::endl();
+            ungod::Logger::warning("Shaders are not available on the operating system. \n Water is rendered with disabled shaders");
             mShowShaders = false;
         }
         else
@@ -126,7 +123,6 @@ namespace ungod
             if (!mWaterShader.loadFromFile(vertexShader, fragmentShader))
             {
                 Logger::warning("Can't load water shaders.");
-                Logger::endl();
                 mShowShaders = false;
             }
             else
@@ -154,15 +150,15 @@ namespace ungod
         targetsizeChanged(mRenderTex.getSize());
     }
 
-    bool Water::render(sf::RenderTarget& target, sf::RenderStates states, World& world)
+    bool Water::render(sf::RenderTarget& target, sf::RenderTexture& rendertex, sf::RenderStates states, World& world)
     {
         targetsizeChanged(target.getSize());
-        mRenderTex.clear(sf::Color::Transparent);
+        rendertex.clear(sf::Color::Transparent);
         states.transform *= getTransform();
         //sf::RenderStates inverse;
         //inverse.transform.translate(-renderpos);
-        mRenderTex.setView(target.getView());
-        if (!mGround.render(mRenderTex, states))
+        rendertex.setView(target.getView());
+        if (!mGround.render(rendertex, states))
             return false;  //nothing is drawn, no water tile is visible on the screen
 
         sf::Vector2f windowPosition = target.mapPixelToCoords(sf::Vector2i(0,0));
@@ -187,18 +183,18 @@ namespace ungod
                   sf::Vector2f upperBounds = world.getVisualsManager().getUntransformedUpperBound(e);
 
                   float curOpacity = vis.getOpacity();
-                  VisualsManager::setOpacity(e, curOpacity*mReflectionOpacity);
+                  VisualsHandler::setOpacity(e, curOpacity*mReflectionOpacity);
 				  if (!e.has<WaterComponent>())
-					 Renderer::renderEntity(e, transf, vis, mRenderTex, states, true, BOUNDS_OVERLAP * (-2*lowerBounds.y + upperBounds.y));
-                  VisualsManager::setOpacity(e, curOpacity);
+					 Renderer::renderEntity(e, transf, vis, rendertex, states, true, BOUNDS_OVERLAP * (-2*lowerBounds.y + upperBounds.y));
+                  VisualsHandler::setOpacity(e, curOpacity);
               });
         }
 
 
 
         //drawing to the rendertex done, attach it to a sprite
-        mRenderTex.display();
-        sf::Sprite renderbody(mRenderTex.getTexture());
+        rendertex.display();
+        sf::Sprite renderbody(rendertex.getTexture());
 
         sf::RenderStates waterstates;
 
@@ -206,12 +202,12 @@ namespace ungod
         if (mShowShaders)
         {
             mWaterShader.setUniform("time", mDistortionTimer.getElapsedTime().asSeconds());
-            mWaterShader.setUniform("screenSize", sf::Vector2f{(float)mRenderTex.getSize().x, (float)mRenderTex.getSize().y});
-            mWaterShader.setUniform("offset", mRenderTex.getView().getCenter() - mOffset);
+            mWaterShader.setUniform("screenSize", sf::Vector2f{(float)rendertex.getSize().x, (float)rendertex.getSize().y});
+            mWaterShader.setUniform("offset", rendertex.getView().getCenter() - mOffset);
             waterstates.shader = &mWaterShader;
         }
 
-        mOffset = mRenderTex.getView().getCenter();
+        mOffset = rendertex.getView().getCenter();
 
         sf::View storview = target.getView();
         sf::View defview;
@@ -269,7 +265,6 @@ namespace ungod
         else
         {
             Logger::warning("Can't load distortion map for water shader.");
-            Logger::endl();
             mShowShaders = false;
         }
     }

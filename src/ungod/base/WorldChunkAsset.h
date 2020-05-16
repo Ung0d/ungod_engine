@@ -23,19 +23,32 @@
 *    source distribution.
 */
 
-#ifndef UNGOD_FLOOD_FILL_H
-#define UNGOD_FLOOD_FILL_H
+#ifndef UNGOD_WORLD_CHUNK_ASSET_H
+#define UNGOD_WORLD_CHUNK_ASSET_H
 
-#include "ungod/content/TileMap.h"
-#include "ungod/base/Utility.h"
+#include "ungod/ressource_management/Asset.h"
+#include "ungod/visual/RenderLayer.h"
 
 namespace ungod
 {
-    /** \brief Performs floot fill on the given tilemap with a given init-position.
-    * This will replace the ids of all tiles in a connected area of tiles with the same id.
-    * Selects randomly from the given vector of ids to fill the flootable space.
-    * If the appropriate flag is set, inactive tiles will automatically be activated.*/
-    void floodFill(TileMap& tilemap, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs, bool activate);
+    class Entity; 
+
+    using ScriptQueue = std::queue<std::pair<Entity, std::string>>;
+
+    struct WorldChunkData
+    {
+        RenderLayerContainer container;
+        ScriptQueue scriptEntities;
+    };
+
+    using WorldChunk = Asset<WorldChunkData>;
+
+    template<>
+    struct LoadBehavior<WorldChunkData>
+    {
+        static bool loadFromFile(const std::string& filepath, WorldChunkData& data);
+        static std::string getIdentifier() { return "WorldChunk"; }
+    };
 }
 
-#endif // UNGOD_FLOOD_FILL_H
+#endif // UNGOD_WORLD_CHUNK_ASSET_H

@@ -48,66 +48,6 @@ namespace ungod
 
     template<typename FUNC, FUNC... args>
     const size_t ArrayGen<FUNC, args...>::size = sizeof...(args);
-
-
-
-    /** \brief A component that holds an id that maps to a InitialBehavior. */
-    class Initializer : public Serializable<Initializer>
-    {
-    friend class InitializerManager;
-     friend struct SerialBehavior<Initializer, Entity, const World&, const Application&>;
-    friend struct DeserialBehavior<Initializer, Entity, World&, const Application&>;
-    public:
-        Initializer();
-
-    private:
-        std::size_t mInitializerID;
-        bool mActive;
-    };
-
-
-    /** \brief A manager class that maintains an explicit list of all Initializer-components
-    * that have a valid behavior attached. A call of initialize(...) will then invoke the initialize method
-    * for every and each of the listed initializers and clear the list afterwards. */
-    class InitializerManager
-    {
-    public:
-        typedef void(*InitBehaviorPtr)(Entity, World&);
-
-    public:
-        /** \brief Initializes the given entity with the behavior at the given index. Requires an
-        * Initializer component to be attached to the entity. */
-        void initialize(Entity e, std::size_t initID, World& world);
-
-        /** \brief Performs initialization action on all registered entities. */
-        template<InitCallback ... cb>
-        void performInitialization( World& world );
-
-    private:
-        std::queue<Entity> mRegisteredEntities;
-    };
-
-
-
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////  Implementation   //////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    template<InitCallback ... cb>
-    void InitializerManager::performInitialization( World& world )
-    {
-        using InitializingBehaviors = ArrayGen<InitCallback, cb...>;
-
-        while (!mRegisteredEntities.empty())
-        {
-            std::size_t id = mRegisteredEntities.front().get<Initializer>().mInitializerID;
-            InitializingBehaviors::data[id](mRegisteredEntities.front(), world);
-            mRegisteredEntities.pop();
-        }
-    }
 }
 
 #endif // UNGOD_ENTITY_BEHAVIOR_H

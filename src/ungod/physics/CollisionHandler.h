@@ -23,8 +23,8 @@
 *    source distribution.
 */
 
-#ifndef UNGOD_COLLISION_MANAGER_H
-#define UNGOD_COLLISION_MANAGER_H
+#ifndef UNGOD_COLLISION_HANDLER_H
+#define UNGOD_COLLISION_HANDLER_H
 
 #include <vector>
 #include <unordered_map>
@@ -42,7 +42,7 @@ namespace ungod
 	static constexpr std::size_t MAX_CONTEXTS = 2;
 
 	template<std::size_t CONTEXT>
-	class RigidbodyManager;
+	class RigidbodyHandler;
 
 	/**
 	* \ingroup Components
@@ -53,7 +53,7 @@ namespace ungod
 	class RigidbodyComponent : public Serializable<RigidbodyComponent<CONTEXT>>
 	{
 		static_assert(CONTEXT <= MAX_CONTEXTS, "Attempt to create too much collision contexts.");
-		friend class RigidbodyManager<CONTEXT>;
+		friend class RigidbodyHandler<CONTEXT>;
 	private:
 		Collider mCollider;
 		bool mActive;
@@ -75,7 +75,7 @@ namespace ungod
 
     /** \brief A manager for operations on rigidbodies. Emits content changed signals. */
 	template <std::size_t CONTEXT = 0>
-    class RigidbodyManager
+    class RigidbodyHandler
     {
     template <std::size_t N> friend struct ContextIteration;
 
@@ -168,11 +168,11 @@ namespace ungod
     * Emits collision events.
     */
     template<std::size_t CONTEXT = 0>
-    class CollisionManager
+    class CollisionHandler
     {
     static_assert( CONTEXT <= MAX_CONTEXTS, "Attempt to create too much collision contexts." );
     public:
-        CollisionManager(quad::QuadTree<Entity>& quadtree);
+        CollisionHandler(quad::QuadTree<Entity>& quadtree);
 
         /**
         * \brief Checks collisions between all entities in the given list.
@@ -215,5 +215,5 @@ namespace ungod
     };
 }
 
-#endif // UNGOD_COLLISION_MANAGER_H
+#endif // UNGOD_COLLISION_HANDLER_H
 

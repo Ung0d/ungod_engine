@@ -33,25 +33,81 @@
 
 namespace ungod
 {
-    World::World(ScriptedGameState* master) :
-        mMaster(master),
-        mBehaviorManager(),
+    World::World() :
+        mMaster(nullptr),
         mQuadTree(),
-        mVisualsManager(),
-        mRenderer(*this, mVisualsManager),
-        mTransformManager(mQuadTree),
-        mMovementCollisionManager(mQuadTree),
-        mSemanticsCollisionManager(mQuadTree),
-        mMovementManager(mQuadTree, mTransformManager),
-        mSteeringManager(),
+        mEntityBehaviorHandler(),
+        mTransformHandler(mQuadTree),
+        mInputEventHandler(mQuadTree, this),
+        mMovementHandler(mQuadTree, mTransformHandler),
+        mSteeringHandler(),
         mPathPlanner(),
-        mInputManager(mQuadTree, this),
-        mAudioManager(master, *this),
-        mLightSystem(),
-        mTileMapRenderer(*master->getApp(), *this),
+        mVisualsHandler(),
+        mMovementCollisionHandler(mQuadTree),
+        mSemanticsCollisionHandler(mQuadTree),
+        mMovementRigidbodyHandler(),
+        mSemanticsRigidbodyHandler(),
+        mListener(),
+        mMusicEmitterMixer(),
+        mSoundHandler(),
+        mLightHandler(),
+        mTileMapHandler(),
+
         mParentChildManager(*this),
         mRenderLight(true)
     {
+    }
+
+
+    void init(ScriptedGameState& master)
+    {
+        mMaster = &master;
+        mEntityBehaviorHandler.init(*this);
+        mSteeringHandler.init(master.getSteeringManager());
+        mLightHandler.init(master.getLightManager());
+        mListener = std::unique_ptr<AudioListener>(new CameraListener(master.getCamera(), world*this));
+        mMusicEmitterMixer.init(mListener.get());
+        mSoundHandler.init(master.getApp().getSoundProfileManager(), mListener.get());
+        mTileMapRenderer.init(master.getApp(), this);
+    }
+
+
+
+
+    RenderLayerPtr ScriptedGameState::makeWorld()
+    {
+        World* world = new World(mApp->getScriptState(), mApp->getGlobalScriptEnv(), this);
+
+        
+
+        //set up signal callbacks
+        world->getTransformManager().onPositionChanged([this](Entity e, const sf::Vector2f& position) { mScriptCallbacks.execute(ON_POSITION_CHANGED, this, e, position); });
+        world->getTransformManager().onSizeChanged([this](Entity e, const sf::Vector2f& size) { mScriptCallbacks.execute(ON_SIZE_CHANGED, this, e, size); });
+        world->getMovementManager().onBeginMovement([this](Entity e, const sf::Vector2f& vel) { mScriptCallbacks.execute(ON_BEGIN_MOVEMENT, this, e, vel); });
+        world->getMovementManager().onEndMovement([this](Entity e) { mScriptCallbacks.execute(ON_END_MOVEMENT, this, e); });
+        world->getMovementManager().onDirectionChanged([this](Entity e, MovementComponent::Direction oldDirec, MovementComponent::Direction newDirec) { mScriptCallbacks.execute(ON_DIRECTION_CHANGED, this, e, oldDirec, newDirec); });
+        world->getVisualsManager().onVisibilityChanged([this](Entity e, bool visibility) { mScriptCallbacks.execute(ON_VISIBILITY_CHANGED, this, e, visibility); });
+        world->getVisualsManager().onAnimationStart([this](Entity e, const std::string& key) { mScriptCallbacks.execute(ON_ANIMATION_START, this, e, key); });
+        world->getVisualsManager().onAnimationStop([this](Entity e, const std::string& key) { mScriptCallbacks.execute(ON_ANIMATION_STOP, this, e, key); });
+        world->getMovementCollisionManager().onCollision([this](Entity e1, Entity e2, const sf::Vector2f& mdv, const Collider& c1, const Collider& c2) { mScriptCallbacks.execute(ON_MOV_COLLISION, this, e1, e2, mdv, c1, c2); });
+        world->getMovementCollisionManager().onBeginCollision([this](Entity e1, Entity e2) { mScriptCallbacks.execute(ON_BEGIN_MOV_COLLISION, this, e1, e2); });
+        world->getMovementCollisionManager().onEndCollision([this](Entity e1, Entity e2) { mScriptCallbacks.execute(ON_END_MOVE_COLLISION, this, e1, e2); });
+        world->getSemanticsCollisionManager().onCollision([this](Entity e1, Entity e2, const sf::Vector2f& mdv, const Collider& c1, const Collider& c2) { mScriptCallbacks.execute(ON_SEM_COLLISION, this, e1, e2, mdv, c1, c2); });
+        world->getSemanticsCollisionManager().onBeginCollision([this](Entity e1, Entity e2) { mScriptCallbacks.execute(ON_BEGIN_SEM_COLLISION, this, e1, e2); });
+        world->getSemanticsCollisionManager().onEndCollision([this](Entity e1, Entity e2) { mScriptCallbacks.execute(ON_END_SEM_COLLISION, this, e1, e2); });
+        world->getInputManager().onPressed([this](const std::string& binding) { mScriptCallbacks.execute(ON_PRESSED, this, binding); });
+        world->getInputManager().onDown([this](const std::string& binding) { mScriptCallbacks.execute(ON_DOWN, this, binding); });
+        world->getInputManager().onReleased([this](const std::string& binding) { mScriptCallbacks.execute(ON_RELEASED, this, binding); });
+        world->getInputManager().onMouseEnter([this](Entity e) { mScriptCallbacks.execute(ON_MOUSE_ENTER, this, e); });
+        world->getInputManager().onMouseClick([this](Entity e) { mScriptCallbacks.execute(ON_MOUSE_CLICK, this, e); });
+        world->getInputManager().onMouseExit([this](Entity e) { mScriptCallbacks.execute(ON_MOUSE_EXIT, this, e); });
+        world->getInputManager().onMouseReleased([this](Entity e) { mScriptCallbacks.execute(ON_MOUSE_RELEASED, this, e); });
+
+
+        //register instantiations for deserialization
+        registerTypes(*world);
+
+        return RenderLayerPtr{ world };
     }
 
     World::World(const script::SharedState& cState, script::Environment cMain, ScriptedGameState* master) :
@@ -165,7 +221,8 @@ namespace ungod
 
 	void World::setSize(const sf::Vector2f& layersize) 
 	{
-		mQuadTree.setBoundary({ 0.0f,0.0f,layersize.x,layersize.y });
+        if (getSize() != layersize)
+		    mQuadTree.setBoundary({ 0.0f,0.0f,layersize.x,layersize.y });
 	}
 
     void World::update(float delta, const sf::Vector2f& areaPosition, const sf::Vector2f& areaSize)
@@ -190,33 +247,38 @@ namespace ungod
                                                mInUpdateRange.getList().end(),
                                                removalCondition), mInUpdateRange.getList().end());
 
-        mInputManager.update();
-        mRenderer.update(mInUpdateRange.getList(), delta);
-        mLightSystem.update(mInUpdateRange.getList(), delta);
-        mMovementManager.update(mInUpdateRange.getList(), delta);
+        mEntityBehaviorHandler.update(mInUpdateRange.getList(), delta);
+        mMovementHandler.update(mInUpdateRange.getList(), delta);
         mSteeringManager.update(mInUpdateRange.getList(), delta, mMovementManager);
         mPathPlanner.update(mInUpdateRange.getList(), delta, mMovementManager);
         mMovementCollisionManager.checkCollisions(mInUpdateRange.getList());
         mSemanticsCollisionManager.checkCollisions(mInUpdateRange.getList());
-        mAudioManager.update(delta, &mQuadTree);
-        mBehaviorManager.update(mInUpdateRange.getList(), delta);
+        mMusicEmitterMixer.update(delta, &mQuadTree);
+        mSoundHandler.update(delta);
+        mLightHandler.update(mInUpdateRange.getList(), delta);
+
         mParticleSystemManager.update(mInUpdateRange.getList(), delta);
+
+        if (!mMuteSound) //todo where to get the quadtree from??
+            mMusicEmitterMixer.update(delta, static_cast<AudioListener*>(mListener.get()), mQuadTree);
+
+        mMaster->getRenderer().update(mInUpdateRange.getList(), delta, mVisualsHandler);
     }
 
     void World::handleInput(const sf::Event& event, const sf::RenderTarget& target)
     {
-        mInputManager.handleEvent(event, target);
+        mInputEventHandler.handleEvent(event, target, mMaster->getCamera());
     }
 
     bool World::render(sf::RenderTarget& target, sf::RenderStates states)
     {
         mRenderedEntities.getList().clear();
-        mRenderer.renewRenderlist(target, mRenderedEntities);
+        mMaster->getRenderer().renewRenderlist(target, mRenderedEntities);
 
-        mRenderer.render(mRenderedEntities, target, states);
+        mMaster->getRenderer().render(mRenderedEntities, target, states);
 
         if (mRenderLight)
-            mLightSystem.render(mRenderedEntities, target, states);
+            mLightHandler.render(mRenderedEntities, mQuadTree, target, states);
 
         return true; //todo meaningful return value
     }
@@ -224,18 +286,18 @@ namespace ungod
     bool World::renderDebug(sf::RenderTarget& target, sf::RenderStates states, bool bounds, bool texrects, bool colliders, bool audioemitters, bool lights) const
     {
         if (bounds)
-            mRenderer.renderBounds(mRenderedEntities, target, states);
+            mMaster->getRenderer().renderBounds(mRenderedEntities, target, states);
         if (texrects)
-            mRenderer.renderTextureRects(mRenderedEntities, target, states);
+            mMaster->getRenderer().renderTextureRects(mRenderedEntities, target, states);
         if (colliders)
         {
-            mRenderer.renderColliders<MOVEMENT_COLLISION_CONTEXT>(mRenderedEntities, target, states, sf::Color::Cyan);
-            mRenderer.renderColliders<SEMANTICS_COLLISION_CONTEXT>(mRenderedEntities, target, states, sf::Color::Yellow);
+            mMaster->getRenderer().renderColliders<MOVEMENT_COLLISION_CONTEXT>(mRenderedEntities, target, states, sf::Color::Cyan);
+            mMaster->getRenderer().renderColliders<SEMANTICS_COLLISION_CONTEXT>(mRenderedEntities, target, states, sf::Color::Yellow);
         }
         if (audioemitters)
-            mRenderer.renderAudioEmitters(mRenderedEntities, target, states);
+            mMaster->getRenderer().renderAudioEmitters(mRenderedEntities, target, states);
         if (lights)
-            mRenderer.renderLightRanges(mRenderedEntities, target, states);
+            mMaster->getRenderer().renderLightRanges(mRenderedEntities, target, states);
 
         return true;
     }
@@ -279,102 +341,7 @@ namespace ungod
 
     void World::handleCustomEvent(const CustomEvent& event)
     {
-        mBehaviorManager.handleCustomEvent(event);
-    }
-
-    dom::Universe<>& World::getUniverse()
-    {
-        return *this;
-    }
-
-    quad::QuadTree<Entity>& World::getQuadTree()
-    {
-        return mQuadTree;
-    }
-
-    TransformManager& World::getTransformManager()
-    {
-        return mTransformManager;
-    }
-
-    MovementManager& World::getMovementManager()
-    {
-        return mMovementManager;
-    }
-
-    SteeringManager<script::Environment>& World::getSteeringManager()
-    {
-        return mSteeringManager;
-    }
-
-    PathPlanner& World::getPathPlanner()
-    {
-        return mPathPlanner;
-    }
-
-    VisualsManager& World::getVisualsManager()
-    {
-        return mVisualsManager;
-    }
-
-    InputManager& World::getInputManager()
-    {
-        return mInputManager;
-    }
-
-    AudioManager& World::getAudioManager()
-    {
-        return mAudioManager;
-    }
-
-    Renderer& World::getRenderer()
-    {
-        return mRenderer;
-    }
-
-    LightSystem& World::getLightSystem()
-    {
-        return mLightSystem;
-    }
-
-    const LightSystem& World::getLightSystem() const
-    {
-        return mLightSystem;
-    }
-
-    InitializerManager& World::getInitializerManager()
-    {
-        return mInitializerManager;
-    }
-
-    EntityBehaviorManager& World::getBehaviorManager()
-    {
-        return mBehaviorManager;
-    }
-
-    TileMapRenderer& World::getTileMapRenderer()
-    {
-        return mTileMapRenderer;
-    }
-
-    ParticleSystemManager& World::getParticleSystemManager()
-    {
-        return mParticleSystemManager;
-    }
-
-    ParentChildManager& World::getParentChildManager()
-    {
-        return mParentChildManager;
-    }
-
-    owls::SignalLink<void, Entity> World::onEntityCreation(const std::function<void(Entity)>& callback)
-    {
-        return mEntityCreationSignal.connect(callback);
-    }
-
-    owls::SignalLink<void, Entity> World::onEntityDestruction(const std::function<void(Entity)>& callback)
-    {
-        return mEntityDestructionSignal.connect(callback);
+        mEntityBehaviorHandler.handleCustomEvent(event);
     }
 
     owls::SignalLink<void, Entity, MetaNode, SerializationContext&> World::onEntitySerialized(const std::function<void(Entity, MetaNode, SerializationContext&)>& callback)
@@ -385,6 +352,16 @@ namespace ungod
     owls::SignalLink<void, Entity, MetaNode, DeserializationContext&> World::onEntityDeserialized(const std::function<void(Entity, MetaNode, DeserializationContext&)>& callback)
     {
         return mEntityDeserializedSignal.connect(callback);
+    }
+
+    owls::SignalLink<void, Entity> World::onEntityCreation(const std::function<void(Entity)>& callback)
+    {
+        return mEntityCreationSignal.connect(callback);
+    }
+
+    owls::SignalLink<void, Entity> World::onEntityDestruction(const std::function<void(Entity)>& callback)
+    {
+        return mEntityDestructionSignal.connect(callback);
     }
 
     const quad::PullResult<Entity>& World::getEntitiesInUpdateRange() const
@@ -481,22 +458,21 @@ namespace ungod
 		for (const auto& e : fullpull.getList())
 			if (e)
 				destroy(e);
-		destroyQueued();
 	}
 
-	void World::destroyQueued()
-	{
-		for (auto& e : mEntitiesToDestroy)
-		{
-			if (!e) continue;
-			if (e.has<TransformComponent>())
-			{
-				mQuadTree.removeFromItsNode(e);
-			}
+    void World::destroyQueued()
+    {
+        for (auto& e : mEntitiesToDestroy)
+        {
+            if (!e) continue;
+            if (e.has<TransformComponent>())
+            {
+                mQuadTree.removeFromItsNode(e);
+            }
             mEntityDestructionSignal(e);
-			e.getInstantiation()->cleanup(e);
-			e.mHandle.destroy();
-		}
-		mEntitiesToDestroy.clear();
-	}
+            e.getInstantiation()->cleanup(e);
+            e.mHandle.destroy();
+        }
+        mEntitiesToDestroy.clear();
+    }
 }

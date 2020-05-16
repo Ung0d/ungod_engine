@@ -28,15 +28,17 @@
 
 namespace ungod
 {
-    void floodFill(TileMap& tilemap, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs, bool activate)
+    void floodFill(TileMap& tilemap, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs)
     {
-        Tile* target = tilemap.getTiledata(ix, iy);
-        std::vector<bool> visited((std::size_t)tilemap.getMapSizeX()* (std::size_t)tilemap.getMapSizeY(), false);
-        if (!target)
+        int targetID = tilemap.getTileID(ix, iy);
+        if (targetID == -1)
             return;
-        int targetID = target->getTileID();
+
+        std::vector<bool> visited((std::size_t)tilemap.getMapSizeX()* (std::size_t)tilemap.getMapSizeY(), false);
+
         std::stack<std::pair<unsigned, unsigned>> nodestack;
         nodestack.emplace(ix, iy);
+
         while (!nodestack.empty())
         {
             auto cur = nodestack.top();
@@ -49,31 +51,31 @@ namespace ungod
 
             unsigned west = cur.first;
             unsigned east = cur.first;
-            while (west > 0 && tilemap.getTiledata(west - 1, cur.second)->getTileID() == targetID)
+            while (west > 0 && tilemap.getTileID(west - 1, cur.second) == targetID)
             {
                 --west;
             }
-            while (east+1 < tilemap.getMapSizeX() && tilemap.getTiledata(east + 1, cur.second)->getTileID() == targetID)
+            while (east+1 < tilemap.getMapSizeX() && tilemap.getTileID(east + 1, cur.second) == targetID)
             {
                 ++east;
             }
             for (unsigned i = west; i <= east; ++i)
             {
-                Tile* curTile = tilemap.getTiledata(i, cur.second);
-                if (!curTile->isActive())
-                    curTile->setActive(activate);
-                curTile->setTileID( replacementIDs[ NumberGenerator::getRandBetw(0, (unsigned)replacementIDs.size()-1) ] );
+                if (replacementIDs.size() == 1)
+                    tilemap.setTile(replacementIDs[0], i, cur.second);
+                else
+                    tilemap.setTile(replacementIDs[NumberGenerator::getRandBetw(0, (unsigned)replacementIDs.size() - 1)], i, cur.second);
 
-                if (cur.second > 0 && tilemap.getTiledata(i, cur.second-1)->getTileID() == targetID)
+                if (cur.second > 0 && tilemap.getTileID(i, cur.second-1) == targetID)
                     nodestack.emplace(i,cur.second-1);
 
-                if (i > 0 && cur.second > 0 && tilemap.getTiledata(i-1, cur.second-1)->getTileID() == targetID)
+                if (i > 0 && cur.second > 0 && tilemap.getTileID(i-1, cur.second-1) == targetID)
                     nodestack.emplace(i-1,cur.second-1);
 
-                if (i < tilemap.getMapSizeX()-1 && cur.second > 0 && tilemap.getTiledata(i+1, cur.second-1)->getTileID() == targetID)
+                if (i < tilemap.getMapSizeX()-1 && cur.second > 0 && tilemap.getTileID(i+1, cur.second-1) == targetID)
                     nodestack.emplace(i+1,cur.second-1);
 
-                if (cur.second < tilemap.getMapSizeY()-1 && tilemap.getTiledata(i, cur.second+1)->getTileID() == targetID)
+                if (cur.second < tilemap.getMapSizeY()-1 && tilemap.getTileID(i, cur.second+1) == targetID)
                     nodestack.emplace(i,cur.second+1);
 
                 if (i > 0 && cur.second < tilemap.getMapSizeY()-1 && tilemap.getTiledata(i-1, cur.second+1)->getTileID() == targetID)

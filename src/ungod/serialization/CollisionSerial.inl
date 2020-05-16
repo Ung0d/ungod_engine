@@ -62,13 +62,13 @@ namespace ungod
 		}
 		if constexpr (CONTEXT == MOVEMENT_COLLISION_CONTEXT)
 		{
-			world.getMovementRigidbodyManager().setActive(e, active);
-			world.getMovementRigidbodyManager().addCollider(e, Collider{ static_cast<ColliderType>(type), param });
+			world.getMovementRigidbodyHandler().setActive(e, active);
+			world.getMovementRigidbodyHandler().addCollider(e, Collider{ static_cast<ColliderType>(type), param });
 		}
 		else if constexpr (CONTEXT == SEMANTICS_COLLISION_CONTEXT)
 		{
-			world.getSemanticsRigidbodyManager().setActive(e, active);
-			world.getSemanticsRigidbodyManager().addCollider(e, Collider{ static_cast<ColliderType>(type), param });
+			world.getSemanticsRigidbodyHandler().setActive(e, active);
+			world.getSemanticsRigidbodyHandler().addCollider(e, Collider{ static_cast<ColliderType>(type), param });
 		}
     }
 }

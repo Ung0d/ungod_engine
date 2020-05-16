@@ -23,31 +23,80 @@
 *    source distribution.
 */
 
-#include "ungod/base/Input.h"
+#include "ungod/base/InputEvents.h"
 #include "ungod/base/Transform.h"
 #include "ungod/visual/RenderLayer.h"
 #include "ungod/visual/Camera.h"
 
 namespace ungod
 {
-    void InputEventManager::handleEvent(const sf::Event& event, const sf::RenderTarget& target)
+    void Doublebuffer::processMousePos(int x, int y, const sf::RenderTarget& target, const Camera& cam, quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer, owls::Signal<Entity>& enter, owls::Signal<Entity>& exit)
     {
-        processMouse(event, target);
+        //compute the global position of the mouse
+        sf::Vector2f mouseWorldPos = target.mapPixelToCoords({ x, y }, cam.getView());
+        //translate to the world local position
+        mouseWorldPos = renderlayer->getContainer()->mapToLocalPosition(mouseWorldPos);
+        //pull entities that likely collide with that position
+        quad::PullResult<Entity> pull;
+        quadtree.retrieve(pull, { mouseWorldPos.x, mouseWorldPos.y, 0.0f, 0.0f });
+
+        dom::Utility<Entity>::iterate<TransformComponent>(pull.getList(),
+            [this, mouseWorldPos](Entity e, TransformComponent& transf)
+            {
+                if (transf.getBounds().contains(mouseWorldPos))
+                {
+                    entities[swapper].insert(e);
+                }
+            });
+
+        //for each entity that is hovered this frame
+        for (const auto& e : entities[swapper])
+        {
+            //check whether it was not hovered last frame
+            auto result = entities[!swapper].find(e);
+            if (result == entities[!swapper].end())
+            {
+                enter(e);
+            }
+        }
+
+        //for each entity that is hovered last frame
+        for (const auto& e : entities[!swapper])
+        {
+            if (!e)
+                continue;
+            //check whether it was not hovered this frame
+            auto result = entities[swapper].find(e);
+            if (result == entities[swapper].end())
+            {
+                exit(e);
+            }
+        }
+
+        //swap buffers
+        swapper = !swapper;
+        entities[swapper].clear();
+    }
+
+    void Doublebuffer::clearBuffers()
+    {
+        entities[swapper].clear();
+        entities[!swapper].clear();
     }
 
 
-    void InputEventManager::processMouse(const sf::Event& event, const sf::RenderTarget& target)
+    void InputEventHandler::handleEvent(const sf::Event& event, const sf::RenderTarget& target, const Camera& cam)
     {
         switch (event.type)
         {
             case sf::Event::MouseMoved:
             {
-                mHoveredEntities.processMousePos(event.mouseMove.x, event.mouseMove.y, target, mQuadtree, mRenderLayer, mMouseEnterSignal, mMouseExitSignal);
+                mHoveredEntities.processMousePos(event.mouseMove.x, event.mouseMove.y, target, cam, mQuadtree, mRenderLayer, mMouseEnterSignal, mMouseExitSignal);
                 break;
             }
             case sf::Event::MouseButtonPressed:
             {
-                mClickedEntities.processMousePos(event.mouseButton.x, event.mouseButton.y, target, mQuadtree, mRenderLayer, mMouseClickedSignal, mMouseReleasedSignal);
+                mClickedEntities.processMousePos(event.mouseButton.x, event.mouseButton.y, target, cam, mQuadtree, mRenderLayer, mMouseClickedSignal, mMouseReleasedSignal);
                 break;
             }
             case sf::Event::MouseButtonReleased:
@@ -61,25 +110,25 @@ namespace ungod
     }
 
 
-    void InputEventManager::onMouseEnter(const std::function<void(Entity)>& callback)
+    void InputEventHandler::onMouseEnter(const std::function<void(Entity)>& callback)
     {
         mMouseEnterSignal.connect(callback);
     }
 
 
-    void InputEventManager::onMouseClick(const std::function<void(Entity)>& callback)
+    void InputEventHandler::onMouseClick(const std::function<void(Entity)>& callback)
     {
         mMouseClickedSignal.connect(callback);
     }
 
 
-    void InputEventManager::onMouseExit(const std::function<void(Entity)>& callback)
+    void InputEventHandler::onMouseExit(const std::function<void(Entity)>& callback)
     {
         mMouseExitSignal.connect(callback);
     }
 
 
-    void InputEventManager::onMouseReleased(const std::function<void(Entity)>& callback)
+    void InputEventHandler::onMouseReleased(const std::function<void(Entity)>& callback)
     {
         mMouseReleasedSignal.connect(callback);
     }

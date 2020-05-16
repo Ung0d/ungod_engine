@@ -103,7 +103,7 @@ namespace ungod
 			worldType["rigidbodySem"] = &World::getSemanticsRigidbodyManager;
 			worldType["input"] = &World::getInputManager;
 			worldType["audio"] = &World::getAudioManager;
-			worldType["light"] = static_cast<LightSystem& (World::*)() >(&World::getLightSystem);
+			worldType["light"] = static_cast<LightHandler& (World::*)() >(&World::getLightSystem);
 			worldType["behavior"] = &World::getBehaviorManager;
 			worldType["tilemap"] = &World::getTileMapRenderer;
 			worldType["particles"] = &World::getParticleSystemManager;
@@ -114,25 +114,6 @@ namespace ungod
 			worldType["gamestate"] = &World::getState;
 			worldType["tagWithName"] = &World::tagWithName;
 			worldType["getEntityByName"] = &World::getEntityByName;
-
-            //if you register world, you rely on all the other stuff, so this is registered automatically
-			registerWorldGraph(state);
-            registerEntity(state);
-            registerUtility(state);
-            registerAudio(state);
-            registerSerialization(state);
-            registerInput(state);
-            registerTransform(state);
-            registerMovement(state);
-            registerAssets(state);
-            registerVisuals(state, app);
-            registerCollision<MOVEMENT_COLLISION_CONTEXT>(state);
-            registerCollision<SEMANTICS_COLLISION_CONTEXT>(state);
-            registerRigidbody(state);
-            registerLight(state);
-            registerBehavior(state);
-            registerParticleSystem(state);
-            registerParentChild(state);
         }
     }
 }

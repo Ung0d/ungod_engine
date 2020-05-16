@@ -28,8 +28,6 @@
 
 #include <vector>
 #include <unordered_map>
-#include <mutex>
-#include <shared_mutex>
 #include <SFML/Audio.hpp>
 #include "ungod/serialization/Serializable.h"
 #include "ungod/audio/Music.h"
@@ -41,8 +39,7 @@ namespace ungod
 /** \brief A base class for music players. */
     class MusicPlayerBase
     {
-    friend class AudioManager;
-     friend struct SerialBehavior<AudioManager>;
+    friend class MusicManager;
     public:
         MusicPlayerBase();
 
@@ -107,9 +104,11 @@ namespace ungod
     };
 
 
-    /** \brief A manager object for ingame music. Loading and unloading is thread save. */
+    /** \brief A manager object for ingame music. */
     class MusicManager
     {
+    static constexpr float DEFAULT_SILENCE_MIN = 0.0f;
+    static constexpr float DEFAULT_SILENCE_MAX = 0.0f;
     public:
         MusicManager();
 
@@ -154,7 +153,6 @@ namespace ungod
         std::unordered_map< int, float > mMusicVolumes;
         bool mMuteMusic;
         int mIDCounter; 
-        mutable std::shared_mutex mloadMutex;
 
     private:
         MusicPlayerBase* assertID(int id);

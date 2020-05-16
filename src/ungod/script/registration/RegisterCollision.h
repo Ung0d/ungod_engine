@@ -27,7 +27,7 @@
 #define REGISTER_COLLISION_H
 
 #include "ungod/script/Behavior.h"
-#include "ungod/physics/CollisionManager.h"
+#include "ungod/physics/CollisionHandler.h"
 #include "ungod/script/registration/RegistrationDetail.h"
 
 namespace ungod
@@ -41,32 +41,32 @@ namespace ungod
             state.registerUsertype<RigidbodyComponent<CONTEXT>>(STRCAT("Rigidbody", NUM2STR(CONTEXT)));
             detail::registerMultiComponent<RigidbodyComponent<CONTEXT>>(state, STRCAT("MultiRigidbody", NUM2STR(CONTEXT)));
 
-            state.registerUsertype<CollisionManager<CONTEXT>>(STRCAT("CollisionManager", NUM2STR(CONTEXT)));
+            state.registerUsertype<CollisionHandler<CONTEXT>>(STRCAT("CollisionHandler", NUM2STR(CONTEXT)));
 
-            script::Usertype<RigidbodyManager<CONTEXT>> rmType = 
-                    state.registerUsertype<RigidbodyManager<CONTEXT>>(STRCAT("RigidbodyManager", NUM2STR(CONTEXT)));
+            script::Usertype<RigidbodyHandler<CONTEXT>> rmType =
+                    state.registerUsertype<RigidbodyHandler<CONTEXT>>(STRCAT("RigidbodyHandler", NUM2STR(CONTEXT)));
 
             rmType["addCollider"] = sol::overload(
-                [](RigidbodyManager<CONTEXT>& rm, Entity e, const Collider& collider) { rm.addCollider(e, collider); },
-                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned i, const Collider& collider) { rm.addCollider(e, i, collider);  });
+                [](RigidbodyHandler<CONTEXT>& rm, Entity e, const Collider& collider) { rm.addCollider(e, collider); },
+                [](RigidbodyHandler<CONTEXT>& rm, Entity e, unsigned i, const Collider& collider) { rm.addCollider(e, i, collider);  });
             rmType["clearCollider"] = sol::overload(
-                [](RigidbodyManager<CONTEXT>& rm, Entity e) { rm.clearCollider(e); },
-                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned i) { rm.clearCollider(e, i);  });
+                [](RigidbodyHandler<CONTEXT>& rm, Entity e) { rm.clearCollider(e); },
+                [](RigidbodyHandler<CONTEXT>& rm, Entity e, unsigned i) { rm.clearCollider(e, i);  });
             rmType["setRectDownRight"] = sol::overload(
-                [](RigidbodyManager<CONTEXT>& rm, Entity e, const sf::Vector2f& p) { rm.setRectDownRight(e,p); },
-                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned i, const sf::Vector2f& p) { rm.setRectDownRight(e, i, p);  });
+                [](RigidbodyHandler<CONTEXT>& rm, Entity e, const sf::Vector2f& p) { rm.setRectDownRight(e,p); },
+                [](RigidbodyHandler<CONTEXT>& rm, Entity e, unsigned i, const sf::Vector2f& p) { rm.setRectDownRight(e, i, p);  });
             rmType["setRectUpLeft"] = sol::overload(
-                [](RigidbodyManager<CONTEXT>& rm, Entity e, const sf::Vector2f& p) { rm.setRectUpLeft(e, p); },
-                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned i, const sf::Vector2f& p) { rm.setRectUpLeft(e, i, p);  });
+                [](RigidbodyHandler<CONTEXT>& rm, Entity e, const sf::Vector2f& p) { rm.setRectUpLeft(e, p); },
+                [](RigidbodyHandler<CONTEXT>& rm, Entity e, unsigned i, const sf::Vector2f& p) { rm.setRectUpLeft(e, i, p);  });
             rmType["setRectRotation"] = sol::overload(
-                [](RigidbodyManager<CONTEXT>& rm, Entity e, float r) { rm.setRectRotation(e, r); },
-                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned i, float r) { rm.setRectRotation(e, i, r);  });
+                [](RigidbodyHandler<CONTEXT>& rm, Entity e, float r) { rm.setRectRotation(e, r); },
+                [](RigidbodyHandler<CONTEXT>& rm, Entity e, unsigned i, float r) { rm.setRectRotation(e, i, r);  });
             rmType["setPoint"] = sol::overload(
-                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned pointIndex, const sf::Vector2f& point) { rm.setPoint(e, pointIndex, point); },
-                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned multiIndex, unsigned pointIndex, const sf::Vector2f& point) { rm.setPoint(e, multiIndex, pointIndex, point);  });
+                [](RigidbodyHandler<CONTEXT>& rm, Entity e, unsigned pointIndex, const sf::Vector2f& point) { rm.setPoint(e, pointIndex, point); },
+                [](RigidbodyHandler<CONTEXT>& rm, Entity e, unsigned multiIndex, unsigned pointIndex, const sf::Vector2f& point) { rm.setPoint(e, multiIndex, pointIndex, point);  });
             rmType["setActive"] = sol::overload(
-                [](RigidbodyManager<CONTEXT>& rm, Entity e, bool active) { rm.setActive(e, active); },
-                [](RigidbodyManager<CONTEXT>& rm, Entity e, unsigned i,bool active) { rm.setActive(e, i, active);  });
+                [](RigidbodyHandler<CONTEXT>& rm, Entity e, bool active) { rm.setActive(e, active); },
+                [](RigidbodyHandler<CONTEXT>& rm, Entity e, unsigned i,bool active) { rm.setActive(e, i, active);  });
 
         }
 

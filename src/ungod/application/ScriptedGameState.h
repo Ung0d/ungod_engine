@@ -33,6 +33,9 @@
 #include "ungod/visual/RenderLayer.h"
 #include "ungod/base/WorldGraph.h"
 #include "ungod/script/EntityBehavior.h"
+#include "ungod/visual/Renderer.h"
+#include "ungod/visual/LightManager.h"
+#include "ungod/physics/Steering.h"
 
 namespace ungod
 {
@@ -62,9 +65,6 @@ namespace ungod
 
         /** \brief Processes a custom event. */
         virtual void onCustomEvent(const CustomEvent& event) override;
-
-        /** \brief Instantiates and returns a new world object. */
-        RenderLayerPtr makeWorld();
 
         /** \brief Access the camera. */
         Camera& getCamera() { return mCamera; }
@@ -119,46 +119,30 @@ namespace ungod
         /** \brief Returns a reference to the behavior manager. */
         EntityBehaviorManager& getEntityBehaviorManager() { return mEntityBehaviorManager; }
 
-    public:
+        /** \brief Returns a reference to the renderer. */
+        Renderer& getRenderer() { return mRenderer; }
+
+        /** \brief Returns a reference to the steering manager. */
+        SteeringManager<script::Environment>& getSteeringManager() { return mSteeringManager; }
+
+        /** \brief Returns a reference to the light manager. */
+        LightManager& getLightManager() { return mLightManager; }
+
         virtual void init() override;
 
-        virtual void close() override;
+        virtual void close() override; 
+        
+        ~ScriptedGameState();
 
     private:
         /** \brief Defines ids for script callbacks. */
         enum GameScriptCallbacks { ON_INIT, ON_CLOSE,
                                ON_UPDATE, ON_CUSTOM_EVENT,
-                               ON_SIZE_CHANGED, ON_POSITION_CHANGED,
-                               ON_BEGIN_MOVEMENT, ON_END_MOVEMENT,
-                               ON_DIRECTION_CHANGED, ON_VISIBILITY_CHANGED,
-                               ON_ANIMATION_START, ON_ANIMATION_STOP,
-                               ON_MOV_COLLISION, ON_BEGIN_MOV_COLLISION,
-                               ON_END_MOVE_COLLISION, ON_SEM_COLLISION,
-                               ON_BEGIN_SEM_COLLISION, ON_END_SEM_COLLISION,
-                               ON_PRESSED, ON_DOWN,
-                               ON_RELEASED, ON_MOUSE_ENTER,
-                               ON_MOUSE_CLICK, ON_MOUSE_EXIT,
-                               ON_MOUSE_RELEASED,
                                NUM_CALLBACK /*Dont use*/ };
 
         /** \brief Defines names for script callbacks. */
         static constexpr std::array<const char*, NUM_CALLBACK>  GAME_CALLBACK_IDENTIFIERS = {"onInit", "onClose",
-                                                                          "onUpdate", "onCustomEvent",
-                                                                          "onSizeChanged", "onPositionChanged",
-                                                                          "onBeginMovement", "onEndMovement",
-                                                                          "onDirectionChanged", "onVisibilityChanged",
-                                                                          "onAnimationStart", "onAnimationStop",
-                                                                          "onMovCollision", "onBeginMovCollision",
-                                                                          "onEndMovCollision", "onSemCollision",
-                                                                          "onBeginSemCollision", "onEndSemCollision",
-                                                                          "onPressed", "onDown",
-                                                                          "onReleased", "onMouseEnter",
-                                                                          "onMouseClick", "onMouseExit",
-                                                                          "onMouseReleased"};
-
-        static constexpr float UPDATE_INTERVAL = 200.0f;  //<default time between update script-calls in ms
-
-        sf::Clock mIntervalTimer;
+                                                                          "onUpdate", "onCustomEvent"};
 
         CallbackInvoker mScriptCallbacks;
         std::string mGameScriptID;
@@ -173,6 +157,10 @@ namespace ungod
         bool mDebugLightEmitters;
 
         EntityBehaviorManager mEntityBehaviorManager;
+        Renderer mRenderer;
+        SteeringManager<script::Environment> mSteeringManager;
+        LightManager mLightManager;
+        owls::SignalLink<void> mScriptStateChangedLink;
     };
 }
 

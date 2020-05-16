@@ -28,14 +28,10 @@
 
 #include "quadtree/QuadTree.h"
 #include "ungod/base/Transform.h"
+#include "ungod/base/WorldChunkAsset.h"
 #include "ungod/utility/Graph.h"
 #include <SFML/Graphics/Rect.hpp>
 #include "ungod/serialization/Serializable.h"
-#include "ungod/visual/RenderLayer.h"
-#include "ungod/base/ComponentSignalBase.h"
-#include "ungod/audio/MusicEmitter.h"
-#include "ungod/base/InputEvents.h"
-#include "ungod/script/EntityBehavior.h"
 #include <set>
 
 namespace ungod
@@ -43,15 +39,15 @@ namespace ungod
     class World;
     class WorldGraph;
 
-    /** \brief A node in the world graph representing a single world to be loaded and unloaded.
-    * The world is identified by a string, that is also assumed to be the name of the "main" world in the layer
-    * container. The bounds of this "main" world are used to determine position and size of the node.
-    * Each node keeps its own disjoint dom::Universe for allocations of entities and components that can be independently loaded 
-    * and unloaded. */
-    class WorldGraphNode : public Serializable<WorldGraphNode>, public ComponentSignalBase
+    /** \brief A node in the world graph representing a single chunk of the game to be loaded and unloaded 
+    * independently of the rest of the graph.
+    * The node is identified by a string, that is also assumed to be the name of the "main" world in the layer
+    * container. The bounds of this "main" world are used to determine position and size of the node. */
+    class WorldGraphNode : public Serializable<WorldGraphNode>
     {
      friend struct SerialBehavior<WorldGraphNode>;
     friend struct DeserialBehavior<WorldGraphNode>;
+    constexpr static float DEFAULT_SIZE = 1000.0f;
     public:
         WorldGraphNode(WorldGraph& wg, unsigned index, ScriptedGameState& gamestate, const std::string& identifier = {}, const std::string& datafile = {});
 
@@ -120,25 +116,17 @@ namespace ungod
 
 		void setActive(unsigned i, bool active = true);
 
-        /** \brief Returns the music emitter mixer. */
-        MusicEmitterMixer& getMusicEmitterMixer() { return mMusicEmitterMixer; }
-
     private:
 
         WorldGraph& mWorldGraph;
         unsigned mIndex;
+        bool mLoadingInProcess;
         bool mIsLoaded;
         ScriptedGameState& mGamestate;
+        WorldChunk mChunk;
         RenderLayerContainer mLayers;
         std::string mIdentifier;
         std::string mDataFile;
-
-        TransformManager mTransformManager;
-        std::unique_ptr<AudioListener> mListener;
-        MusicEmitterMixer mMusicEmitterMixer;
-        SoundManager mSoundManager;
-        InputEventManager mInputEventManager;
-        EntityBehaviorHandler mEntityBehaviorHandler;
     };
 
 

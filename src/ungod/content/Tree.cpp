@@ -240,7 +240,7 @@ namespace ungod
             bool clockwise = NumberGenerator::getRandBool();
             world.getVisualsManager().setRotation(e, NumberGenerator::getFloatRandBetw(0.0f, 360.0f), i+1);
             world.getVisualsManager().setAffectorCallback(e,
-              [i, clockwise] (Entity e, float delta, VisualsManager& mgr, VisualsComponent& vis) mutable
+              [i, clockwise] (Entity e, float delta, VisualsHandler& mgr, VisualsComponent& vis) mutable
               {
                   float current = e.get<MultiSpriteComponent>().getComponent(i+1).getSprite().getRotation();
                   float acum = LEAVE_ROTATION * delta;

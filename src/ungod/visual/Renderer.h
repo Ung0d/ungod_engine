@@ -28,11 +28,11 @@
 
 #include "ungod/base/Entity.h"
 #include "ungod/base/Transform.h"
-#include "ungod/physics/CollisionManager.h"
+#include "ungod/physics/CollisionHandler.h"
 
 namespace ungod
 {
-    class VisualsManager;
+    class VisualsHandler;
     class VisualsComponent;
     class AnimationComponent;
     class ParticleSystemComponent;
@@ -44,9 +44,9 @@ namespace ungod
     class Renderer
     {
     public:
-        Renderer(World& world, VisualsManager& visualsmanager);
+        Renderer() = default;
 
-        /** \brief Computes a new list of entities that are on the given given render target. */
+        /** \brief Computes a new list of entities that intersect the render area. */
         void renewRenderlist(sf::RenderTarget& target, quad::PullResult<Entity>& pull) const;
 
         /** \brief Draws the internal list of entities that must have a Transform and a Visual component and that are non-plane. */
@@ -102,11 +102,6 @@ namespace ungod
 
         /** \brief Renders the origin and the range of a light. */
         static void renderLightDebug(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states);
-
-    private:
-        World* mWorld;
-        VisualsManager* mVisualsManager;
-        unsigned mFirstNonePlane;
 
         static constexpr float INNER_RECT_PERCENTAGE = 0.1f;
 

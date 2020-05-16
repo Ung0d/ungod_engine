@@ -203,9 +203,7 @@ namespace ungod
 
         if (policy == LoadPolicy::SYNC)
         {
-            Logger::info("Now sync loading asset ");
-            Logger::info(path);
-            Logger::endl();
+            Logger::info("Now sync loading asset", path);
 
             data->future = std::async(std::launch::deferred, &AssetHandler<T, PARAM...>::syncLoad,
                 this, data, path, std::forward<PARAM>(param)...);
@@ -213,9 +211,7 @@ namespace ungod
         }
         else //load async
         {
-            Logger::info("Now async loading asset ");
-            Logger::info(path);
-            Logger::endl();
+            Logger::info("Now async loading asset", path);
 
             data->future = std::async(std::launch::async, &AssetHandler<T, PARAM...>::asyncLoad,
                 this, std::weak_ptr<AssetData<T, PARAM...>>{data}, path, std::forward<PARAM>(param)...);
@@ -240,9 +236,7 @@ namespace ungod
         }
         if(data->referenceCount == 0)
         {
-            Logger::info("Now dropping asset ");
-            Logger::info(data->filepath);
-            Logger::endl();
+            Logger::info("Now dropping asset", data->filepath);
 			data->future.wait();
             mAssetData.erase(data->filepath);
         }
@@ -267,9 +261,7 @@ namespace ungod
         sharedData->isLoaded = success;
         if (!success)
         {
-            Logger::error("Could not load asset ");
-            Logger::error(filepath);
-            Logger::endl();
+            Logger::error("Could not load asset", filepath);
         }
     }
 
@@ -281,9 +273,7 @@ namespace ungod
 
         if (!data->isLoaded)
         {
-            Logger::error("Could not load asset ");
-            Logger::error(filepath);
-            Logger::endl();
+            Logger::error("Could not load asset", filepath);
         }
     }
 

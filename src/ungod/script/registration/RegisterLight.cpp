@@ -64,37 +64,37 @@ namespace ungod
 
 			detail::registerMultiComponent<LightAffectorComponent>(state, "MultiLightAffector");
 
-			script::Usertype<LightSystem> lightSystemType = state.registerUsertype<LightSystem>("LightSystem");
-			lightSystemType["setAmbientColor"] = & LightSystem::setAmbientColor;
+			script::Usertype<LightHandler> lightSystemType = state.registerUsertype<LightHandler>("LightSystem");
+			lightSystemType["setAmbientColor"] = & LightHandler::setAmbientColor;
 			lightSystemType["setLocalLightPosition"] =
 				sol::overload(
-					[](LightSystem& ls, Entity e, const sf::Vector2f& position) { ls.setLocalLightPosition(e, position); },
-					[](LightSystem& ls, Entity e, const sf::Vector2f& position, std::size_t index) { ls.setLocalLightPosition(e, position, index); });
+					[](LightHandler& ls, Entity e, const sf::Vector2f& position) { ls.setLocalLightPosition(e, position); },
+					[](LightHandler& ls, Entity e, const sf::Vector2f& position, std::size_t index) { ls.setLocalLightPosition(e, position, index); });
 			lightSystemType["setLightScale"] =
 				sol::overload(
-					[](LightSystem& ls, Entity e, const sf::Vector2f& scale) { ls.setLightScale(e, scale); },
-					[](LightSystem& ls, Entity e, const sf::Vector2f& scale, std::size_t index) { ls.setLightScale(e, scale, index); });
+					[](LightHandler& ls, Entity e, const sf::Vector2f& scale) { ls.setLightScale(e, scale); },
+					[](LightHandler& ls, Entity e, const sf::Vector2f& scale, std::size_t index) { ls.setLightScale(e, scale, index); });
 			lightSystemType["setLightColor"] =
 				sol::overload(
-					[](LightSystem& ls, Entity e, const sf::Color& color) { ls.setLightColor(e, color); },
-					[](LightSystem& ls, Entity e, const sf::Color& color, std::size_t index) { ls.setLightColor(e, color, index); });
+					[](LightHandler& ls, Entity e, const sf::Color& color) { ls.setLightColor(e, color); },
+					[](LightHandler& ls, Entity e, const sf::Color& color, std::size_t index) { ls.setLightColor(e, color, index); });
 			lightSystemType["setPoint"] =
 				sol::overload(
-					[](LightSystem& ls, Entity e, const sf::Vector2f& point, std::size_t i) { ls.setPoint(e, point, i); },
-					[](LightSystem& ls, Entity e, const sf::Vector2f& point, std::size_t pointIndex, std::size_t colliderIndex) { ls.setPoint(e, point, pointIndex, colliderIndex); });
+					[](LightHandler& ls, Entity e, const sf::Vector2f& point, std::size_t i) { ls.setPoint(e, point, i); },
+					[](LightHandler& ls, Entity e, const sf::Vector2f& point, std::size_t pointIndex, std::size_t colliderIndex) { ls.setPoint(e, point, pointIndex, colliderIndex); });
 			lightSystemType["setPointCount"] =
 				sol::overload(
-					[](LightSystem& ls, Entity e, std::size_t num) { ls.setPointCount(e, num); },
-					[](LightSystem& ls, Entity e, std::size_t num, std::size_t colliderIndex) { ls.setPointCount(e, num, colliderIndex); });
+					[](LightHandler& ls, Entity e, std::size_t num) { ls.setPointCount(e, num); },
+					[](LightHandler& ls, Entity e, std::size_t num, std::size_t colliderIndex) { ls.setPointCount(e, num, colliderIndex); });
 			lightSystemType["setPoints"] =
 				sol::overload(
-					[](LightSystem& ls, Entity e, script::Environment points)
+					[](LightHandler& ls, Entity e, script::Environment points)
 					{
 						std::vector<sf::Vector2f> pvec;
 						if (detail::table2vec(pvec, points))
 							ls.setPoints(e, pvec);
 					},
-					[](LightSystem& ls, Entity e, script::Environment points, std::size_t colliderIndex)
+					[](LightHandler& ls, Entity e, script::Environment points, std::size_t colliderIndex)
 					{
 						std::vector<sf::Vector2f> pvec;
 						if (detail::table2vec(pvec, points))
@@ -102,17 +102,17 @@ namespace ungod
 					});
 			lightSystemType["setLightOverShape"] =
 				sol::overload(
-					[](LightSystem& ls, Entity e, bool los) { ls.setLightOverShape(e, los); },
-					[](LightSystem& ls, Entity e, bool los, std::size_t colliderIndex) { ls.setLightOverShape(e, los, colliderIndex); });
+					[](LightHandler& ls, Entity e, bool los) { ls.setLightOverShape(e, los); },
+					[](LightHandler& ls, Entity e, bool los, std::size_t colliderIndex) { ls.setLightOverShape(e, los, colliderIndex); });
 			lightSystemType["setAffectorCallback"] =
-				sol::overload([](LightSystem& ls, Entity e, const std::function<void(float, LightEmitterComponent&)>& callback)
+				sol::overload([](LightHandler& ls, Entity e, const std::function<void(float, LightEmitterComponent&)>& callback)
 					{ ls.setAffectorCallback(e, callback); },
-					[](LightSystem& ls, Entity e, std::size_t lightIndex, const std::function<void(float, LightEmitterComponent&)>& callback)
+					[](LightHandler& ls, Entity e, std::size_t lightIndex, const std::function<void(float, LightEmitterComponent&)>& callback)
 					{ ls.setAffectorCallback(e, lightIndex, callback); },
-					[](LightSystem& ls, Entity e, std::size_t lightIndex, std::size_t affectorIndex, const std::function<void(float, LightEmitterComponent&)>& callback)
+					[](LightHandler& ls, Entity e, std::size_t lightIndex, std::size_t affectorIndex, const std::function<void(float, LightEmitterComponent&)>& callback)
 					{ ls.setAffectorCallback(e, lightIndex, affectorIndex, callback); });
-			lightSystemType["getLowerBound"] = & LightSystem::getLowerBound;
-			lightSystemType["getUpperBound"] = & LightSystem::getUpperBound;
+			lightSystemType["getLowerBound"] = & LightHandler::getLowerBound;
+			lightSystemType["getUpperBound"] = & LightHandler::getUpperBound;
         }
     }
 }

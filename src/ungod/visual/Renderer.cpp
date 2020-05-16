@@ -30,10 +30,6 @@
 
 namespace ungod
 {
-    Renderer::Renderer(World& world, VisualsManager& visualsmanager) :
-        mWorld(&world), mVisualsManager(&visualsmanager), mFirstNonePlane(0) {}
-
-
     void Renderer::renewRenderlist(sf::RenderTarget& target, quad::PullResult<Entity>& pull) const
     {
         //first step: retrieve the entities that may collide with the window

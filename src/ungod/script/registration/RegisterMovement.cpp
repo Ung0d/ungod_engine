@@ -48,22 +48,22 @@ namespace ungod
 			movementCompType["getMaxForce"] = &MovementComponent::getMaxForce;
 			movementCompType["getBaseSpeed"] = &MovementComponent::getBaseSpeed;
 
-			script::Usertype<MovementManager> movementManagerType = state.registerUsertype<MovementManager>("MovementManager");
-			movementManagerType["setMaximumVelocity"] = & MovementManager::setMaximumVelocity;
-			movementManagerType["setBaseSpeed"] = & MovementManager::setBaseSpeed;
-			movementManagerType["setMaximumForce"] = & MovementManager::setMaximumForce;
-			movementManagerType["accelerate"] = & MovementManager::accelerate;
-			movementManagerType["resetAcceleration"] = & MovementManager::resetAcceleration;
-			movementManagerType["flee"] = & MovementManager::flee;
-			movementManagerType["arrival"] = & MovementManager::arrival;
-			movementManagerType["pursuit"] = & MovementManager::pursuit;
-			movementManagerType["evade"] = & MovementManager::evade;
-			movementManagerType["stop"] = & MovementManager::stop;
-			movementManagerType["displace"] = & MovementManager::displace;
-			movementManagerType["avoidObstacles"] = & MovementManager::avoidObstacles;
-			movementManagerType["directMovement"] = & MovementManager::directMovement;
-			movementManagerType["slowDown"] = & MovementManager::slowDown;
-			movementManagerType["resetAcceleration"] = & MovementManager::resetAcceleration;
+			script::Usertype<MovementHandler> movementManagerType = state.registerUsertype<MovementHandler>("MovementManager");
+			movementManagerType["setMaximumVelocity"] = & MovementHandler::setMaximumVelocity;
+			movementManagerType["setBaseSpeed"] = & MovementHandler::setBaseSpeed;
+			movementManagerType["setMaximumForce"] = & MovementHandler::setMaximumForce;
+			movementManagerType["accelerate"] = & MovementHandler::accelerate;
+			movementManagerType["resetAcceleration"] = & MovementHandler::resetAcceleration;
+			movementManagerType["flee"] = & MovementHandler::flee;
+			movementManagerType["arrival"] = & MovementHandler::arrival;
+			movementManagerType["pursuit"] = & MovementHandler::pursuit;
+			movementManagerType["evade"] = & MovementHandler::evade;
+			movementManagerType["stop"] = & MovementHandler::stop;
+			movementManagerType["displace"] = & MovementHandler::displace;
+			movementManagerType["avoidObstacles"] = & MovementHandler::avoidObstacles;
+			movementManagerType["directMovement"] = & MovementHandler::directMovement;
+			movementManagerType["slowDown"] = & MovementHandler::slowDown;
+			movementManagerType["resetAcceleration"] = & MovementHandler::resetAcceleration;
 
             state.registerUsertype<SteeringComponent<script::Environment>>("Steering",
                                                    "isActive", &SteeringComponent<script::Environment>::isActive);
@@ -104,7 +104,7 @@ namespace ungod
             state.registerFunction("displace",
                                        [] () -> std::function< void(Entity, MovementManager&, const script::Environment&) >
                                        {
-                                            return [] (Entity e, MovementManager& mvm, const script::Environment& parameters)
+                                            return [] (Entity e, MovementHandler& mvm, const script::Environment& parameters)
                                             {
                                                 mvm.displace( e,
                                                             detail::unpackParameter<float>(parameters, "speed"),
@@ -116,7 +116,7 @@ namespace ungod
             state.registerFunction("evade",
                                        [] () -> std::function< void(Entity, MovementManager&, const script::Environment&) >
                                        {
-                                            return [] (Entity e, MovementManager& mvm, const script::Environment& parameters)
+                                            return [] (Entity e, MovementHandler& mvm, const script::Environment& parameters)
                                             {
                                                 mvm.evade( e,
                                                             detail::unpackParameter<Entity>(parameters, "target"),
@@ -129,7 +129,7 @@ namespace ungod
             state.registerFunction("pursuit",
                                     []() -> std::function< void(Entity, MovementManager&, const script::Environment&) >
                                     {
-                                        return [](Entity e, MovementManager& mvm, const script::Environment& parameters)
+                                        return [](Entity e, MovementHandler& mvm, const script::Environment& parameters)
                                         {
                                             mvm.pursuit(e,
                                                 detail::unpackParameter<Entity>(parameters, "target"),
@@ -142,7 +142,7 @@ namespace ungod
             state.registerFunction("flee",
                                        [] () -> std::function< void(Entity, MovementManager&, const script::Environment&) >
                                        {
-                                            return [] (Entity e, MovementManager& mvm, const script::Environment& parameters)
+                                            return [] (Entity e, MovementHandler& mvm, const script::Environment& parameters)
                                             {
                                                 mvm.flee( e,
                                                             detail::unpackParameter<sf::Vector2f>(parameters, "position"),
@@ -154,7 +154,7 @@ namespace ungod
             state.registerFunction("arrival",
                                        [] () -> std::function< void(Entity, MovementManager&, const script::Environment&) >
                                        {
-                                            return [] (Entity e, MovementManager& mvm, const script::Environment& parameters)
+                                            return [] (Entity e, MovementHandler& mvm, const script::Environment& parameters)
                                             {
                                                 mvm.arrival( e,
                                                             detail::unpackParameter<sf::Vector2f>(parameters, "position"),
@@ -167,7 +167,7 @@ namespace ungod
             state.registerFunction("seek",
                                        [] () -> std::function< void(Entity, MovementManager&, const script::Environment&) >
                                        {
-                                            return [] (Entity e, MovementManager& mvm, const script::Environment& parameters)
+                                            return [] (Entity e, MovementHandler& mvm, const script::Environment& parameters)
                                             {
                                                 mvm.seek( e, detail::unpackParameter<sf::Vector2f>(parameters, "position"), detail::unpackParameter<float>(parameters, "speed"));
                                             };
@@ -177,7 +177,7 @@ namespace ungod
             state.registerFunction("directMovement",
                                        [] () -> std::function< void(Entity, MovementManager&, const script::Environment&) >
                                        {
-                                            return [] (Entity e, MovementManager& mvm, const script::Environment& parameters)
+                                            return [] (Entity e, MovementHandler& mvm, const script::Environment& parameters)
                                             {
                                                 mvm.directMovement( e, detail::unpackParameter<sf::Vector2f>(parameters, "vec"));
                                             };

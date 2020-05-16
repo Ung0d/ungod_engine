@@ -145,6 +145,7 @@ namespace ungod
     class EntityBehaviorComponent : public Serializable<EntityBehaviorComponent>
     {
     friend class EntityBehaviorManager;
+    friend struct DeserialBehavior<EntityBehaviorComponent, Entity, World&>;
     private:
         StateBehaviorPtr<> mBehavior;
 
@@ -216,7 +217,14 @@ namespace ungod
         ON_AI_GET_STATE, ON_AI_ACTION
     };
 
-    constexpr const char*[] IDENTIFIERS = { "onInit", "onExit", "onCreation", "onDestruction",
+    class EntityBehaviorHandler;
+
+    using ScriptQueues = std::unordered_map< EntityBehaviorHandler*, std::queue<std::pair<Entity, std::string>> >;
+
+    class EntityBehaviorManager
+    {
+    friend class EntityBehaviorHandler;
+    static constexpr const char* IDENTIFIERS[] = { "onInit", "onExit", "onCreation", "onDestruction",
                                             "onStaticConstr", "onStaticDestr",
                                             "onSerialize", "onDeserialize",
                                             "onCollisionEnter", "onCollision", "onCollisionExit",
@@ -226,17 +234,9 @@ namespace ungod
                                             "onMovementBegin", "onMovementEnd", "onDirectionChanged",
                                             "onAnimationBegin", "onAnimationFrame", "onAnimationEnd",
                                             "onCustomEvent",
-                                            "onAIGetState", "onAIAction" };
-
-    class EntityBehaviorManager
-    {
+                                                "onAIGetState", "onAIAction" };
     public:
-        EntityBehaviorManager();
-
-        EntityBehaviorManager(const script::SharedState& state, script::Environment main);
-
-        /** \brief Initializes the manager. */
-        void init(World& world, ungod::Application& app);
+        EntityBehaviorManager(Application& app);
 
         /** \brief Loads a new entity behavior script. The script is stored with the filename of the script as key (without path and file-extentions). */
         ScriptErrorCode loadBehaviorScript(const std::string& filepath);
@@ -250,14 +250,19 @@ namespace ungod
 
         /** \brief Reloads all scripts and reassigns the behaviors to their corresponding entities.
         * Returns a list of all reloaded script files along with the error codes. */
-        std::vector<std::pair<std::string, ScriptErrorCode>> reload(ungod::Application& app);
+        std::vector<std::pair<std::string, ScriptErrorCode>> reload(const script::SharedState& state, script::Environment main);
 
-        /** \brief Reloads all scripts and reassigns the behaviors to their corresponding entities.
-        * Returns a list of all reloaded script files along with the error codes. */
-        std::vector<std::pair<std::string, ScriptErrorCode>> reload(ungod::Application& app, const script::SharedState& state, script::Environment main);
+        ~EntityBehaviorManager();
 
     private:
         BehaviorManager<> mBehaviorManager;
+        owls::Signal<const ScriptQueues&> mReloadSignal;
+        owls::Signal<ScriptQueues&> mDissociateSignal;
+        owls::SignalLink<void> mScriptStateChangedLink;
+
+    private:
+        owls::SignalLink<void, const ScriptQueues&> onReloadSignal(const std::function<void(const ScriptQueues&)>& callback);
+        owls::SignalLink<void, ScriptQueues&> onDissociateSignal(const std::function<void(ScriptQueues&)>& callback);
     };
 
 
@@ -267,7 +272,10 @@ namespace ungod
     class EntityBehaviorHandler
     {
     public:
-        EntityBehaviorHandler(const EntityBehaviorManager& entityBehaviorManager);
+        EntityBehaviorHandler();
+
+        /** \brief Initializes the manager. */
+        void init(World& world);
 
         /** \brief Updates the manager and may invoke onUpdate scripts of entities. */
         void update(const std::list<Entity>& entities, float delta);
@@ -292,11 +300,14 @@ namespace ungod
         /** \brief Registers an arbitrary callable as a listener to an event type. */
         script::EventListenerLink addEventListener(const script::ProtectedFunc& func, const std::string& eventType);
 
+        ~EntityBehaviorHandler();
+
     private:
-        const EntityBehaviorManager& mEntityBehaviorManager;
-        World* mWorld;
+        const World* mWorld;
         std::unordered_set<Entity> mMetaEntities; ///< stores entities with no transform components (at the time of script assignment) in order to process them
         script::EventHandler mEventHandler;
+        owls::SignalLink<void, ScriptQueues&> mDissociateLink;
+        owls::SignalLink<void, const ScriptQueues&> mReloadLink;
 
     private:
         void entityCreation(Entity e) const;
@@ -307,10 +318,8 @@ namespace ungod
         void buttonPressed(const std::string& binding) const;
         void buttonDown(const std::string& binding) const;
         void buttonReleased(const std::string& binding) const;
-
-        void scriptInternalInit(ungod::Application& app);
-        void scriptInternalReassign();
-        void scriptInternalDissociate();
+        void scriptInternalReassign(const ScriptQueues& toReload);
+        void scriptInternalDissociate(ScriptQueues& toReload, const World& world);
 
         template<typename ... PARAM>
         void callbackInvoker(std::size_t index, Entity e, PARAM&& ... param)
