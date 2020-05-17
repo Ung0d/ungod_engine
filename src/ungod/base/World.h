@@ -48,6 +48,7 @@
 #include "ungod/visual/RenderLayer.h"
 #include "ungod/application/ScriptedGameState.h"
 #include "ungod/content/tilemap/TileMapHandler.h"
+#include "ungod/content/water/WaterHandler.h"
 #include "ungod/base/ComponentSignalBase.h"
 #include "ungod/content/EntityTypes.h"
 #include "ungod/content/particle_system/ParticleComponent.h"
@@ -239,9 +240,13 @@ namespace ungod
         LightHandler& getLightHandler() { return mLightHandler; }
         const LightHandler& getLightHandler() const { return mLightHandler; }
 
-        /** \brief For handling tilemaps and water. */
+        /** \brief For handling tilemaps. */
         TileMapHandler& getTileMapHandler() { return mTileMapHandler; }
         const TileMapHandler& getTileMapHandler() const { return mTileMapHandler; }
+
+        /** \brief For handling water. */
+        WaterHandler& getWaterHandler() { return mWaterHandler; }
+        const WaterHandler& getWaterHandler() const { return mWaterHandler; }
 
 
 
@@ -281,10 +286,10 @@ namespace ungod
         quad::PullResult<Entity> getEntitiesNearby(Entity e) const;
 
         /** \brief Notifies the world that the given entity was serialized. */
-        void notifySerialized(Entity e, MetaNode serializer, SerializationContext& context);
+        void notifySerialized(Entity e);
 
         /** \brief Notifies the world that the given entity was deserialized. */
-        void notifyDeserialized(Entity e, MetaNode serializer, DeserializationContext& context);
+        void notifyDeserialized(Entity e);
 
         /** \brief Performs the given functor for all entities in the world with the given set of components. */
         template<typename ... C, typename F>
@@ -331,6 +336,7 @@ namespace ungod
         SoundHandler mSoundHandler;
         LightHandler mLightHandler;
         TileMapHandler mTileMapHandler;
+        WaterHandler mWaterHandler;
 
         ParticleSystemManager mParticleSystemManager;
         ParentChildManager mParentChildManager;
@@ -567,7 +573,7 @@ namespace ungod
         mDeserialMap.emplace( SerialIdentifier<Instantiation>::get(), [this] (DeserializationContext& context, MetaNode deserializer)
         {
             std::vector<Entity> entities;
-            context.first( context.deserializeObjectContainer<Entity, World&, const Application&>(
+            context.first( context.deserializeObjectContainer<Entity, DeserialQueues&>(
                                 [&entities, this] (std::size_t init)
                                 {
                                     entities.reserve(init);
@@ -576,7 +582,7 @@ namespace ungod
                                             entities.emplace_back(std::move(std::move(e)), BaseComponents<BASE...>(), OptionalComponents<OPTIONAL...>());
                                         });
                                 },
-                                [&entities] (std::size_t i) -> Entity& { return entities[i]; }, *this, BaseComponents<BASE...>(), OptionalComponents<OPTIONAL...>()),
+                                [&entities] (std::size_t i) -> Entity& { return entities[i]; }, deserialqueues, BaseComponents<BASE...>(), OptionalComponents<OPTIONAL...>()),
                             SerialIdentifier<Instantiation>::get(), deserializer );
 
 

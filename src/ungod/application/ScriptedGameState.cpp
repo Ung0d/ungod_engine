@@ -27,7 +27,6 @@
 #include "ungod/application/Application.h"
 #include "ungod/script/CustomEvent.h"
 #include "ungod/base/World.h"
-#include "ungod/content/EntityTypes.h"
 #include "ungod/serialization/DeserialInit.h"
 
 namespace ungod
@@ -46,6 +45,7 @@ namespace ungod
             mDebugColliders(true),
             mDebugAudioEmitters(true),
             mDebugLightEmitters(true),
+            mRenderer(mApp),
             mEntityBehaviorManager(mApp),
             mLightManager(mApp)
     {
@@ -64,6 +64,7 @@ namespace ungod
             mDebugColliders(true),
             mDebugAudioEmitters(true),
             mDebugLightEmitters(true),
+            mRenderer(mApp),
             mEntityBehaviorManager(mApp),
             mLightManager(mApp)
     {

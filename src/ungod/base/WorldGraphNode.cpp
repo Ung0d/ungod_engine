@@ -111,22 +111,15 @@ namespace ungod
             {
                 mLoadingInProcess = false;
                 mIsLoaded = true;
-                Logger::info("Loaded node:", getIdentifier());
                 //init loaded worlds
                 for (unsigned i = 0; i < mChunk.get().container.getVector().size(); i++)
                 {
-                    getWorld(i)->init(mGamestate);
+                    mChunk.get().container.getWorld(i)->init(mGamestate);
                     mLayer.registerLayer(mChunk.get().container.getVector()[i].first);
                 }
-                //run queued scripts
-                while (!mChunk.get().scriptEntities.empty())
-                {
-                    mChunk.get().scriptEntities.front();
-
-                    mChunk.get().scriptEntities.pop();
-                }
-                //emit entity creation signals
+                mChunk.get().memory.finalize();
                 mChunk.drop();
+                Logger::info("Loaded node:", getIdentifier());
             }
         else if (mIsLoaded)
             mLayers.update(delta, mGamestate.getCamera());

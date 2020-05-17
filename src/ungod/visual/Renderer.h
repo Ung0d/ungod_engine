@@ -44,7 +44,7 @@ namespace ungod
     class Renderer
     {
     public:
-        Renderer() = default;
+        Renderer(Application& app);
 
         /** \brief Computes a new list of entities that intersect the render area. */
         void renewRenderlist(sf::RenderTarget& target, quad::PullResult<Entity>& pull) const;
@@ -80,30 +80,34 @@ namespace ungod
 
         /** \brief Renders an entity to the render target. The flip flag indicates whether the entity is rendering
         * is mirrored in y direction. This is used in water reflection-rendering. */
-        static void renderEntity(Entity e, TransformComponent& transf, VisualsComponent& vis, sf::RenderTarget& target, sf::RenderStates states, bool flip = false, float offsety = 0.0f);
+        void renderEntity(Entity e, TransformComponent& transf, VisualsComponent& vis, sf::RenderTarget& target, sf::RenderStates states, bool flip = false, float offsety = 0.0f);
 
         /** \brief Draws the bounds the given entity. */
-        static void renderBounds(const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states);
+        void renderBounds(const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states);
 
         /** \brief Draws the texture rects the given entity. */
-        static void renderTextureRects(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states);
+        void renderTextureRects(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states);
 
         /** \brief Draws the texture rects the given entity. */
-        static void renderParticleSystemBounds(Entity e, const TransformComponent& transf, const ParticleSystemComponent& ps, sf::RenderTarget& target, sf::RenderStates states);
+        void renderParticleSystemBounds(Entity e, const TransformComponent& transf, const ParticleSystemComponent& ps, sf::RenderTarget& target, sf::RenderStates states);
 
         /** \brief Draws the collider-bounds the given entity. */
         template<std::size_t CONTEXT = 0>
-        static void renderCollider(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, 
+        void renderCollider(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, 
                                     sf::RenderTarget& target, sf::RenderStates states, 
                                     const sf::Color& outlineCol, const sf::Color& fillCol = sf::Color::Transparent);
 
         /** \brief Renders a audio emitter entity. */
-        static void renderAudioEmitter(Entity e, const TransformComponent& transf, MusicEmitterComponent& emitter, sf::RenderTarget& target, sf::RenderStates states);
+        void renderAudioEmitter(Entity e, const TransformComponent& transf, MusicEmitterComponent& emitter, sf::RenderTarget& target, sf::RenderStates states);
 
         /** \brief Renders the origin and the range of a light. */
-        static void renderLightDebug(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states);
+        void renderLightDebug(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states);
 
         static constexpr float INNER_RECT_PERCENTAGE = 0.1f;
+
+    private:
+        sf::RenderTexture mWaterTex;
+        bool mShowWater;
 
     private:
         void updateAnimation(Entity e, AnimationComponent& animation, float delta);

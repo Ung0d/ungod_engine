@@ -30,6 +30,15 @@
 
 namespace ungod
 {
+    Renderer::Renderer(Application& app) : mShowWater(false)
+    {
+        mShowWater = mWaterTex.create(app.getWindow().getSize().x, app.getWindow().getSize().y);
+        app.onTargetSizeChanged([this](const sf::Vector2u& targetsize)
+            {
+                mShowWater = mWaterTex.create(app.getWindow().getSize().x, app.getWindow().getSize().y);
+            });
+    }
+
     void Renderer::renewRenderlist(sf::RenderTarget& target, quad::PullResult<Entity>& pull) const
     {
         //first step: retrieve the entities that may collide with the window
@@ -88,14 +97,11 @@ namespace ungod
       states.transform.translate(0.0f, offsety);
       states.texture = &vis.getTexture();
 
-      if (e.has<WaterComponent>())
-      {
-          e.modify<WaterComponent>().mWater.render(target, states, e.getWorld());
-      }
       if (e.has<TileMapComponent>())
-      {
-          e.modify<TileMapComponent>().mTileMap.render(target, states);
-      }
+          if (e.has<WaterComponent>())
+              e.get<WaterComponent>().mWater.render(target, mWaterTex, e.get<TileMapComponent>().mTileMap, &vis.getTexture(), states, e.getWorld());
+          else
+              e.get<TileMapComponent>().mTileMap.render(target, &vis.getTexture(), states);
 
       if (vis.isVisible() && vis.isLoaded())
       {

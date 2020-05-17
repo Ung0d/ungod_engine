@@ -30,6 +30,7 @@
 #include "ungod/serialization/SerialComponents.h"
 #include "ungod/application/Application.h"
 #include "ungod/application/ScriptedGameState.h"
+#include "ungod/content/EntityTypes.h"
 
 namespace ungod
 {
@@ -52,7 +53,7 @@ namespace ungod
         mSoundHandler(),
         mLightHandler(),
         mTileMapHandler(),
-
+        WaterHandler(),
         mParentChildManager(*this),
         mRenderLight(true)
     {
@@ -68,17 +69,8 @@ namespace ungod
         mListener = std::unique_ptr<AudioListener>(new CameraListener(master.getCamera(), world*this));
         mMusicEmitterMixer.init(mListener.get());
         mSoundHandler.init(master.getApp().getSoundProfileManager(), mListener.get());
-        mTileMapRenderer.init(master.getApp(), this);
-    }
-
-
-
-
-    RenderLayerPtr ScriptedGameState::makeWorld()
-    {
-        World* world = new World(mApp->getScriptState(), mApp->getGlobalScriptEnv(), this);
-
-        
+        mTileMapHandler.init(*this);
+        mWaterHandler.init(*this);
 
         //set up signal callbacks
         world->getTransformManager().onPositionChanged([this](Entity e, const sf::Vector2f& position) { mScriptCallbacks.execute(ON_POSITION_CHANGED, this, e, position); });
@@ -105,39 +97,9 @@ namespace ungod
 
 
         //register instantiations for deserialization
-        registerTypes(*world);
+        registerTypes(*this);
 
-        return RenderLayerPtr{ world };
-    }
 
-    World::World(const script::SharedState& cState, script::Environment cMain, ScriptedGameState* master) :
-        mMaster(master),
-        mBehaviorManager(cState, cMain),
-        mQuadTree(),
-        mVisualsManager(),
-        mRenderer(*this, mVisualsManager),
-        mTransformManager(mQuadTree),
-        mMovementCollisionManager(mQuadTree),
-        mSemanticsCollisionManager(mQuadTree),
-        mMovementManager(mQuadTree, mTransformManager),
-        mSteeringManager(),
-        mPathPlanner(),
-        mInputManager(mQuadTree, this),
-        mAudioManager(master, *this),
-        mLightSystem(),
-        mTileMapRenderer(*master->getApp(), *this),
-        mParentChildManager(*this),
-        mRenderLight(true)
-    {
-    }
-
-    void World::instantiate(Application& app,
-                            const std::string& unshadowVertex,
-                            const std::string& unshadowFragment,
-                            const std::string& lightVertex,
-                            const std::string& lightFragment,
-                            const std::string& penumbraTex)
-    {
         //connect signals
         mVisualsManager.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
                                           {

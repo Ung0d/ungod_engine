@@ -302,41 +302,26 @@ namespace ungod
         ungod::Logger::warning("Missing at least one mandatory node when trying to deserialize an entity. Skipping that entity.");
     }
 
-    inline void SerialBehavior< Entity, const World& >::
-        serialize(const Entity& data, MetaNode serializer, SerializationContext& context, const World& world)
-    {
-        data.mInstantiation->serialize(serializer, context, Entity(data), world);
 
-        //context.serializeObject<InstantiationBase,Entity, const World&, const Application&>("i", *data.mInstantiation, serializer, Entity(data), world, app);
-        //world.notifySerialized(data, serializer, context);
+    inline void SerialBehavior< Entity >::
+        serialize(const Entity& data, MetaNode serializer, SerializationContext& context)
+    {
+        data.mInstantiation->serialize(serializer, context, Entity(data));
     }
 
     template<typename ... BASE, typename ... OPTIONAL>
-    inline void DeserialBehavior< Entity, World&, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >::
-        deserialize(Entity& data, MetaNode deserializer, DeserializationContext& context, World& world,
+    inline void DeserialBehavior< Entity, DeserialQueues&, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >::
+        deserialize(Entity& data, MetaNode deserializer, DeserializationContext& context, DeserialQueues& deserialqueues,
                     BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>)
     {
-        DeserialBehavior<EntityInstantiation<BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>>, Entity, World&>::
+        DeserialBehavior<EntityInstantiation<BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>>, Entity, DeserialQueues&>::
             deserialize(static_cast<EntityInstantiation<BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>>&>(*data.getInstantiation()),
-                        deserializer, context, Entity(data), world);
-
-        /*context.first(
-            context.deserializeObject<EntityInstantiation<BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>>, Entity, World&, const Application&>
-                (static_cast<EntityInstantiation<BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>>&>(*data.getInstantiation()),
-                 Entity(data), world, app),
-                      "i", deserializer);*/
-        world.notifyDeserialized(data, deserializer, context);
+                        deserializer, context, Entity(data), deserialqueues);
+        deserialqueues.all.emplace(data);
     }
 
     inline std::uintptr_t SerialID<Entity>::get(const Entity& t)
     {
         return reinterpret_cast<std::uintptr_t>(&t.getHandle().getEntityData());
     }
-
-   /* inline void DeserialBehavior< Entity, World& >::
-        deserialize(Entity& data, MetaNode deserializer, DeserializationContext& context, World& world)
-    {
-        context.getPolymorphicUniqueProperty<InstantiationBase, Entity, World&>(data.mInstantiation, "instantiation", deserializer, Entity(data), world);
-        world.notifyDeserialized(data, deserializer, context);
-    }*/
 }

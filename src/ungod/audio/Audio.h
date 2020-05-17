@@ -208,7 +208,7 @@ namespace ungod
         SoundHandler(SoundHandler const&) = delete;
         SoundHandler& operator=(SoundHandler const&) = delete;
 
-        void init(SoundProfileManager& soundprofilemngr, const AudioListener* listener)
+        void init(SoundProfileManager& soundprofilemngr, const AudioListener* listener);
 
         /** \brief Connects the given sound profile with the given entity. */
         void connectProfile(Entity e, const std::string& profileKey);

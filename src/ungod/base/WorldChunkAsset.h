@@ -28,17 +28,16 @@
 
 #include "ungod/ressource_management/Asset.h"
 #include "ungod/visual/RenderLayer.h"
+#include "ungod/serialization/DeserialMemory.h"
 
 namespace ungod
 {
     class Entity; 
 
-    using ScriptQueue = std::queue<std::pair<Entity, std::string>>;
-
     struct WorldChunkData
     {
         RenderLayerContainer container;
-        ScriptQueue scriptEntities;
+        DeserialMemory memory;
     };
 
     using WorldChunk = Asset<WorldChunkData>;

@@ -33,7 +33,7 @@ namespace ungod
     /// transform //////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    void SerialBehavior<TransformComponent, Entity, const World&>::serialize(const TransformComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<TransformComponent, Entity>::serialize(const TransformComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         context.serializeProperty("t_x", data.mTransform.getPosition().x, serializer);
         context.serializeProperty("t_y", data.mTransform.getPosition().y, serializer);
@@ -47,7 +47,7 @@ namespace ungod
         //we dont need to serialize the lower and upper bounds, since it is just an internal value that is automatically set depending on attached contents
     }
 
-    void DeserialBehavior<TransformComponent, Entity, World&>::deserialize(TransformComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<TransformComponent, Entity, DeserialMemory&>::deserialize(TransformComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         auto result = deserializer.getAttributes<float, float, float, float, float>
                         ( {"t_x", 0.0f}, {"t_y", 0.0f}, {"scale", 1.0f}, {"baseline_x", 1.0f}, {"baseline_y", 0.0f});
@@ -63,7 +63,7 @@ namespace ungod
     /// movement ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    void SerialBehavior<MovementComponent, Entity, const World&>::serialize(const MovementComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<MovementComponent, Entity>::serialize(const MovementComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         if (data.getVelocity().x != 0.0f)
             context.serializeProperty("vel_x", data.getVelocity().x, serializer);
@@ -77,7 +77,7 @@ namespace ungod
             context.serializeProperty("direction", static_cast<std::underlying_type<MovementComponent::Direction>::type>(data.mDirection), serializer);
     }
 
-    void DeserialBehavior<MovementComponent, Entity, World&>::deserialize(MovementComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world)
+    void DeserialBehavior<MovementComponent, Entity, DeserialMemory&>::deserialize(MovementComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         auto result = deserializer.getAttributes<float, float, float, float, std::underlying_type<MovementComponent::Direction>::type>
                         ( {"vel_x", 0.0f}, {"vel_y", 0.0f},
@@ -90,26 +90,26 @@ namespace ungod
     }
 
 
-    void SerialBehavior<SteeringComponent<script::Environment>, Entity, const World&>::serialize(const SteeringComponent<script::Environment>& data, MetaNode serializer, SerializationContext& context, Entity, const World& world)
+    void SerialBehavior<SteeringComponent<script::Environment>, Entity>::serialize(const SteeringComponent<script::Environment>& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         //context.serializeProperty("active", data.mActive, serializer);
         //context.serializeProperty("pattern", data.mSteeringPattern->getIdentifier(), serializer);
     }
 
-    void DeserialBehavior<SteeringComponent<script::Environment>, Entity, World&>::deserialize(SteeringComponent<script::Environment>& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world)
+    void DeserialBehavior<SteeringComponent<script::Environment>, Entity, DeserialMemory&>::deserialize(SteeringComponent<script::Environment>& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         /* auto result = deserializer.getAttributes<bool, std::string>
                         ( {"active", false}, {"pattern", ""});
-        world.getSteeringManager().connectPattern()
+        e.getWorld().getSteeringManager().connectPattern()
         data.mActive = std::get<0>(result); */
     }
 
 
-    void SerialBehavior<PathFinderComponent, Entity, const World&>::serialize(const PathFinderComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World& world)
+    void SerialBehavior<PathFinderComponent, Entity>::serialize(const PathFinderComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
     }
 
-    void DeserialBehavior<PathFinderComponent, Entity, World&>::deserialize(PathFinderComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world)
+    void DeserialBehavior<PathFinderComponent, Entity, DeserialMemory&>::deserialize(PathFinderComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
     }
 
@@ -117,19 +117,19 @@ namespace ungod
     /// audio ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    void SerialBehavior<SoundEmitterComponent, Entity, const World&>::serialize(const SoundEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<SoundEmitterComponent, Entity>::serialize(const SoundEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         //context.serializeProperty("key", data.mProfile.getKey(), serializer);
     }
 
-    void DeserialBehavior<SoundEmitterComponent, Entity, World&>::deserialize(SoundEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<SoundEmitterComponent, Entity, DeserialMemory&>::deserialize(SoundEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         //std::string key = deserializer.getAttribute<std::string>("key", "");
-        //world.getAudioManager().connectProfile(data, key);
+        //e.getWorld().getAudioManager().connectProfile(data, key);
     }
 
 
-    void SerialBehavior<MusicEmitterComponent, Entity, const World&>::serialize(const MusicEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<MusicEmitterComponent, Entity>::serialize(const MusicEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         if (data.mMusicData.loaded)
             context.serializeProperty("file", data.mMusicData.filepath, serializer);
@@ -144,15 +144,15 @@ namespace ungod
             context.serializeProperty("a", data.mActive, serializer);
     }
 
-    void DeserialBehavior<MusicEmitterComponent, Entity, World&>::deserialize(MusicEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<MusicEmitterComponent, Entity, DeserialMemory&>::deserialize(MusicEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         auto result = deserializer.getAttributes<std::string, float, float, bool>(
             {"file", ""}, {"dc", MusicEmitterComponent::DEFAULT_DISTANCE_CAP}, {"vol", 100.0f}, {"a", true} );
         if (std::get<0>(result) != "")
-            world.getAudioManager().getMusicEmitterMixer().loadMusic(e, std::get<0>(result));
-        world.getAudioManager().getMusicEmitterMixer().setDistanceCap(e, std::get<1>(result));
-        world.getAudioManager().getMusicEmitterMixer().setEmitterVolume(e, std::get<2>(result));
-        world.getAudioManager().getMusicEmitterMixer().setEmitterActive(e, std::get<3>(result));
+            e.getWorld().getAudioManager().getMusicEmitterMixer().loadMusic(e, std::get<0>(result));
+        e.getWorld().getAudioManager().getMusicEmitterMixer().setDistanceCap(e, std::get<1>(result));
+        e.getWorld().getAudioManager().getMusicEmitterMixer().setEmitterVolume(e, std::get<2>(result));
+        e.getWorld().getAudioManager().getMusicEmitterMixer().setEmitterActive(e, std::get<3>(result));
     }
 
 
@@ -160,7 +160,7 @@ namespace ungod
     /// visuals ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    void SerialBehavior<VisualsComponent, Entity, const World&>::serialize(const VisualsComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<VisualsComponent, Entity>::serialize(const VisualsComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         context.serializeProperty("filepath", data.mImage.getFilePath(), serializer);
         if (!data.mVisible)
@@ -169,15 +169,15 @@ namespace ungod
             context.serializeProperty("hide4cam", data.mVisible, serializer);
     }
 
-    void DeserialBehavior<VisualsComponent, Entity, World&>::deserialize(VisualsComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<VisualsComponent, Entity, DeserialMemory&>::deserialize(VisualsComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         auto result = deserializer.getAttributes<std::string, bool, bool>({"filepath", ""}, {"visible", true}, {"hide4cam", false});
-        world.getVisualsManager().loadTexture(data, std::get<0>(result), LoadPolicy::ASYNC);
-        world.getVisualsManager().setVisible(e, std::get<1>(result));
-        world.getVisualsManager().setHideForCamera(e, std::get<2>(result));
+        e.getWorld().getVisualsManager().loadTexture(data, std::get<0>(result), LoadPolicy::ASYNC);
+        e.getWorld().getVisualsManager().setVisible(e, std::get<1>(result));
+        e.getWorld().getVisualsManager().setHideForCamera(e, std::get<2>(result));
     }
 
-    void SerialBehavior<VertexArrayComponent, Entity, const World&>::serialize(const VertexArrayComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<VertexArrayComponent, Entity>::serialize(const VertexArrayComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         context.serializeProperty("rect_count", data.mVertices.textureRectCount(), serializer);
 
@@ -233,11 +233,11 @@ namespace ungod
         }
     }
 
-    void DeserialBehavior<VertexArrayComponent, Entity, World&>::deserialize(VertexArrayComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<VertexArrayComponent, Entity, DeserialMemory&>::deserialize(VertexArrayComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         auto result = deserializer.getAttributes<unsigned>({"rect_count", 0});
 
-        world.getVisualsManager().initTextureRects(e, std::get<0>(result));
+        e.getWorld().getVisualsManager().initTextureRects(e, std::get<0>(result));
 
         unsigned i = 0;
         forEachSubnode(deserializer, [&] (MetaNode texRectNode)
@@ -269,17 +269,17 @@ namespace ungod
                      {"b", sf::Color::White.b},
                      {"a", sf::Color::White.a});
 
-                world.getVisualsManager().setArrayTextureRect(e, i, key);
-                world.getVisualsManager().setPoints(e, data, i,
+                e.getWorld().getVisualsManager().setArrayTextureRect(e, i, key);
+                e.getWorld().getVisualsManager().setPoints(e, data, i,
                                                     { std::get<0>(rectData), std::get<1>(rectData) },
                                                     { std::get<0>(rectData2), std::get<1>(rectData2) },
                                                     { std::get<2>(rectData2), std::get<3>(rectData2) },
                                                     { std::get<4>(rectData2), std::get<5>(rectData2) });
-                world.getVisualsManager().setArrayRectColor(e, sf::Color{std::get<6>(rectData2), std::get<7>(rectData2), std::get<8>(rectData2), std::get<9>(rectData2)}, i);
+                e.getWorld().getVisualsManager().setArrayRectColor(e, sf::Color{std::get<6>(rectData2), std::get<7>(rectData2), std::get<8>(rectData2), std::get<9>(rectData2)}, i);
                 if (std::get<2>(rectData))
-                    world.getVisualsManager().flipVertexX(data, i);
+                    e.getWorld().getVisualsManager().flipVertexX(data, i);
                 if (std::get<3>(rectData))
-                    world.getVisualsManager().flipVertexY(data, i);
+                    e.getWorld().getVisualsManager().flipVertexY(data, i);
             }
             else
             {
@@ -298,17 +298,17 @@ namespace ungod
                      {"b", sf::Color::White.b},
                      {"a", sf::Color::White.a});
 
-                world.getVisualsManager().setArrayTextureRect(data, { (float)std::get<0>(rectData), (float)std::get<1>(rectData), (float)std::get<2>(rectData), (float)std::get<3>(rectData) }, i);
-                world.getVisualsManager().setPoints(e, data, i,
+                e.getWorld().getVisualsManager().setArrayTextureRect(data, { (float)std::get<0>(rectData), (float)std::get<1>(rectData), (float)std::get<2>(rectData), (float)std::get<3>(rectData) }, i);
+                e.getWorld().getVisualsManager().setPoints(e, data, i,
                                                     { std::get<4>(rectData), std::get<5>(rectData) },
                                                     { std::get<0>(rectData2), std::get<1>(rectData2) },
                                                     { std::get<2>(rectData2), std::get<3>(rectData2) },
                                                     { std::get<4>(rectData2), std::get<5>(rectData2) });
-                world.getVisualsManager().setArrayRectColor(e, sf::Color{std::get<6>(rectData2), std::get<7>(rectData2), std::get<8>(rectData2), std::get<9>(rectData2)}, i);
+                e.getWorld().getVisualsManager().setArrayRectColor(e, sf::Color{std::get<6>(rectData2), std::get<7>(rectData2), std::get<8>(rectData2), std::get<9>(rectData2)}, i);
                 if (std::get<2>(rectData))
-                    world.getVisualsManager().flipVertexX(data, i);
+                    e.getWorld().getVisualsManager().flipVertexX(data, i);
                 if (std::get<3>(rectData))
-                    world.getVisualsManager().flipVertexY(data, i);
+                    e.getWorld().getVisualsManager().flipVertexY(data, i);
             }
 
             //dont forget to increment!
@@ -317,7 +317,7 @@ namespace ungod
         }, "texrect");
     }
 
-    void SerialBehavior<SpriteComponent, Entity, const World&>::serialize(const SpriteComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World& world)
+    void SerialBehavior<SpriteComponent, Entity>::serialize(const SpriteComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         if (!data.mKey.empty())
         {
@@ -354,13 +354,13 @@ namespace ungod
             context.serializeProperty("flip_y", true, serializer);
     }
 
-    void DeserialBehavior<SpriteComponent, Entity, World&>::deserialize(SpriteComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<SpriteComponent, Entity, DeserialMemory&>::deserialize(SpriteComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         auto keyAttr = deserializer.firstAttribute("key");
 
         if (keyAttr && e.has<SpriteMetadataComponent>())
         {
-            world.getVisualsManager().setSpriteTextureRect(e, data, e.get<SpriteMetadataComponent>(), keyAttr.value() );
+            e.getWorld().getVisualsManager().setSpriteTextureRect(e, data, e.get<SpriteMetadataComponent>(), keyAttr.value() );
         }
         else
         {
@@ -371,59 +371,59 @@ namespace ungod
                 ungod::Logger::warning("Got texrect with dimensions {0,0,0,0} when deserializing a sprite.");
                 ungod::Logger::endl();
             }
-            world.getVisualsManager().setSpriteTextureRect(e, data, sf::FloatRect( std::get<0>(result), std::get<1>(result),
+            e.getWorld().getVisualsManager().setSpriteTextureRect(e, data, sf::FloatRect( std::get<0>(result), std::get<1>(result),
                                         std::get<2>(result), std::get<3>(result)) );
         }
 
         auto result = deserializer.getAttributes<float, float, float, float, float,float, float,bool,bool>(
                      {"pos_x", 0.0f},  {"pos_y", 0.0f}, {"scale_x", 1.0f}, {"scale_y", 1.0f}, {"rotation", 0.0f},
                      {"origin_x", 0.0f}, {"origin_y", 0.0f}, {"flip_x", false}, {"flip_y", false}  );
-        world.getVisualsManager().setSpritePosition(e, data, sf::Vector2f(std::get<0>(result), std::get<1>(result)));
-        world.getVisualsManager().setScale(e, data, {std::get<2>(result), std::get<3>(result)});
-        world.getVisualsManager().setRotation(e, data, std::get<4>(result));
-        world.getVisualsManager().setOrigin(e, data, sf::Vector2f(std::get<5>(result), std::get<6>(result)));
+        e.getWorld().getVisualsManager().setSpritePosition(e, data, sf::Vector2f(std::get<0>(result), std::get<1>(result)));
+        e.getWorld().getVisualsManager().setScale(e, data, {std::get<2>(result), std::get<3>(result)});
+        e.getWorld().getVisualsManager().setRotation(e, data, std::get<4>(result));
+        e.getWorld().getVisualsManager().setOrigin(e, data, sf::Vector2f(std::get<5>(result), std::get<6>(result)));
         if (std::get<7>(result))
-            world.getVisualsManager().flipSpriteX(data);
+            e.getWorld().getVisualsManager().flipSpriteX(data);
         if (std::get<8>(result))
-            world.getVisualsManager().flipSpriteY(data);
+            e.getWorld().getVisualsManager().flipSpriteY(data);
     }
 
-    void SerialBehavior<VisualAffectorComponent, Entity, const World&>::serialize(const VisualAffectorComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World& world)
+    void SerialBehavior<VisualAffectorComponent, Entity>::serialize(const VisualAffectorComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         context.serializeProperty("active", data.isActive(), serializer);
     }
 
-    void DeserialBehavior<VisualAffectorComponent, Entity, World&>::deserialize(VisualAffectorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world)
+    void DeserialBehavior<VisualAffectorComponent, Entity, DeserialMemory&>::deserialize(VisualAffectorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         data.setActive(deserializer.getAttribute<bool>("active", false));
     }
 
-    void SerialBehavior<SpriteMetadataComponent, Entity, const World&>::serialize(const SpriteMetadataComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<SpriteMetadataComponent, Entity>::serialize(const SpriteMetadataComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         context.serializeProperty("filepath", data.mMeta.getFilePath(), serializer);
     }
 
-    void DeserialBehavior<SpriteMetadataComponent, Entity, World&>::deserialize(SpriteMetadataComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<SpriteMetadataComponent, Entity, DeserialMemory&>::deserialize(SpriteMetadataComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         auto filepath = deserializer.getAttribute<std::string>("filepath", "");
-        world.getVisualsManager().loadMetadata(e, filepath);
+        e.getWorld().getVisualsManager().loadMetadata(e, filepath);
     }
 
-    void SerialBehavior<AnimationComponent, Entity, const World&>::serialize(const AnimationComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<AnimationComponent, Entity>::serialize(const AnimationComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         context.serializeProperty("running", data.mAnimation.isRunning(), serializer);
         context.serializeProperty("key", data.mAnimation.getKey(), serializer);
     }
 
-    void DeserialBehavior<AnimationComponent, Entity, World&>::deserialize(AnimationComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<AnimationComponent, Entity, DeserialMemory&>::deserialize(AnimationComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         auto result = deserializer.getAttributes<bool, std::string>
                 ({ "running", false }, {"key", ""});
-        world.getVisualsManager().setAnimationState(e, std::get<1>(result));
-        world.getVisualsManager().setRunning(e, std::get<0>(result));
+        e.getWorld().getVisualsManager().setAnimationState(e, std::get<1>(result));
+        e.getWorld().getVisualsManager().setRunning(e, std::get<0>(result));
     }
 
-    void SerialBehavior<BigSpriteComponent, Entity, const World&>::serialize(const BigSpriteComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<BigSpriteComponent, Entity>::serialize(const BigSpriteComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         context.serializeProperty("filepath", data.mBigImage.getFilePath(), serializer);
         if (!data.mVisible)
@@ -457,57 +457,51 @@ namespace ungod
         }
     }
 
-    void DeserialBehavior<BigSpriteComponent, Entity, World&>::deserialize(BigSpriteComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<BigSpriteComponent, Entity, DeserialMemory&>::deserialize(BigSpriteComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         auto result = deserializer.getAttributes<std::string, bool, float, float, float, float, float,float, float>(
                     {"filepath", ""}, {"visible", true},
                      {"pos_x", 0.0f},  {"pos_y", 0.0f}, {"scale_x", 1.0f}, {"scale_y", 1.0f}, {"rotation", 0.0f},
                      {"origin_x", 0.0f}, {"origin_y", 0.0f}  );
-        world.getVisualsManager().loadBigTexture(e, data, std::get<0>(result), LoadPolicy::ASYNC);
-        world.getVisualsManager().setBigSpriteVisibility(data, std::get<1>(result));
-        world.getVisualsManager().setBigSpritePosition(e, data, sf::Vector2f(std::get<2>(result), std::get<3>(result)));
-        world.getVisualsManager().setBigSpriteScale(e, data, {std::get<4>(result), std::get<5>(result)});
-        world.getVisualsManager().setBigSpriteRotation(e, data, std::get<6>(result));
-        world.getVisualsManager().setBigSpriteOrigin(e, data, sf::Vector2f(std::get<7>(result), std::get<8>(result)));
+        e.getWorld().getVisualsManager().loadBigTexture(e, data, std::get<0>(result), LoadPolicy::ASYNC);
+        e.getWorld().getVisualsManager().setBigSpriteVisibility(data, std::get<1>(result));
+        e.getWorld().getVisualsManager().setBigSpritePosition(e, data, sf::Vector2f(std::get<2>(result), std::get<3>(result)));
+        e.getWorld().getVisualsManager().setBigSpriteScale(e, data, {std::get<4>(result), std::get<5>(result)});
+        e.getWorld().getVisualsManager().setBigSpriteRotation(e, data, std::get<6>(result));
+        e.getWorld().getVisualsManager().setBigSpriteOrigin(e, data, sf::Vector2f(std::get<7>(result), std::get<8>(result)));
     }
 
 
-    void SerialBehavior<TileMapComponent, Entity, const World&>::serialize(const TileMapComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<TileMapComponent, Entity>::serialize(const TileMapComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         context.serializeObject("tilemap", data.getTileMap(), serializer);
     }
 
-    void DeserialBehavior<TileMapComponent, Entity, World&>::deserialize(TileMapComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<TileMapComponent, Entity, DeserialMemory&>::deserialize(TileMapComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         data.mTileMap.setMetaMap(e.get<SpriteMetaDataComponent>().getMetaMap());
         context.first(context.deserializeObject(data.mTileMap), "tilemap", deserializer);
     }
 
 
-    void SerialBehavior<WaterComponent, Entity, const World&>::serialize(const WaterComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<WaterComponent, Entity>::serialize(const WaterComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         context.serializeObject("water", data.getWater(), serializer, static_cast<const sf::RenderTarget&>(app.getWindow()));
     }
 
-    void DeserialBehavior<WaterComponent, Entity, World&>::deserialize(WaterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<WaterComponent, Entity, DeserialMemory&>::deserialize(WaterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
-        context.first(context.deserializeObject(data.mWater, static_cast<const sf::RenderTarget&>(app.getWindow())), "water", deserializer);
-
-        auto deserial = [&](Water& w) mutable
-        {
-            context.first(context.deserializeObject(w, static_cast<const sf::RenderTarget&>(app.getWindow())), "water", deserializer);
-        };
-        world.getTileMapRenderer().waterCallback(e, data, deserial);
+        context.first(context.deserializeObject(data.mWater), "water", deserializer);
     }
 
 
 
-    void SerialBehavior<ParticleSystemComponent, Entity, const World&>::serialize(const ParticleSystemComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<ParticleSystemComponent, Entity>::serialize(const ParticleSystemComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         context.serializeObject("ps", data.mParticleSystem.value(), serializer);
     }
 
-    void DeserialBehavior<ParticleSystemComponent, Entity, World&>::deserialize(ParticleSystemComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<ParticleSystemComponent, Entity, DeserialMemory&>::deserialize(ParticleSystemComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         context.first(context.deserializeObject(data.mParticleSystem.value()), "ps", deserializer);
     }
@@ -516,7 +510,7 @@ namespace ungod
     /// light ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    void SerialBehavior<ShadowEmitterComponent, Entity, const World&>::serialize(const ShadowEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<ShadowEmitterComponent, Entity>::serialize(const ShadowEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         context.serializeProperty("light_over_shape", data.mLightCollider.getLightOverShape(), serializer);
         context.serializeProperty("point_count", data.mLightCollider.getPointCount(), serializer);
@@ -528,21 +522,21 @@ namespace ungod
         }
     }
 
-    void DeserialBehavior<ShadowEmitterComponent, Entity, World&>::deserialize(ShadowEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<ShadowEmitterComponent, Entity, DeserialMemory&>::deserialize(ShadowEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         auto result = deserializer.getAttributes<bool, std::size_t>( {"light_over_shape", false}, {"point_count", 0u});
-        world.getLightSystem().setLightOverShape(data, std::get<0>(result));
-        world.getLightSystem().setPointCount(e, data, std::get<1>(result));
+        e.getWorld().getLightSystem().setLightOverShape(data, std::get<0>(result));
+        e.getWorld().getLightSystem().setPointCount(e, data, std::get<1>(result));
         std::size_t i = 0;
         forEachSubnode(deserializer, [&] (MetaNode sub)
         {
             auto coords = sub.getAttributes<float, float>( {"x", 0.0f}, {"y", 0.0f});
-            world.getLightSystem().setPoint(data, e, {std::get<0>(coords),std::get<1>(coords)}, i);
+            e.getWorld().getLightSystem().setPoint(data, e, {std::get<0>(coords),std::get<1>(coords)}, i);
             ++i;
         }, "point");
     }
 
-    void SerialBehavior<LightEmitterComponent, Entity, const World&>::serialize(const LightEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<LightEmitterComponent, Entity>::serialize(const LightEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         context.serializeProperty("r", data.mLight.getColor().r, serializer);
         context.serializeProperty("g", data.mLight.getColor().g, serializer);
@@ -559,7 +553,7 @@ namespace ungod
         context.serializeProperty("shadow_ext_mult", data.mLight.getShadowExtendMultiplier(), serializer);
     }
 
-    void DeserialBehavior<LightEmitterComponent, Entity, World&>::deserialize(LightEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<LightEmitterComponent, Entity, DeserialMemory&>::deserialize(LightEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         auto result = deserializer.getAttributes<uint8_t, uint8_t, uint8_t, std::string, bool,
                                                  float, float, float, float, float, float, float, float>
@@ -570,22 +564,22 @@ namespace ungod
                                       {"pos_x", 0.0f}, {"pos_y", 0.0f},
                                       {"source_x", 0.0f}, {"source_y", PointLight::DEFAULT_RADIUS},
                                       {"radius", 1.0f}, {"shadow_ext_mult", PointLight::DEFAULT_SHADOW_EXTEND_MULTIPLIER});
-        world.getLightSystem().setLightColor(data, { std::get<0>(result), std::get<1>(result), std::get<2>(result) });
-        world.getLightSystem().loadLightTexture(data, std::get<3>(result));
-        world.getLightSystem().setLightActive(data, std::get<4>(result));
-        world.getLightSystem().setLightScale(data, e, sf::Vector2f{ std::get<5>(result), std::get<6>(result) });
-        world.getLightSystem().setLocalLightPosition(data, e, sf::Vector2f{ std::get<7>(result), std::get<8>(result) });
-        world.getLightSystem().setLightOrigin(data, e, sf::Vector2f{ std::get<9>(result), std::get<10>(result) });
-        world.getLightSystem().setLightRadius(data, std::get<11>(result));
-        world.getLightSystem().setShadowExtendMultiplier(data, std::get<12>(result));
+        e.getWorld().getLightSystem().setLightColor(data, { std::get<0>(result), std::get<1>(result), std::get<2>(result) });
+        e.getWorld().getLightSystem().loadLightTexture(data, std::get<3>(result));
+        e.getWorld().getLightSystem().setLightActive(data, std::get<4>(result));
+        e.getWorld().getLightSystem().setLightScale(data, e, sf::Vector2f{ std::get<5>(result), std::get<6>(result) });
+        e.getWorld().getLightSystem().setLocalLightPosition(data, e, sf::Vector2f{ std::get<7>(result), std::get<8>(result) });
+        e.getWorld().getLightSystem().setLightOrigin(data, e, sf::Vector2f{ std::get<9>(result), std::get<10>(result) });
+        e.getWorld().getLightSystem().setLightRadius(data, std::get<11>(result));
+        e.getWorld().getLightSystem().setShadowExtendMultiplier(data, std::get<12>(result));
     }
 
-    void SerialBehavior<LightAffectorComponent, Entity, const World&>::serialize(const LightAffectorComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<LightAffectorComponent, Entity>::serialize(const LightAffectorComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
 
     }
 
-    void DeserialBehavior<LightAffectorComponent, Entity, World&>::deserialize(LightAffectorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<LightAffectorComponent, Entity, DeserialMemory&>::deserialize(LightAffectorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
 
     }
@@ -594,46 +588,46 @@ namespace ungod
     /// entity behavior ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    void SerialBehavior<EntityBehaviorComponent, Entity, const World&>::serialize(const EntityBehaviorComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<EntityBehaviorComponent, Entity>::serialize(const EntityBehaviorComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         if (data.valid())
             context.serializeProperty("n", data.getScriptName(), serializer);
     }
 
-    void DeserialBehavior<EntityBehaviorComponent, Entity, World&>::deserialize(
-        EntityBehaviorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, ScriptQueue& scriptEntities)
+    void DeserialBehavior<EntityBehaviorComponent, Entity, DeserialMemory&>::deserialize(
+        EntityBehaviorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         auto result = deserializer.getAttributes<std::string>{ "n", "" });
-        scriptEntities.emplace(e, std::get<0>(result));
+        deserialmemory.scriptEntities.push_front(e, std::get<0>(result));
 
     }
 
-    void SerialBehavior<EntityUpdateTimer, Entity, const World&>::serialize(const EntityUpdateTimer& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+    void SerialBehavior<EntityUpdateTimer, Entity>::serialize(const EntityUpdateTimer& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
     }
 
-    void DeserialBehavior<EntityUpdateTimer, Entity, World&>::deserialize(EntityUpdateTimer& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
-    {
-    }
-
-
-
-
-
-    void SerialBehavior<ParentComponent, Entity, const World&>::serialize(const ParentComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
-    {
-    }
-
-    void DeserialBehavior<ParentComponent, Entity, World&>::deserialize(ParentComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<EntityUpdateTimer, Entity, DeserialMemory&>::deserialize(EntityUpdateTimer& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
     }
 
 
-    void SerialBehavior<ChildComponent, Entity, const World&>::serialize(const ChildComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&)
+
+
+
+    void SerialBehavior<ParentComponent, Entity>::serialize(const ParentComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
     }
 
-    void DeserialBehavior<ChildComponent, Entity, World&>::deserialize(ChildComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+    void DeserialBehavior<ParentComponent, Entity, DeserialMemory&>::deserialize(ParentComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
+    {
+    }
+
+
+    void SerialBehavior<ChildComponent, Entity>::serialize(const ChildComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
+    {
+    }
+
+    void DeserialBehavior<ChildComponent, Entity, DeserialMemory&>::deserialize(ChildComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
     }
 }

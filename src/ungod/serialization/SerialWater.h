@@ -40,15 +40,15 @@ namespace ungod
     };
 
     template <>
-    struct SerialBehavior<Water, const sf::RenderTarget&>
+    struct SerialBehavior<Water>
     {
-        static void serialize(const Water& data, MetaNode serializer, SerializationContext& context, const sf::RenderTarget& target);
+        static void serialize(const Water& data, MetaNode serializer, SerializationContext& context);
     };
 
     template <>
-    struct DeserialBehavior<Water, const sf::RenderTarget&>
+    struct DeserialBehavior<Water>
     {
-        static void deserialize(Water& data, MetaNode deserializer, DeserializationContext& context, const sf::RenderTarget& target);
+        static void deserialize(Water& data, MetaNode deserializer, DeserializationContext& context);
     };
 }
 

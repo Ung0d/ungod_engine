@@ -26,7 +26,7 @@
 #ifndef UNGOD_TMBRUSH_H
 #define UNGOD_TMBRUSH_H
 
-#include "ungod/content/TileMap.h"
+#include "ungod/content/tilemap/TileMap.h"
 #include <unordered_map>
 #include <functional>
 #include <array>

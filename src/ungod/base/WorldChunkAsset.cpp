@@ -34,7 +34,7 @@ namespace ungod
         initContext(context);
         if (!context.read(filepath))
             return false;
-        context.deserializeRootObject(data.container, data.scriptEntities);
+        context.deserializeRootObject(data.container, data.memory);
         return true;
     }
 }

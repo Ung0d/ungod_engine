@@ -30,29 +30,29 @@
 
 namespace ungod
 {
-    void SerialBehavior<RenderLayer, const sf::RenderTarget&>::serialize(const RenderLayer& data, MetaNode serializer, SerializationContext& context)
+    void SerialBehavior<RenderLayer>::serialize(const RenderLayer& data, MetaNode serializer, SerializationContext& context)
     {
         context.serializeProperty("d", data.getRenderDepth(), serializer);
 		context.serializeProperty("n", data.getName(), serializer);
     }
 
-    void DeserialBehavior<RenderLayer, const sf::RenderTarget&, std::forward_list<Entity>&>::deserialize(
-        RenderLayer& data, MetaNode deserializer, DeserializationContext& context, std::forward_list<Entity>& scriptEntities)
+    void DeserialBehavior<RenderLayer, std::queue<std::pair<Entity, std::string>>&>::deserialize(
+        RenderLayer& data, MetaNode deserializer, DeserializationContext& context, std::queue<std::pair<Entity, std::string>>&)
     {
         auto attr = context.first(context.deserializeProperty([&data](float d) {data.setRenderDepth(d);}, 1.0f), "d", deserializer);
         context.next(context.deserializeProperty([&data](const std::string& s) {data.setName(s);}, std::string()), "n", deserializer, attr);
     }
 
 
-    void SerialBehavior<RenderLayerContainer, const ScriptedGameState&>::serialize(const RenderLayerContainer& data, MetaNode serializer, SerializationContext& context)
+    void SerialBehavior<RenderLayerContainer>::serialize(const RenderLayerContainer& data, MetaNode serializer, SerializationContext& context)
     {
 		context.serializeProperty("w", data.getSize().x, serializer);
 		context.serializeProperty("h", data.getSize().y, serializer);
         context.serializeObjectContainer<RenderLayer>("l", [&data] (std::size_t i) -> const RenderLayer& { return *data.getVector()[i].first.get(); }, data.getVector().size(), serializer, state.getApp().getWindow());
     }
 
-    void DeserialBehavior<RenderLayerContainer, const ScriptedGameState&, std::forward_list<Entity>&>::deserialize(
-        RenderLayerContainer& data, MetaNode deserializer, DeserializationContext& context, , std::forward_list<Entity>& scriptEntities)
+    void DeserialBehavior<RenderLayerContainer, DeserialQueues&>::deserialize(
+        RenderLayerContainer& data, MetaNode deserializer, DeserializationContext& context, DeserialQueues& deserialqueues)
     {
 		auto result = deserializer.getAttributes<float, float>({ "w", 0.0f }, { "h", 0.0f });
 		data.setSize({ std::get<0>(result), std::get<1>(result) });

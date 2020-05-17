@@ -38,6 +38,20 @@ namespace ungod
         }
     }
 
+    void TileMapHandler::init(const World& world)
+    {
+        targetSizeChanged(world, world.getState()->getApp().getWindow().getSize());
+        world.onComponentAdded<TileMapComponent>([&world](Entity e) 
+            {
+                e.modify<TileMapComponent>().mTileMap.setWindowSize(world.getState()->getApp().getWindow().getSize());
+            });
+        mTargetSizeLink.disconnect();
+        mTargetSizeLink = world.getState()->getApp().onTargetSizeChanged([&world, this](const sf::Vector2u& targetsize)
+            {
+                targetSizeChanged(world, targetsize);
+            });
+    }
+
     bool TileMapHandler::setTiles(Entity e, TileData& tiles, unsigned mapSizeX, unsigned mapSizeY)
     {
         bool b = e.modify<TileMapComponent>().mTileMap.setTiles(tiles, mapSizeX, mapSizeY);
@@ -96,5 +110,20 @@ namespace ungod
         callback(tmc.mTileMap);
         mContentsChangedSignal(e, tmc.mTileMap.getBounds());
     }
+
+    void TileMapRenderer::targetSizeChanged(const World& world, const sf::Vector2u& targetsize)
+    {
+        world.getUniverse().iterateOverAll<TileMapComponent>([](TileMapComponent& tm)
+            {
+                tm.setWindowSize(targetsize);
+            });
+    }
+
+    TileMapHandler::~TileMapHandler()
+    {
+        mTargetSizeLink.disconnect();
+    }
 }
+
+
 

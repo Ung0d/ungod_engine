@@ -26,7 +26,7 @@
 #include "ungod/content/Water.h"
 #include "ungod/base/Entity.h"
 #include "ungod/base/World.h"
-#include "ungod/visual/TileMapRenderer.h"
+#include "ungod/content/TileMap.h"
 
 namespace ungod
 {
@@ -41,78 +41,75 @@ namespace ungod
     {
     }
 
-    Water::Water(World& world) : mShowReflections(true), mShowShaders(false),
-                                               mDistortionFactor(DEFAULT_DISTORTION), mFlowFactor(DEFAULT_FLOW), mReflectionOpacity(DEFAULT_REFLECTION_OPACITY)
+    bool Water::render(sf::RenderTarget& target, sf::RenderTexture& rendertex, const TileMap& tilemap, const sf::Texture* tilemapTex, sf::RenderStates states, World& world)
     {
-    }
+        rendertex.clear(sf::Color::Transparent);
 
-    Water::Water(const Water& other)
-    {
-        *this = other;
-    }
+        //sf::RenderStates inverse;
+        //inverse.transform.translate(-renderpos);
+        rendertex.setView(target.getView());
+        if (!tilemap.render(rendertex, tilemapTex, states))
+            return false;  //nothing is drawn, no water tile is visible on the screen
 
-    Water& Water::operator=(const Water& other)
-    {
-        if (this != &other)
+        sf::Vector2f windowPosition = target.mapPixelToCoords(sf::Vector2i(0, 0));
+        windowPosition = states.transform.getInverse().transformPoint(windowPosition);
+
+        //render reflections
+        if (mShowReflections)
         {
-            if (other.mGround.getImage().isLoaded() && other.mGround.getMetaMap().isLoaded())
-            {
-                loadTiles(other.mGround.getImage().getFilePath(), other.mGround.getMetaMap().getFilePath(),
-                          (unsigned)other.mGround.getTileWidth(), (unsigned)other.mGround.getTileHeight(), other.mGround.getKeyMap());
-            }
-            if (other.mDistortionTexID != "" && other.mVertexShaderID != "" && other.mFragmentShaderID != "")
-            {
-                loadShaders(other.mDistortionTexID, other.mFragmentShaderID, other.mVertexShaderID, other.mRenderTex);
-            }
-            mShowReflections = other.mShowReflections;
-            mShowShaders = other.mShowShaders;
-            mDistortionFactor = other.mDistortionFactor;
-            mFlowFactor = other.mFlowFactor;
-            mReflectionOpacity = other.mReflectionOpacity;
+            quad::PullResult<Entity> pull;
+            world.getQuadTree().retrieve(pull, { windowPosition.x,
+                                                  windowPosition.y - (BOUNDING_BOX_SCALING - 1) * target.getView().getSize().y,
+                                                  target.getView().getSize().x,
+                                                  BOUNDING_BOX_SCALING * target.getView().getSize().y });
+
+            dom::Utility<Entity>::iterate<TransformComponent, VisualsComponent>(pull.getList(),
+                [this, &states, &world](Entity e, TransformComponent& transf, VisualsComponent& vis)
+                {
+                    //get the bounds of the visual contents of the entity
+                    //we need to take the untransformed bounds here
+                    //this is kind of a "hack" to avoid that rotation will mess up visuals
+                    sf::Vector2f lowerBounds = world.getVisualsManager().getUntransformedLowerBound(e);
+                    sf::Vector2f upperBounds = world.getVisualsManager().getUntransformedUpperBound(e);
+
+                    float curOpacity = vis.getOpacity();
+                    VisualsHandler::setOpacity(e, curOpacity * mReflectionOpacity);
+                    if (!e.has<WaterComponent>())
+                        Renderer::renderEntity(e, transf, vis, rendertex, states, true, BOUNDS_OVERLAP * (-2 * lowerBounds.y + upperBounds.y));
+                    VisualsHandler::setOpacity(e, curOpacity);
+                });
         }
-        return *this;
-    }
 
-    Water::Water(World& world,
-                 const std::string& distortionMap,
-                 const std::string& texFilepath, const std::string& metaFilepath,
-                 const std::string& fragmentShader, const std::string& vertexShader,
-                 unsigned tileWidth, unsigned tileHeight,
-                 const sf::RenderTarget& target,
-                 const std::vector<std::string>& keymap) :
-                     mShowReflections(true), mShowShaders(false),
-                     mDistortionFactor(DEFAULT_DISTORTION), mFlowFactor(DEFAULT_FLOW), mReflectionOpacity(DEFAULT_REFLECTION_OPACITY)
-    {
-        loadShaders(distortionMap, fragmentShader, vertexShader, target);
-        loadTiles(texFilepath, metaFilepath, tileWidth, tileHeight, keymap);
-    }
 
-    void Water::targetsizeChanged(const sf::Vector2u& targetsize)
-    {
-        if (targetsize.x != mRenderTex.getSize().x || targetsize.y != mRenderTex.getSize().y)
+
+        //drawing to the rendertex done, attach it to a sprite
+        rendertex.display();
+        sf::Sprite renderbody(rendertex.getTexture());
+
+        sf::RenderStates waterstates;
+
+        //apply the shader and draw the rendertex to the target
+        if (mShowShaders)
         {
-            if (mShowShaders)
-                buildDistortionTexture(targetsize);
-
-            if (!mRenderTex.create(targetsize.x, targetsize.y))
-            {
-                mShowShaders = false;
-                mShowReflections = false;
-            }
+            mWaterShader.setUniform("time", mDistortionTimer.getElapsedTime().asSeconds());
+            mWaterShader.setUniform("screenSize", sf::Vector2f{ (float)rendertex.getSize().x, (float)rendertex.getSize().y });
+            waterstates.shader = &mWaterShader;
         }
+
+        sf::View storview = target.getView();
+        sf::View defview;
+        defview.setSize((float)target.getSize().x, (float)target.getSize().y);
+        defview.setCenter((float)target.getSize().x / 2, (float)target.getSize().y / 2);
+        target.setView(defview);
+        target.draw(renderbody, waterstates);
+        target.setView(storview);
+
+        return true; 
     }
 
-    void Water::loadTiles(const std::string& texFilepath, const std::string& metaFilepath,
-					unsigned tileWidth, unsigned tileHeight,
-                     const std::vector<std::string>& keymap)
+    void Water::init(const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader)
     {
-        mGround.loadTiles(texFilepath, metaFilepath, tileWidth, tileHeight,keymap);
-    }
-
-    void Water::loadShaders(const std::string& distortionMap,
-                     const std::string& fragmentShader, const std::string& vertexShader,
-                     const sf::RenderTarget& target)
-    {
+        mDistortionTextureFile = distortionTex;
         if (!sf::Shader::isAvailable())
         {
             ungod::Logger::warning("Shaders are not available on the operating system. \n Water is rendered with disabled shaders");
@@ -131,12 +128,16 @@ namespace ungod
                 mFragmentShaderID = fragmentShader;
                 mDistortionTexID = distortionMap;
                 mShowShaders = true;
+                targetsizeChanged(mTargetSize);
             }
         }
+    }
 
-        targetsizeChanged(target.getSize());
-
-        mOffset = target.getView().getCenter();
+    void Water::targetsizeChanged(const sf::Vector2u& targetsize)
+    {
+        mTargetSize = targetSize;
+        if (mShowShaders && targetsize.x > 0u && targetsize.y > 0u)
+            buildDistortionTexture(targetsize);
     }
 
     void Water::setReflections(bool flag)
@@ -148,78 +149,6 @@ namespace ungod
     {
         mShowShaders = flag;
         targetsizeChanged(mRenderTex.getSize());
-    }
-
-    bool Water::render(sf::RenderTarget& target, sf::RenderTexture& rendertex, sf::RenderStates states, World& world)
-    {
-        targetsizeChanged(target.getSize());
-        rendertex.clear(sf::Color::Transparent);
-        states.transform *= getTransform();
-        //sf::RenderStates inverse;
-        //inverse.transform.translate(-renderpos);
-        rendertex.setView(target.getView());
-        if (!mGround.render(rendertex, states))
-            return false;  //nothing is drawn, no water tile is visible on the screen
-
-        sf::Vector2f windowPosition = target.mapPixelToCoords(sf::Vector2i(0,0));
-		windowPosition = states.transform.getInverse().transformPoint(windowPosition);
-
-        //render reflections
-        if (mShowReflections)
-        {
-            quad::PullResult<Entity> pull;
-            world.getQuadTree().retrieve(pull, {windowPosition.x,
-                                                  windowPosition.y - (BOUNDING_BOX_SCALING-1)*target.getView().getSize().y,
-                                                  target.getView().getSize().x,
-                                                  BOUNDING_BOX_SCALING*target.getView().getSize().y} );
-
-            dom::Utility<Entity>::iterate<TransformComponent, VisualsComponent>(pull.getList(),
-              [this, &states, &world] (Entity e, TransformComponent& transf, VisualsComponent& vis)
-              {
-                  //get the bounds of the visual contents of the entity
-                  //we need to take the untransformed bounds here
-                  //this is kind of a "hack" to avoid that rotation will mess up visuals
-                  sf::Vector2f lowerBounds = world.getVisualsManager().getUntransformedLowerBound(e);
-                  sf::Vector2f upperBounds = world.getVisualsManager().getUntransformedUpperBound(e);
-
-                  float curOpacity = vis.getOpacity();
-                  VisualsHandler::setOpacity(e, curOpacity*mReflectionOpacity);
-				  if (!e.has<WaterComponent>())
-					 Renderer::renderEntity(e, transf, vis, rendertex, states, true, BOUNDS_OVERLAP * (-2*lowerBounds.y + upperBounds.y));
-                  VisualsHandler::setOpacity(e, curOpacity);
-              });
-        }
-
-
-
-        //drawing to the rendertex done, attach it to a sprite
-        rendertex.display();
-        sf::Sprite renderbody(rendertex.getTexture());
-
-        sf::RenderStates waterstates;
-
-        //apply the shader and draw the rendertex to the target
-        if (mShowShaders)
-        {
-            mWaterShader.setUniform("time", mDistortionTimer.getElapsedTime().asSeconds());
-            mWaterShader.setUniform("screenSize", sf::Vector2f{(float)rendertex.getSize().x, (float)rendertex.getSize().y});
-            mWaterShader.setUniform("offset", rendertex.getView().getCenter() - mOffset);
-            waterstates.shader = &mWaterShader;
-        }
-
-        mOffset = rendertex.getView().getCenter();
-
-        sf::View storview = target.getView();
-        sf::View defview;
-        defview.setSize((float)target.getSize().x, (float)target.getSize().y);
-        defview.setCenter((float)target.getSize().x/2, (float)target.getSize().y/2);
-        target.setView(defview);
-        target.draw(renderbody, waterstates);
-        target.setView(storview);
-
-        //mGround.render(target, states);
-
-        return true;  //todo meaningful return value
     }
 
     void Water::setDistortionFactor(float distortion)
@@ -267,10 +196,5 @@ namespace ungod
             Logger::warning("Can't load distortion map for water shader.");
             mShowShaders = false;
         }
-    }
-
-    sf::FloatRect Water::getBounds() const
-    {
-        return mGround.getBounds();
     }
 }

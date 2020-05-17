@@ -28,6 +28,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "ungod/serialization/Serializable.h"
+#include "ungod/serialization/SerialTileMap.h"
 #include <memory>
 
 namespace ungod
@@ -43,7 +44,7 @@ namespace ungod
     * them, which intersects the screen. Base of the map is a 2D-vector containing
     * int values representing the number of the tile in the texture (line by line).
     */
-    class TileMap : public sf::Transformable : public Serializable<TileMap>
+    class TileMap : public sf::Transformable, public Serializable<TileMap>
     {
     friend struct SerialBehavior<TileMap>;
     friend struct DeserialBehavior<TileMap>;
@@ -62,9 +63,6 @@ namespace ungod
 
         const MetaMap& mMeta;
 
-        /** \brief Internal reset of the visible part of the ground. */
-        void refineSize(unsigned width, unsigned height);
-
         void keylookup(const MetaMap& meta, const std::string& key);
 
     public:
@@ -75,7 +73,7 @@ namespace ungod
         void setMetaMap(const MetaMap& meta);
 
         /** \brief Returns true if at least one active tile was rendered. */
-        bool render(sf::RenderTarget& target, const sf::Texture* tex, sf::RenderStates states);
+        bool render(sf::RenderTarget& target, const sf::Texture* tex, sf::RenderStates states) const;
 
         /** Initializes the map by setting the given tiles and dimensions. The product of dimensions has to match the number of tiles. 
         * The tilemap takes ownership of the tiledata. */
@@ -108,6 +106,9 @@ namespace ungod
 
         /** \brief Returns the position of the given tiles. Returns {0,0} if the tile does not exists. */
         sf::Vector2f getTilePosition(unsigned x, unsigned y) const;
+
+        /** \brief Set the size of the visible part of the tilemap. */
+        void setWindowSize(const sf::Vector2u& targetsize);
 
         const std::vector<std::string>& getKeyMap() const { return mKeymap; }
 

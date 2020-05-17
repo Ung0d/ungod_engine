@@ -28,6 +28,7 @@
 
 #include "ungod/serialization/Serializable.h"
 #include "ungod/content/EntityTypes.h"
+#include "ungod/serialization/DeserialQueues.h"
 
 ///this file describes how to (de)serialize entities
 
@@ -119,18 +120,17 @@ namespace ungod
 
 
     template<>
-    struct SerialBehavior< Entity, const World&>
+    struct SerialBehavior<Entity>
     {
-        inline static void serialize(const Entity& data, MetaNode serializer, SerializationContext& context, const World& world);
+        inline static void serialize(const Entity& data, MetaNode serializer, SerializationContext& context);
     };
 
 
-    //non-polymorphic instantiation deserialize
     template<typename ... BASE, typename ... OPTIONAL>
-    struct DeserialBehavior< Entity, World&, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >
+    struct DeserialBehavior< Entity, DeserialQueues&, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >
     {
         inline static void deserialize(Entity& data, MetaNode deserializer, DeserializationContext& context,
-                                       World& world, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>);
+                                        DeserialQueues& deserialqueues, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>);
     };
 
     template <>
@@ -138,13 +138,6 @@ namespace ungod
     {
         inline static std::uintptr_t get(const Entity& t);
     };
-
-    //polymorphic instantiation deserialize
-    /*template<>
-    struct DeserialBehavior< Entity, World& >
-    {
-        inline static void deserialize(Entity& data, MetaNode deserializer, DeserializationContext& context, World& world);
-    };*/
 }
 
 #endif // ENTITY_SERIAL_H

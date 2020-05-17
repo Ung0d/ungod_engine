@@ -26,59 +26,37 @@
 #ifndef WATER_H
 #define WATER_H
 
-#include "ungod/content/TileMap.h"
+#include <SFML/Graphics.hpp>
 #include "ungod/serialization/SerialWater.h"
 
 namespace ungod
 {
-    class Entity;
-    class World;
+    class TileMap;
 
     /** \brief A manager class for water-fields and their rendering. */
-    class Water : public sf::Transformable, public Serializable<Water>
+    class Water : public Serializable<Water>
     {
-     friend struct SerialBehavior<Water, const sf::RenderTarget&>;
-    friend struct DeserialBehavior<Water, const sf::RenderTarget&>;
+    friend struct SerialBehavior<Water>;
+    friend struct DeserialBehavior<Water>;
 
     public:
         /** \brief Default constructs the water object for later initialization. */
         Water();
-        Water(World& world);
-        Water(const Water& other);
-        Water& operator=(const Water& other);
 
-        /** \brief Initialization constructor. */
-        Water(World& world,
-              const std::string& distortionMap,
-              const std::string& texFilepath, const std::string& metaFilepath,
-              const std::string& fragmentShader, const std::string& vertexShader,
-			  unsigned tileWidth, unsigned tileHeight,
-              const sf::RenderTarget& target,
-              const std::vector<std::string>& keymap);
+        /** \brief Renders shaders and reflections (if activated) on top of the given tilemap. */
+        bool render(sf::RenderTarget& target, sf::RenderTexture& rendertex, const TileMap& tilemap, const sf::Texture* tilemapTex, sf::RenderStates states, World& world) const;
 
+        /** \brief Provides appropriate resources to set up all internals of the water. */
+        void init(const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader);
+
+        /** \brief Fits to a new target size. */
         void targetsizeChanged(const sf::Vector2u& targetsize);
-
-        /** \brief Initialiazes the manager after default construction . */
-        void loadShaders(const std::string& distortionMap,
-                      const std::string& fragmentShader, const std::string& vertexShader,
-                      const sf::RenderTarget& target);
-
-        void loadTiles(const std::string& texFilepath, const std::string& metaFilepath,
-						unsigned tileWidth, unsigned tileHeight,
-                      const std::vector<std::string>& keymap);
-
-        /** \brief Accesses the underlying ground object, which is responsible for the texture drawing. */
-        TileMap& getTileMap() { return mGround; }
-        const TileMap& getTileMap() const { return mGround; }
 
         /** \brief Activates or deactivates the rendering of reflections of nearby world-objects. */
         void setReflections(bool flag);
 
         /** \brief Activates or deactivates the rendering of the water shaders. */
         void setShaders(bool flag);
-
-        /** \brief Renders all registered Watertiles with shaders and reflections (if activated). */
-        bool render(sf::RenderTarget& target, sf::RenderTexture& rendertex, sf::RenderStates states, World& world);
 
         /** \brief Sets the distortion-factor for the water shader. Controls the severity of the effect */
         void setDistortionFactor(float distortion);
@@ -89,11 +67,8 @@ namespace ungod
         /** \brief Sets the opacity decrease-factor for the reflections of entitys. Default value is 0.5f. */
         void setReflectionOpacity(float opacity);
 
-
-        sf::FloatRect getBounds() const;
-
         /** \brief Returns the filepath of the currently loaded distortion map. */
-        const std::string& getDistortionMapID() const { return mDistortionTexID; }
+        const std::string& getDistortionMapID() const { return mDistortionTextureFile; }
 
         /** \brief Returns the filepath of the currently loaded fragment shader. */
         const std::string& getFragmentShaderID() const { return mFragmentShaderID; }
@@ -102,17 +77,13 @@ namespace ungod
         const std::string& getVertexShaderID() const { return mVertexShaderID; }
 
     private:
-        TileMap mGround; //renders the texture of the water
-
         sf::Texture mDistortionTexture;
-        sf::RenderTexture mRenderTex;
+        std::string mDistortionTextureFile;
         sf::Shader mWaterShader;
-
-        std::string mDistortionTexID;
         std::string mVertexShaderID;
         std::string mFragmentShaderID;
 
-        sf::Vector2f mOffset;
+        sf::Vector2u mTargetSize;
 
         sf::Clock mDistortionTimer;
 

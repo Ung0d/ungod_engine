@@ -46,14 +46,12 @@ namespace ungod
     }
 
 
-    bool TileMap::render(sf::RenderTarget& target, const sf::Texture* tex, sf::RenderStates states)
+    bool TileMap::render(sf::RenderTarget& target, const sf::Texture* tex, sf::RenderStates states) const
     {
         if (!mTiles.ids)
             return;
 
         const auto& ids = *mTiles.ids;
-
-        refineSize((unsigned)target.getView().getSize().x, (unsigned)target.getView().getSize().y);
 
         sf::Vector2f windowPosition = target.mapPixelToCoords(sf::Vector2i(0,0));
 		windowPosition = states.transform.getInverse().transformPoint(windowPosition);
@@ -213,12 +211,11 @@ namespace ungod
         return worldpos;
     }
 
-    void TileMap::refineSize(unsigned width, unsigned height)
+    void TileMap::setWindowSize(const sf::Vector2u& targetsize)
     {
-        mHorizontalSize = (unsigned)ceil( width / (getScale().x*mTileWidth) ) + 1;
-        mVerticalSize = (unsigned)ceil( height / (getScale().y*mTileHeight) ) + 1;
-        if (mVertices.getVertexCount() != mHorizontalSize*mVerticalSize*4)
-            mVertices.resize(mHorizontalSize*mVerticalSize*4);
+        mHorizontalSize = (unsigned)ceil(targetsize.x / (getScale().x*mTileWidth) ) + 1;
+        mVerticalSize = (unsigned)ceil(targetsize.y / (getScale().y*mTileHeight) ) + 1;
+        mVertices.resize(mHorizontalSize*mVerticalSize*4);
     }
 
 

@@ -36,7 +36,7 @@ namespace ungod
             State(app, id),
             mScriptCallbacks( app.getScriptState(), app.getGlobalScriptEnv(), { std::begin(MENU_CALLBACK_IDENTIFIERS), std::end(MENU_CALLBACK_IDENTIFIERS) } ),
             mGui(app.getWindow()),
-            mSoundHandler(mApp.getSoundProfileManager(), &mListener),
+            mSoundHandler(),
             mCamera(app.getWindow())
         {
             //set up the script behavior
@@ -51,6 +51,8 @@ namespace ungod
                 {
                     mScriptCallbacks.reload(mApp.getScriptState(), mApp.getGlobalScriptEnv());
                 });
+
+            mSoundHandler.init(mApp.getSoundProfileManager(), &mListener);
         }
 
 

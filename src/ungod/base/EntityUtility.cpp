@@ -28,13 +28,4 @@
 
 namespace ungod
 {
-    Initializer::Initializer() : mInitializerID(0), mActive(false) {}
-
-
-    void InitializerManager::initialize(Entity e, std::size_t initID, World& world)
-    {
-        e.modify<Initializer>().mInitializerID = initID;
-        e.modify<Initializer>().mActive = true;
-        mRegisteredEntities.emplace(std::move(e));
-    }
 }
