@@ -28,11 +28,10 @@
 namespace ungod
 {
 
-    bool LoadBehavior<WorldChunkData>::loadFromFile(const std::string& filepath, WorldChunkData& data)
+    bool LoadBehavior<NodeDataStruct>::loadFromFile(const std::string& filepath, NodeDataStruct& data)
     {
-        DeserializationContext context;
-        initContext(context);
-        if (!context.read(filepath))
+        initContext(data.context);
+        if (!data.context.read(filepath))
             return false;
         context.deserializeRootObject(data.container, data.memory);
         return true;

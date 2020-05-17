@@ -60,7 +60,7 @@ namespace ungod
     }
 
 
-    void init(ScriptedGameState& master)
+    void init(ScriptedGameState& master, const DeserialMemory* deserialMemory)
     {
         mMaster = &master;
         mEntityBehaviorHandler.init(*this);
@@ -173,6 +173,19 @@ namespace ungod
 
         //init script behavior
         mBehaviorManager.init(*this, app);
+
+        if (deserialMemory)
+        {
+            for (const auto& entry : deserialMemory.scriptEntities) //assign scripts first!
+            {
+                mEntityBehaviorHandler.assignBehavior(entry.entity, entry.script);
+            }
+            for (comst auto& entry : deserialMemory.all) //signals may invoke script calls!
+            {
+                mEntityCreationSignal(entry.entity);
+                mDeserializedSignal(entry.entity, entry.node, entry.context);
+            }
+        }
     }
 
 	sf::Vector2f World::getSize() const
@@ -347,11 +360,6 @@ namespace ungod
     void World::notifySerialized(Entity e, MetaNode serializer, SerializationContext& context)
     {
         mEntitySerializedSignal(e, serializer, context);
-    }
-
-    void World::notifyDeserialized(Entity e, MetaNode serializer, DeserializationContext& context)
-    {
-        mEntityDeserializedSignal(e, serializer, context);
     }
 
 

@@ -48,18 +48,17 @@ namespace ungod
 
     void WorldGraphNode::load()
     {
-        mChunk.load(mFilePath, LoadPolicy::ASYNC, mGamestate);
+        mData.load(mFilePath, LoadPolicy::ASYNC, mGamestate);
         mLoadingInProcess = true;
-
 		Logger::info("Started loading of node:", getIdentifier());
     }
 
     void WorldGraphNode::unload()
     {
+        mData.getWait(); //wait if loading is not ready
         save();
         mLayers.clearEverything();
         mIsLoaded = false;
-
 		Logger::info("Node unloaded:", getIdentifier());
     }
 
@@ -107,22 +106,8 @@ namespace ungod
     void WorldGraphNode::update(float delta)
     {
         if (mLoadingInProcess)
-            if (mChunk.isLoaded())
-            {
-                mLoadingInProcess = false;
-                mIsLoaded = true;
-                //init loaded worlds
-                for (unsigned i = 0; i < mChunk.get().container.getVector().size(); i++)
-                {
-                    mChunk.get().container.getWorld(i)->init(mGamestate);
-                    mLayer.registerLayer(mChunk.get().container.getVector()[i].first);
-                }
-                mChunk.get().memory.finalize();
-                mChunk.drop();
-                Logger::info("Loaded node:", getIdentifier());
-            }
-        else if (mIsLoaded)
-            mLayers.update(delta, mGamestate.getCamera());
+            mLoadingInProcess = !tryInit();
+        mLayers.update(delta, mGamestate.getCamera());
     }
 
     void WorldGraphNode::handleInput(const sf::Event& event, const sf::RenderTarget& target)
@@ -178,6 +163,25 @@ namespace ungod
     void WorldGraphNode::notifyChangedTransform(Entity e) const
     {
 
+    }
+
+    bool WorldGraphNode::tryInit()
+    {
+        if (mData.isLoaded())
+        {
+            mIsLoaded = true;
+            //init loaded worlds
+            for (unsigned i = 0; i < mData.get().container.getVector().size(); i++)
+            {
+                mData.get().container.getWorld(i)->init(mGamestate, &mChunk.get().memory);
+                mData.registerLayer(mChunk.get().container.getVector()[i].first);
+            }
+            mChunk.drop(); //we can drop the asset, it is no longer required
+            Logger::info("Loaded node:", getIdentifier());
+            return true;
+        }
+        else
+            return false;
     }
 
     void SerialBehavior<WorldGraphNode>::serialize(const WorldGraphNode& data, MetaNode serializer, SerializationContext& context)

@@ -34,19 +34,20 @@ namespace ungod
 {
     class Entity; 
 
-    struct WorldChunkData
+    struct NodeDataStruct
     {
+        DeserializationContext context;
         RenderLayerContainer container;
         DeserialMemory memory;
     };
 
-    using WorldChunk = Asset<WorldChunkData>;
+    using NodeData = Asset<NodeDataStruct>;
 
     template<>
-    struct LoadBehavior<WorldChunkData>
+    struct LoadBehavior<NodeDataStruct>
     {
-        static bool loadFromFile(const std::string& filepath, WorldChunkData& data);
-        static std::string getIdentifier() { return "WorldChunk"; }
+        static bool loadFromFile(const std::string& filepath, NodeDataStruct& data);
+        static std::string getIdentifier() { return "NodeData"; }
     };
 }
 

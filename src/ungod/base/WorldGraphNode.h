@@ -28,7 +28,7 @@
 
 #include "quadtree/QuadTree.h"
 #include "ungod/base/Transform.h"
-#include "ungod/base/WorldChunkAsset.h"
+#include "ungod/base/NodeData.h"
 #include "ungod/utility/Graph.h"
 #include <SFML/Graphics/Rect.hpp>
 #include "ungod/serialization/Serializable.h"
@@ -117,16 +117,19 @@ namespace ungod
 		void setActive(unsigned i, bool active = true);
 
     private:
-
         WorldGraph& mWorldGraph;
         unsigned mIndex;
         bool mLoadingInProcess;
         bool mIsLoaded;
         ScriptedGameState& mGamestate;
-        WorldChunk mChunk;
+        NodeData mData;
         RenderLayerContainer mLayers;
         std::string mIdentifier;
         std::string mDataFile;
+
+    private:
+        // if loading is currently in progress, attempts to init the loaded render layers if ready returning success
+        bool tryInit();
     };
 
 

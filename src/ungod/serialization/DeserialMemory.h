@@ -33,20 +33,37 @@ namespace ungod
 {
 	class Entity;
 
-	class DeserialMemory
+	namespace detail
 	{
-	private:
-		std::forward_list<Entity> mAllDeserial;
-		std::forward_list<std::pair<Entity, std::string>> mScriptEntities;
+		struct EntityScriptPair
+		{
+			EntityScriptPair(Entity e, const std::string& s) : entity(e), script(s) {}
 
-	public:
-		DeserialMemory() = default;
+			Entity entity;
+			std::string script;
+		};
 
-		void notifyDeserial(Entity e);
+		struct EntityDeserialNote
+		{
+			EntityDeserialNote(Entity e, MetaNode n, DeserializationContext& c) : entity(e), node(n), context(c) {}
+
+			Entity entity;
+			MetaNode node;
+			DeserializationContext& context;
+		};
+	}
+
+	/** \brief A class that memorizes things during the deserialization of a
+	* render layer container. After deserialization, finalize can be called to 
+	* perform all queued actions that can not run asycronously. */
+	struct DeserialMemory
+	{
+		std::forward_list<detail::EntityDeserialNote> mAllDeserial;
+		std::forward_list<detail::EntityScriptPair> mScriptEntities;
+
+		void notifyDeserial(Entity e, MetaNode serializer, DeserializationContext& context);
 
 		void notifyScriptedEntity(Entity e, const std::string& scriptname);
-
-		void finalize() const;
 	};
 }
 

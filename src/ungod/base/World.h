@@ -67,14 +67,17 @@ namespace ungod
     {
     friend struct SerialBehavior<World, const sf::RenderTarget&>;
     friend struct DeserialBehavior<World, const sf::RenderTarget&>;
+    friend class DeserialMemory;
 
     public:
         /** \brief Creates an empty world. */
         World();
 
         /** \brief Must be called to instantiate the world. 
-        * Using an uninitialized world by any means is undefined behavior. */
-        void init(ScriptedGameState& master);
+        * Using an uninitialized world by any means is undefined behavior. 
+        * If the world was deserialized and not created "hard" in code, a deserial memory
+        * must be provided. */
+        void init(ScriptedGameState& master, const DeserialMemory* deserialMemory = nullptr);
 
 		/** \brief Returns width and height of the world. */
 		virtual sf::Vector2f getSize() const override;
@@ -286,10 +289,7 @@ namespace ungod
         quad::PullResult<Entity> getEntitiesNearby(Entity e) const;
 
         /** \brief Notifies the world that the given entity was serialized. */
-        void notifySerialized(Entity e);
-
-        /** \brief Notifies the world that the given entity was deserialized. */
-        void notifyDeserialized(Entity e);
+        void notifySerialized(Entity e, MetaNode serializer, SerializationContext& context);
 
         /** \brief Performs the given functor for all entities in the world with the given set of components. */
         template<typename ... C, typename F>

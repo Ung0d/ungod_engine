@@ -598,7 +598,7 @@ namespace ungod
         EntityBehaviorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         auto result = deserializer.getAttributes<std::string>{ "n", "" });
-        deserialmemory.scriptEntities.push_front(e, std::get<0>(result));
+        deserialmemory.notifyScriptedEntity(e, std::get<0>(result));
 
     }
 

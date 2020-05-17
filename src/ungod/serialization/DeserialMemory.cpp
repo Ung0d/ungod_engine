@@ -27,26 +27,13 @@
 
 namespace ungod
 {
-	void DeserialMemory::notifyDeserial(Entity e)
+	void DeserialMemory::notifyDeserial(Entity e, MetaNode serializer, DeserializationContext& context)
 	{
-		mAllDeserial.emplace_front(e);
+		mAllDeserial.emplace_front(e, serializer, context);
 	}
 
 	void  DeserialMemory::notifyScriptedEntity(Entity e, const std::string& scriptname)
 	{
 		mScriptEntities.emplace_front(e, scriptname);
 	}
-
-	void  DeserialMemory::finalize() const
-	{
-		for (auto : mAllDeserial)
-		{
-
-		}
-		for (const auto& p : mScriptEntities)
-		{
-			p.first.getWorld().getState()->getEntityBehaviorManager()
-		}
-	}
-
 }
