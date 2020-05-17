@@ -70,7 +70,7 @@ namespace ungod
 
 
     MusicEmitterMixer::MusicEmitterMixer() : 
-        mMaxDistanceCap(DEFAULT_MAX_DISTANCE_CAP)
+        mMaxDistanceCap(DEFAULT_MAX_DISTANCE_CAP), mMuteSound(false)
     {
         for (unsigned i = 0; i < MUSIC_PLAY_CAP; i++)
         {
@@ -141,8 +141,17 @@ namespace ungod
         }
     }
 
+    void MusicEmitterMixer::setMuteSound(bool mute)
+    {
+        mMuteSound = mute;
+        muteAll();
+    }
+
     void MusicEmitterMixer::update(float delta, quad::QuadTree<Entity>* quadtree)
     {
+        if (mMuteSound)
+            return;
+
         //check if new emitters are in range
         quad::PullResult<Entity> result;
 

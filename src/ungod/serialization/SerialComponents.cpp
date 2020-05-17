@@ -26,6 +26,7 @@
 #include "ungod/Serialization/SerialComponents.h"
 #include "ungod/base/World.h"
 #include "ungod/application/Application.h"
+#include "ungod/serialization/DeserialMemory.h"
 
 namespace ungod
 {

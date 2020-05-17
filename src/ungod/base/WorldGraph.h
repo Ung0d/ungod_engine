@@ -37,6 +37,7 @@
 
 namespace ungod
 {
+    class Entity;
 
     /** \brief A graph datastructure, that connects several worlds together. One world out of the
     * pool can be active at a time. The pool automatically loads all worlds up to a certain distance
@@ -118,6 +119,15 @@ namespace ungod
 			return mActiveNodeChanged.connect(callback);
 		}
 
+        /** \brief Connects a callback to the entity node changed signal, which is emitted, if an entity leaves the bounds of a node and 
+        * enters the bounds of another node. After each emission, a short delay will be set to prevent further sending of the event
+        * for that entity. Also, the event will never be send for entities without a Movement component. */
+        inline decltype(auto) onEntityChangedNode(const std::function<void(Entity, WorldGraph&, WorldGraphNode&, WorldGraphNode&)>& callback)
+        {
+            return mEntityChangedNode.connect(callback);
+        }
+
+
     private:
         int mActive;
         unsigned mDistance;
@@ -126,8 +136,9 @@ namespace ungod
         graph::UndirectedAdjacencyLists mAdjacencies;
         std::set<unsigned> mCurrentNeighborhood;
         sf::Vector2f mReferencePosition;
-        std::map<Entity, sf::Clock> mJustLeft;
+        std::map<Entity, sf::Clock> mJustHandled;
 		owls::Signal<WorldGraph&, WorldGraphNode&, WorldGraphNode&> mActiveNodeChanged;
+        owls::Signal<Entity, WorldGraph&, WorldGraphNode&, WorldGraphNode&> mEntityChangedNode;
         constexpr static float NODE_TRANSITION_TIMER_S = 10.0f;
     };
 

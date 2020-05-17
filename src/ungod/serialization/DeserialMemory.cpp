@@ -29,11 +29,11 @@ namespace ungod
 {
 	void DeserialMemory::notifyDeserial(Entity e, MetaNode serializer, DeserializationContext& context)
 	{
-		mAllDeserial.emplace_front(e, serializer, context);
+		all.emplace_front(e, serializer, context);
 	}
 
 	void  DeserialMemory::notifyScriptedEntity(Entity e, const std::string& scriptname)
 	{
-		mScriptEntities.emplace_front(e, scriptname);
+		scriptEntities.emplace_front(e, scriptname);
 	}
 }

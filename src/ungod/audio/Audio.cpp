@@ -170,7 +170,7 @@ namespace ungod
 
     SoundHandler::SoundHandler() : mMuteSound(false) {}
 
-    void SoundProfileManager::init(SoundProfileManager& soundprofilemngr, const AudioListener* listener)
+    void SoundHandler::init(SoundProfileManager& soundprofilemngr, const AudioListener* listener)
     {
         mSoundProfileMngr = &soundprofilemngr;
         mListener = listener;
@@ -178,14 +178,14 @@ namespace ungod
 
     void SoundHandler::connectProfile(Entity e, const std::string& profileKey)
     {
-        auto profile = mSoundProfileMngr.getSoundProfile(profileKey);
+        auto profile = mSoundProfileMngr->getSoundProfile(profileKey);
         if (profile.valid())
             connectProfile(e, profile);
     }
 
     void SoundHandler::connectProfile(SoundEmitterComponent& emitter, const std::string& profileKey)
     {
-        auto profile = mSoundProfileMngr.getSoundProfile(profileKey);
+        auto profile = mSoundProfileMngr->getSoundProfile(profileKey);
         if (profile.valid())
             connectProfile(emitter, profile);
     }
@@ -214,7 +214,7 @@ namespace ungod
 
     void SoundHandler::playSound(const std::string& key, std::size_t index, float scaling, std::size_t volumeSetting, float pitch)
     {
-        auto profile = mSoundProfileMngr.getSoundProfile(key);
+        auto profile = mSoundProfileMngr->getSoundProfile(key);
         if (profile.valid())
             playSound(profile, index, scaling, volumeSetting, pitch);
     }
@@ -244,7 +244,7 @@ namespace ungod
         mSoundslots[free].mIndex = index;
         mSoundslots[free].mSound.setBuffer(mSoundslots[free].mProfile.mIter->second.mSounds[index]->sound.get());
 
-        mSoundslots[free].mSound.setVolume(100.0f * mSoundProfileMngr.getVolume(volumeSetting) * scaling);
+        mSoundslots[free].mSound.setVolume(100.0f * mSoundProfileMngr->getVolume(volumeSetting) * scaling);
         mSoundslots[free].mSound.setPitch(pitch);
 
         mSoundslots[free].mPlaying = true;

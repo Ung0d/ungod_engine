@@ -371,7 +371,7 @@ namespace ungod
     }
 
 
-    void Renderer::update(const std::list<Entity>& entities, float delta)
+    void Renderer::update(const std::list<Entity>& entities, float delta, VisualsHandler& vh)
     {
         dom::Utility<Entity>::iterate< VisualsComponent >(entities,
           [delta, this] (Entity e, VisualsComponent& visuals)
@@ -379,13 +379,13 @@ namespace ungod
               //handle animations
                 if (e.has<AnimationComponent>())
                 {
-                    updateAnimation(e, e.modify<AnimationComponent>(), delta);
+                    updateAnimation(e, e.modify<AnimationComponent>(), delta, vh);
                 }
                 else if(e.has<MultiAnimationComponent>())
                 {
                     for (std::size_t i = 0; i < e.modify<MultiAnimationComponent>().getComponentCount(); ++i)
                     {
-                        updateAnimation(e, e.modify<MultiAnimationComponent>().getComponent(i), delta);
+                        updateAnimation(e, e.modify<MultiAnimationComponent>().getComponent(i), delta, vh);
                     }
                 }
 
@@ -395,7 +395,7 @@ namespace ungod
                  VisualAffectorComponent& affector = e.modify<VisualAffectorComponent>();
                  if (affector.isActive())
                  {
-                    affector.mCallback(e, delta, *mVisualsManager, visuals);
+                    affector.mCallback(e, delta, vh, visuals);
                  }
              }
           });
@@ -407,24 +407,24 @@ namespace ungod
                 {
                      if (affector.getComponent(i).isActive())
                      {
-                        affector.getComponent(i).mCallback(e, delta, *mVisualsManager, visuals);
+                        affector.getComponent(i).mCallback(e, delta, vh, visuals);
                      }
                 }
           });
     }
 
 
-    void Renderer::updateAnimation(Entity e, AnimationComponent& animation, float delta)
+    void Renderer::updateAnimation(Entity e, AnimationComponent& animation, float delta, VisualsHandler& vh)
     {
         if (!animation.mVertices)
             return;
         bool runningBefore = animation.mAnimation.isRunning();
         if (animation.mAnimation.update(delta, animation.mVertices))
         {
-            mVisualsManager->mContentsChangedSignal(e, animation.getAnimation().getBounds());
-            mVisualsManager->mAnimationFrameSignal(e, animation.getAnimation().getKey(), animation.mAnimation.getCurrentIndex());
+            vh.mContentsChangedSignal(e, animation.getAnimation().getBounds());
+            vh.mAnimationFrameSignal(e, animation.getAnimation().getKey(), animation.mAnimation.getCurrentIndex());
         }
         if (runningBefore && !animation.mAnimation.isRunning())
-            mVisualsManager->mAnimationStopSignal(e, animation.getAnimation().getKey());
+            vh.mAnimationStopSignal(e, animation.getAnimation().getKey());
     }
 }

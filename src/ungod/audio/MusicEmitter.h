@@ -40,6 +40,7 @@ namespace ungod
     class TransformComponent;
     class World;
     class Application;
+    struct DeserialMemory;
 
     //TODO give music emitters a priority value that can be used to determine which are played and which not if the cap is exceeded
 
@@ -47,8 +48,8 @@ namespace ungod
     class MusicEmitterComponent : public Serializable<MusicEmitterComponent>
     {
     friend class MusicEmitterMixer;
-    friend struct SerialBehavior<MusicEmitterComponent, Entity, const World&, const Application&>;
-    friend struct DeserialBehavior<MusicEmitterComponent, Entity, World&, const Application&>;
+    friend struct SerialBehavior<MusicEmitterComponent, Entity>;
+    friend struct DeserialBehavior<MusicEmitterComponent, Entity, DeserialMemory&>;
 
     public:
 
@@ -105,6 +106,9 @@ namespace ungod
         /** \brief Mutes all currently active tracks. */
         void muteAll();
 
+        /** \brief Mutes all sounds. Stops all sounds currently playing. */
+        void setMuteSound(bool mute = true);
+
         /** \brief updates the music volumes and may starts new emitters */
         void update(float delta, quad::QuadTree<Entity>* quadtree);
 
@@ -112,6 +116,7 @@ namespace ungod
         std::array<std::pair<MusicEmitterComponent*, TransformComponent*>, MUSIC_PLAY_CAP> mCurrentlyPlaying;
         float mMaxDistanceCap;
         const AudioListener* mListener;
+        bool mMuteSound;
     };
 }
 

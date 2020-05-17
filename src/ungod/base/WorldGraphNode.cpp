@@ -38,7 +38,7 @@ namespace ungod
         mLoadingInProcess(false),
         mIsLoaded(false), 
         mGamestate(gamestate), 
-        mChunk(),
+        mData(),
         mLayers(), 
         mIdentifier(identifier), 
         mDataFile(datafile)
@@ -48,7 +48,7 @@ namespace ungod
 
     void WorldGraphNode::load()
     {
-        mData.load(mFilePath, LoadPolicy::ASYNC, mGamestate);
+        mData.load(mDataFile, LoadPolicy::ASYNC);
         mLoadingInProcess = true;
 		Logger::info("Started loading of node:", getIdentifier());
     }
@@ -76,7 +76,7 @@ namespace ungod
 
     World* WorldGraphNode::addWorld(unsigned i)
     {
-        return static_cast<World*>(mLayers.registerLayer(RenderLayerPtr{new World(mGamestate)}, i));
+        return static_cast<World*>(mLayers.registerLayer(RenderLayerPtr{new World()}, i));
     }
 
     World* WorldGraphNode::addWorld()
@@ -112,8 +112,7 @@ namespace ungod
 
     void WorldGraphNode::handleInput(const sf::Event& event, const sf::RenderTarget& target)
     {
-        mInputEventManager.handleEvent(event, target);
-        mLayers.handleInput(event, mGamestate.getApp()->getWindow());
+        mLayers.handleInput(event, mGamestate.getApp().getWindow());
     }
 
     void WorldGraphNode::handleCustomEvent(const CustomEvent& event)
@@ -155,16 +154,6 @@ namespace ungod
 		mLayers.setActive(i, active);
 	}
 
-    void WorldGraphNode::destroy(Entity e)
-    {
-        mEntitiesToDestroy.push_front(e);
-    }
-
-    void WorldGraphNode::notifyChangedTransform(Entity e) const
-    {
-
-    }
-
     bool WorldGraphNode::tryInit()
     {
         if (mData.isLoaded())
@@ -173,10 +162,10 @@ namespace ungod
             //init loaded worlds
             for (unsigned i = 0; i < mData.get().container.getVector().size(); i++)
             {
-                mData.get().container.getWorld(i)->init(mGamestate, &mChunk.get().memory);
-                mData.registerLayer(mChunk.get().container.getVector()[i].first);
+                World* world = static_cast<World*>(mLayers.registerLayer(mData.get().container.getVector()[i].first, mLayers.getVector().size()));
+                world->init(mGamestate, &mData.get().memory);
             }
-            mChunk.drop(); //we can drop the asset, it is no longer required
+            mData.drop(); //we can drop the asset, it is no longer required
             Logger::info("Loaded node:", getIdentifier());
             return true;
         }

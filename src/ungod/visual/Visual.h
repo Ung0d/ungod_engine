@@ -52,7 +52,7 @@ namespace ungod
     class VisualsComponent : public Serializable<VisualsComponent>
     {
     friend class VisualsHandler;
-     friend struct SerialBehavior<VisualsComponent, Entity, const World&, const Application&>;
+    friend struct SerialBehavior<VisualsComponent, Entity>;
     public:
         VisualsComponent();
 
@@ -90,7 +90,7 @@ namespace ungod
     {
     friend class VisualsHandler;
     friend class Renderer;
-     friend struct SerialBehavior<VertexArrayComponent, Entity, const World&, const Application&>;
+     friend struct SerialBehavior<VertexArrayComponent, Entity>;
     public:
         /** \brief Default constructs the visual component. */
         VertexArrayComponent() = default;
@@ -111,9 +111,8 @@ namespace ungod
     {
     friend class VisualsHandler;
     friend class Renderer;
-    friend struct
-		 SerialBehavior<SpriteComponent, Entity, const World&, const Application&>;
-    friend struct DeserialBehavior<SpriteComponent, Entity, World&, const Application&>;
+    friend struct SerialBehavior<SpriteComponent, Entity>;
+    friend struct DeserialBehavior<SpriteComponent, Entity, DeserialMemory&>;
     public:
         SpriteComponent() = default;
 
@@ -167,7 +166,7 @@ namespace ungod
     class SpriteMetadataComponent : public Serializable<SpriteMetadataComponent>
     {
     friend class VisualsHandler;
-     friend struct SerialBehavior<SpriteMetadataComponent, Entity, const World&, const Application&>;
+     friend struct SerialBehavior<SpriteMetadataComponent, Entity>;
     public:
         /** \brief Default constructs a SpriteMetadta. */
         SpriteMetadataComponent() {}
@@ -196,7 +195,7 @@ namespace ungod
     {
     friend class VisualsHandler;
     friend class Renderer;
-     friend struct SerialBehavior<AnimationComponent, Entity, const World&, const Application&>;
+     friend struct SerialBehavior<AnimationComponent, Entity>;
     public:
         /** \brief Default constructs an Animation. */
         AnimationComponent() : mAnimation(), mVertices(nullptr) {}
@@ -224,7 +223,7 @@ namespace ungod
     {
     friend class VisualsHandler;
     friend class Renderer;
-     friend struct SerialBehavior<BigSpriteComponent, Entity, const World&, const Application&>;
+     friend struct SerialBehavior<BigSpriteComponent, Entity>;
     public:
         /** \brief Default constructs a BigSpriteComponent. */
         BigSpriteComponent() : mVisible(false) {}

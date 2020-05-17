@@ -26,7 +26,7 @@
 #ifndef UNGOD_TILEMAP_RENDERER_H
 #define UNGOD_TILEMAP_RENDERER_H
 
-#include "ungod/content/Water.h"
+#include "ungod/content/water/Water.h"
 #include "ungod/base/Entity.h"
 
 namespace ungod
@@ -41,7 +41,7 @@ namespace ungod
     {
     friend class WaterHandler;
 	friend class WaterRenderer;
-    friend struct DeserialBehavior<WaterComponent, Entity, World&>;
+    friend struct DeserialBehavior<WaterComponent, Entity, DeserialMemory&>;
 
     public:
         WaterComponent() = default;
@@ -60,7 +60,7 @@ namespace ungod
         void init(const World & world);
 
         inline static void initWater(Entity e, const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader)
-        { loadWaterShaders(e.modify<WaterComponent>(), distortionMap, fragmentShader, vertexShader, target); }
+        { initWater(e.modify<WaterComponent>(), distortionTex, fragmentShader, vertexShader); }
         static void initWater(WaterComponent& water, const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader);
 
         /** \brief Activates or deactivates the rendering of reflections of nearby world-objects. */

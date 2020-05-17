@@ -23,7 +23,7 @@
 *    source distribution.
 */
 
-#include "ungod/content/TileMap.h"
+#include "ungod/content/tilemap/TileMap.h"
 
 namespace ungod
 {

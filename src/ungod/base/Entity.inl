@@ -78,10 +78,7 @@ void Entity::add() const
         static_cast<ComponentSignalBase&>(mHandle.getUniverse()).notifyComponentAdded<C>(*this);
     }
     else
-    {
         ungod::Logger::warning("Tried to add a component to an entity, that is not listed as optional-component.");
-        ungod::Logger::endl();
-    }
 }
 
 template<typename C>
@@ -93,10 +90,7 @@ void Entity::add(dom::ComponentInstantiator<C> ci) const
         static_cast<ComponentSignalBase&>(mHandle.getUniverse()).notifyComponentAdded<C>(*this);
     }
     else
-    {
         ungod::Logger::warning("Tried to add a component to an entity, that is not listed as optional-component.");
-        ungod::Logger::endl();
-    }
 }
 
 

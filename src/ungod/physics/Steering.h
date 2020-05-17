@@ -59,8 +59,8 @@ namespace ungod
     class SteeringComponent : public ungod::Serializable<SteeringComponent<GETTER>>
     {
     friend class SteeringManager<GETTER>;
-     friend struct SerialBehavior<SteeringComponent<GETTER>, Entity, const World&, const Application&>;
-    friend struct DeserialBehavior<SteeringComponent<GETTER>, Entity, World&, const Application&>;
+     friend struct SerialBehavior<SteeringComponent<GETTER>, Entity>;
+    friend struct DeserialBehavior<SteeringComponent<GETTER>, Entity, DeserialMemory&>;
     public:
         SteeringComponent() : mActive(false), mInit(false), mSteeringPattern(nullptr) {}
 

@@ -63,9 +63,9 @@ namespace ungod
         }
     }
 
-    void DeserialBehavior<World, const sf::RenderTarget&>::deserialize(World& data, MetaNode deserializer, DeserializationContext& context)
+    void DeserialBehavior<World, DeserialMemory&>::deserialize(World& data, MetaNode deserializer, DeserializationContext& context, DeserialMemory& deserialMemory)
     {
-        DeserialBehavior<RenderLayer>::deserialize(data, deserializer, context);
+        DeserialBehavior<RenderLayer>::deserialize(data, deserializer, context, deserialMemory);
 
         initDeserial(context, data);
 
@@ -76,7 +76,7 @@ namespace ungod
 
         //retrieve all entities and add them to the quadtree
         for (const auto& instantiation : data.mDeserialMap)
-            instantiation.second(context, deserializer);
+            instantiation.second(context, deserializer, deserialMemory);
 
 
         //hacky solution, todo?

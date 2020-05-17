@@ -39,10 +39,10 @@ namespace ungod
                                                     "getPosition", &ChildComponent::getPosition,
                                                     "getScale", &ChildComponent::getScale);
 
-            state.registerUsertype<ParentChildManager>("ParentChildManager",
-                                                    "addChild", &ParentChildManager::addChild,
-                                                    "setChildPosition", &ParentChildManager::setChildPosition,
-                                                    "setChildScale", &ParentChildManager::setChildScale);
+            state.registerUsertype<ParentChildHandler>("ParentChildManager",
+                                                    "addChild", &ParentChildHandler::addChild,
+                                                    "setChildPosition", &ParentChildHandler::setChildPosition,
+                                                    "setChildScale", &ParentChildHandler::setChildScale);
         }
     }
 }

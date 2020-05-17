@@ -26,6 +26,7 @@
 #include "ungod/serialization/SerialComponents.h"
 #include "ungod/serialization/CollisionSerial.h"
 #include "ungod/serialization/SerialMulticomponent.h"
+#include "ungod/serialization/DeserialMemory.h"
 
 namespace ungod
 {
@@ -70,10 +71,10 @@ namespace ungod
     template<typename C1, typename ... C>
     struct BaseComponentSerial<C1, C...>
     {
-        static void serialize(Entity e, MetaNode node, SerializationContext& context, const World& world)
+        static void serialize(Entity e, MetaNode node, SerializationContext& context)
         {
-            context.serializeObject<C1, Entity, const World&, const Application&>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e), world);
-            BaseComponentSerial<C...>::serialize(e, node, context, world);
+            context.serializeObject<C1, Entity, const World&, const Application&>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e));
+            BaseComponentSerial<C...>::serialize(e, node, context);
         }
     };
 
@@ -81,9 +82,9 @@ namespace ungod
     template<typename C1>
     struct BaseComponentSerial<C1>
     {
-        static void serialize(Entity e, MetaNode node, SerializationContext& context, const World& world)
+        static void serialize(Entity e, MetaNode node, SerializationContext& context)
         {
-            context.serializeObject<C1, Entity, const World&, const Application&>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e), world);
+            context.serializeObject<C1, Entity, const World&, const Application&>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e));
         }
     };
 
@@ -91,7 +92,7 @@ namespace ungod
     template<>
     struct BaseComponentSerial<>
     {
-        static void serialize(Entity, MetaNode, SerializationContext&, const World&) {}
+        static void serialize(Entity, MetaNode, SerializationContext&) {}
     };
 
 
@@ -103,11 +104,11 @@ namespace ungod
     template<typename C1, typename ... C>
     struct OptionalComponentSerial<C1, C...>
     {
-        static void serialize(Entity e, MetaNode node, SerializationContext& context, const World& world)
+        static void serialize(Entity e, MetaNode node, SerializationContext& context)
         {
             if (e.has<C1>())
-                context.serializeObject<C1, Entity, const World&, const Application&>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e), world);
-            OptionalComponentSerial<C...>::serialize(e, node, context, world);
+                context.serializeObject<C1, Entity, const World&, const Application&>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e));
+            OptionalComponentSerial<C...>::serialize(e, node, context);
         }
     };
 
@@ -115,10 +116,10 @@ namespace ungod
     template<typename C1>
     struct OptionalComponentSerial<C1>
     {
-        static void serialize(Entity e, MetaNode node, SerializationContext& context, const World& world)
+        static void serialize(Entity e, MetaNode node, SerializationContext& context)
         {
             if (e.has<C1>())
-                context.serializeObject<C1, Entity, const World&, const Application&>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e), world);
+                context.serializeObject<C1, Entity, const World&, const Application&>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e));
         }
     };
 
@@ -126,7 +127,7 @@ namespace ungod
     template<>
     struct OptionalComponentSerial<>
     {
-        static void serialize(Entity, MetaNode, SerializationContext&, const World&) {}
+        static void serialize(Entity, MetaNode, SerializationContext&) {}
     };
 
 
@@ -138,10 +139,10 @@ namespace ungod
     template<typename C1, typename ... C>
     struct BaseComponentDeserial<C1, C...>
     {
-        static void deserialize(MetaNode node, MetaAttribute attr, DeserializationContext& context, Entity e, World& world)
+        static void deserialize(MetaNode node, MetaAttribute attr, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory)
         {
-            attr = context.next( context.deserializeObject(e.modify<C1>(), Entity(e), world), SerialIdentifier<C1>::get(), node, attr );
-            BaseComponentDeserial<C...>::deserialize(node, attr, context, e, world);
+            attr = context.next( context.deserializeObject(e.modify<C1>(), Entity(e), deserialMemory), SerialIdentifier<C1>::get(), node, attr );
+            BaseComponentDeserial<C...>::deserialize(node, attr, context, e, deserialMemory);
         }
     };
 
@@ -149,9 +150,9 @@ namespace ungod
     template<typename C1>
     struct BaseComponentDeserial<C1>
     {
-        static void deserialize(MetaNode node, MetaAttribute attr, DeserializationContext& context, Entity e, World& world)
+        static void deserialize(MetaNode node, MetaAttribute attr, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory)
         {
-            context.next( context.deserializeObject(e.modify<C1>(), Entity(e), world), SerialIdentifier<C1>::get(), node, attr );
+            context.next( context.deserializeObject(e.modify<C1>(), Entity(e), deserialMemory), SerialIdentifier<C1>::get(), node, attr );
         }
     };
 
@@ -163,10 +164,10 @@ namespace ungod
     template<typename C1, typename ... C>
     struct BaseComponentDeserialInit<C1, C...>
     {
-        static void deserialize(MetaNode node, DeserializationContext& context, Entity e, World& world)
+        static void deserialize(MetaNode node, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory)
         {
-            MetaAttribute attr = context.first( context.deserializeObject(e.modify<C1>(), Entity(e), world), SerialIdentifier<C1>::get(), node);
-            BaseComponentDeserial<C...>::deserialize(node, attr, context, e, world);
+            MetaAttribute attr = context.first( context.deserializeObject(e.modify<C1>(), Entity(e), deserialMemory), SerialIdentifier<C1>::get(), node);
+            BaseComponentDeserial<C...>::deserialize(node, attr, context, e, deserialMemory);
         }
     };
 
@@ -174,9 +175,9 @@ namespace ungod
     template<typename C1>
     struct BaseComponentDeserialInit<C1>
     {
-        static void deserialize(MetaNode node, DeserializationContext& context, Entity e, World& world)
+        static void deserialize(MetaNode node, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory)
         {
-            context.first( context.deserializeObject(e.modify<C1>(), Entity(e), world), SerialIdentifier<C1>::get(), node);
+            context.first( context.deserializeObject(e.modify<C1>(), Entity(e), deserialMemory), SerialIdentifier<C1>::get(), node);
         }
     };
 
@@ -184,7 +185,7 @@ namespace ungod
     template<>
     struct BaseComponentDeserialInit<>
     {
-        static void deserialize(MetaNode node, DeserializationContext& context, Entity e, World& world) {}
+        static void deserialize(MetaNode node, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory) {}
     };
 
 
@@ -197,14 +198,14 @@ namespace ungod
     template<typename C1, typename ... C>
     struct OptionalComponentDeserial<C1, C...>
     {
-        static void deserialize(MetaNode node, MetaAttribute attr, DeserializationContext& context, Entity e, World& world)
+        static void deserialize(MetaNode node, MetaAttribute attr, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory)
         {
             if ((attr && attr.next() && attr.next().name() == SerialIdentifier<C1>::get()) || node.firstAttribute(SerialIdentifier<C1>::get().c_str()))
             {
                 e.add<C1>();
-                attr = context.next( context.deserializeObject(e.modify<C1>(), Entity(e), world), SerialIdentifier<C1>::get(), node, attr );
+                attr = context.next( context.deserializeObject(e.modify<C1>(), Entity(e), deserialMemory), SerialIdentifier<C1>::get(), node, attr );
             }
-            OptionalComponentDeserial<C...>::deserialize(node, attr, context, e, world);
+            OptionalComponentDeserial<C...>::deserialize(node, attr, context, e, deserialMemory);
         }
     };
 
@@ -212,12 +213,12 @@ namespace ungod
     template<typename C1>
     struct OptionalComponentDeserial<C1>
     {
-        static void deserialize(MetaNode node, MetaAttribute attr, DeserializationContext& context, Entity e, World& world)
+        static void deserialize(MetaNode node, MetaAttribute attr, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory)
         {
             if ((attr && attr.next() && attr.next().name() == SerialIdentifier<C1>::get()) || node.firstAttribute(SerialIdentifier<C1>::get().c_str()))
             {
                 e.add<C1>();
-                attr = context.next( context.deserializeObject(e.modify<C1>(), Entity(e), world), SerialIdentifier<C1>::get(), node, attr );
+                attr = context.next( context.deserializeObject(e.modify<C1>(), Entity(e), deserialMemory), SerialIdentifier<C1>::get(), node, attr );
             }
         }
     };
@@ -229,15 +230,15 @@ namespace ungod
     template<typename C1, typename ... C>
     struct OptionalComponentDeserialInit<C1, C...>
     {
-        static void deserialize(MetaNode node, DeserializationContext& context, Entity e, World& world)
+        static void deserialize(MetaNode node, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory)
         {
             MetaAttribute attr;
             if (node.firstAttribute(SerialIdentifier<C1>::get().c_str()))
             {
                 e.add<C1>();
-                attr = context.first( context.deserializeObject(e.modify<C1>(), Entity(e), world), SerialIdentifier<C1>::get(), node );
+                attr = context.first( context.deserializeObject(e.modify<C1>(), Entity(e), deserialMemory), SerialIdentifier<C1>::get(), node );
             }
-            OptionalComponentDeserial<C...>::deserialize(node, attr, context, e, world);
+            OptionalComponentDeserial<C...>::deserialize(node, attr, context, e, deserialMemory);
         }
     };
 
@@ -245,12 +246,12 @@ namespace ungod
     template<typename C1>
     struct OptionalComponentDeserialInit<C1>
     {
-        static void deserialize(MetaNode node, DeserializationContext& context, Entity e, World& world)
+        static void deserialize(MetaNode node, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory)
         {
             if (node.firstAttribute(SerialIdentifier<C1>::get().c_str()))
             {
                 e.add<C1>();
-                context.first( context.deserializeObject(e.modify<C1>(), Entity(e), world), SerialIdentifier<C1>::get(), node );
+                context.first( context.deserializeObject(e.modify<C1>(), Entity(e), deserialMemory), SerialIdentifier<C1>::get(), node );
             }
         }
     };
@@ -259,7 +260,7 @@ namespace ungod
     template<>
     struct OptionalComponentDeserialInit<>
     {
-        static void deserialize(MetaNode node, DeserializationContext& context, Entity e, World& world) {}
+        static void deserialize(MetaNode node, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory) {}
     };
 
 
@@ -272,21 +273,21 @@ namespace ungod
 
 
     template<typename ... CB, typename ... CO>
-    void SerialBehavior< EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >, Entity, const World&>::
+    void SerialBehavior< EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >, Entity>::
         serialize(const EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >& data,
-                  MetaNode serializer, SerializationContext& context, Entity e, const World& world)
+                  MetaNode serializer, SerializationContext& context, Entity e)
     {
         MetaNode baseNode = context.appendSubnode(serializer, "b");
-        BaseComponentSerial<CB...>::serialize(e, baseNode, context, world);
+        BaseComponentSerial<CB...>::serialize(e, baseNode, context);
         MetaNode optNode = context.appendSubnode(serializer, "o");
-        OptionalComponentSerial<CO...>::serialize(e, optNode, context, world);
+        OptionalComponentSerial<CO...>::serialize(e, optNode, context);
     }
 
 
     template<typename ... CB, typename ... CO>
-    void DeserialBehavior< EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >, Entity, World&>::
+    void DeserialBehavior< EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >, Entity, DeserialMemory&>::
         deserialize(EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >& data,
-                    MetaNode deserializer, DeserializationContext& context, Entity e, World& world)
+                    MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory)
     {
         MetaNode baseNode = deserializer.firstNode("b");
         if (baseNode)
@@ -294,8 +295,8 @@ namespace ungod
             MetaNode optNode = baseNode.next("o");
             if (optNode)
             {
-                BaseComponentDeserialInit<CB...>::deserialize(baseNode, context, e, world);
-                OptionalComponentDeserialInit<CO...>::deserialize(optNode, context, e, world);
+                BaseComponentDeserialInit<CB...>::deserialize(baseNode, context, e, deserialMemory);
+                OptionalComponentDeserialInit<CO...>::deserialize(optNode, context, e, deserialMemory);
                 return;
             }
         }
@@ -310,14 +311,14 @@ namespace ungod
     }
 
     template<typename ... BASE, typename ... OPTIONAL>
-    inline void DeserialBehavior< Entity, DeserialQueues&, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >::
-        deserialize(Entity& data, MetaNode deserializer, DeserializationContext& context, DeserialQueues& deserialqueues,
+    inline void DeserialBehavior< Entity, DeserialMemory&, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >::
+        deserialize(Entity& data, MetaNode deserializer, DeserializationContext& context, DeserialMemory& deserialMemory,
                     BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>)
     {
-        DeserialBehavior<EntityInstantiation<BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>>, Entity, DeserialQueues&>::
+        DeserialBehavior<EntityInstantiation<BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>>, Entity, DeserialMemory&>::
             deserialize(static_cast<EntityInstantiation<BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>>&>(*data.getInstantiation()),
-                        deserializer, context, Entity(data), deserialqueues);
-        deserialqueues.all.emplace(data);
+                        deserializer, context, Entity(data), deserialMemory);
+        deserialMemory.notifyDeserial(data, deserializer, context);
     }
 
     inline std::uintptr_t SerialID<Entity>::get(const Entity& t)

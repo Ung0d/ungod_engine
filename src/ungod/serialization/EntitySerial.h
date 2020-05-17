@@ -28,7 +28,6 @@
 
 #include "ungod/serialization/Serializable.h"
 #include "ungod/content/EntityTypes.h"
-#include "ungod/serialization/DeserialQueues.h"
 
 ///this file describes how to (de)serialize entities
 
@@ -37,6 +36,7 @@ namespace ungod
     class Entity;
     class World;
     class InstantiationBase;
+    struct DeserialMemory;
     template<typename BASE, typename OPTIONAL>
     class EntityInstantiation;
     template<typename ... BASE>
@@ -105,17 +105,17 @@ namespace ungod
     };
 
     template<typename ... CB, typename ... CO>
-    struct SerialBehavior< EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >, Entity, const World&>
+    struct SerialBehavior< EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >, Entity>
     {
         static void serialize(const EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >& data,
-                              MetaNode serializer, SerializationContext& context, Entity e, const World&);
+                              MetaNode serializer, SerializationContext& context, Entity e);
     };
 
     template<typename ... CB, typename ... CO>
-    struct DeserialBehavior< EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >, Entity, World&>
+    struct DeserialBehavior< EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >, Entity, DeserialMemory&>
     {
         static void deserialize(EntityInstantiation< BaseComponents<CB...>, OptionalComponents<CO...> >& data,
-                                MetaNode deserializer, DeserializationContext& context, Entity e, World& world);
+                                MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory);
     };
 
 
@@ -127,10 +127,10 @@ namespace ungod
 
 
     template<typename ... BASE, typename ... OPTIONAL>
-    struct DeserialBehavior< Entity, DeserialQueues&, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >
+    struct DeserialBehavior< Entity, DeserialMemory&, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >
     {
         inline static void deserialize(Entity& data, MetaNode deserializer, DeserializationContext& context,
-                                        DeserialQueues& deserialqueues, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>);
+                                 DeserialMemory& deserialMemory, BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>);
     };
 
     template <>

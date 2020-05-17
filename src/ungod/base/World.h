@@ -65,9 +65,8 @@ namespace ungod
     */
     class World : public RenderLayer, public ComponentSignalBase
     {
-    friend struct SerialBehavior<World, const sf::RenderTarget&>;
-    friend struct DeserialBehavior<World, const sf::RenderTarget&>;
-    friend class DeserialMemory;
+    friend struct SerialBehavior<World>;
+    friend struct DeserialBehavior<World, DeserialMemory&>;
 
     public:
         /** \brief Creates an empty world. */
@@ -215,6 +214,10 @@ namespace ungod
         SteeringHandler<script::Environment>& getSteeringHandler() { return mSteeringHandler; }
         const SteeringHandler<script::Environment>& getSteeringHandler() const { return mSteeringHandler; }
 
+        /** \brief For settings static paths or computing shortest ones. */
+        PathPlanner& getPathPlanner() { return mPathPlanner; }
+        const PathPlanner& getPathPlanner() const { return mPathPlanner; }
+
         /** \brief Returns a reference to the visuals manager. */
         VisualsHandler& getVisualsHandler() { return mVisualsHandler; }
         const VisualsHandler& getVisualsHandler() const { return mVisualsHandler; }
@@ -251,21 +254,13 @@ namespace ungod
         WaterHandler& getWaterHandler() { return mWaterHandler; }
         const WaterHandler& getWaterHandler() const { return mWaterHandler; }
 
+        /** \briefFor handling particle systems. */
+        ParticleSystemHandler& getParticleSystemHandler() { return mParticleSystemHandler; }
+        const ParticleSystemHandler& getParticleSystemHandler() const { return mParticleSystemHandler; }
 
-
-
-
-
-        /** \brief Returns a reference to the pathplanner. */
-        PathPlanner& getPathPlanner();
-
-        /** \brief Returns a reference to the particle-system-manager. */
-        ParticleSystemManager& getParticleSystemManager();
-
-        /** \brief Returns a reference to the parent-child-manager. */
-        ParentChildManager& getParentChildManager();
-
-
+        /** \brief For defining child-parent connections of entities. */
+        ParentChildHandler& getParentChildHandler() { return mParentChildHandler; }
+        const ParentChildHandler& getParentChildHandler() const { return mParentChildHandler; }
 
         /** \brief Registers new callback for the Entity-serialized-signal. */
         owls::SignalLink<void, Entity, MetaNode, SerializationContext&> onEntitySerialized(const std::function<void(Entity, MetaNode, SerializationContext&)>& callback);
@@ -337,11 +332,10 @@ namespace ungod
         LightHandler mLightHandler;
         TileMapHandler mTileMapHandler;
         WaterHandler mWaterHandler;
+        ParticleSystemHandler mParticleSystemHandler;
+        ParentChildHandler mParentChildHandler;
 
-        ParticleSystemManager mParticleSystemManager;
-        ParentChildManager mParentChildManager;
-
-        std::unordered_map<std::string, std::function<void(DeserializationContext&, MetaNode)>> mDeserialMap;
+        std::unordered_map<std::string, std::function<void(DeserializationContext&, MetaNode, DeserialMemory&)>> mDeserialMap;
 
         owls::Signal<Entity> mEntityCreationSignal;
         owls::Signal<Entity> mEntityDestructionSignal;
@@ -570,10 +564,10 @@ namespace ungod
     {
         typedef EntityInstantiation< BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> > Instantiation;
 
-        mDeserialMap.emplace( SerialIdentifier<Instantiation>::get(), [this] (DeserializationContext& context, MetaNode deserializer)
+        mDeserialMap.emplace( SerialIdentifier<Instantiation>::get(), [this] (DeserializationContext& context, MetaNode deserializer, DeserialMemory& deserialMemory)
         {
             std::vector<Entity> entities;
-            context.first( context.deserializeObjectContainer<Entity, DeserialQueues&>(
+            context.first( context.deserializeObjectContainer<Entity, DeserialMemory&>(
                                 [&entities, this] (std::size_t init)
                                 {
                                     entities.reserve(init);
@@ -582,7 +576,7 @@ namespace ungod
                                             entities.emplace_back(std::move(std::move(e)), BaseComponents<BASE...>(), OptionalComponents<OPTIONAL...>());
                                         });
                                 },
-                                [&entities] (std::size_t i) -> Entity& { return entities[i]; }, deserialqueues, BaseComponents<BASE...>(), OptionalComponents<OPTIONAL...>()),
+                                [&entities] (std::size_t i) -> Entity& { return entities[i]; }, deserialMemory, BaseComponents<BASE...>(), OptionalComponents<OPTIONAL...>()),
                             SerialIdentifier<Instantiation>::get(), deserializer );
 
 

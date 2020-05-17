@@ -28,7 +28,6 @@
 
 #include "ungod/serialization/Serializable.h"
 #include "ungod/script/Script.h"
-#include "ungod/serialization/DeserialQueues.h"
 
 namespace ungod
 {
@@ -61,6 +60,7 @@ namespace ungod
     class MusicEmitterComponent;
     class ParentComponent;
     class ChildComponent;
+    struct DeserialMemory;
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

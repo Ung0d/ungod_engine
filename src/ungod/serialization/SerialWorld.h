@@ -47,9 +47,9 @@ namespace ungod
     };
 
     template <>
-    struct DeserialBehavior<World>
+    struct DeserialBehavior<World, DeserialMemory&>
     {
-        static void deserialize(World& data, MetaNode deserializer, DeserializationContext& context);
+        static void deserialize(World& data, MetaNode deserializer, DeserializationContext& context, DeserialMemory& deserialMemory);
     };
 }
 

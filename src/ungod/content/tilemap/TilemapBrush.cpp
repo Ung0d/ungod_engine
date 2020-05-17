@@ -23,7 +23,7 @@
 *    source distribution.
 */
 
-#include "ungod/content/TilemapBrush.h"
+#include "ungod/content/tilemap/TilemapBrush.h"
 
 namespace ungod
 {

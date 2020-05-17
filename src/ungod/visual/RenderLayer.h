@@ -31,7 +31,6 @@
 #include <SFML/Graphics.hpp>
 #include "ungod/serialization/Serializable.h"
 #include "ungod/serialization/SerialRenderLayer.h"
-#include "ungod/serialization/DeserialQueues.h"
 #include "ungod/script/CustomEvent.h"
 #include "owls/Signal.h"
 #include "quadtree/Quadtree.h"
@@ -40,13 +39,14 @@ namespace ungod
 {
     class Camera;
     class Entity;
+    struct DeserialMemory;
 
     /** \brief A layer where different kinds of 2d contents are rendered on.
     * A layer has a depth value, that controls its virtual z-position in 3d space. */
-    class RenderLayer : public PolymorphicSerializable<RenderLayer, DeserialQueues&>
+    class RenderLayer : public PolymorphicSerializable<RenderLayer>
     {
         friend struct SerialBehavior<RenderLayer>;
-        friend struct DeserialBehavior<RenderLayer, std::queue<std::pair<Entity, std::string>>&>;
+        friend struct DeserialBehavior<RenderLayer, DeserialMemory&>;
 
         friend class RenderLayerContainer;
 
@@ -97,9 +97,9 @@ namespace ungod
 		RenderLayerContainer* mContainer;
 
     public:
-        virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, DeserialQueues& deserialqueues) const override
+        virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context) const override
         {
-            deferredSerialize<RenderLayer>(*this, serializer, context, deserialqueues);
+            deferredSerialize<RenderLayer>(*this, serializer, context);
         }
         virtual std::string getSerialIdentifier() const override
         {
@@ -115,9 +115,9 @@ namespace ungod
     using RenderLayerPtr = std::shared_ptr<RenderLayer>;
 
     /** \brief A utility class that bundles a set of RenderLayer-pointers and provides convenient operations on them. */
-    class RenderLayerContainer : public Serializable<RenderLayerContainer, DeserialQueues&>
+    class RenderLayerContainer : public Serializable<RenderLayerContainer>
     {
-    friend struct DeserialBehavior<RenderLayerContainer, DeserialQueues&>;
+    friend struct DeserialBehavior<RenderLayerContainer, DeserialMemory&>;
     public:
         RenderLayerContainer() : mBounds(0.0f, 0.0f, 0.0f, 0.0f) {}
         RenderLayerContainer(const RenderLayerContainer&) = delete;

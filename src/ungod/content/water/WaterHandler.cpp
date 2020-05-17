@@ -23,10 +23,9 @@
 *    source distribution.
 */
 
-#include "ungod/visual/TileMapRenderer.h"
+#include "ungod/visual/WaterHandler.h"
 #include "ungod/visual/Camera.h"
 #include "ungod/application/Application.h"
-#include "ungod/content/FloodFill.h"
 #include "ungod/base/World.h"
 
 namespace ungod

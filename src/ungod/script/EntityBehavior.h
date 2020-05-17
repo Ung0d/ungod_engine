@@ -145,7 +145,7 @@ namespace ungod
     class EntityBehaviorComponent : public Serializable<EntityBehaviorComponent>
     {
     friend class EntityBehaviorManager;
-    friend struct DeserialBehavior<EntityBehaviorComponent, Entity, World&>;
+    friend struct DeserialBehavior<EntityBehaviorComponent, Entity, DeserialMemory&>;
     private:
         StateBehaviorPtr<> mBehavior;
 
@@ -214,7 +214,8 @@ namespace ungod
         ON_MOVEMENT_BEGIN, ON_MOVEMENT_END, ON_DIRECTION_CHANGED,
         ON_ANIMATION_BEGIN, ON_ANIMATION_FRAME, ON_ANIMATION_END,
         ON_CUSTOM_EVENT,
-        ON_AI_GET_STATE, ON_AI_ACTION
+        ON_AI_GET_STATE, ON_AI_ACTION,
+        ON_ENTERED_NEW_NODE
     };
 
     class EntityBehaviorHandler;
@@ -234,7 +235,8 @@ namespace ungod
                                             "onMovementBegin", "onMovementEnd", "onDirectionChanged",
                                             "onAnimationBegin", "onAnimationFrame", "onAnimationEnd",
                                             "onCustomEvent",
-                                                "onAIGetState", "onAIAction" };
+                                            "onAIGetState", "onAIAction",
+                                            "onEnteredNewNode"};
     public:
         EntityBehaviorManager(Application& app);
 

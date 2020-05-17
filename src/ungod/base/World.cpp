@@ -24,7 +24,6 @@
 */
 
 #include "ungod/base/World.h"
-#include "ungod/audio/VolumeSettings.h"
 #include "ungod/serialization/CollisionSerial.h"
 #include "ungod/serialization/SerialMultiComponent.h"
 #include "ungod/serialization/SerialComponents.h"
@@ -53,137 +52,103 @@ namespace ungod
         mSoundHandler(),
         mLightHandler(),
         mTileMapHandler(),
-        WaterHandler(),
-        mParentChildManager(*this),
+        mWaterHandler(),
+        mParentChildHandler(*this),
         mRenderLight(true)
     {
     }
 
 
-    void init(ScriptedGameState& master, const DeserialMemory* deserialMemory)
+    void World::init(ScriptedGameState& master, const DeserialMemory* deserialMemory)
     {
         mMaster = &master;
         mEntityBehaviorHandler.init(*this);
         mSteeringHandler.init(master.getSteeringManager());
         mLightHandler.init(master.getLightManager());
-        mListener = std::unique_ptr<AudioListener>(new CameraListener(master.getCamera(), world*this));
+        mListener = std::unique_ptr<AudioListener>(new CameraListener(master.getCamera(), *this));
         mMusicEmitterMixer.init(mListener.get());
         mSoundHandler.init(master.getApp().getSoundProfileManager(), mListener.get());
         mTileMapHandler.init(*this);
         mWaterHandler.init(*this);
 
-        //set up signal callbacks
-        world->getTransformManager().onPositionChanged([this](Entity e, const sf::Vector2f& position) { mScriptCallbacks.execute(ON_POSITION_CHANGED, this, e, position); });
-        world->getTransformManager().onSizeChanged([this](Entity e, const sf::Vector2f& size) { mScriptCallbacks.execute(ON_SIZE_CHANGED, this, e, size); });
-        world->getMovementManager().onBeginMovement([this](Entity e, const sf::Vector2f& vel) { mScriptCallbacks.execute(ON_BEGIN_MOVEMENT, this, e, vel); });
-        world->getMovementManager().onEndMovement([this](Entity e) { mScriptCallbacks.execute(ON_END_MOVEMENT, this, e); });
-        world->getMovementManager().onDirectionChanged([this](Entity e, MovementComponent::Direction oldDirec, MovementComponent::Direction newDirec) { mScriptCallbacks.execute(ON_DIRECTION_CHANGED, this, e, oldDirec, newDirec); });
-        world->getVisualsManager().onVisibilityChanged([this](Entity e, bool visibility) { mScriptCallbacks.execute(ON_VISIBILITY_CHANGED, this, e, visibility); });
-        world->getVisualsManager().onAnimationStart([this](Entity e, const std::string& key) { mScriptCallbacks.execute(ON_ANIMATION_START, this, e, key); });
-        world->getVisualsManager().onAnimationStop([this](Entity e, const std::string& key) { mScriptCallbacks.execute(ON_ANIMATION_STOP, this, e, key); });
-        world->getMovementCollisionManager().onCollision([this](Entity e1, Entity e2, const sf::Vector2f& mdv, const Collider& c1, const Collider& c2) { mScriptCallbacks.execute(ON_MOV_COLLISION, this, e1, e2, mdv, c1, c2); });
-        world->getMovementCollisionManager().onBeginCollision([this](Entity e1, Entity e2) { mScriptCallbacks.execute(ON_BEGIN_MOV_COLLISION, this, e1, e2); });
-        world->getMovementCollisionManager().onEndCollision([this](Entity e1, Entity e2) { mScriptCallbacks.execute(ON_END_MOVE_COLLISION, this, e1, e2); });
-        world->getSemanticsCollisionManager().onCollision([this](Entity e1, Entity e2, const sf::Vector2f& mdv, const Collider& c1, const Collider& c2) { mScriptCallbacks.execute(ON_SEM_COLLISION, this, e1, e2, mdv, c1, c2); });
-        world->getSemanticsCollisionManager().onBeginCollision([this](Entity e1, Entity e2) { mScriptCallbacks.execute(ON_BEGIN_SEM_COLLISION, this, e1, e2); });
-        world->getSemanticsCollisionManager().onEndCollision([this](Entity e1, Entity e2) { mScriptCallbacks.execute(ON_END_SEM_COLLISION, this, e1, e2); });
-        world->getInputManager().onPressed([this](const std::string& binding) { mScriptCallbacks.execute(ON_PRESSED, this, binding); });
-        world->getInputManager().onDown([this](const std::string& binding) { mScriptCallbacks.execute(ON_DOWN, this, binding); });
-        world->getInputManager().onReleased([this](const std::string& binding) { mScriptCallbacks.execute(ON_RELEASED, this, binding); });
-        world->getInputManager().onMouseEnter([this](Entity e) { mScriptCallbacks.execute(ON_MOUSE_ENTER, this, e); });
-        world->getInputManager().onMouseClick([this](Entity e) { mScriptCallbacks.execute(ON_MOUSE_CLICK, this, e); });
-        world->getInputManager().onMouseExit([this](Entity e) { mScriptCallbacks.execute(ON_MOUSE_EXIT, this, e); });
-        world->getInputManager().onMouseReleased([this](Entity e) { mScriptCallbacks.execute(ON_MOUSE_RELEASED, this, e); });
-
-
         //register instantiations for deserialization
         registerTypes(*this);
 
-
         //connect signals
-        mVisualsManager.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
+        mVisualsHandler.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
                                           {
-                                                mTransformManager.handleContentsChanged(e, rect);
+                                                mTransformHandler.handleContentsChanged(e, rect);
                                           });
-        mMovementRigidbodyManager.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
+        mMovementRigidbodyHandler.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
                                           {
-                                                mTransformManager.handleContentsChanged(e, rect);
+                                                mTransformHandler.handleContentsChanged(e, rect);
                                           });
-		mSemanticsRigidbodyManager.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+		mSemanticsRigidbodyHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
 											{
-												mTransformManager.handleContentsChanged(e, rect);
+												mTransformHandler.handleContentsChanged(e, rect);
 											});
-        mMovementRigidbodyManager.onContentRemoved( [this] (Entity e)
+        mMovementRigidbodyHandler.onContentRemoved( [this] (Entity e)
                                           {
-                                                mTransformManager.handleContentsRemoved(e);
+                                                mTransformHandler.handleContentsRemoved(e);
                                           });
-		mSemanticsRigidbodyManager.onContentRemoved([this](Entity e)
+		mSemanticsRigidbodyHandler.onContentRemoved([this](Entity e)
 											{
-												mTransformManager.handleContentsRemoved(e);
+                                                mTransformHandler.handleContentsRemoved(e);
 											});
-        mLightSystem.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
+        mLightHandler.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
                                           {
-                                                mTransformManager.handleContentsChanged(e, rect);
+                                                mTransformHandler.handleContentsChanged(e, rect);
                                           });
-        mParticleSystemManager.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
+        mParticleSystemHandler.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
                                           {
-                                                mTransformManager.handleContentsChanged(e, rect);
+                                                mTransformHandler.handleContentsChanged(e, rect);
                                           });
-        mMovementCollisionManager.onCollision( [this] (Entity e, Entity other, const sf::Vector2f& vec, const Collider& c1, const Collider& c2)
+        mMovementCollisionHandler.onCollision( [this] (Entity e, Entity other, const sf::Vector2f& vec, const Collider& c1, const Collider& c2)
                                           {
-                                                mMovementManager.handleCollision(e, other, vec, c1, c2);
+                                                mMovementHandler.handleCollision(e, other, vec, c1, c2);
                                           });
-		mTileMapRenderer.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
-			{
-				mTransformManager.handleContentsChanged(e, rect);
-			});
-        mTransformManager.onMoveContents( [this] (Entity e, const sf::Vector2f& vec)
+		mTileMapHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+			                                {
+                                                mTransformHandler.handleContentsChanged(e, rect);
+			                                });
+        mTransformHandler.onMoveContents( [this] (Entity e, const sf::Vector2f& vec)
                                           {
-                                                mLightSystem.moveLights(e, vec);
-                                                mLightSystem.moveLightColliders(e, vec);
-												mMovementRigidbodyManager.moveColliders(e, vec);
-												mSemanticsRigidbodyManager.moveColliders(e, vec);
-                                                mVisualsManager.moveVisuals(e, vec);
-												mTileMapRenderer.moveMaps(e, vec);
+                                                mLightHandler.moveLights(e, vec);
+                                                mLightHandler.moveLightColliders(e, vec);
+												mMovementRigidbodyHandler.moveColliders(e, vec);
+												mSemanticsRigidbodyHandler.moveColliders(e, vec);
+                                                mVisualsHandler.moveVisuals(e, vec);
+												mTileMapHandler.moveTilemap(e, vec);
                                           });
 
 
-        onComponentAdded<ParticleSystemComponent>( [this] (Entity e) { mParticleSystemManager.handleParticleSystemAdded(e); });
+        onComponentAdded<ParticleSystemComponent>( [this] (Entity e) { mParticleSystemHandler.handleParticleSystemAdded(e); });
 
 
         //connect lower bounds methods
-        mTransformManager.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mVisualsManager.getLowerBound(e); });
-        mTransformManager.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mLightSystem.getLowerBound(e); });
-        mTransformManager.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mMovementRigidbodyManager.getLowerBound(e); });
-		mTransformManager.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyManager.getLowerBound(e); });
-        mTransformManager.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mParticleSystemManager.getLowerBound(e); });
+        mTransformHandler.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mVisualsHandler.getLowerBound(e); });
+        mTransformHandler.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mLightHandler.getLowerBound(e); });
+        mTransformHandler.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mMovementRigidbodyHandler.getLowerBound(e); });
+        mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyHandler.getLowerBound(e); });
+        mTransformHandler.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mParticleSystemHandler.getLowerBound(e); });
 
         //connect upper bounds methods
-        mTransformManager.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mVisualsManager.getUpperBound(e); });
-        mTransformManager.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mLightSystem.getUpperBound(e); });
-        mTransformManager.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mMovementRigidbodyManager.getUpperBound(e); });
-		mTransformManager.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyManager.getUpperBound(e); });
-        mTransformManager.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mParticleSystemManager.getUpperBound(e); });
-
-        //init audio
-        mAudioManager.initVolumeSettings(VolumeSettings::NUM);
-
-        //init light
-        mLightSystem.init(app, &mQuadTree, app.getWindow().getSize(), unshadowVertex, unshadowFragment, lightVertex, lightFragment, penumbraTex);
-
-        //init script behavior
-        mBehaviorManager.init(*this, app);
+        mTransformHandler.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mVisualsHandler.getUpperBound(e); });
+        mTransformHandler.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mLightHandler.getUpperBound(e); });
+        mTransformHandler.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mMovementRigidbodyHandler.getUpperBound(e); });
+        mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyHandler.getUpperBound(e); });
+        mTransformHandler.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mParticleSystemHandler.getUpperBound(e); });
 
         if (deserialMemory)
         {
-            for (const auto& entry : deserialMemory.scriptEntities) //assign scripts first!
+            for (const auto& entry : deserialMemory->scriptEntities) //assign scripts first!
             {
                 mEntityBehaviorHandler.assignBehavior(entry.entity, entry.script);
             }
-            for (comst auto& entry : deserialMemory.all) //signals may invoke script calls!
+            for (const auto& entry : deserialMemory->all) //signals may invoke script calls!
             {
                 mEntityCreationSignal(entry.entity);
-                mDeserializedSignal(entry.entity, entry.node, entry.context);
+                mEntityDeserializedSignal(entry.entity, entry.node, entry.context);
             }
         }
     }
@@ -224,18 +189,16 @@ namespace ungod
 
         mEntityBehaviorHandler.update(mInUpdateRange.getList(), delta);
         mMovementHandler.update(mInUpdateRange.getList(), delta);
-        mSteeringManager.update(mInUpdateRange.getList(), delta, mMovementManager);
-        mPathPlanner.update(mInUpdateRange.getList(), delta, mMovementManager);
-        mMovementCollisionManager.checkCollisions(mInUpdateRange.getList());
-        mSemanticsCollisionManager.checkCollisions(mInUpdateRange.getList());
+        mSteeringHandler.update(mInUpdateRange.getList(), delta, mMovementHandler);
+        mPathPlanner.update(mInUpdateRange.getList(), delta, mMovementHandler);
+        mMovementCollisionHandler.checkCollisions(mInUpdateRange.getList());
+        mSemanticsCollisionHandler.checkCollisions(mInUpdateRange.getList());
         mMusicEmitterMixer.update(delta, &mQuadTree);
         mSoundHandler.update(delta);
         mLightHandler.update(mInUpdateRange.getList(), delta);
+        mParticleSystemHandler.update(mInUpdateRange.getList(), delta);
 
-        mParticleSystemManager.update(mInUpdateRange.getList(), delta);
-
-        if (!mMuteSound) //todo where to get the quadtree from??
-            mMusicEmitterMixer.update(delta, static_cast<AudioListener*>(mListener.get()), mQuadTree);
+        mMusicEmitterMixer.update(delta, mQuadTree);
 
         mMaster->getRenderer().update(mInUpdateRange.getList(), delta, mVisualsHandler);
     }
@@ -366,10 +329,9 @@ namespace ungod
     void World::tagWithName(Entity e, const std::string& name)
     {
         mEntityNames.insert( NameBimap::value_type{name, e} );
-        Logger::info(e.getID());
+        /*Logger::info(e.getID());
         Logger::info(" INSERT ");
         Logger::info(name);
-        Logger::endl();
 
         for (const auto& nameEntityPair : mEntityNames)
         {
@@ -384,7 +346,7 @@ namespace ungod
             Logger::info(" MAPBN ");
             Logger::info(pair.first);
             Logger::endl();
-        }
+        }*/
     }
 
 

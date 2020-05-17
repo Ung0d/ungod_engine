@@ -23,8 +23,8 @@
 *    source distribution.
 */
 
-#include "ungod/content/tilemap/TileMapRenderer.h"
-#include "ungod/content/FloodFill.h"
+#include "ungod/content/tilemap/TileMapHandler.h"
+#include "ungod/content/tilemap/FloodFill.h"
 
 namespace ungod
 {

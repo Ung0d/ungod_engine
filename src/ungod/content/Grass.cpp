@@ -35,7 +35,7 @@ namespace ungod
         //calculate the "sway-offset" that determines how wide the grass sways in this frame
         float swayOffset = windForce * 0.1f * delta;
 
-        VisualsHandler& vm = mWorld->getVisualsManager();
+        VisualsHandler& vm = mWorld->getVisualsHandler();
 
         dom::Utility<Entity>::iterate< GrassPatch, VertexArray >(entities,
           [delta, &vm, swayRange, swayOffset, this] (Entity e, GrassPatch& grass, VertexArray& vertices)
@@ -81,11 +81,11 @@ namespace ungod
             {
                 if (containsPoint(collider, trampling.get<TransformComponent>(), grass.get<TransformComponent>().getTransform().transformPoint(data.position)))
                 {
-                    mWorld->getVisualsManager().setArrayTextureRect(grass, data.rectIndex, grasspatch.mTrampledKey);
+                    mWorld->getVisualsHandler().setArrayTextureRect(grass, data.rectIndex, grasspatch.mTrampledKey);
                 }
                 else
                 {
-                    mWorld->getVisualsManager().setArrayTextureRect(grass, data.rectIndex, data.sheetKey);
+                    mWorld->getVisualsHandler().setArrayTextureRect(grass, data.rectIndex, data.sheetKey);
                 }
             }
         }
@@ -98,7 +98,7 @@ namespace ungod
             const GrassPatch& grasspatch = grass.get<GrassPatch>();
             for (const auto& data : grasspatch.mGrassData)
             {
-                mWorld->getVisualsManager().setArrayTextureRect(grass, data.rectIndex, data.sheetKey);
+                mWorld->getVisualsHandler().setArrayTextureRect(grass, data.rectIndex, data.sheetKey);
             }
         }
     }
@@ -144,7 +144,7 @@ namespace ungod
         gp.mTrampledKey = trampeledKey;
 
         //init texture rects and visuals
-        mWorld->getVisualsManager().loadTexture(grass, imagePath, LoadPolicy::ASYNC);
-        mWorld->getVisualsManager().initTextureRects(grass, grassDensity);
+        mWorld->getVisualsHandler().loadTexture(grass, imagePath, LoadPolicy::ASYNC);
+        mWorld->getVisualsHandler().initTextureRects(grass, grassDensity);
     }
 }

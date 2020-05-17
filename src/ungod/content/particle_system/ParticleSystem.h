@@ -80,7 +80,7 @@ namespace ungod
         static constexpr float MAX_VELOCITY_DEFAULT = 2.0f;
         static constexpr float PARTICLE_SPEED_DEFAULT = 1.0f;
     public:
-        ParticleSystem(ParticleFunctorMaster& funcMaster);
+        ParticleSystem(const ParticleFunctorMaster& funcMaster);
 
         ParticleSystem(const ParticleSystem& other);
 
@@ -195,7 +195,7 @@ namespace ungod
         virtual void estimateAndFit();
 
     private:
-        ParticleFunctorMaster& mFuncMaster;
+        const ParticleFunctorMaster& mFuncMaster;
         FunctorHandle mEmitter;
         FunctorHandle mCountEstimator;
         std::vector< FunctorHandle > mAffectors;

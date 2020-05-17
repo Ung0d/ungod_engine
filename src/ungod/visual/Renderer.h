@@ -76,7 +76,7 @@ namespace ungod
 
         /** \brief Updates the internal list of entities. Selects out the entities with Animation-components automatically.
         * Entities with no animation component will be skipped. */
-        void update(const std::list<Entity>& entities, float delta);
+        void update(const std::list<Entity>& entities, float delta, VisualsHandler& vh);
 
         /** \brief Renders an entity to the render target. The flip flag indicates whether the entity is rendering
         * is mirrored in y direction. This is used in water reflection-rendering. */
@@ -110,7 +110,7 @@ namespace ungod
         bool mShowWater;
 
     private:
-        void updateAnimation(Entity e, AnimationComponent& animation, float delta);
+        void updateAnimation(Entity e, AnimationComponent& animation, float delta, VisualsHandler& vh);
     };
 
 

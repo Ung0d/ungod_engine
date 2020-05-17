@@ -1,5 +1,6 @@
 #include "ungod/script/EntityBehavior.h"
 #include "ungod/base/World.h"
+#include "ungod/application/Application.h"
 
 namespace ungod
 {
@@ -37,7 +38,7 @@ namespace ungod
 
 
     EntityBehaviorManager::EntityBehaviorManager(Application& app)
-        : mBehaviorManager(app.getScriptState(), app.getGlobalScriptEnv(), main, IDENTIFIERS, ON_CREATION, ON_INIT, ON_EXIT, ON_STATIC_CONSTR, ON_STATIC_DESTR)
+        : mBehaviorManager(app.getScriptState(), app.getGlobalScriptEnv(), IDENTIFIERS, ON_CREATION, ON_INIT, ON_EXIT, ON_STATIC_CONSTR, ON_STATIC_DESTR)
     {
         mScriptStateChangedLink = app.onScriptStateChanged([this, &app]()
             {
@@ -48,9 +49,9 @@ namespace ungod
     ScriptErrorCode EntityBehaviorManager::loadBehaviorScript(const std::string& filepath)
     {
         auto success = mBehaviorManager.loadBehavior(filepath);
-        boost::filesystem::path p = filepath;
+        /*boost::filesystem::path p = filepath;
         detail::OptionalEnvironment staticEnv = mBehaviorManager.getStaticEnvironment(p.stem().string());
-        if (staticEnv) staticEnv.value()["world"] = mWorld;
+        if (staticEnv) staticEnv.value()["world"] = mWorld;*/
         return success;
     }
 
@@ -123,6 +124,9 @@ namespace ungod
         world.getSemanticsCollisionHandler().onCollision([this](Entity e1, Entity e2, const sf::Vector2f& mdv, const Collider& c1, const Collider& c2)
             { entityCollision(e1, e2, mdv, c1, c2); });
         world.getSemanticsCollisionHandler().onEndCollision([this](Entity e1, Entity e2) { entityCollisionExit(e1, e2); });
+
+        world.getState()->getWorldGraph().onEntityChangedNode([this](Entity e, WorldGraph& wg, WorldGraphNode& oldNode, WorldGraphNode& newNode) 
+            { callbackInvoker<Entity, WorldGraph&, WorldGraphNode&, WorldGraphNode&>(ON_ENTERED_NEW_NODE, e, wg, old, newNode);  });
     }
 
     void EntityBehaviorHandler::update(const std::list<Entity>& entities, float delta)

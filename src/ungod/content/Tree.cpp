@@ -54,7 +54,6 @@ namespace ungod
             mKeyset.bigLeavesKeys.size() == 0)
         {
             Logger::warning("A key list in a tree-keyset is empty.");
-            Logger::endl();
         }
      }
 
@@ -114,15 +113,15 @@ namespace ungod
         }
 
         //build whole tree
-        world.getVisualsManager().setSpriteTextureRect(e, stumb, 0);
+        world.getVisualsHandler().setSpriteTextureRect(e, stumb, 0);
         sf::FloatRect bounds = e.get<MultiSpriteComponent>().getComponent(0).getSprite().getTextureRect();
         for (unsigned i = 0; i < leaves.size(); ++i)
         {
             sf::Vector2f defPos{ pivotPos.x + bounds.width * offsets[i].x, pivotPos.y + bounds.height * offsets[i].y };
-            world.getVisualsManager().setSpriteTextureRect(e, leaves[i], i);
-            world.getVisualsManager().setSpritePosition(e, defPos, i);
+            world.getVisualsHandler().setSpriteTextureRect(e, leaves[i], i);
+            world.getVisualsHandler().setSpritePosition(e, defPos, i);
             sf::FloatRect leavesbounds = e.get<MultiSpriteComponent>().getComponent(i+1).getSprite().getTextureRect();
-            world.getVisualsManager().setOrigin(e, {leavesbounds.width*0.5f, leavesbounds.height*0.5f}, i+1);
+            world.getVisualsHandler().setOrigin(e, {leavesbounds.width*0.5f, leavesbounds.height*0.5f}, i+1);
             if (mRandomColor)
             {
                 int red = mBaseColor.r;
@@ -132,7 +131,7 @@ namespace ungod
                 red = std::min( 255, std::max(0, red - NumberGenerator::getRandBetw(-mVarianceColor.r, mVarianceColor.r)));
                 green = std::min( 255, std::max(0, green - NumberGenerator::getRandBetw(-mVarianceColor.g, mVarianceColor.g)));
                 blue = std::min( 255, std::max(0, blue - NumberGenerator::getRandBetw(-mVarianceColor.b, mVarianceColor.b)));
-                world.getVisualsManager().setSpriteColor(e.modify<MultiSpriteComponent>().getComponent(i+1), sf::Color(red, green, blue));
+                world.getVisualsHandler().setSpriteColor(e.modify<MultiSpriteComponent>().getComponent(i+1), sf::Color(red, green, blue));
             }
         }
     }
@@ -153,8 +152,8 @@ namespace ungod
         e.initMulti<MultiSpriteComponent>(compCount);
         e.initMulti<MultiVisualAffectorComponent>(compCount-1); //strump
 
-        world.getVisualsManager().loadTexture(e, mKeyset.texture, LoadPolicy::ASYNC);
-        world.getVisualsManager().loadMetadata(e, mKeyset.meta);
+        world.getVisualsHandler().loadTexture(e, mKeyset.texture, LoadPolicy::ASYNC);
+        world.getVisualsHandler().loadMetadata(e, mKeyset.meta);
 
         //world.getRigidbodyManager().addCollider(e, )
     }
@@ -238,8 +237,8 @@ namespace ungod
         for (unsigned i = 0; i < affector.getComponentCount(); ++i)
         {
             bool clockwise = NumberGenerator::getRandBool();
-            world.getVisualsManager().setRotation(e, NumberGenerator::getFloatRandBetw(0.0f, 360.0f), i+1);
-            world.getVisualsManager().setAffectorCallback(e,
+            world.getVisualsHandler().setRotation(e, NumberGenerator::getFloatRandBetw(0.0f, 360.0f), i+1);
+            world.getVisualsHandler().setAffectorCallback(e,
               [i, clockwise] (Entity e, float delta, VisualsHandler& mgr, VisualsComponent& vis) mutable
               {
                   float current = e.get<MultiSpriteComponent>().getComponent(i+1).getSprite().getRotation();

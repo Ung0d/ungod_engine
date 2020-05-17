@@ -26,13 +26,11 @@
 #define UNGOD_DESERIAL_MEMORY_H
 
 #include <forward_list>
-#include <pair>
 #include <string>
+#include "ungod/base/Entity.h"
 
 namespace ungod
 {
-	class Entity;
-
 	namespace detail
 	{
 		struct EntityScriptPair
@@ -58,8 +56,8 @@ namespace ungod
 	* perform all queued actions that can not run asycronously. */
 	struct DeserialMemory
 	{
-		std::forward_list<detail::EntityDeserialNote> mAllDeserial;
-		std::forward_list<detail::EntityScriptPair> mScriptEntities;
+		std::forward_list<detail::EntityDeserialNote> all;
+		std::forward_list<detail::EntityScriptPair> scriptEntities;
 
 		void notifyDeserial(Entity e, MetaNode serializer, DeserializationContext& context);
 

@@ -25,6 +25,7 @@
 
 #include "ungod/visual/RenderLayer.h"
 #include "ungod/visual/Camera.h"
+#include "ungod/serialization/DeserialMemory.h"
 #include <algorithm>
 
 namespace ungod

@@ -27,6 +27,7 @@
 #include "ungod/visual/RenderLayer.h"
 #include "ungod/application/ScriptedGameState.h"
 #include "ungod/base/World.h"
+#include "ungod/serialization/DeserialMemory.h"
 
 namespace ungod
 {
@@ -36,8 +37,8 @@ namespace ungod
 		context.serializeProperty("n", data.getName(), serializer);
     }
 
-    void DeserialBehavior<RenderLayer, std::queue<std::pair<Entity, std::string>>&>::deserialize(
-        RenderLayer& data, MetaNode deserializer, DeserializationContext& context, std::queue<std::pair<Entity, std::string>>&)
+    void DeserialBehavior<RenderLayer, DeserialMemory&>::deserialize(
+        RenderLayer& data, MetaNode deserializer, DeserializationContext& context, DeserialMemory& deserialMemory)
     {
         auto attr = context.first(context.deserializeProperty([&data](float d) {data.setRenderDepth(d);}, 1.0f), "d", deserializer);
         context.next(context.deserializeProperty([&data](const std::string& s) {data.setName(s);}, std::string()), "n", deserializer, attr);
@@ -51,15 +52,15 @@ namespace ungod
         context.serializeObjectContainer<RenderLayer>("l", [&data] (std::size_t i) -> const RenderLayer& { return *data.getVector()[i].first.get(); }, data.getVector().size(), serializer, state.getApp().getWindow());
     }
 
-    void DeserialBehavior<RenderLayerContainer, DeserialQueues&>::deserialize(
-        RenderLayerContainer& data, MetaNode deserializer, DeserializationContext& context, DeserialQueues& deserialqueues)
+    void DeserialBehavior<RenderLayerContainer, DeserialMemory&>::deserialize(
+        RenderLayerContainer& data, MetaNode deserializer, DeserializationContext& context, DeserialMemory& deserialMemory)
     {
 		auto result = deserializer.getAttributes<float, float>({ "w", 0.0f }, { "h", 0.0f });
 		data.setSize({ std::get<0>(result), std::get<1>(result) });
         context.instantiate<World>([&data, &state] ()
             {
                 return data.registerLayer(RenderLayerPtr{new World()}, data.mRenderLayers.size());
-            }, target);
+            }, deserialMemory);
 
         context.first(context.deserializeInstantiationContainer<RenderLayer>(
             [&data] (std::size_t initsize) { data.mRenderLayers.reserve(initsize); },

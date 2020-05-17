@@ -29,11 +29,12 @@
 #include "ungod/serialization/DeserialInit.h"
 #include "ungod/serialization/SerialGraph.h"
 #include "ungod/serialization/SerialRenderLayer.h"
+#include "ungod/physics/Movement.h"
 
 
 namespace ungod
 {
-     WorldGraph::WorldGraph(unsigned distance) : mActive(-1), mDistance(distance), mTopologyChanged(false)
+     WorldGraph::WorldGraph(unsigned distance) : mActive(-1), mDistance(distance)
      {
      }
 
@@ -80,11 +81,9 @@ namespace ungod
         mCurrentNeighborhood = neighborhoodnew;
 
         if (node && mActive != -1)
-		    mReferencePositionChanged(*this, *node, *mNodes[mActive]);
+            mActiveNodeChanged(*this, *node, *mNodes[mActive]);
 
-		Logger::info("New active node: ");
-		Logger::info(node->getIdentifier());
-		Logger::endl();
+        Logger::info("New active node:", node->getIdentifier());
 
         return true;
      }
@@ -111,7 +110,6 @@ namespace ungod
         for (const auto& i : mCurrentNeighborhood)
             mNodes[i]->update(delta);
         checkOutOfBounds();
-        mAudioManager.update(delta);
     }
 
     void WorldGraph::handleInput(const sf::Event& event, const sf::RenderTarget& target)
@@ -157,16 +155,10 @@ namespace ungod
             auto b = node->getBounds();
             sf::Vector2f actPos{ b.left + b.width / 2, b.top + b.height / 2 };
             if (!updateReferencePosition(actPos))
-            {
                 ungod::Logger::error("Can not activate node " + identifier + ". Does it have zero sizes?");
-                ungod::Logger::endl();
-            }
         }
         else
-        {
             ungod::Logger::error("Tried to activate a world graph node that does not exist: " + identifier);
-            ungod::Logger::endl();
-        }
     }
 
     WorldGraphNode* WorldGraph::getActiveNode()
@@ -267,12 +259,14 @@ namespace ungod
                 const auto& oobCandidates = mNodes[i]->getWorld(j)->getQuadTree().getContainer();
                 for (auto e : oobCandidates)
                 {
+                    if (!e.has<MovementComponent>())
+                        continue;
                     //skip entities that just left their node
-                    auto res = mJustLeft.find(e);
-                    if (res != mJustLeft.end())
+                    auto res = mJustHandled.find(e);
+                    if (res != mJustHandled.end())
                         continue;
 
-                    if (!mNodes[i]->getWorld(j)->getQuadTree().isInsideBounds(e))
+                    if (!mNodes[j]->getWorld(j)->getQuadTree().isInsideBounds(e))
                     {
                         //find a new node for the entity
                         quad::PullResult<WorldGraphNode*> result;
@@ -292,17 +286,18 @@ namespace ungod
                         }
                         if (newNode)
                         {
-
+                            mEntityChangedNode(e, *this, *mNodes[j], *newNode);
+                            mJustHandled.emplace(e, sf::Clock{});
                         }
                     }
                 }
             }
         }
         //forget entities above timer
-        for (auto iter = mJustLeft.begin(); iter != mJustLeft.end(); iter++) 
+        for (auto iter = mJustHandled.begin(); iter != mJustHandled.end(); iter++)
         {
             if (iter->second.getElapsedTime().asSeconds() > NODE_TRANSITION_TIMER_S) 
-                iter = aMap.erase(iter);
+                iter = mJustHandled.erase(iter);
             else 
                 ++iter;
         }

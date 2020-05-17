@@ -46,8 +46,8 @@ namespace ungod
     class MovementComponent : public ungod::Serializable<MovementComponent>
     {
     friend class MovementHandler;
-     friend struct SerialBehavior<MovementComponent, Entity, const World&, const Application&>;
-    friend struct DeserialBehavior<MovementComponent, Entity, World&, const Application&>;
+     friend struct SerialBehavior<MovementComponent, Entity>;
+    friend struct DeserialBehavior<MovementComponent, Entity, DeserialMemory&>;
     public:
         enum class Direction { IDLE,
                                UP, DOWN, LEFT, RIGHT };

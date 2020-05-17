@@ -55,7 +55,7 @@ namespace ungod
     {
     friend class TileMapHandler;
 	friend class Renderer;
-    friend struct DeserialBehavior<TileMapComponent, Entity, World&>;
+    friend struct DeserialBehavior<TileMapComponent, Entity, DeserialMemory&>;
     public:
         TileMapComponent() = default;
 

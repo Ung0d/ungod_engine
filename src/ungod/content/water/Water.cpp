@@ -23,10 +23,10 @@
 *    source distribution.
 */
 
-#include "ungod/content/Water.h"
+#include "ungod/content/water/Water.h"
 #include "ungod/base/Entity.h"
 #include "ungod/base/World.h"
-#include "ungod/content/TileMap.h"
+#include "ungod/content/tilemap/TileMap.h"
 
 namespace ungod
 {

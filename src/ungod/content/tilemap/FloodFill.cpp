@@ -23,7 +23,7 @@
 *    source distribution.
 */
 
-#include "ungod/content/FloodFill.h"
+#include "ungod/content/tilemap/FloodFill.h"
 #include <stack>
 
 namespace ungod

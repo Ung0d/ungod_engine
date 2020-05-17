@@ -22,7 +22,7 @@
 * 3. This notice may not be removed or altered from any
 *    source distribution.
 */
-#include "ungod/base/WorldChunkAsset.h"
+#include "ungod/base/NodeData.h"
 #include "ungod/serialization/DeserialInit.h"
 
 namespace ungod
@@ -33,7 +33,7 @@ namespace ungod
         initContext(data.context);
         if (!data.context.read(filepath))
             return false;
-        context.deserializeRootObject(data.container, data.memory);
+        data.context.deserializeRootObject(data.container, data.memory);
         return true;
     }
 }

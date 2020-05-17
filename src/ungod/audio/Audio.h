@@ -43,6 +43,7 @@ namespace ungod
     class World;
     class Application;
     class ScriptedGameState;
+    struct DeserialMemory;
 
     /** \brief Bundles a sound object, a counter, that indicates how many slots currently play
     * this sound, and a expired flag. */
@@ -62,7 +63,6 @@ namespace ungod
     friend class SoundHandler;
     friend class SoundSlot;
     friend class ProfileHandle;
-     friend struct SerialBehavior<AudioManager>;
     private:
         std::vector< std::unique_ptr<SoundBundle> > mSounds;
         bool mExpired;
@@ -101,8 +101,8 @@ namespace ungod
     class SoundEmitterComponent : public Serializable<SoundEmitterComponent>
     {
     friend class SoundHandler;
-     friend struct SerialBehavior<SoundEmitterComponent, Entity, const World&>;
-    friend struct DeserialBehavior<SoundEmitterComponent, Entity, World&>;
+     friend struct SerialBehavior<SoundEmitterComponent, Entity>;
+    friend struct DeserialBehavior<SoundEmitterComponent, Entity, DeserialMemory&>;
 
     static constexpr float DEFAULT_DISTANCE_CAP = 500.0f;
 

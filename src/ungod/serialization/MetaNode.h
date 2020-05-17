@@ -290,11 +290,7 @@ namespace ungod
             catch (const std::exception&)
             {
                 data = defaultValue;
-                Logger::error("Error while deserializing attribute ");
-                Logger::error(attrIter.name());
-                Logger::error(" of node ");
-                Logger::error(name());
-                Logger::endl();
+                Logger::error("Error while deserializing attribute", attrIter.name(), "of node", name());
             }
         }
         return data;

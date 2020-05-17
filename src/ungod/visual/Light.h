@@ -210,7 +210,7 @@ namespace ungod
     class ShadowEmitterComponent : public Serializable<ShadowEmitterComponent>
     {
     friend class LightHandler;
-     friend struct SerialBehavior<ShadowEmitterComponent, Entity, const World&, const Application&>;
+     friend struct SerialBehavior<ShadowEmitterComponent, Entity>;
     private:
         LightCollider mLightCollider;
 
@@ -233,7 +233,7 @@ namespace ungod
     friend class LightHandler;
     friend class LightFlickering;
     friend class RandomizedFlickering;
-     friend struct SerialBehavior<LightEmitterComponent, Entity, const World&, const Application&>;
+     friend struct SerialBehavior<LightEmitterComponent, Entity>;
     private:
         PointLight mLight;
     public:

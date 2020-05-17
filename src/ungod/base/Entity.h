@@ -58,8 +58,7 @@ namespace ungod
     class Entity : public Serializable<Entity>
     {
     friend class World;
-     friend struct SerialBehavior< Entity, const World&>;
-     friend struct DeserialBehavior< Entity, World&>;
+    friend struct SerialBehavior< Entity >;
 
     public:
         /** \brief Default constructs a invalid entity. */
@@ -170,7 +169,7 @@ namespace ungod
 
 
     /** \brief Base class for all EntityInstantiations for polymorphic storage. */
-    class InstantiationBase : public PolymorphicSerializable<InstantiationBase, Entity, const World&>
+    class InstantiationBase : public PolymorphicSerializable<InstantiationBase, Entity>
     {
     friend class Entity;
     friend class World;
@@ -237,9 +236,9 @@ namespace ungod
         static const std::bitset< dom::DEFAULT_COMPONENT_COUNT > sOptionalsLookupTable;
 
     public:
-        virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, Entity&& e, const World& world) const override
+        virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, Entity&& e) const override
         {
-            deferredSerialize<EntityInstantiation< BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >, Entity, const World&>(*this, serializer, context, Entity(e), world);
+            deferredSerialize<EntityInstantiation< BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >, Entity>(*this, serializer, context, Entity(e));
         }
 
         virtual std::string getSerialIdentifier() const override

@@ -29,7 +29,6 @@
 #include "ungod/serialization/Serializable.h"
 #include <SFML/Graphics.hpp>
 #include <queue>
-#include <pair>
 
 namespace ungod
 {
@@ -37,7 +36,7 @@ namespace ungod
     class RenderLayerContainer;
     class ScriptedGameState;
     class Entity;
-
+    struct DeserialMemory;
 
     template <>
     struct SerialIdentifier<RenderLayer>
@@ -52,9 +51,9 @@ namespace ungod
     };
 
     template <>
-    struct DeserialBehavior<RenderLayer, std::queue<std::pair<Entity, std::string>>&>
+    struct DeserialBehavior<RenderLayer, DeserialMemory&>
     {
-        static void deserialize(RenderLayer& data, MetaNode deserializer, DeserializationContext& context, std::queue<std::pair<Entity, std::string>>& scriptqueue);
+        static void deserialize(RenderLayer& data, MetaNode deserializer, DeserializationContext& context, DeserialMemory& deserialMemory);
     };
 
 
@@ -71,9 +70,9 @@ namespace ungod
     };
 
     template <>
-    struct DeserialBehavior<RenderLayerContainer, DeserialQueues&>
+    struct DeserialBehavior<RenderLayerContainer, DeserialMemory&>
     {
-        static void deserialize(RenderLayerContainer& data, MetaNode deserializer, DeserializationContext& context, DeserialQueues& deserialqueues);
+        static void deserialize(RenderLayerContainer& data, MetaNode deserializer, DeserializationContext& context, DeserialMemory& deserialMemory);
     };
 }
 
