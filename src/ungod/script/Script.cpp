@@ -22,30 +22,20 @@ namespace ungod
                 else
                 {
                     sol::error err = r;
-                    Logger::error("Error while loading script.");
-                    Logger::endl();
-                    Logger::error(err.what());
-                    Logger::endl();
+                    Logger::error("Error while loading script. \n", err.what());
                 }
                 mFilepath = filepath;
                 return true;
             }
             catch (const std::exception& e)
             {
-                Logger::error("Error while loading file ");
-                Logger::error(filepath);
-                Logger::endl();
-                Logger::error(e.what());
-                Logger::endl();
+                Logger::error("Error while loading file", filepath, "\n", e.what());
                 return false;
             }
         }
         else
         {
-            Logger::error("Script file ");
-            Logger::error(filepath);
-            Logger::error(" does not exists.");
-            Logger::endl();
+            Logger::error("Script file", filepath, "does not exists.");
             return false;
         }
     }
@@ -61,10 +51,7 @@ namespace ungod
         if (!res.valid())
         {
             sol::error err = res;
-            Logger::error("Error while running script.");
-            Logger::endl();
-            Logger::error(err.what());
-            Logger::endl();
+            Logger::error("Error while running script. \n", err.what());
             return false;
         }
         return true;

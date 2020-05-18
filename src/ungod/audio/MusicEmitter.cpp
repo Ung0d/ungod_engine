@@ -147,7 +147,7 @@ namespace ungod
         muteAll();
     }
 
-    void MusicEmitterMixer::update(float delta, quad::QuadTree<Entity>* quadtree)
+    void MusicEmitterMixer::update(float delta, quad::QuadTree<Entity>& quadtree)
     {
         if (mMuteSound)
             return;
@@ -156,7 +156,7 @@ namespace ungod
         quad::PullResult<Entity> result;
 
         sf::Vector2f listenerWorldPos = mListener->getWorldPosition();
-        quadtree->retrieve(result, { listenerWorldPos.x-mMaxDistanceCap*0.5f, listenerWorldPos.y-mMaxDistanceCap*0.5f, mMaxDistanceCap, mMaxDistanceCap });
+        quadtree.retrieve(result, { listenerWorldPos.x-mMaxDistanceCap*0.5f, listenerWorldPos.y-mMaxDistanceCap*0.5f, mMaxDistanceCap, mMaxDistanceCap });
 
         dom::Utility<Entity>::iterate<TransformComponent, MusicEmitterComponent>(result.getList(),
               [this, listenerWorldPos] (Entity e, TransformComponent& transf, MusicEmitterComponent& emitter)

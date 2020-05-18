@@ -31,6 +31,7 @@
 
 namespace ungod
 {
+    template<class GETTER> class SteeringHandler;
     template<class GETTER> class SteeringManager;
     template<class GETTER> using SteeringFunc = std::function< void(Entity, MovementHandler&, const GETTER& getter) >;
 
@@ -40,6 +41,7 @@ namespace ungod
     class SteeringPattern
     {
     friend class SteeringManager<GETTER>;
+    friend class SteeringHandler<GETTER>;
     public:
         const std::string& getIdentifier() const { return mIdentifier; }
 
@@ -58,8 +60,8 @@ namespace ungod
     template <class GETTER>
     class SteeringComponent : public ungod::Serializable<SteeringComponent<GETTER>>
     {
-    friend class SteeringManager<GETTER>;
-     friend struct SerialBehavior<SteeringComponent<GETTER>, Entity>;
+    friend class SteeringHandler<GETTER>;
+    friend struct SerialBehavior<SteeringComponent<GETTER>, Entity>;
     friend struct DeserialBehavior<SteeringComponent<GETTER>, Entity, DeserialMemory&>;
     public:
         SteeringComponent() : mActive(false), mInit(false), mSteeringPattern(nullptr) {}

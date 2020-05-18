@@ -28,7 +28,6 @@
 
 #include "ungod/application/ScriptedMenuState.h"
 #include "ungod/gui/Gui.h"
-#include "ungod/visual/Camera.h"
 #include "ungod/serialization/SerialGameState.h"
 #include "ungod/visual/RenderLayer.h"
 #include "ungod/base/WorldGraph.h"
@@ -65,10 +64,6 @@ namespace ungod
 
         /** \brief Processes a custom event. */
         virtual void onCustomEvent(const CustomEvent& event) override;
-
-        /** \brief Access the camera. */
-        Camera& getCamera() { return mCamera; }
-        const Camera& getCamera() const { return mCamera; }
 
         /** \brief Grants access to the underyling script environment. */
         script::Environment getEnvironment() const { return mScriptCallbacks.getEnvironment(); }
@@ -147,7 +142,6 @@ namespace ungod
         CallbackInvoker mScriptCallbacks;
         std::string mGameScriptID;
 
-        Camera mCamera;
         WorldGraph mWorldGraph;
         bool mRenderDebug;
         bool mDebugBounds;

@@ -110,7 +110,7 @@ namespace ungod
         void setMuteSound(bool mute = true);
 
         /** \brief updates the music volumes and may starts new emitters */
-        void update(float delta, quad::QuadTree<Entity>* quadtree);
+        void update(float delta, quad::QuadTree<Entity>& quadtree);
 
     private:
         std::array<std::pair<MusicEmitterComponent*, TransformComponent*>, MUSIC_PLAY_CAP> mCurrentlyPlaying;

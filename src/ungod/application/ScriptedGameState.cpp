@@ -37,8 +37,7 @@ namespace ungod
             : State(app, id),
             mScriptCallbacks( app.getScriptState(), app.getGlobalScriptEnv(), { std::begin(GAME_CALLBACK_IDENTIFIERS), std::end(GAME_CALLBACK_IDENTIFIERS) } ),
             mGameScriptID(),
-            mCamera(app.getWindow()),
-            mWorldGraph(),
+            mWorldGraph(*this),
             mRenderDebug(false),
             mDebugBounds(true),
             mDebugTexrects(true),
@@ -56,8 +55,7 @@ namespace ungod
             : State(app, id),
             mScriptCallbacks( app.getScriptState(), app.getGlobalScriptEnv(), { std::begin(GAME_CALLBACK_IDENTIFIERS), std::end(GAME_CALLBACK_IDENTIFIERS) } ),
             mGameScriptID(),
-            mCamera(app.getWindow()),
-            mWorldGraph(),
+            mWorldGraph(*this),
             mRenderDebug(false),
             mDebugBounds(true),
             mDebugTexrects(true),
@@ -87,13 +85,11 @@ namespace ungod
     void ScriptedGameState::handleEvent(const sf::Event& curEvent)
     {
         mWorldGraph.handleInput(curEvent, mApp.getWindow());
-        mCamera.handleEvent(curEvent);
     }
 
 
     void ScriptedGameState::update(const float delta)
     {
-        mCamera.update(delta);
         mWorldGraph.update(delta);
         mScriptCallbacks.execute(ON_UPDATE, this, delta);
     }

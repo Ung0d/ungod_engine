@@ -25,17 +25,17 @@
 
 #include "ungod/base/InputEvents.h"
 #include "ungod/base/Transform.h"
-#include "ungod/visual/RenderLayer.h"
+#include "ungod/base/WorldGraphNode.h"
 #include "ungod/visual/Camera.h"
 
 namespace ungod
 {
-    void Doublebuffer::processMousePos(int x, int y, const sf::RenderTarget& target, const Camera& cam, quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer, owls::Signal<Entity>& enter, owls::Signal<Entity>& exit)
+    void Doublebuffer::processMousePos(int x, int y, const sf::RenderTarget& target, const Camera& cam, quad::QuadTree<Entity>& quadtree, const WorldGraphNode& node, owls::Signal<Entity>& enter, owls::Signal<Entity>& exit)
     {
         //compute the global position of the mouse
         sf::Vector2f mouseWorldPos = target.mapPixelToCoords({ x, y }, cam.getView());
         //translate to the world local position
-        mouseWorldPos = renderlayer->getContainer()->mapToLocalPosition(mouseWorldPos);
+        mouseWorldPos = node.mapToLocalPosition(mouseWorldPos);
         //pull entities that likely collide with that position
         quad::PullResult<Entity> pull;
         quadtree.retrieve(pull, { mouseWorldPos.x, mouseWorldPos.y, 0.0f, 0.0f });
@@ -91,12 +91,12 @@ namespace ungod
         {
             case sf::Event::MouseMoved:
             {
-                mHoveredEntities.processMousePos(event.mouseMove.x, event.mouseMove.y, target, cam, mQuadtree, mRenderLayer, mMouseEnterSignal, mMouseExitSignal);
+                mHoveredEntities.processMousePos(event.mouseMove.x, event.mouseMove.y, target, cam, mQuadtree, mNode, mMouseEnterSignal, mMouseExitSignal);
                 break;
             }
             case sf::Event::MouseButtonPressed:
             {
-                mClickedEntities.processMousePos(event.mouseButton.x, event.mouseButton.y, target, cam, mQuadtree, mRenderLayer, mMouseClickedSignal, mMouseReleasedSignal);
+                mClickedEntities.processMousePos(event.mouseButton.x, event.mouseButton.y, target, cam, mQuadtree, mNode, mMouseClickedSignal, mMouseReleasedSignal);
                 break;
             }
             case sf::Event::MouseButtonReleased:

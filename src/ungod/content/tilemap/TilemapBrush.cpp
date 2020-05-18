@@ -295,7 +295,7 @@ namespace ungod
         // 012
         // 345
         // 678
-        std::array<TileData, 9> tiles = getAdjacents(ix, iy);
+        std::array<TileDataBundle, 9> tiles = getAdjacents(ix, iy);
 
         //todo? currently, for the sake of simplicity, the brush only works for tiles, where
         //all 8 adjacent tiles exist
@@ -312,7 +312,7 @@ namespace ungod
         std::array<int, 4> indices = {1,3,5,7};
         for (unsigned i = 0; i<4; i++)
         {
-            if (mSetTiles[tiles[indices[i]]].id != FOREIGN)
+            if (mSetTiles[tiles[indices[i]].id] != FOREIGN)
                 setTiles.set(i);
         }
 
@@ -366,16 +366,15 @@ namespace ungod
         // 012
         // 345
         // 678
-        std::array<Tile*, 9> tiles = getAdjacents(ix, iy);
+        std::array<TileDataBundle, 9> tiles = getAdjacents(ix, iy);
 
         //todo? currently, for the sake of simplicity, the brush only works for tiles, where
         //all 8 adjacent tiles exist
         for (std::size_t i = 0; i < 9; i++)
         {
-            if (!tiles[i])
+            if (tiles[i].id == -1)
             {
                 ungod::Logger::warning("At least one adjacent tile does not exist. Can't paint.");
-                ungod::Logger::endl();
                 return;
             }
         }
@@ -393,7 +392,7 @@ namespace ungod
     }
 
 
-    void TilemapBrush::paintConnected2Last(const std::array<TileData, 9>& tiles, int d) const
+    void TilemapBrush::paintConnected2Last(const std::array<TileDataBundle, 9>& tiles, int d) const
     {
         int fix = fixTile(tiles[mPos[d]], CONN_PATH, (d+2)%4);
 
@@ -409,7 +408,7 @@ namespace ungod
     }
 
 
-    void TilemapBrush::eraseAdjacent(const std::array<TileData, 9>& tiles, int erasingTileID) const
+    void TilemapBrush::eraseAdjacent(const std::array<TileDataBundle, 9>& tiles, int erasingTileID) const
     {
         setTileID(tiles[4], erasingTileID);
         for (unsigned i = 0; i < 4; i++)
@@ -420,16 +419,16 @@ namespace ungod
     }
 
 
-    void TilemapBrush::paintNoAdjacent(const std::array<int, 9>& tiles) const
+    void TilemapBrush::paintNoAdjacent(const std::array<TileDataBundle, 9>& tiles) const
     {
         setTileID(tiles[4], mIso);
     }
 
 
-    void TilemapBrush::paintAdjacentSingle(const std::array<int, 9>& tiles, int d) const
+    void TilemapBrush::paintAdjacentSingle(const std::array<TileDataBundle, 9>& tiles, int d) const
     {
         int fixedID = fixTile(tiles[mPos[d]], CONN_PATH, (d+2)%4);
-        if (fixedID != tiles[mPos[d]])
+        if (fixedID != tiles[mPos[d]].id)
         {
             setTileID(tiles[4], mPathEnd[d]);
             setTileID(tiles[mPos[d]], fixedID);
@@ -439,7 +438,7 @@ namespace ungod
     }
 
 
-    void TilemapBrush::paintAdjacentCorner(const std::array<TileData, 9>& tiles, int d) const
+    void TilemapBrush::paintAdjacentCorner(const std::array<TileDataBundle, 9>& tiles, int d) const
     {
         int fix1 = fixTile(tiles[mPos[d]], CONN_LEFTBOUND, (d+2)%4);
         int fix2 = fixTile(tiles[mPos[(d+3)%4]], CONN_RIGHTBOUND, (d+1)%4);
@@ -480,7 +479,7 @@ namespace ungod
     }
 
 
-    void TilemapBrush::paintAdjacentOpposite(const std::array<TileData, 9>& tiles, int d) const
+    void TilemapBrush::paintAdjacentOpposite(const std::array<TileDataBundle, 9>& tiles, int d) const
     {
         int fix1 = fixTile(tiles[mPos[d]], CONN_PATH, (d+2)%4);
         int fix2 = fixTile(tiles[mPos[(d+2)%4]], CONN_PATH, d);
@@ -508,7 +507,7 @@ namespace ungod
     }
 
 
-    void TilemapBrush::paintAdjacentOneOut(const std::array<TileData, 9>& tiles, int d) const
+    void TilemapBrush::paintAdjacentOneOut(const std::array<TileDataBundle, 9>& tiles, int d) const
     {
         int fixD1 = fixTileDiagonal(tiles[mPosCorner[(d + 2) % 4]], true, d);
         int fixD2 = fixTileDiagonal(tiles[mPosCorner[(d + 3) % 4]], true, (d + 1) % 4);
@@ -564,7 +563,7 @@ namespace ungod
     }
 
 
-    void TilemapBrush::paintAdjacentAll(const std::array<TileData, 9>& tiles) const
+    void TilemapBrush::paintAdjacentAll(const std::array<TileDataBundle, 9>& tiles) const
     {
         enum class AdjAllType
         {
@@ -631,7 +630,7 @@ namespace ungod
             {
                 for (unsigned i = 0; i < 4; i++)
                     fixes[i] = fixTile(tiles[mPos[i]], CONN_FULL, (i + 2) % 4);
-                tiles[4]->setTileID(mBasic);
+                setTileID(tiles[4], mBasic);
                 break;
             }
             case AdjAllType::INNER_CORNER:
@@ -641,7 +640,7 @@ namespace ungod
                 fixes[index] = fixTile(tiles[mPos[index]], CONN_RIGHTBOUND, (index + 2) % 4);
                 fixes[(index + 1) % 4] = fixTile(tiles[mPos[(index + 1) % 4]], CONN_FULL, (index + 3) % 4);
 
-                tiles[4]->setTileID(mInnerCorner[(index+2)%4]);
+                setTileID(tiles[4], mInnerCorner[(index+2)%4]);
                 break;
             }
             case AdjAllType::DIAG:
@@ -652,9 +651,9 @@ namespace ungod
                 fixes[(index + 3) % 4] = fixTile(tiles[mPos[(index + 3) % 4]], CONN_LEFTBOUND, (index + 1) % 4);
 
                 if (index % 2 == 0)
-                    tiles[4]->setTileID(mDiag1);
+                    setTileID(tiles[4], mDiag1);
                 else
-                    tiles[4]->setTileID(mDiag2);
+                    setTileID(tiles[4], mDiag2);
                 break;
             }
             case AdjAllType::T2Pprev:
@@ -663,7 +662,7 @@ namespace ungod
                 fixes[index] = fixTile(tiles[mPos[index]], CONN_PATH, (index + 2) % 4);
                 fixes[(index + 1) % 4] = fixTile(tiles[mPos[(index + 1) % 4]], CONN_RIGHTBOUND, (index + 3) % 4);
                 fixes[(index + 2) % 4] = fixTile(tiles[mPos[(index + 2) % 4]], CONN_FULL, index);
-                tiles[4]->setTileID(mTrans2path[(index + 2) % 4]);
+                setTileID(tiles[4], mTrans2path[(index + 2) % 4]);
                 break;
             }
             case AdjAllType::T2Pnext:
@@ -672,7 +671,7 @@ namespace ungod
                 fixes[(index + 1) % 4] = fixTile(tiles[mPos[(index + 1) % 4]], CONN_FULL, (index + 3) % 4);
                 fixes[(index + 2) % 4] = fixTile(tiles[mPos[(index + 2) % 4]], CONN_LEFTBOUND, index);
                 fixes[(index + 3) % 4] = fixTile(tiles[mPos[(index + 3) % 4]], CONN_PATH, (index + 1) % 4);
-                tiles[4]->setTileID(mTrans2path[(index + 1) % 4]);
+                setTileID(tiles[4], mTrans2path[(index + 1) % 4]);
                 break;
             }
             case AdjAllType::C2PC:
@@ -681,7 +680,7 @@ namespace ungod
                 fixes[(index + 1) % 4] = fixTile(tiles[mPos[(index + 1) % 4]], CONN_PATH, (index + 3) % 4);
                 fixes[(index + 2) % 4] = fixTile(tiles[mPos[(index + 2) % 4]], CONN_PATH, index);
                 fixes[(index + 3) % 4] = fixTile(tiles[mPos[(index + 3) % 4]], CONN_RIGHTBOUND, (index + 1) % 4);
-                tiles[4]->setTileID(mCorner2pathC[index]);
+                setTileID(tiles[4], mCorner2pathC[index]);
                 break;
             }
             case AdjAllType::CROSS:
@@ -690,16 +689,16 @@ namespace ungod
                 fixes[(index + 1) % 4] = fixTile(tiles[mPos[(index + 1) % 4]], CONN_PATH, (index + 3) % 4);
                 fixes[(index + 2) % 4] = fixTile(tiles[mPos[(index + 2) % 4]], CONN_PATH, index);
                 fixes[(index + 3) % 4] = fixTile(tiles[mPos[(index + 3) % 4]], CONN_PATH, (index + 1) % 4);
-                tiles[4]->setTileID(mCross);
+                setTileID(tiles[4], mCross);
                 break;
             }
         }
 
         for (unsigned i = 0; i < 4; i++)
-            tiles[mPos[i]]->setTileID(fixes[i]);
+            setTileID(tiles[mPos[i]], fixes[i]);
 
         for (unsigned i = 0; i < 4; i++)
-            tiles[mPosCorner[i]]->setTileID(cornerFixes[i]);
+            setTileID(tiles[mPosCorner[i]], cornerFixes[i]);
     }
 
 
@@ -709,14 +708,14 @@ namespace ungod
     }
 
 
-    std::array<TileData, 9> TilemapBrush::getAdjacents(std::size_t ix, std::size_t iy)
+    std::array<TilemapBrush::TileDataBundle, 9> TilemapBrush::getAdjacents(std::size_t ix, std::size_t iy)
     {
         //retrieve data for tile and all 8 adjacent tiles (nullptr if not existing)
         //indexing:
         // 012
         // 345
         // 678
-        std::array<TileData, 9> tiles;
+        std::array<TileDataBundle, 9> tiles;
         unsigned iter = 0;
         for (int y = (int)iy-1; y < (int)iy+2; y++)
             for (int x = (int)ix-1; x < (int)ix+2; x++)
@@ -733,7 +732,7 @@ namespace ungod
     }
 
 
-    int TilemapBrush::fixTile(const TileData& tile, ConnectType ct, int d) const
+    int TilemapBrush::fixTile(const TileDataBundle& tile, ConnectType ct, int d) const
     {
         switch (ct)
         {
@@ -1177,7 +1176,7 @@ namespace ungod
     }
 
 
-    int TilemapBrush::fixTileDiagonal(const TileData& tile, bool close, int d) const
+    int TilemapBrush::fixTileDiagonal(const TileDataBundle& tile, bool close, int d) const
     {
         if (!close)
         {
@@ -1431,7 +1430,7 @@ namespace ungod
     }
 
 
-    void TilemapBrush::setTileID(const TileData& tile, int id) const
+    void TilemapBrush::setTileID(const TileDataBundle& tile, int id) const
     {
         if (id != -1)
         {
@@ -1444,9 +1443,9 @@ namespace ungod
         }
     }
 
-    void TilemapBrush::paint(const std::array<TileData, 9>& tiles, const std::bitset<4>& setTiles)
+    void TilemapBrush::paint(const std::array<TileDataBundle, 9>& tiles, const std::bitset<4>& setTiles)
     {
-        if (mSetTiles[tiles[4]].id != FOREIGN) //nothing to do
+        if (mSetTiles[tiles[4].id] != FOREIGN) //nothing to do
             return;
 
         switch (setTiles.to_ulong())

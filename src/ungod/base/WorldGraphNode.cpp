@@ -41,14 +41,15 @@ namespace ungod
         mData(),
         mLayers(), 
         mIdentifier(identifier), 
-        mDataFile(datafile)
+        mDataFile(datafile),
+        mBounds(0.0f, 0.0f, 0.0f, 0.0f)
     {
         setSize({ DEFAULT_SIZE , DEFAULT_SIZE });
     }
 
     void WorldGraphNode::load()
     {
-        mData.load(mDataFile, LoadPolicy::ASYNC);
+        mData.load(mDataFile, LoadPolicy::ASYNC, this);
         mLoadingInProcess = true;
 		Logger::info("Started loading of node:", getIdentifier());
     }
@@ -65,18 +66,18 @@ namespace ungod
 	void WorldGraphNode::save()
 	{
 		SerializationContext context;
-		context.serializeRootObject(mLayers, mGamestate);
+		context.serializeRootObject(mLayers);
 		context.save(mDataFile);
 	}
 
 	sf::FloatRect WorldGraphNode::getBounds() const
 	{
-		return { mLayers.getPosition().x, mLayers.getPosition().y , mLayers.getSize().x , mLayers.getSize().y };
+		return mBounds;
 	}
 
     World* WorldGraphNode::addWorld(unsigned i)
     {
-        return static_cast<World*>(mLayers.registerLayer(RenderLayerPtr{new World()}, i));
+        return static_cast<World*>(mLayers.registerLayer(RenderLayerPtr{new World(*this)}, i));
     }
 
     World* WorldGraphNode::addWorld()
@@ -94,20 +95,20 @@ namespace ungod
 
     bool WorldGraphNode::render(sf::RenderTarget& target, sf::RenderStates states) const
     {
-        return mLayers.render(target, mGamestate.getCamera(), states);
+        return mLayers.render(target, mWorldGraph.getCamera(), states);
     }
 
     bool WorldGraphNode::renderDebug(sf::RenderTarget& target, sf::RenderStates states,
                      bool bounds, bool texrects, bool colliders, bool audioemitters, bool lightemitters) const
     {
-        return mLayers.renderDebug(target, mGamestate.getCamera(), states, bounds, texrects, colliders, audioemitters, lightemitters);
+        return mLayers.renderDebug(target, mWorldGraph.getCamera(), states, bounds, texrects, colliders, audioemitters, lightemitters);
     }
 
     void WorldGraphNode::update(float delta)
     {
         if (mLoadingInProcess)
             mLoadingInProcess = !tryInit();
-        mLayers.update(delta, mGamestate.getCamera());
+        mLayers.update(delta, mWorldGraph.getCamera());
     }
 
     void WorldGraphNode::handleInput(const sf::Event& event, const sf::RenderTarget& target)
@@ -122,18 +123,21 @@ namespace ungod
 
 	void WorldGraphNode::setPosition(const sf::Vector2f& pos)
 	{
-		mLayers.setPosition(pos);
+        mBounds.left = pos.x;
+        mBounds.top = pos.y;
 		mWorldGraph.notifyBoundsChanged(this);
 	}
 
 	void WorldGraphNode::move(const sf::Vector2f& offset)
 	{
-		mLayers.setPosition(mLayers.getPosition() + offset);
+		setPosition(getPosition() + offset);
 		mWorldGraph.notifyBoundsChanged(this);
 	}
 
 	void WorldGraphNode::setSize(const sf::Vector2f& size)
 	{
+        mBounds.width = size.x;
+        mBounds.height = size.y;
 		mLayers.setSize(size);
 		mWorldGraph.notifyBoundsChanged(this);
 	}
@@ -153,6 +157,16 @@ namespace ungod
 	{
 		mLayers.setActive(i, active);
 	}
+
+    sf::Vector2f WorldGraphNode::mapToGlobalPosition(const sf::Vector2f& position) const
+    {
+        return position + getPosition() - mWorldGraph.getActiveNode()->getPosition();
+    }
+
+    sf::Vector2f WorldGraphNode::mapToLocalPosition(const sf::Vector2f& position) const
+    {
+        return position - getPosition() + mWorldGraph.getActiveNode()->getPosition();
+    }
 
     bool WorldGraphNode::tryInit()
     {
@@ -177,10 +191,10 @@ namespace ungod
     {
         context.serializeProperty("id", data.mIdentifier, serializer);
         context.serializeProperty("file", data.mDataFile, serializer);
-		context.serializeProperty("x", data.mLayers.getPosition().x, serializer);
-		context.serializeProperty("y", data.mLayers.getPosition().y, serializer);
-		context.serializeProperty("w", data.mLayers.getSize().x, serializer);
-		context.serializeProperty("h", data.mLayers.getSize().y, serializer);
+		context.serializeProperty("x", data.getPosition().x, serializer);
+		context.serializeProperty("y", data.getPosition().y, serializer);
+		context.serializeProperty("w", data.getSize().x, serializer);
+		context.serializeProperty("h", data.getSize().y, serializer);
 
     }
 

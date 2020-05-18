@@ -25,6 +25,8 @@
 
 #include "ungod/content/tilemap/TileMapHandler.h"
 #include "ungod/content/tilemap/FloodFill.h"
+#include "ungod/base/World.h"
+#include "ungod/application/Application.h"
 
 namespace ungod
 {
@@ -38,7 +40,7 @@ namespace ungod
         }
     }
 
-    void TileMapHandler::init(const World& world)
+    void TileMapHandler::init(World& world)
     {
         targetSizeChanged(world, world.getState()->getApp().getWindow().getSize());
         world.onComponentAdded<TileMapComponent>([&world](Entity e) 
@@ -49,6 +51,17 @@ namespace ungod
         mTargetSizeLink = world.getState()->getApp().onTargetSizeChanged([&world, this](const sf::Vector2u& targetsize)
             {
                 targetSizeChanged(world, targetsize);
+            });
+    }
+
+    void TileMapHandler::update(const std::list<Entity>& entities, const World& world)
+    {
+        dom::Utility<Entity>::iterate<TileMapComponent>(entities,
+            [&world](Entity e, TileMapComponent& tmc)
+            {
+                //auto windowPos = world.getState()->getApp().getWindow().mapPixelToCoords(sf::Vector2i(0, 0), world.getState()->getWorldGraph().getCamera().getView());
+                //tmc.mTileMap.update(windowPos - e.getGlobalPosition());
+                //TODO!!
             });
     }
 
@@ -99,23 +112,23 @@ namespace ungod
 		mContentsChangedSignal(e, e.modify<TileMapComponent>().mTileMap.getBounds());
 	}
 	
-	void TileMapRenderer::moveTilemap(Entity e, const sf::Vector2f& vec)
+	void TileMapHandler::moveTilemap(Entity e, const sf::Vector2f& vec)
 	{
 		if (e.has<TileMapComponent>())
 			e.modify<TileMapComponent>().mTileMap.move(vec);
 	}
 
-    void TileMapRenderer::tilemapCallback(Entity e, TileMapComponent& tmc, const std::function<void(TileMap&)>& callback)
+    void TileMapHandler::tilemapCallback(Entity e, TileMapComponent& tmc, const std::function<void(TileMap&)>& callback)
     {
         callback(tmc.mTileMap);
         mContentsChangedSignal(e, tmc.mTileMap.getBounds());
     }
 
-    void TileMapRenderer::targetSizeChanged(const World& world, const sf::Vector2u& targetsize)
+    void TileMapHandler::targetSizeChanged(const World& world, const sf::Vector2u& targetsize)
     {
-        world.getUniverse().iterateOverAll<TileMapComponent>([](TileMapComponent& tm)
+        world.getUniverse().iterateOverComponents<TileMapComponent>([targetsize](TileMapComponent& tm)
             {
-                tm.setWindowSize(targetsize);
+                tm.mTileMap.setWindowSize(targetsize);
             });
     }
 

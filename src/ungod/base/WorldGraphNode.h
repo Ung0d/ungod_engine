@@ -116,6 +116,16 @@ namespace ungod
 
 		void setActive(unsigned i, bool active = true);
 
+        /** \brief Maps a position in local coordinates to a position in the global world. */
+        sf::Vector2f mapToGlobalPosition(const sf::Vector2f& position) const;
+
+        /** \brief Maps a position in global coordinates to a position relative to the layer. */
+        sf::Vector2f mapToLocalPosition(const sf::Vector2f& position) const;
+
+        inline sf::Vector2f getPosition() const { return{ mBounds.left, mBounds.top }; }
+
+        inline sf::Vector2f getSize() const { return{ mBounds.width, mBounds.height }; }
+
     private:
         WorldGraph& mWorldGraph;
         unsigned mIndex;
@@ -126,6 +136,7 @@ namespace ungod
         RenderLayerContainer mLayers;
         std::string mIdentifier;
         std::string mDataFile;
+        sf::FloatRect mBounds;
 
     private:
         // if loading is currently in progress, attempts to init the loaded render layers if ready returning success

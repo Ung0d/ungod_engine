@@ -41,15 +41,25 @@ namespace ungod
     {
     }
 
-    bool Water::render(sf::RenderTarget& target, sf::RenderTexture& rendertex, const TileMap& tilemap, const sf::Texture* tilemapTex, sf::RenderStates states, World& world)
+    Water::Water(const Water& other)
+    {
+        mShowReflections = other.mShowReflections;
+        mShowShaders = other.mShowShaders;
+        mDistortionFactor = other.mDistortionFactor;
+        mFlowFactor = other.mFlowFactor;
+        mReflectionOpacity = other.mReflectionOpacity;
+        init(other.mDistortionTextureFile, mFragmentShaderID, mVertexShaderID);
+        targetsizeChanged(other.mTargetSize);
+    }
+
+    bool Water::render(sf::RenderTarget& target, sf::RenderTexture& rendertex, const TileMap& tilemap, const sf::Texture* tilemapTex, sf::RenderStates states, World& world) const
     {
         rendertex.clear(sf::Color::Transparent);
 
         //sf::RenderStates inverse;
         //inverse.transform.translate(-renderpos);
         rendertex.setView(target.getView());
-        if (!tilemap.render(rendertex, tilemapTex, states))
-            return false;  //nothing is drawn, no water tile is visible on the screen
+        tilemap.render(rendertex, tilemapTex, states);
 
         sf::Vector2f windowPosition = target.mapPixelToCoords(sf::Vector2i(0, 0));
         windowPosition = states.transform.getInverse().transformPoint(windowPosition);
@@ -64,23 +74,26 @@ namespace ungod
                                                   BOUNDING_BOX_SCALING * target.getView().getSize().y });
 
             dom::Utility<Entity>::iterate<TransformComponent, VisualsComponent>(pull.getList(),
-                [this, &states, &world](Entity e, TransformComponent& transf, VisualsComponent& vis)
+                [this, &states, &world, &rendertex, &tilemap](Entity e, TransformComponent& transf, VisualsComponent& vis)
                 {
-                    //get the bounds of the visual contents of the entity
-                    //we need to take the untransformed bounds here
-                    //this is kind of a "hack" to avoid that rotation will mess up visuals
-                    sf::Vector2f lowerBounds = world.getVisualsManager().getUntransformedLowerBound(e);
-                    sf::Vector2f upperBounds = world.getVisualsManager().getUntransformedUpperBound(e);
+                    if (states.transform.getInverse().transformRect(tilemap.getBounds()).intersects(e.get<TransformComponent>().getBounds()))
+                    {
+                        //get the bounds of the visual contents of the entity
+                        //we need to take the untransformed bounds here
+                        //this is kind of a "hack" to avoid that rotation will mess up visuals
+                        sf::Vector2f lowerBounds = world.getVisualsHandler().getUntransformedLowerBound(e);
+                        sf::Vector2f upperBounds = world.getVisualsHandler().getUntransformedUpperBound(e);
 
-                    float curOpacity = vis.getOpacity();
-                    VisualsHandler::setOpacity(e, curOpacity * mReflectionOpacity);
-                    if (!e.has<WaterComponent>())
-                        Renderer::renderEntity(e, transf, vis, rendertex, states, true, BOUNDS_OVERLAP * (-2 * lowerBounds.y + upperBounds.y));
-                    VisualsHandler::setOpacity(e, curOpacity);
+                        float curOpacity = vis.getOpacity();
+                        VisualsHandler::setOpacity(e, curOpacity * mReflectionOpacity);
+                        if (!e.has<WaterComponent>())
+                            world.getState()->getRenderer().renderEntity(e, transf, vis, rendertex, states, true, BOUNDS_OVERLAP * (-2 * lowerBounds.y + upperBounds.y));
+                        VisualsHandler::setOpacity(e, curOpacity);
+                    }
                 });
         }
 
-
+        states.transform *= tilemap.getTransform();
 
         //drawing to the rendertex done, attach it to a sprite
         rendertex.display();
@@ -91,8 +104,6 @@ namespace ungod
         //apply the shader and draw the rendertex to the target
         if (mShowShaders)
         {
-            mWaterShader.setUniform("time", mDistortionTimer.getElapsedTime().asSeconds());
-            mWaterShader.setUniform("screenSize", sf::Vector2f{ (float)rendertex.getSize().x, (float)rendertex.getSize().y });
             waterstates.shader = &mWaterShader;
         }
 
@@ -105,6 +116,11 @@ namespace ungod
         target.setView(storview);
 
         return true; 
+    }
+
+    void Water::update()
+    {
+        mWaterShader.setUniform("time", mDistortionTimer.getElapsedTime().asSeconds());
     }
 
     void Water::init(const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader)
@@ -126,7 +142,6 @@ namespace ungod
             {
                 mVertexShaderID = vertexShader;
                 mFragmentShaderID = fragmentShader;
-                mDistortionTexID = distortionMap;
                 mShowShaders = true;
                 targetsizeChanged(mTargetSize);
             }
@@ -135,9 +150,12 @@ namespace ungod
 
     void Water::targetsizeChanged(const sf::Vector2u& targetsize)
     {
-        mTargetSize = targetSize;
+        mTargetSize = targetsize;
         if (mShowShaders && targetsize.x > 0u && targetsize.y > 0u)
+        {
             buildDistortionTexture(targetsize);
+            mWaterShader.setUniform("screenSize", sf::Vector2f{ (float)mTargetSize.x, (float)mTargetSize.y });
+        }
     }
 
     void Water::setReflections(bool flag)
@@ -148,7 +166,7 @@ namespace ungod
     void Water::setShaders(bool flag)
     {
         mShowShaders = flag;
-        targetsizeChanged(mRenderTex.getSize());
+        targetsizeChanged(mTargetSize);
     }
 
     void Water::setDistortionFactor(float distortion)
@@ -171,7 +189,7 @@ namespace ungod
     void Water::buildDistortionTexture(const sf::Vector2u& texsize)
     {
         sf::Image source;
-        if (!source.loadFromFile(mDistortionTexID))
+        if (!source.loadFromFile(mDistortionTextureFile))
             return;
         sf::Image target;
         target.create(texsize.x, texsize.y);

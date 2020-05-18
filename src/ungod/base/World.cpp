@@ -33,12 +33,13 @@
 
 namespace ungod
 {
-    World::World() :
+    World::World(WorldGraphNode& node) :
+        mNode(node),
         mMaster(nullptr),
         mQuadTree(),
         mEntityBehaviorHandler(),
         mTransformHandler(mQuadTree),
-        mInputEventHandler(mQuadTree, this),
+        mInputEventHandler(mQuadTree, node),
         mMovementHandler(mQuadTree, mTransformHandler),
         mSteeringHandler(),
         mPathPlanner(),
@@ -65,7 +66,7 @@ namespace ungod
         mEntityBehaviorHandler.init(*this);
         mSteeringHandler.init(master.getSteeringManager());
         mLightHandler.init(master.getLightManager());
-        mListener = std::unique_ptr<AudioListener>(new CameraListener(master.getCamera(), *this));
+        mListener = std::unique_ptr<AudioListener>(new CameraListener(master.getWorldGraph().getCamera(), *this));
         mMusicEmitterMixer.init(mListener.get());
         mSoundHandler.init(master.getApp().getSoundProfileManager(), mListener.get());
         mTileMapHandler.init(*this);
@@ -193,11 +194,12 @@ namespace ungod
         mPathPlanner.update(mInUpdateRange.getList(), delta, mMovementHandler);
         mMovementCollisionHandler.checkCollisions(mInUpdateRange.getList());
         mSemanticsCollisionHandler.checkCollisions(mInUpdateRange.getList());
-        mMusicEmitterMixer.update(delta, &mQuadTree);
+        mMusicEmitterMixer.update(delta, mQuadTree);
         mSoundHandler.update(delta);
         mLightHandler.update(mInUpdateRange.getList(), delta);
         mParticleSystemHandler.update(mInUpdateRange.getList(), delta);
-
+        mTileMapHandler.update(mInUpdateRange.getList(), *this);
+        mWaterHandler.update(mInUpdateRange.getList());
         mMusicEmitterMixer.update(delta, mQuadTree);
 
         mMaster->getRenderer().update(mInUpdateRange.getList(), delta, mVisualsHandler);
@@ -205,7 +207,7 @@ namespace ungod
 
     void World::handleInput(const sf::Event& event, const sf::RenderTarget& target)
     {
-        mInputEventHandler.handleEvent(event, target, mMaster->getCamera());
+        mInputEventHandler.handleEvent(event, target, getGraph().getCamera());
     }
 
     bool World::render(sf::RenderTarget& target, sf::RenderStates states)

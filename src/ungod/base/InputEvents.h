@@ -34,6 +34,7 @@
 namespace ungod
 {
     class RenderLayer;
+    class WorldGraphNode;
 
     /** \brief Helper class to maintain a swapable double-buffer of entities. */
     struct Doublebuffer
@@ -43,7 +44,7 @@ namespace ungod
 
         Doublebuffer() : swapper(true) {}
 
-        void processMousePos(int x, int y, const sf::RenderTarget& target, const Camera& cam, quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer, owls::Signal<Entity>& enter, owls::Signal<Entity>& exit);
+        void processMousePos(int x, int y, const sf::RenderTarget& target, const Camera& cam, quad::QuadTree<Entity>& quadtree, const WorldGraphNode& node, owls::Signal<Entity>& enter, owls::Signal<Entity>& exit);
 
         void clearBuffers();
     };
@@ -52,7 +53,7 @@ namespace ungod
     class InputEventHandler 
     {
     public:
-        InputEventHandler(quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer) : mQuadtree(quadtree), mRenderLayer(renderlayer){}
+        InputEventHandler(quad::QuadTree<Entity>& quadtree, const WorldGraphNode& node) : mQuadtree(quadtree), mNode(node){}
 
         /** \brief Evaluates an input-event and sends out signals. */
         void handleEvent(const sf::Event& event, const sf::RenderTarget& target, const Camera& cam);
@@ -71,7 +72,7 @@ namespace ungod
 
     private:
         quad::QuadTree<Entity>& mQuadtree;
-        RenderLayer const* mRenderLayer;
+        const WorldGraphNode& mNode;
 
         Doublebuffer mHoveredEntities;
         Doublebuffer mClickedEntities;

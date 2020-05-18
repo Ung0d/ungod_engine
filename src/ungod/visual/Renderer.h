@@ -50,7 +50,7 @@ namespace ungod
         void renewRenderlist(sf::RenderTarget& target, quad::PullResult<Entity>& pull) const;
 
         /** \brief Draws the internal list of entities that must have a Transform and a Visual component and that are non-plane. */
-        void render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const;
+        void render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states);
 
         /** \brief Draws the bounding boxes of all entities in the internal render-list. */
         void renderBounds(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const;
@@ -83,25 +83,25 @@ namespace ungod
         void renderEntity(Entity e, TransformComponent& transf, VisualsComponent& vis, sf::RenderTarget& target, sf::RenderStates states, bool flip = false, float offsety = 0.0f);
 
         /** \brief Draws the bounds the given entity. */
-        void renderBounds(const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states);
+        void renderBounds(const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states) const;
 
         /** \brief Draws the texture rects the given entity. */
-        void renderTextureRects(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states);
+        void renderTextureRects(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states) const;
 
         /** \brief Draws the texture rects the given entity. */
-        void renderParticleSystemBounds(Entity e, const TransformComponent& transf, const ParticleSystemComponent& ps, sf::RenderTarget& target, sf::RenderStates states);
+        void renderParticleSystemBounds(Entity e, const TransformComponent& transf, const ParticleSystemComponent& ps, sf::RenderTarget& target, sf::RenderStates states) const;
 
         /** \brief Draws the collider-bounds the given entity. */
         template<std::size_t CONTEXT = 0>
         void renderCollider(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, 
                                     sf::RenderTarget& target, sf::RenderStates states, 
-                                    const sf::Color& outlineCol, const sf::Color& fillCol = sf::Color::Transparent);
+                                    const sf::Color& outlineCol, const sf::Color& fillCol = sf::Color::Transparent) const;
 
         /** \brief Renders a audio emitter entity. */
-        void renderAudioEmitter(Entity e, const TransformComponent& transf, MusicEmitterComponent& emitter, sf::RenderTarget& target, sf::RenderStates states);
+        void renderAudioEmitter(Entity e, const TransformComponent& transf, MusicEmitterComponent& emitter, sf::RenderTarget& target, sf::RenderStates states) const;
 
         /** \brief Renders the origin and the range of a light. */
-        void renderLightDebug(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states);
+        void renderLightDebug(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states) const;
 
         static constexpr float INNER_RECT_PERCENTAGE = 0.1f;
 
@@ -122,7 +122,7 @@ namespace ungod
 
     template<std::size_t CONTEXT>
     void Renderer::renderCollider(const TransformComponent& transf, const RigidbodyComponent<CONTEXT>& body, 
-        sf::RenderTarget& target, sf::RenderStates states, const sf::Color& outlineCol, const sf::Color& fillCol)
+        sf::RenderTarget& target, sf::RenderStates states, const sf::Color& outlineCol, const sf::Color& fillCol) const
     {
         states.transform *= transf.getTransform();  //apply the transform of the entity
         switch (body.getCollider().getType())
@@ -176,13 +176,13 @@ namespace ungod
           dom::Utility<Entity>::iterate<TransformComponent, RigidbodyComponent<CONTEXT>>(pull.getList(),
 			[this, &target, &states, outlineCol, fillCol] (Entity e, TransformComponent& transf, RigidbodyComponent<CONTEXT>& body)
 			{
-			Renderer::renderCollider(transf, body, target, states, outlineCol, fillCol);
+			    renderCollider(transf, body, target, states, outlineCol, fillCol);
 			});
 		  dom::Utility<Entity>::iterate<TransformComponent, MultiRigidbodyComponent<CONTEXT>>(pull.getList(),
 			[this, &target, &states, outlineCol, fillCol](Entity e, TransformComponent& transf, MultiRigidbodyComponent<CONTEXT>& body)
 			{
 				  for (unsigned i = 0; i < body.getComponentCount(); i++)
-					Renderer::renderCollider(transf, body.getComponent(i), target, states, outlineCol, fillCol);
+					renderCollider(transf, body.getComponent(i), target, states, outlineCol, fillCol);
 			});
     }
 }

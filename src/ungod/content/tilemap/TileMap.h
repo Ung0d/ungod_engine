@@ -29,13 +29,14 @@
 #include <SFML/Graphics.hpp>
 #include "ungod/serialization/Serializable.h"
 #include "ungod/serialization/SerialTileMap.h"
+#include "ungod/serialization/MetaData.h"
 #include <memory>
 
 namespace ungod
 {
     struct TileData
     {
-        std::unique_ptr<std::vector<int>> ids;
+        std::shared_ptr<std::vector<int>> ids;
     };
 
     /**
@@ -61,9 +62,9 @@ namespace ungod
         unsigned mMapSizeX;
         unsigned mMapSizeY;
 
-        const MetaMap& mMeta;
+        const MetaMap* mMeta;
 
-        void keylookup(const MetaMap& meta, const std::string& key);
+        void keylookup(const std::string& key);
 
     public:
         //constructors
@@ -72,8 +73,11 @@ namespace ungod
         /** \brief Links a meta map to the tile maps that provides texture positions given string keys. */
         void setMetaMap(const MetaMap& meta);
 
+        /** \brief Updates the visible part of the tilemap given the current window position relative to the tilemap. */
+        bool update(const sf::Vector2f& windowPosition);
+
         /** \brief Returns true if at least one active tile was rendered. */
-        bool render(sf::RenderTarget& target, const sf::Texture* tex, sf::RenderStates states) const;
+        void render(sf::RenderTarget& target, const sf::Texture* tex, sf::RenderStates states) const;
 
         /** Initializes the map by setting the given tiles and dimensions. The product of dimensions has to match the number of tiles. 
         * The tilemap takes ownership of the tiledata. */

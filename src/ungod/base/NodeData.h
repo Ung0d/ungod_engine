@@ -23,8 +23,8 @@
 *    source distribution.
 */
 
-#ifndef UNGOD_WORLD_CHUNK_ASSET_H
-#define UNGOD_WORLD_CHUNK_ASSET_H
+#ifndef UNGOD_NODE_DATA_H
+#define UNGOD_NODE_DATA_H
 
 #include "ungod/ressource_management/Asset.h"
 #include "ungod/visual/RenderLayer.h"
@@ -33,6 +33,7 @@
 namespace ungod
 {
     class Entity; 
+    class WorldGraphNode;
 
     struct NodeDataStruct
     {
@@ -41,14 +42,14 @@ namespace ungod
         DeserialMemory memory;
     };
 
-    using NodeData = Asset<NodeDataStruct>;
+    using NodeData = Asset<NodeDataStruct, WorldGraphNode*>;
 
     template<>
-    struct LoadBehavior<NodeDataStruct>
+    struct LoadBehavior<NodeDataStruct, WorldGraphNode*>
     {
-        static bool loadFromFile(const std::string& filepath, NodeDataStruct& data);
+        static bool loadFromFile(const std::string& filepath, NodeDataStruct& data, WorldGraphNode* node);
         static std::string getIdentifier() { return "NodeData"; }
     };
 }
 
-#endif // UNGOD_WORLD_CHUNK_ASSET_H
+#endif // UNGOD_NODE_DATA_H

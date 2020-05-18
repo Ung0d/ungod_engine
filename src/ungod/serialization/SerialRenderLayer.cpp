@@ -49,7 +49,7 @@ namespace ungod
     {
 		context.serializeProperty("w", data.getSize().x, serializer);
 		context.serializeProperty("h", data.getSize().y, serializer);
-        context.serializeObjectContainer<RenderLayer>("l", [&data] (std::size_t i) -> const RenderLayer& { return *data.getVector()[i].first.get(); }, data.getVector().size(), serializer, state.getApp().getWindow());
+        context.serializeObjectContainer<RenderLayer>("l", [&data] (std::size_t i) -> const RenderLayer& { return *data.getVector()[i].first.get(); }, data.getVector().size(), serializer);
     }
 
     void DeserialBehavior<RenderLayerContainer, DeserialMemory&>::deserialize(
@@ -59,7 +59,7 @@ namespace ungod
 		data.setSize({ std::get<0>(result), std::get<1>(result) });
         context.instantiate<World>([&data, &state] ()
             {
-                return data.registerLayer(RenderLayerPtr{new World()}, data.mRenderLayers.size());
+                return data.registerLayer(RenderLayerPtr{new World(*deserialMemory.node)}, data.mRenderLayers.size());
             }, deserialMemory);
 
         context.first(context.deserializeInstantiationContainer<RenderLayer>(

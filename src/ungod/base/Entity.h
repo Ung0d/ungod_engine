@@ -144,14 +144,6 @@ namespace ungod
         /** \brief Accesses the dom-side entity handle. (dom is the underlying ECS-lib) */
         dom::EntityHandle<> getHandle() const { return mHandle; }
 
-		/** \brief Returns the global (world independent) position of the entity. Undefined
-		* if no transform component is assigned. */
-		sf::Vector2f getGlobalPosition() const;
-
-		/** \brief Returns the global (world independent) center position of the entity. Undefined
-		* if no transform component is assigned. */
-		sf::Vector2f getGlobalCenterPosition() const;
-
     private:
         dom::EntityHandle<> mHandle;
         InstantiationBase* mInstantiation;

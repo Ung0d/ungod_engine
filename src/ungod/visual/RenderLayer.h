@@ -119,7 +119,7 @@ namespace ungod
     {
     friend struct DeserialBehavior<RenderLayerContainer, DeserialMemory&>;
     public:
-        RenderLayerContainer() : mBounds(0.0f, 0.0f, 0.0f, 0.0f) {}
+        RenderLayerContainer() = default;
         RenderLayerContainer(const RenderLayerContainer&) = delete;
 
         bool render(sf::RenderTarget& target, Camera& camera, sf::RenderStates states) const;
@@ -153,25 +153,12 @@ namespace ungod
 
         void clearEverything();
 
-		void setPosition(const sf::Vector2f& position);
-
 		/** \brief Resizes all internal layers. This may be a costly operation if the layers already have content since attached layers may have to reorganize their entire content. */
 		void setSize(const sf::Vector2f& size);
-
-		inline sf::Vector2f getPosition() const { return{ mBounds.left, mBounds.top }; }
-
-		inline sf::Vector2f getSize() const { return{ mBounds.width, mBounds.height }; }
-
-		/** \brief Maps a position in local coordinates to a position in the global world. */
-		sf::Vector2f mapToGlobalPosition(const sf::Vector2f& position) const;
-
-		/** \brief Maps a position in global coordinates to a position relative to the layer. */
-		sf::Vector2f mapToLocalPosition(const sf::Vector2f& position) const;
 
     private:
         std::vector<std::pair<RenderLayerPtr, bool>> mRenderLayers;
         std::queue<std::pair<std::size_t, bool>> mToMove;
-		sf::FloatRect mBounds;
     };
 }
 

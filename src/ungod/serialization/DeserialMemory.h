@@ -51,11 +51,16 @@ namespace ungod
 		};
 	}
 
+	class WorldGraphNode;
+
 	/** \brief A class that memorizes things during the deserialization of a
 	* render layer container. After deserialization, finalize can be called to 
 	* perform all queued actions that can not run asycronously. */
 	struct DeserialMemory
 	{
+		DeserialMemory() : node(nullptr) {}
+
+		WorldGraphNode* node;
 		std::forward_list<detail::EntityDeserialNote> all;
 		std::forward_list<detail::EntityScriptPair> scriptEntities;
 

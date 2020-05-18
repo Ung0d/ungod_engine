@@ -27,6 +27,7 @@
 #define UNGOD_TILEMAP_HANDLER_H
 
 #include <SFML/Graphics/RenderTexture.hpp>
+#include "owls/Signal.h"
 #include "ungod/content/tilemap/TileMap.h"
 #include "ungod/content/tilemap/TileMapBrush.h"
 #include "ungod/base/Entity.h"
@@ -72,7 +73,9 @@ namespace ungod
     public:
         TileMapHandler() = default;
 
-        void init(const World& world);
+        void init(World& world);
+
+        void update(const std::list<Entity>& entities, const World& world);
 
         /** \brief Sets the tiles for a tilemap takes ownership of the tiledata. */
         bool setTiles(Entity e, TileData& tiles, unsigned mapSizeX, unsigned mapSizeY);

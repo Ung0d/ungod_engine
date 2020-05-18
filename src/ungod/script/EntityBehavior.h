@@ -129,7 +129,6 @@
 #include "ungod/script/Behavior.h"
 #include "ungod/script/CustomEvent.h"
 #include "ungod/serialization/Serializable.h"
-#include "ungod/base/Entity.h"
 #include "ungod/script/EventHandler.h"
 
 namespace ungod
@@ -137,6 +136,8 @@ namespace ungod
     class World;
     class Collider;
     class Application;
+    class Entity;
+    struct DeserialMemory;
 
     /**
     * \ingroup Components
@@ -144,7 +145,7 @@ namespace ungod
     * aronous gameplay- and input-events or update calls within fixed intervals. */
     class EntityBehaviorComponent : public Serializable<EntityBehaviorComponent>
     {
-    friend class EntityBehaviorManager;
+    friend class EntityBehaviorHandler;
     friend struct DeserialBehavior<EntityBehaviorComponent, Entity, DeserialMemory&>;
     private:
         StateBehaviorPtr<> mBehavior;
@@ -191,7 +192,7 @@ namespace ungod
     * \brief A component that holds a timer for controlling the continous update of entities. */
     class EntityUpdateTimer : public Serializable<EntityUpdateTimer>
     {
-    friend class EntityBehaviorManager;
+    friend class EntityBehaviorHandler;
     private:
         sf::Clock mTimer;
         float mInterval;
@@ -225,19 +226,10 @@ namespace ungod
     class EntityBehaviorManager
     {
     friend class EntityBehaviorHandler;
-    static constexpr const char* IDENTIFIERS[] = { "onInit", "onExit", "onCreation", "onDestruction",
-                                            "onStaticConstr", "onStaticDestr",
-                                            "onSerialize", "onDeserialize",
-                                            "onCollisionEnter", "onCollision", "onCollisionExit",
-                                            "onMouseEnter", "onMouseExit", "onMouseClick", "onMouseReleased",
-                                            "onUpdate",
-                                            "onButtonDown", "onButtonReleased", "onButtonPressed",
-                                            "onMovementBegin", "onMovementEnd", "onDirectionChanged",
-                                            "onAnimationBegin", "onAnimationFrame", "onAnimationEnd",
-                                            "onCustomEvent",
-                                            "onAIGetState", "onAIAction",
-                                            "onEnteredNewNode"};
     public:
+
+        static const std::vector<const char*> IDENTIFIERS;
+
         EntityBehaviorManager(Application& app);
 
         /** \brief Loads a new entity behavior script. The script is stored with the filename of the script as key (without path and file-extentions). */

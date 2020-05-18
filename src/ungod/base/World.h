@@ -59,6 +59,7 @@
 namespace ungod
 {
     class Camera;
+    class WorldGraphNode;
 
     /**
     * \brief A renderlayer with a quadtree representing a world of entities.
@@ -70,7 +71,7 @@ namespace ungod
 
     public:
         /** \brief Creates an empty world. */
-        World();
+        World(WorldGraphNode& node);
 
         /** \brief Must be called to instantiate the world. 
         * Using an uninitialized world by any means is undefined behavior. 
@@ -297,6 +298,12 @@ namespace ungod
         /** \brief Returns a ptr to the game state that owns this world. */
         ScriptedGameState* getState() const { return mMaster; }
 
+        /** \brief Returns a reference to the world graph this world is part of. */
+        WorldGraph& getGraph() const { return mMaster->getWorldGraph(); }
+
+        /** \brief Returns a reference to the world graph node this world belongs to. */
+        WorldGraphNode& getNode() const { return mNode; }
+
         /** \brief Tags the given entity with a name. */
         void tagWithName(Entity e, const std::string& name);
 
@@ -313,6 +320,7 @@ namespace ungod
 		~World() override;
 
     private:
+        WorldGraphNode& mNode;
         ScriptedGameState* mMaster;
         quad::QuadTree<Entity> mQuadTree;
         EntityBehaviorHandler mEntityBehaviorHandler;

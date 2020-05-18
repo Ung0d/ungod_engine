@@ -26,7 +26,7 @@
 #ifndef UNGOD_FLOOD_FILL_H
 #define UNGOD_FLOOD_FILL_H
 
-#include "ungod/content/TileMap.h"
+#include "ungod/content/tilemap/TileMap.h"
 #include "ungod/base/Utility.h"
 
 namespace ungod

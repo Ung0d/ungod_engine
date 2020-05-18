@@ -377,6 +377,6 @@ namespace ungod
 
     owls::SignalLink<void> Application::onScriptStateChanged(const std::function<void()>& callback)
     {
-        mScriptStateChanged.connect(callback);
+        return mScriptStateChanged.connect(callback);
     }
 }

@@ -42,15 +42,15 @@ namespace ungod
     };
 
     template <std::size_t CONTEXT>
-    struct SerialBehavior<RigidbodyComponent<CONTEXT>, Entity, const World&, const Application&>
+    struct SerialBehavior<RigidbodyComponent<CONTEXT>, Entity>
     {
-        static void serialize(const RigidbodyComponent<CONTEXT>& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+        static void serialize(const RigidbodyComponent<CONTEXT>& data, MetaNode serializer, SerializationContext& context, Entity);
     };
 
     template <std::size_t CONTEXT>
-    struct DeserialBehavior<RigidbodyComponent<CONTEXT>, Entity, World&, const Application&>
+    struct DeserialBehavior<RigidbodyComponent<CONTEXT>, Entity, DeserialMemory&>
     {
-        static void deserialize(RigidbodyComponent<CONTEXT>& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&);
+        static void deserialize(RigidbodyComponent<CONTEXT>& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory);
     };
 }
 

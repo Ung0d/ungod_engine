@@ -78,10 +78,10 @@ namespace ungod
                 if (cur.second < tilemap.getMapSizeY()-1 && tilemap.getTileID(i, cur.second+1) == targetID)
                     nodestack.emplace(i,cur.second+1);
 
-                if (i > 0 && cur.second < tilemap.getMapSizeY()-1 && tilemap.getTiledata(i-1, cur.second+1)->getTileID() == targetID)
+                if (i > 0 && cur.second < tilemap.getMapSizeY()-1 && tilemap.getTileID(i-1, cur.second+1) == targetID)
                     nodestack.emplace(i-1,cur.second+1);
 
-                if (i < tilemap.getMapSizeX()-1 && cur.second < tilemap.getMapSizeY()-1 && tilemap.getTiledata(i+1, cur.second+1)->getTileID() == targetID)
+                if (i < tilemap.getMapSizeX()-1 && cur.second < tilemap.getMapSizeY()-1 && tilemap.getTileID(i+1, cur.second+1) == targetID)
                     nodestack.emplace(i+1,cur.second+1);
             }
         }

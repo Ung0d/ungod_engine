@@ -62,8 +62,6 @@ namespace ungod
 
     bool RenderLayerContainer::render(sf::RenderTarget& target, Camera& camera, sf::RenderStates states) const
     {
-        sf::Vector2f layerWorldPos{ mBounds.left, mBounds.top };
-		states.transform.translate(layerWorldPos);
         bool check = true;
         for (const auto& layer : mRenderLayers)
         {
@@ -79,7 +77,6 @@ namespace ungod
 
     bool RenderLayerContainer::renderDebug(sf::RenderTarget& target, Camera& camera, sf::RenderStates states, bool bounds, bool texrects, bool colliders, bool audioemitters, bool lights) const
     {
-		states.transform.translate({ mBounds.left, mBounds.top });
         bool check = true;
         for (const auto& layer : mRenderLayers)
         {
@@ -200,27 +197,9 @@ namespace ungod
             mToMove.pop();
     }
 
-	void RenderLayerContainer::setPosition(const sf::Vector2f& position)
-	{
-		mBounds.left = position.x;
-		mBounds.top = position.y;
-	}
-
-	void RenderLayerContainer::setSize(const sf::Vector2f& size)
-	{
-		mBounds.width = size.x;
-		mBounds.height = size.y;
-		for (const auto& layer : mRenderLayers)
-			layer.first->setSize(size);
-	}
-
-	sf::Vector2f RenderLayerContainer::mapToGlobalPosition(const sf::Vector2f& position) const
-	{
-		return { position.x + mBounds.left, position.y + mBounds.top };
-	}
-
-	sf::Vector2f RenderLayerContainer::mapToLocalPosition(const sf::Vector2f& position) const
-	{
-		return { position.x - mBounds.left, position.y - mBounds.top };
-	}
+    void WorldGraphNode::setSize(const sf::Vector2f& size)
+    {
+        for (const auto& layer : mRenderLayers)
+            layer.first->setSize(size);
+    }
 }

@@ -60,9 +60,9 @@ namespace ungod
             state.registerFunction("getGameState", [&app] (StateID id) { return app.getStateManager().getState<ScriptedGameState>(id); } );
             state.registerFunction("getMenuState", [&app] (StateID id) { return app.getStateManager().getState<ScriptedMenuState>(id); } );
             state.registerFunction("hasState", [&app] (StateID id) { return app.getStateManager().hasState(id); } );
-            state.registerFunction("log", [] (const std::string& txt) { Logger::info(txt); Logger::endl(); });
-            state.registerFunction("logWarning", [] (const std::string& txt) { Logger::warning(txt); Logger::endl(); });
-            state.registerFunction("logError", [] (const std::string& txt) { Logger::error(txt); Logger::endl(); });
+            state.registerFunction("log", [] (const std::string& txt) { Logger::info(txt); });
+            state.registerFunction("logWarning", [] (const std::string& txt) { Logger::warning(txt); });
+            state.registerFunction("logError", [] (const std::string& txt) { Logger::error(txt); });
 
             state.registerFunction("setFloatConfig", [&app] (const std::string& item, float x) { app.getConfig().set<float>(item, x); });
             state.registerFunction("setIntConfig", [&app] (const std::string& item, int x) { app.getConfig().set<int>(item, x); });
@@ -79,17 +79,17 @@ namespace ungod
             state.registerFunction("isFullscreen", [&app]() { return app.isFullscreen(); });
             state.registerFunction("isVsyncEnabled", [&app]() { return app.vsyncEnabled(); });
 
-            state.registerFunction("getMusicManager", [&app]() { return app.getMusicManager; });
+            state.registerFunction("getMusicManager", [&app]() { return app.getMusicManager(); });
 
             state.registerFunction("world2Screen", sol::overload([&app](const sf::Vector2f& pos, const ScriptedGameState& state)
-                                   { return app.getWindow().mapCoordsToPixel(pos, state.getCamera().getView()); },
+                                   { return app.getWindow().mapCoordsToPixel(pos, state.getWorldGraph().getCamera().getView()); },
                                    [&app](const sf::Vector2f& pos, const World& world)
-                                   { return app.getWindow().mapCoordsToPixel(world.getContainer()->mapToGlobalPosition(pos), world.getState()->getCamera().getView()); }));
+                                   { return app.getWindow().mapCoordsToPixel(world.getNode().mapToGlobalPosition(pos), world.getGraph().getCamera().getView()); }));
 
-            state.registerFunction("screen2World", sol::overload([&app](const sf::Vector2i& pos, const ScriptedGameState& state)
-                                   { return app.getWindow().mapPixelToCoords(pos, state.getCamera().getView()); },
-                                   [&app](const sf::Vector2i& pos, const World& world)
-                                   { return world.getContainer()->mapToLocalPosition(app.getWindow().mapPixelToCoords(pos, world.getState()->getCamera().getView())); }));
+            state.registerFunction("screen2Global", [&app](const sf::Vector2i& pos, const ScriptedGameState& state)
+                                    { return app.getWindow().mapPixelToCoords(pos, state.getWorldGraph().getCamera().getView()); });
+            state.registerFunction("screen2World", [&app](const sf::Vector2i& pos, const World& world)
+                                   { return world.getNode().mapToLocalPosition(app.getWindow().mapPixelToCoords(pos, world.getGraph().getCamera().getView())); });
 
             state.registerFunction("emit", sol::overload(
                 [&app](const std::string& type, script::Environment data) { return app.emitCustomEvent(type, data); },

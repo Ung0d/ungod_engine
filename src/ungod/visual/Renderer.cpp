@@ -129,7 +129,7 @@ namespace ungod
     }
 
 
-    void Renderer::renderBounds(const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states)
+    void Renderer::renderBounds(const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states) const
     {
       sf::Vertex line[2];
       line[0].position = transf.getLeftAnchor();
@@ -149,7 +149,7 @@ namespace ungod
     }
 
 
-    void Renderer::renderTextureRects(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states)
+    void Renderer::renderTextureRects(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states) const
     {
       sf::Color spriteCol = sf::Color::Red;
       sf::Color vertexCol = sf::Color::Yellow;
@@ -196,7 +196,7 @@ namespace ungod
     }
 
 
-    void Renderer::renderParticleSystemBounds(Entity e, const TransformComponent& transf, const ParticleSystemComponent& ps, sf::RenderTarget& target, sf::RenderStates states)
+    void Renderer::renderParticleSystemBounds(Entity e, const TransformComponent& transf, const ParticleSystemComponent& ps, sf::RenderTarget& target, sf::RenderStates states) const
     {
           sf::Color col = sf::Color::Blue;
           states.transform *= transf.getTransform();  //apply the transform of the entity
@@ -210,7 +210,7 @@ namespace ungod
     }
 
 
-    void Renderer::renderAudioEmitter(Entity e, const TransformComponent& transf, MusicEmitterComponent& emitter, sf::RenderTarget& target, sf::RenderStates states)
+    void Renderer::renderAudioEmitter(Entity e, const TransformComponent& transf, MusicEmitterComponent& emitter, sf::RenderTarget& target, sf::RenderStates states) const
     {
         states.transform *= transf.getTransform();  //apply the transform of the entity
         sf::RectangleShape rect( {50, 50} );
@@ -222,7 +222,7 @@ namespace ungod
     }
 
 
-    void Renderer::renderLightDebug(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states)
+    void Renderer::renderLightDebug(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states) const
     {
         states.transform *= transf.getTransform();  //apply the transform of the entity
 
@@ -268,7 +268,7 @@ namespace ungod
     }
 
 
-    void Renderer::render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const
+    void Renderer::render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states)
     {
 		sf::Vector2f camCenter = target.mapPixelToCoords(sf::Vector2i(target.getSize().x / 2, target.getSize().y / 2));
 		camCenter = mWorld->getContainer()->mapToLocalPosition(camCenter);
@@ -371,7 +371,7 @@ namespace ungod
     }
 
 
-    void Renderer::update(const std::list<Entity>& entities, float delta, VisualsHandler& vh)
+    void Renderer::update(const std::list<Entity>& entities, float delta, VisualsHandler& vh) 
     {
         dom::Utility<Entity>::iterate< VisualsComponent >(entities,
           [delta, this] (Entity e, VisualsComponent& visuals)
@@ -414,7 +414,7 @@ namespace ungod
     }
 
 
-    void Renderer::updateAnimation(Entity e, AnimationComponent& animation, float delta, VisualsHandler& vh)
+    void Renderer::updateAnimation(Entity e, AnimationComponent& animation, float delta, VisualsHandler& vh) 
     {
         if (!animation.mVertices)
             return;

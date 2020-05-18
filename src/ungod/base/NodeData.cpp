@@ -28,8 +28,9 @@
 namespace ungod
 {
 
-    bool LoadBehavior<NodeDataStruct>::loadFromFile(const std::string& filepath, NodeDataStruct& data)
+    bool LoadBehavior<NodeDataStruct, WorldGraphNode*>::loadFromFile(const std::string& filepath, NodeDataStruct& data, WorldGraphNode* node)
     {
+        data.memory.node = node;
         initContext(data.context);
         if (!data.context.read(filepath))
             return false;

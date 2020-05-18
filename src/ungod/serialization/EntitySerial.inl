@@ -73,7 +73,7 @@ namespace ungod
     {
         static void serialize(Entity e, MetaNode node, SerializationContext& context)
         {
-            context.serializeObject<C1, Entity, const World&, const Application&>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e));
+            context.serializeObject<C1, Entity>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e));
             BaseComponentSerial<C...>::serialize(e, node, context);
         }
     };
@@ -84,7 +84,7 @@ namespace ungod
     {
         static void serialize(Entity e, MetaNode node, SerializationContext& context)
         {
-            context.serializeObject<C1, Entity, const World&, const Application&>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e));
+            context.serializeObject<C1, Entity>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e));
         }
     };
 
@@ -107,7 +107,7 @@ namespace ungod
         static void serialize(Entity e, MetaNode node, SerializationContext& context)
         {
             if (e.has<C1>())
-                context.serializeObject<C1, Entity, const World&, const Application&>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e));
+                context.serializeObject<C1, Entity>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e));
             OptionalComponentSerial<C...>::serialize(e, node, context);
         }
     };
@@ -119,7 +119,7 @@ namespace ungod
         static void serialize(Entity e, MetaNode node, SerializationContext& context)
         {
             if (e.has<C1>())
-                context.serializeObject<C1, Entity, const World&, const Application&>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e));
+                context.serializeObject<C1, Entity>(SerialIdentifier<C1>::get().c_str(), e.get<C1>(), node, Entity(e));
         }
     };
 

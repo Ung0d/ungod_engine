@@ -23,8 +23,7 @@
 *    source distribution.
 */
 
-#include "ungod/visual/WaterHandler.h"
-#include "ungod/visual/Camera.h"
+#include "ungod/content/water/WaterHandler.h"
 #include "ungod/application/Application.h"
 #include "ungod/base/World.h"
 
@@ -44,47 +43,56 @@ namespace ungod
             });
     }
 
-    void TileMapRenderer::initWater(WaterComponent& water, const std::string& distortionMap, const std::string& fragmentShader, const std::string& vertexShader)
+    void WaterHandler::update(const std::list<Entity>& entities)
+    {
+        dom::Utility<Entity>::iterate<WaterComponent>(entities,
+            [](Entity e, WaterComponent& wc)
+            {
+                wc.mWater.update();
+            });
+    }
+
+    void WaterHandler::initWater(WaterComponent& water, const std::string& distortionMap, const std::string& fragmentShader, const std::string& vertexShader)
    {
-      water.mWater.initWater(distortionMap, fragmentShader, vertexShader);
+      water.mWater.init(distortionMap, fragmentShader, vertexShader);
    }
 
-   void TileMapRenderer::setWaterReflections(WaterComponent& water, bool flag)
+   void WaterHandler::setWaterReflections(WaterComponent& water, bool flag)
    {
         water.mWater.setReflections(flag);
    }
 
-    void TileMapRenderer::setWaterShaders(WaterComponent& water, bool flag)
+    void WaterHandler::setWaterShaders(WaterComponent& water, bool flag)
     {
         water.mWater.setShaders(flag);
     }
 
-    void TileMapRenderer::setWaterDistortionFactor(WaterComponent& water, float distortion)
+    void WaterHandler::setWaterDistortionFactor(WaterComponent& water, float distortion)
     {
         water.mWater.setDistortionFactor(distortion);
     }
 
-    void TileMapRenderer::setWaterFlowFactor(WaterComponent& water, float flow)
+    void WaterHandler::setWaterFlowFactor(WaterComponent& water, float flow)
     {
         water.mWater.setFlowFactor(flow);
     }
 
-    void TileMapRenderer::setWaterReflectionOpacity(WaterComponent& water, float opacity)
+    void WaterHandler::setWaterReflectionOpacity(WaterComponent& water, float opacity)
     {
         water.mWater.setReflectionOpacity(opacity);
     }
 
     void WaterHandler::targetSizeChanged(const World& world, const sf::Vector2u& targetsize)
     {
-        world.getUniverse().iterateOverAll<WaterComponent>([](WaterComponent& water)
+        world.getUniverse().iterateOverComponents<WaterComponent>([targetsize](WaterComponent& water)
             {
-                water.targetsizeChanged(targetsize);
+                water.mWater.targetsizeChanged(targetsize);
             });
     }
 
     WaterHandler::~WaterHandler()
     {
-        mAppSignalLink.disconnect();
+        mTargetSizeLink.disconnect();
     }
 }
 

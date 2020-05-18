@@ -34,7 +34,7 @@
 
 namespace ungod
 {
-     WorldGraph::WorldGraph(unsigned distance) : mActive(-1), mDistance(distance)
+     WorldGraph::WorldGraph(const ScriptedGameState& state, unsigned distance) : mActive(-1), mDistance(distance), mCamera(state.getApp().getWindow())
      {
      }
 
@@ -42,6 +42,9 @@ namespace ungod
      {
         mReferencePosition = pos;
         WorldGraphNode* node = getNode(pos);
+        WorldGraphNode* oldActive = nullptr;
+        if (mActive != -1)
+            oldActive = mNodes[mActive].get();
 
         //we assume that the new node can have any distance to the last node; they do not have to be neighbors
         //Idea: find every node with distance <= mDistance from the current node (all active)-> set A
@@ -80,33 +83,57 @@ namespace ungod
 
         mCurrentNeighborhood = neighborhoodnew;
 
-        if (node && mActive != -1)
-            mActiveNodeChanged(*this, *node, *mNodes[mActive]);
+        if (node)
+        {
+            if (oldActive)
+            {
+                //adjust cameras coordinate system relative to the active node
+                sf::Vector2f diff = oldActive->getPosition() - node->getPosition();
+                mCamera.lookAt(mCamera.getCenter() + diff);
+                //emit signal
+                mActiveNodeChanged(*this, *oldActive, *node);
+            }
+            else
+            {
+                mCamera.lookAt(mCamera.getCenter() - node->getPosition());
+            }
 
-        Logger::info("New active node:", node->getIdentifier());
+            Logger::info("New active node:", node->getIdentifier());
+        }
 
         return true;
      }
 
     bool WorldGraph::render(sf::RenderTarget& target, sf::RenderStates states) const
     {
+        if (mActive == -1)
+            return false;
         bool done = true;
         for (const auto& i : mCurrentNeighborhood)
+        {
+            states.transform.translate(mNodes[i]->getPosition() - mNodes[mActive]->getPosition());
             done = done && mNodes[i]->render(target, states);
+        }
         return done;
     }
 
     bool WorldGraph::renderDebug(sf::RenderTarget& target, sf::RenderStates states,
                      bool bounds, bool texrects, bool colliders, bool audioemitters, bool lightemitters) const
     {
+        if (mActive == -1)
+            return false;
         bool done = true;
         for (const auto& i : mCurrentNeighborhood)
+        {
+            states.transform.translate(mNodes[i]->getPosition() - mNodes[mActive]->getPosition());
             done = done && mNodes[i]->renderDebug(target, states, bounds, texrects, colliders, audioemitters, lightemitters);
+        }
         return done;
     }
 
     void WorldGraph::update(float delta)
     {
+        mCamera.update(delta);
         for (const auto& i : mCurrentNeighborhood)
             mNodes[i]->update(delta);
         checkOutOfBounds();
@@ -114,6 +141,7 @@ namespace ungod
 
     void WorldGraph::handleInput(const sf::Event& event, const sf::RenderTarget& target)
     {
+        mCamera.handleEvent(event);
         for (const auto& i : mCurrentNeighborhood)
             mNodes[i]->handleInput(event, target);
     }
@@ -270,14 +298,14 @@ namespace ungod
                     {
                         //find a new node for the entity
                         quad::PullResult<WorldGraphNode*> result;
+                        sf::Vector2f entityGlobal = e.getWorld().getNode().mapToGlobalPosition(e.get<TransformComponent>().getPosition());
                         mWorldQT.retrieve(result, 
-                            { e.getGlobalPosition().x, e.getGlobalPosition().y, 
-                              e.get<TransformComponent>().getSize().x, e.get<TransformComponent>().getSize().y });
+                            { entityGlobal.x, entityGlobal.y, e.get<TransformComponent>().getSize().x, e.get<TransformComponent>().getSize().y });
                         WorldGraphNode* newNode = nullptr;
                         for (auto* node : result.getList())
                         {
                             if (node != mNodes[i].get() &&
-                                node->getBounds().intersects({ e.getGlobalPosition().x, e.getGlobalPosition().y,
+                                node->getBounds().intersects({ entityGlobal.x, entityGlobal.y,
                               e.get<TransformComponent>().getSize().x, e.get<TransformComponent>().getSize().y }))
                             {
                                 newNode = node;

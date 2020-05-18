@@ -32,6 +32,7 @@
 namespace ungod
 {
     class TileMap;
+    class World;
 
     /** \brief A manager class for water-fields and their rendering. */
     class Water : public Serializable<Water>
@@ -42,9 +43,12 @@ namespace ungod
     public:
         /** \brief Default constructs the water object for later initialization. */
         Water();
+        Water(const Water& other);
 
         /** \brief Renders shaders and reflections (if activated) on top of the given tilemap. */
         bool render(sf::RenderTarget& target, sf::RenderTexture& rendertex, const TileMap& tilemap, const sf::Texture* tilemapTex, sf::RenderStates states, World& world) const;
+
+        void update();
 
         /** \brief Provides appropriate resources to set up all internals of the water. */
         void init(const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader);

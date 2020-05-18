@@ -28,6 +28,7 @@
 
 #include "ungod/content/water/Water.h"
 #include "ungod/base/Entity.h"
+#include "owls/Signal.h"
 
 namespace ungod
 {
@@ -40,7 +41,6 @@ namespace ungod
     class WaterComponent : public Serializable<WaterComponent>
     {
     friend class WaterHandler;
-	friend class WaterRenderer;
     friend struct DeserialBehavior<WaterComponent, Entity, DeserialMemory&>;
 
     public:
@@ -58,6 +58,8 @@ namespace ungod
         WaterHandler() = default;
 
         void init(const World & world);
+
+        void update(const std::list<Entity>& entities);
 
         inline static void initWater(Entity e, const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader)
         { initWater(e.modify<WaterComponent>(), distortionTex, fragmentShader, vertexShader); }
@@ -91,7 +93,7 @@ namespace ungod
         ~WaterHandler();
 
     private:
-        owls::SignalLink<void, const sf::Vector2u&> mAppSignalLink;
+        owls::SignalLink<void, const sf::Vector2u&> mTargetSizeLink;
 
     private:
         void targetSizeChanged(const World& world, const sf::Vector2u& targetsize);

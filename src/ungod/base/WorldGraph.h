@@ -33,6 +33,7 @@
 #include "ungod/serialization/Serializable.h"
 #include "ungod/visual/RenderLayer.h"
 #include "ungod/base/WorldGraphNode.h"
+#include "ungod/visual/Camera.h"
 #include <set>
 
 namespace ungod
@@ -47,7 +48,7 @@ namespace ungod
      friend struct SerialBehavior<WorldGraph>;
     friend struct DeserialBehavior<WorldGraph, ScriptedGameState&>;
     public:
-        WorldGraph(unsigned distance = 1);
+        WorldGraph(const ScriptedGameState& state, unsigned distance = 1);
 
         /** \brief Updates the reference position. If the active world changes, new nodes are loaded and old ones unloaded as needed. Returns true if the active node has changed. */
         bool updateReferencePosition(const sf::Vector2f& pos, bool ignoreIdentity = true);
@@ -127,6 +128,10 @@ namespace ungod
             return mEntityChangedNode.connect(callback);
         }
 
+        /** \brief Access the camera. */
+        Camera& getCamera() { return mCamera; }
+        const Camera& getCamera() const { return mCamera; }
+
 
     private:
         int mActive;
@@ -136,7 +141,8 @@ namespace ungod
         graph::UndirectedAdjacencyLists mAdjacencies;
         std::set<unsigned> mCurrentNeighborhood;
         sf::Vector2f mReferencePosition;
-        std::map<Entity, sf::Clock> mJustHandled;
+        Camera mCamera;
+        std::unordered_map<Entity, sf::Clock> mJustHandled;
 		owls::Signal<WorldGraph&, WorldGraphNode&, WorldGraphNode&> mActiveNodeChanged;
         owls::Signal<Entity, WorldGraph&, WorldGraphNode&, WorldGraphNode&> mEntityChangedNode;
         constexpr static float NODE_TRANSITION_TIMER_S = 10.0f;

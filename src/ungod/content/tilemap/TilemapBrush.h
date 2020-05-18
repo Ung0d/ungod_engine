@@ -150,41 +150,42 @@ namespace ungod
 
             std::unique_ptr<detail::TilemapChangeNotificator> mChangeNotificator;
 
+
+        private:
+            struct TileDataBundle
+            {
+                unsigned x, y;
+                int id;
+            };
+
         private:
             //retrieve data for tile and all 8 adjacent tiles (nullptr if not existing)
             //indexing:
             // 012
             // 345
             // 678
-            std::array<TileData, 9> getAdjacents(std::size_t ix, std::size_t iy);
+            std::array<TileDataBundle, 9> getAdjacents(std::size_t ix, std::size_t iy);
 
             enum ConnectType { CONN_PATH, CONN_LEFTBOUND, CONN_RIGHTBOUND, CONN_FULL, CONN_NONE };
 
             //these methods fix connections in each direction
             //they return the new fixed tile type
-            int fixTile(const TileData& tile, ConnectType ct, int d) const;
-            int fixTileDiagonal(const TileData& tile, bool close, int d) const;
+            int fixTile(const TileDataBundle& tile, ConnectType ct, int d) const;
+            int fixTileDiagonal(const TileDataBundle& tile, bool close, int d) const;
 
-            void eraseAdjacent(const std::array<TileData, 9>& tiles, int erasingTileID) const;
-            void paintNoAdjacent(const std::array<TileData, 9>& tiles) const;
-            void paintAdjacentSingle(const std::array<TileData, 9>& tiles, int d) const;
-            void paintAdjacentCorner(const std::array<TileData, 9>& tiles, int d) const;
-            void paintAdjacentOpposite(const std::array<TileData, 9>& tiles, int d) const;
-            void paintAdjacentOneOut(const std::array<TileData, 9>& tiles, int d) const;
-            void paintAdjacentAll(const std::array<TileData, 9>& tiles) const;
-            void paintConnected2Last(const std::array<TileData, 9>& tiles, int d) const;
+            void eraseAdjacent(const std::array<TileDataBundle, 9>& tiles, int erasingTileID) const;
+            void paintNoAdjacent(const std::array<TileDataBundle, 9>& tiles) const;
+            void paintAdjacentSingle(const std::array<TileDataBundle, 9>& tiles, int d) const;
+            void paintAdjacentCorner(const std::array<TileDataBundle, 9>& tiles, int d) const;
+            void paintAdjacentOpposite(const std::array<TileDataBundle, 9>& tiles, int d) const;
+            void paintAdjacentOneOut(const std::array<TileDataBundle, 9>& tiles, int d) const;
+            void paintAdjacentAll(const std::array<TileDataBundle, 9>& tiles) const;
+            void paintConnected2Last(const std::array<TileDataBundle, 9>& tiles, int d) const;
 
             //sets the given tile ID if it is != -1
-            void setTileID(const TileData&, int id) const;
+            void setTileID(const TileDataBundle&, int id) const;
 
-            void paint(const std::array<TileData, 9>& tiles, const std::bitset<4>& setTiles);
-
-        private:
-            struct TileData
-            {
-                unsigned x, y;
-                int id;
-            };
+            void paint(const std::array<TileDataBundle, 9>& tiles, const std::bitset<4>& setTiles);
     };
 }
 

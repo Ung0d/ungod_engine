@@ -33,8 +33,8 @@ namespace ungod
     std::string SerialIdentifier<RigidbodyComponent<CONTEXT>>::get()  { return std::string("RB") + std::to_string(CONTEXT); }
 
     template <std::size_t CONTEXT>
-    void SerialBehavior<RigidbodyComponent<CONTEXT>, Entity, const World&, const Application&>::serialize
-		(const RigidbodyComponent<CONTEXT>& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&)
+    void SerialBehavior<RigidbodyComponent<CONTEXT>, Entity>::serialize
+		(const RigidbodyComponent<CONTEXT>& data, MetaNode serializer, SerializationContext& context, Entity)
     {
 		context.serializeProperty("a", data.isActive(), serializer);
 		context.serializeProperty("t", static_cast<std::underlying_type_t<ColliderType>>(data.getCollider().getType()), serializer);
@@ -43,7 +43,7 @@ namespace ungod
     }
 
     template <std::size_t CONTEXT>
-    void DeserialBehavior<RigidbodyComponent<CONTEXT>, Entity, World&, const Application&>::deserialize(RigidbodyComponent<CONTEXT>& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&)
+    void DeserialBehavior<RigidbodyComponent<CONTEXT>, Entity, DeserialMemory&>::deserialize(RigidbodyComponent<CONTEXT>& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory)
     {
 		std::vector<float> param;
 		param.reserve(Collider::MAX_PARAM);
@@ -62,13 +62,13 @@ namespace ungod
 		}
 		if constexpr (CONTEXT == MOVEMENT_COLLISION_CONTEXT)
 		{
-			world.getMovementRigidbodyHandler().setActive(e, active);
-			world.getMovementRigidbodyHandler().addCollider(e, Collider{ static_cast<ColliderType>(type), param });
+			e.getWorld().getMovementRigidbodyHandler().setActive(e, active);
+			e.getWorld().getMovementRigidbodyHandler().addCollider(e, Collider{ static_cast<ColliderType>(type), param });
 		}
 		else if constexpr (CONTEXT == SEMANTICS_COLLISION_CONTEXT)
 		{
-			world.getSemanticsRigidbodyHandler().setActive(e, active);
-			world.getSemanticsRigidbodyHandler().addCollider(e, Collider{ static_cast<ColliderType>(type), param });
+			e.getWorld().getSemanticsRigidbodyHandler().setActive(e, active);
+			e.getWorld().getSemanticsRigidbodyHandler().addCollider(e, Collider{ static_cast<ColliderType>(type), param });
 		}
     }
 }

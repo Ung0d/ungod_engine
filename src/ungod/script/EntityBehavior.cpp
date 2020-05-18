@@ -1,6 +1,32 @@
+/*
+* This file is part of the ungod - framework.
+* Copyright (C) 2016 Felix Becker - fb132550@uni-greifswald.de
+*
+* This software is provided 'as-is', without any express or
+* implied warranty. In no event will the authors be held
+* liable for any damages arising from the use of this software.
+*
+* Permission is granted to anyone to use this software for any purpose,
+* including commercial applications, and to alter it and redistribute
+* it freely, subject to the following restrictions:
+*
+* 1. The origin of this software must not be misrepresented;
+*    you must not claim that you wrote the original software.
+*    If you use this software in a product, an acknowledgment
+*    in the product documentation would be appreciated but
+*    is not required.
+*
+* 2. Altered source versions must be plainly marked as such,
+*    and must not be misrepresented as being the original software.
+*
+* 3. This notice may not be removed or altered from any
+*    source distribution.
+*/
+
 #include "ungod/script/EntityBehavior.h"
 #include "ungod/base/World.h"
 #include "ungod/application/Application.h"
+#include "ungod/base/Entity.h"
 
 namespace ungod
 {
@@ -37,6 +63,19 @@ namespace ungod
 
 
 
+    const std::vector<const char*> EntityBehaviorManager::IDENTIFIERS = { "onInit", "onExit", "onCreation", "onDestruction",
+                                                                        "onStaticConstr", "onStaticDestr",
+                                                                        "onSerialize", "onDeserialize",
+                                                                        "onCollisionEnter", "onCollision", "onCollisionExit",
+                                                                        "onMouseEnter", "onMouseExit", "onMouseClick", "onMouseReleased",
+                                                                        "onUpdate",
+                                                                        "onButtonDown", "onButtonReleased", "onButtonPressed",
+                                                                        "onMovementBegin", "onMovementEnd", "onDirectionChanged",
+                                                                        "onAnimationBegin", "onAnimationFrame", "onAnimationEnd",
+                                                                        "onCustomEvent",
+                                                                        "onAIGetState", "onAIAction",
+                                                                        "onEnteredNewNode" };
+
     EntityBehaviorManager::EntityBehaviorManager(Application& app)
         : mBehaviorManager(app.getScriptState(), app.getGlobalScriptEnv(), IDENTIFIERS, ON_CREATION, ON_INIT, ON_EXIT, ON_STATIC_CONSTR, ON_STATIC_DESTR)
     {
@@ -64,19 +103,19 @@ namespace ungod
 
     std::vector<std::pair<std::string, ScriptErrorCode>> EntityBehaviorManager::reload(const script::SharedState& state, script::Environment main)
     {
-        ScriptQueue toReload;
+        ScriptQueues toReload;
         mDissociateSignal(toReload);
         auto err = mBehaviorManager.reload(state, main);
         mReloadSignal(toReload);
         return err;
     }
 
-    owls::SignalLink<void, const ScriptQueue&> EntityBehaviorManager::onReloadSignal(const std::function<void(const ScriptQueue&)>& callback)
+    owls::SignalLink<void, const ScriptQueues&> EntityBehaviorManager::onReloadSignal(const std::function<void(const ScriptQueues&)>& callback)
     {
         return mReloadSignal.connect(callback);
     }
 
-    owls::SignalLink<void, ScriptQueue&> EntityBehaviorManager::onDissociateSignal(const std::function<void(ScriptQueue&)>& callback)
+    owls::SignalLink<void, ScriptQueues&> EntityBehaviorManager::onDissociateSignal(const std::function<void(ScriptQueues&)>& callback)
     {
         return mDissociateSignal.connect(callback);
     }
@@ -95,8 +134,8 @@ namespace ungod
     {
         mWorld = &world;
 
-        mDissociateLink = world.getBehaviorHandler().onDissociateSignal([this, &world](ScriptQueues& toReload) { scriptInternalDissociate(toReload, world); });
-        mReloadLink = world.getBehaviorHandler().onReloadSignal([this](const ScriptQueues& toReload) { scriptInternalReload(toReload); });
+        mDissociateLink = world.getState()->getEntityBehaviorManager().onDissociateSignal([this, &world](ScriptQueues& toReload) { scriptInternalDissociate(toReload, world); });
+        mReloadLink = world.getState()->getEntityBehaviorManager().onReloadSignal([this](const ScriptQueues& toReload) { scriptInternalReload(toReload); });
 
         world.onEntityCreation([this](Entity e) { entityCreation(e); });
         world.onEntityDestruction([this](Entity e) { entityDestruction(e); });
@@ -126,7 +165,7 @@ namespace ungod
         world.getSemanticsCollisionHandler().onEndCollision([this](Entity e1, Entity e2) { entityCollisionExit(e1, e2); });
 
         world.getState()->getWorldGraph().onEntityChangedNode([this](Entity e, WorldGraph& wg, WorldGraphNode& oldNode, WorldGraphNode& newNode) 
-            { callbackInvoker<Entity, WorldGraph&, WorldGraphNode&, WorldGraphNode&>(ON_ENTERED_NEW_NODE, e, wg, old, newNode);  });
+            { callbackInvoker<Entity, WorldGraph&, WorldGraphNode&, WorldGraphNode&>(ON_ENTERED_NEW_NODE, e, wg, oldNode, newNode);  });
     }
 
     void EntityBehaviorHandler::update(const std::list<Entity>& entities, float delta)
@@ -166,10 +205,10 @@ namespace ungod
     void EntityBehaviorHandler::assignBehavior(Entity e, const std::string& key)
     {
         //assign a previously loaded behavior
-        script::Environment instance = mBehaviorManager.makeInstanceEnvironment(e.getID());
+        script::Environment instance = mWorld->getState()->getEntityBehaviorManager().getBehaviorManager().makeInstanceEnvironment(e.getID());
         instance["entity"] = e;
         instance["world"] = mWorld;
-        e.modify<EntityBehaviorComponent>().mBehavior = mBehaviorManager.makeStateBehavior(key, instance);
+        e.modify<EntityBehaviorComponent>().mBehavior = mWorld->getState()->getEntityBehaviorManager().getBehaviorManager().makeStateBehavior(key, instance);
 
         //track entity if it has no transform
         if (!e.has<TransformComponent>())
@@ -179,11 +218,11 @@ namespace ungod
     void EntityBehaviorHandler::assignBehavior(Entity e, const std::string& key, script::Environment param)
     {
         //assign a previously loaded behavior
-        script::Environment instance = mBehaviorManager.makeInstanceEnvironment(e.getID());
+        script::Environment instance = mWorld->getState()->getEntityBehaviorManager().getBehaviorManager().makeInstanceEnvironment(e.getID());
         instance["entity"] = e;
         instance["world"] = mWorld;
         embedEnv(param, instance);
-        e.modify<EntityBehaviorComponent>().mBehavior = mBehaviorManager.makeStateBehavior(key, instance);
+        e.modify<EntityBehaviorComponent>().mBehavior = mWorld->getState()->getEntityBehaviorManager().getBehaviorManager().makeStateBehavior(key, instance);
 
         //track entity if it has no transform
         if (!e.has<TransformComponent>())
@@ -323,7 +362,7 @@ namespace ungod
 
     void EntityBehaviorHandler::scriptInternalDissociate(ScriptQueues& toReload)
     {
-        auto q = toReload.emplace(this, {});
+        auto q = toReload.emplace(this, std::queue<std::pair<Entity, std::string>>{});
         //reassign for entities in the world
         quad::PullResult<Entity> res;
         mWorld->getQuadTree().getContent(res);
@@ -347,7 +386,7 @@ namespace ungod
         }
     }
 
-    void EntityBehaviorHandler::scriptInternalReload(const ScriptQueues& toReload)
+    void EntityBehaviorHandler::scriptInternalReassign(const ScriptQueues& toReload)
     {
         auto q = toReload.find(this);
         while (!q.first->second.empty())
