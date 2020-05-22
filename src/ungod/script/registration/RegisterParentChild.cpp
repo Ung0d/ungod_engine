@@ -39,7 +39,7 @@ namespace ungod
                                                     "getPosition", &ChildComponent::getPosition,
                                                     "getScale", &ChildComponent::getScale);
 
-            state.registerUsertype<ParentChildHandler>("ParentChildManager",
+            state.registerUsertype<ParentChildHandler>("ParentChildHandler",
                                                     "addChild", &ParentChildHandler::addChild,
                                                     "setChildPosition", &ParentChildHandler::setChildPosition,
                                                     "setChildScale", &ParentChildHandler::setChildScale);

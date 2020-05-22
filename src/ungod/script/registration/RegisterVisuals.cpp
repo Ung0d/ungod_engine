@@ -34,113 +34,568 @@ namespace ungod
 {
     namespace scriptRegistration
     {
+		bool VisualHandlerFrontEnd::isLoaded() const
+		{
+			return mEntity.get<VisualsComponent>().isLoaded();
+		}
+
+		bool VisualHandlerFrontEnd::isVisible() const
+		{
+			return mEntity.get<VisualsComponent>().isVisible();
+		}
+
+		void VisualHandlerFrontEnd::setVisible(bool visible)
+		{
+			mHandler.setVisible(mEntity, visible);
+		}
+
+		float VisualHandlerFrontEnd::getOpacity() const
+		{
+			return mEntity.get<VisualsComponent>().getOpacity();
+		}
+
+		void VisualHandlerFrontEnd::loadTexture(const std::string& imageID, LoadPolicy policy)
+		{
+			mHandler.loadTexture(mEntity, imageID, policy);
+		}
+
+		void VisualHandlerFrontEnd::loadMetadata(const std::string& file)
+		{
+			mHandler.loadMetadata(mEntity, file);
+		}
+
+		std::size_t VisualHandlerFrontEnd::getVertexRectCount() const
+		{
+			return mEntity.get<VertexArrayComponent>().getVertices().textureRectCount();
+		}
+
+		sf::Vector2f VisualHandlerFrontEnd::getVertexRectPosition(std::size_t index) const
+		{
+			return mEntity.get<VertexArrayComponent>().getVertices().getPosition(index);
+		}
+
+		sf::FloatRect VisualHandlerFrontEnd::getVertexTexureRect(std::size_t index) const
+		{
+			return mEntity.get<VertexArrayComponent>().getVertices().getTextureRect(index);
+		}
+
+		sf::FloatRect VisualHandlerFrontEnd::getVertexBounds() const
+		{
+			return mEntity.get<VertexArrayComponent>().getVertices().getBounds();
+		}
+
+		void VisualHandlerFrontEnd::initVertexRects(std::size_t num)
+		{
+			mHandler.initTextureRects(mEntity, num);
+		}
+
+		void VisualHandlerFrontEnd::setVertexTextureRect(const sf::FloatRect& rect, std::size_t index)
+		{
+			mHandler.setArrayTextureRect(mEntity, rect, index);
+		}
+
+		void VisualHandlerFrontEnd::setVertexTextureRect(const std::string& key, std::size_t index)
+		{
+			mHandler.setArrayTextureRect(mEntity, index, key);
+		}
+
+		void VisualHandlerFrontEnd::setVertexRectPosition(const sf::Vector2f& pos, std::size_t index)
+		{
+			mHandler.setTextureRectPosition(mEntity, pos, index);
+		}
+
+		void VisualHandlerFrontEnd::setVertexPoints(std::size_t index, const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4)
+		{
+			mHandler.setPoints(mEntity, index, p1, p2, p3, p4);
+		}
+
+		std::size_t VisualHandlerFrontEnd::newVertexRect()
+		{
+			return mHandler.newTextureRect(mEntity);
+		}
+
+		std::size_t VisualHandlerFrontEnd::newVertexRect(const sf::FloatRect& rect)
+		{
+			return mHandler.newTextureRect(mEntity, rect);
+		}
+
+		std::size_t VisualHandlerFrontEnd::newVertexRect(const std::string& key)
+		{
+			return mHandler.newTextureRect(mEntity, key);
+		}
+
+		void VisualHandlerFrontEnd::setVertexRectColor(const sf::Color& color, std::size_t index)
+		{
+			mHandler.setArrayRectColor(mEntity, color, index);
+		}
+
+		const sf::Vector2f& VisualHandlerFrontEnd::getPoint(std::size_t rectIndex, std::size_t pointIndex)
+		{
+			return mHandler.getPoint(mEntity, rectIndex, pointIndex);
+		}
+
+		const sf::Vector2f& VisualHandlerFrontEnd::getSpritePosition() const
+		{
+			return mEntity.get<SpriteComponent>().getSprite().getPosition();
+		}
+
+		const sf::Vector2f& VisualHandlerFrontEnd::getSpritePosition(std::size_t index) const
+		{
+			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getPosition();
+		}
+
+		const sf::Vector2f& VisualHandlerFrontEnd::getSpriteScale() const
+		{
+			return mEntity.get<SpriteComponent>().getSprite().getScale();
+		}
+
+		const sf::Vector2f& VisualHandlerFrontEnd::getSpriteScale(std::size_t index) const
+		{
+			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getScale();
+		}
+
+		float VisualHandlerFrontEnd::getSpriteRotation() const
+		{
+			return mEntity.get<SpriteComponent>().getSprite().getRotation();
+		}
+
+		float VisualHandlerFrontEnd::getSpriteRotation(std::size_t index) const
+		{
+			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getRotation();
+		}
+
+		const sf::Vector2f& VisualHandlerFrontEnd::getSpriteOrigin() const
+		{
+			return mEntity.get<SpriteComponent>().getSprite().getOrigin();
+		}
+
+		const sf::Vector2f& VisualHandlerFrontEnd::getSpriteOrigin(std::size_t index) const
+		{
+			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getOrigin();
+		}
+
+		sf::FloatRect VisualHandlerFrontEnd::getSpriteTextureRect() const
+		{
+			return mEntity.get<SpriteComponent>().getSprite().getTextureRect();
+		}
+
+		sf::FloatRect VisualHandlerFrontEnd::getSpriteTextureRect(std::size_t index) const
+		{
+			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getTextureRect();
+		}
+
+		sf::FloatRect VisualHandlerFrontEnd::getSpriteBounds() const
+		{
+			return mEntity.get<SpriteComponent>().getSprite().getBounds();
+		}
+
+		sf::FloatRect VisualHandlerFrontEnd::getSpriteBounds(std::size_t index) const
+		{
+			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getBounds();
+		}
+
+		sf::FloatRect VisualHandlerFrontEnd::getSpriteUntransformedBounds() const
+		{
+			return mEntity.get<SpriteComponent>().getSprite().getUntransformedBounds();
+		}
+
+		sf::FloatRect VisualHandlerFrontEnd::getSpriteUntransformedBounds(std::size_t index) const
+		{
+			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getUntransformedBounds();
+		}
+
+		void VisualHandlerFrontEnd::setSpriteTextureRect(const sf::FloatRect& rect) 
+		{
+			mHandler.setSpriteTextureRect(mEntity, rect);
+		}
+
+		void VisualHandlerFrontEnd::setSpriteTextureRect(const sf::FloatRect& rect, std::size_t index) 
+		{
+			mHandler.setSpriteTextureRect(mEntity, rect, index);
+		}
+
+		void VisualHandlerFrontEnd::setSpriteTextureRect(const std::string& key) 
+		{
+			mHandler.setSpriteTextureRect(mEntity, key);
+		}
+		
+		void VisualHandlerFrontEnd::setSpriteTextureRect(const std::string& key, std::size_t index) 
+		{
+			mHandler.setSpriteTextureRect(mEntity, key, index);
+		}
+
+		void VisualHandlerFrontEnd::setSpritePosition(const sf::Vector2f& pos) 
+		{
+			mHandler.setSpritePosition(mEntity, pos);
+		}
+
+		void VisualHandlerFrontEnd::setSpritePosition(const sf::Vector2f& pos, std::size_t index) 
+		{
+			mHandler.setSpritePosition(mEntity, pos, index);
+		}
+
+
+		void VisualHandlerFrontEnd::setSpriteRotation(float rotation)
+		{
+			mHandler.setRotation(mEntity, rotation);
+		}
+
+		void VisualHandlerFrontEnd::setSpriteRotation(float rotation, std::size_t index)
+		{
+			mHandler.setRotation(mEntity, rotation, index);
+		}
+
+		void VisualHandlerFrontEnd::setSpriteScale(const sf::Vector2f& scale)
+		{
+			mHandler.setScale(mEntity, scale);
+		}
+
+		void VisualHandlerFrontEnd::setSpriteScale(const sf::Vector2f& scale, std::size_t index)
+		{
+			mHandler.setScale(mEntity, scale, index);
+		}
+
+		void VisualHandlerFrontEnd::setSpriteOrigin(const sf::Vector2f& origin)
+		{
+			mHandler.setOrigin(mEntity, origin);
+		}
+
+		void VisualHandlerFrontEnd::setSpriteOrigin(const sf::Vector2f& origin, std::size_t index)
+		{
+			mHandler.setOrigin(mEntity, origin, index);
+		}
+
+		void VisualHandlerFrontEnd::setSpriteColor(const sf::Color& color)
+		{
+			mHandler.setSpriteColor(mEntity, color);
+		}
+
+		void VisualHandlerFrontEnd::setSpriteColor(const sf::Color& color, std::size_t index)
+		{
+			mHandler.setSpriteColor(mEntity, color, index);
+		}
+
+
+		void VisualHandlerFrontEnd::bindSpriteToAnimation()
+		{
+			mHandler.bindSpriteToAnimation(mEntity);
+		}
+
+		void VisualHandlerFrontEnd::bindSpriteToAnimation(std::size_t spriteIndex, std::size_t animationIndex)
+		{
+			mHandler.bindSpriteToAnimation(mEntity, spriteIndex, animationIndex);
+		}
+
+		void VisualHandlerFrontEnd::bindVertexToAnimation(std::size_t vertexIndex)
+		{
+			mHandler.bindArrayToAnimation(mEntity, vertexIndex);
+		}
+
+		void VisualHandlerFrontEnd::bindVertexToAnimation(std::size_t vertexIndex, std::size_t multiAnimationIndex)
+		{
+			mHandler.bindArrayToAnimation(mEntity, vertexIndex, multiAnimationIndex);
+		}
+
+		void VisualHandlerFrontEnd::setAffectorActive(bool active)
+		{
+			mEntity.modify<VisualAffectorComponent>().setActive(active);
+		}
+
+		bool VisualHandlerFrontEnd::isAffectorActive() const
+		{
+			return mEntity.get<VisualAffectorComponent>().isActive();
+		}
+
+		void VisualHandlerFrontEnd::setAffectorActive(bool active, std::size_t index)
+		{
+			mEntity.modify<MultiVisualAffectorComponent>().getComponent(index).setActive(active);
+		}
+
+		bool VisualHandlerFrontEnd::isAffectorActive(std::size_t index) const
+		{
+			return mEntity.modify<MultiVisualAffectorComponent>().getComponent(index).isActive();
+		}
+
+		bool VisualHandlerFrontEnd::isAnimationLooping() const
+		{
+			return mEntity.get<AnimationComponent>().getAnimation().isLooping();
+		}
+
+		bool VisualHandlerFrontEnd::isAnimationLooping(std::size_t index) const
+		{
+			return mEntity.get<MultiAnimationComponent>().getComponent(index).getAnimation().isLooping();
+		}
+
+		bool VisualHandlerFrontEnd::isAnimationRunning() const
+		{
+			return mEntity.get<AnimationComponent>().getAnimation().isRunning();
+		}
+
+		bool VisualHandlerFrontEnd::isAnimationRunning(std::size_t index) const
+		{
+			return mEntity.get<MultiAnimationComponent>().getComponent(index).getAnimation().isRunning();
+		}
+
+		std::string VisualHandlerFrontEnd::getAnimationKey() const
+		{
+			return mEntity.get<AnimationComponent>().getAnimation().getKey();
+		}
+
+		std::string VisualHandlerFrontEnd::getAnimationKey(std::size_t index) const
+		{
+			return mEntity.get<MultiAnimationComponent>().getComponent(index).getAnimation().getKey();
+		}
+
+		unsigned VisualHandlerFrontEnd::getFrameIndex() const
+		{
+			return mEntity.get<AnimationComponent>().getAnimation().getCurrentIndex();
+		}
+
+		unsigned VisualHandlerFrontEnd::getFrameIndex(std::size_t index) const
+		{
+			return mEntity.get<MultiAnimationComponent>().getComponent(index).getAnimation().getCurrentIndex();
+		}
+
+		float VisualHandlerFrontEnd::getAnimationSpeed() const
+		{
+			return mEntity.get<AnimationComponent>().getAnimation().getSpeed();
+		}
+
+		float VisualHandlerFrontEnd::getAnimationSpeed(std::size_t index) const
+		{
+			return mEntity.get<MultiAnimationComponent>().getComponent(index).getAnimation().getSpeed();
+		}
+
+		void VisualHandlerFrontEnd::setAnimationState(const std::string& key)
+		{
+			mHandler.setAnimationState(mEntity, key);
+		}
+
+		void VisualHandlerFrontEnd::setAnimationState(const std::string& key, std::size_t multiAnimationIndex)
+		{
+			mHandler.setAnimationState(mEntity, key, multiAnimationIndex);
+		}
+
+		void VisualHandlerFrontEnd::newAnimationState(const std::string& key)
+		{
+			mHandler.newAnimationState(mEntity, key);
+		}
+
+		void VisualHandlerFrontEnd::setAnimationRunning(bool running)
+		{
+			mHandler.setRunning(mEntity, running);
+		}
+
+		void VisualHandlerFrontEnd::setAnimationRunning(bool running, std::size_t multiAnimationIndex)
+		{
+			mHandler.setRunning(mEntity, running, multiAnimationIndex);
+		}
+
+		void VisualHandlerFrontEnd::setAnimationSpeed(float speed)
+		{
+			mHandler.setAnimationSpeed(mEntity, speed);
+		}
+
+		void VisualHandlerFrontEnd::setAnimationSpeed(float speed, std::size_t multiAnimationInde)
+		{
+			mHandler.setAnimationSpeed(mEntity, speed, multiAnimationInde);
+		}
+
+		bool VisualHandlerFrontEnd::isBigSpriteLoaded() const
+		{
+			return mEntity.get<BigSpriteComponent>().isLoaded();
+		}
+
+		bool VisualHandlerFrontEnd::isBigSpriteVisible() const
+		{
+			return mEntity.get<BigSpriteComponent>().isVisible();
+		}
+
+		std::string VisualHandlerFrontEnd::getBigSpriteFilePath() const
+		{
+			return mEntity.get<BigSpriteComponent>().getFilePath();
+		}
+
+		const sf::Vector2f& VisualHandlerFrontEnd::getBigSpritePosition() const
+		{
+			return mEntity.get<BigSpriteComponent>().getBigSprite().getPosition();
+		}
+
+		const sf::Vector2f& VisualHandlerFrontEnd::getBigSpriteScale() const
+		{
+			return mEntity.get<BigSpriteComponent>().getBigSprite().getScale();
+		}
+
+		const sf::Vector2f& VisualHandlerFrontEnd::getBigSpriteOrigin() const
+		{
+			return mEntity.get<BigSpriteComponent>().getBigSprite().getOrigin();
+		}
+
+		float VisualHandlerFrontEnd::getBigSpriteRotation() const
+		{
+			return mEntity.get<BigSpriteComponent>().getBigSprite().getRotation();
+		}
+
+		sf::FloatRect VisualHandlerFrontEnd::getBigSpriteBounds() const
+		{
+			return mEntity.get<BigSpriteComponent>().getBigSprite().getGlobalBounds();
+		}
+
+		sf::Color VisualHandlerFrontEnd::getBigSpriteColor() const
+		{
+			return mEntity.get<BigSpriteComponent>().getBigSprite().getColor();
+		}
+
+		void VisualHandlerFrontEnd::loadBigTexture(const std::string& imageID, LoadPolicy policy)
+		{
+			mHandler.loadBigTexture(mEntity, imageID, policy);
+		}
+
+		void VisualHandlerFrontEnd::setBigSpriteVisibility(bool visible)
+		{
+			mHandler.setBigSpriteVisibility(mEntity, visible);
+		}
+
+		void VisualHandlerFrontEnd::setBigSpritePosition(const sf::Vector2f& position)
+		{
+			mHandler.setBigSpritePosition(mEntity, position);
+		}
+
+		void VisualHandlerFrontEnd::setBigSpriteScale(const sf::Vector2f& scale)
+		{
+			mHandler.setBigSpriteScale(mEntity, scale);
+		}
+
+		void VisualHandlerFrontEnd::setBigSpriteOrigin(const sf::Vector2f& origin)
+		{
+			mHandler.setBigSpriteOrigin(mEntity, origin);
+		}
+
+		void VisualHandlerFrontEnd::setBigSpriteColor(const sf::Color& color)
+		{
+			mHandler.setBigSpriteColor(mEntity, color);
+		}
+
+		void VisualHandlerFrontEnd::setBigSpriteRotation(float rotation)
+		{
+			mHandler.setBigSpriteRotation(mEntity, rotation);
+		}
+
+
+		sf::Vector2f VisualHandlerFrontEnd::getLowerBound() const
+		{
+			return mHandler.getLowerBound(mEntity);
+		}
+
+		sf::Vector2f VisualHandlerFrontEnd::getUpperBound() const
+		{
+			return mHandler.getUpperBound(mEntity);
+		}
+
+		void VisualHandlerFrontEnd::setOpacity(float opac)
+		{
+			mHandler.setOpacity(mEntity, opac);
+		}
+
+
+
+
         void registerVisuals(ScriptStateBase& state, Application& app)
         {
-			script::Usertype<VisualsComponent> visualsCompType = state.registerUsertype<VisualsComponent>("Visuals");
-			visualsCompType["isLoaded"] = & VisualsComponent::isLoaded;
-			visualsCompType["isVisible"] = & VisualsComponent::isVisible;
-			visualsCompType["getOpacity"] = & VisualsComponent::getOpacity;
+			script::Usertype<VisualHandlerFrontEnd> visualsHandlerType = state.registerUsertype<VisualHandlerFrontEnd>("VisualHandlerFrontEnd");
+			visualsHandlerType["isLoaded"] = &VisualHandlerFrontEnd::isLoaded;
+			visualsHandlerType["isVisible"] = &VisualHandlerFrontEnd::isVisible;
+			visualsHandlerType["setVisible"] = &VisualHandlerFrontEnd::setVisible;
+			visualsHandlerType["getOpacity"] = &VisualHandlerFrontEnd::getOpacity;
+			visualsHandlerType["loadTexture"] = &VisualHandlerFrontEnd::loadTexture;
+			visualsHandlerType["loadMetadata"] = &VisualHandlerFrontEnd::loadMetadata;
+			visualsHandlerType["getVertexRectCount"] = &VisualHandlerFrontEnd::getVertexRectCount;
+			visualsHandlerType["getVertexRectPosition"] = &VisualHandlerFrontEnd::getVertexRectPosition;
+			visualsHandlerType["getVertexTexureRect"] = &VisualHandlerFrontEnd::getVertexTexureRect;
+			visualsHandlerType["getVertexBounds"] = &VisualHandlerFrontEnd::getVertexBounds;
+			visualsHandlerType["initVertexRects"] = &VisualHandlerFrontEnd::initVertexRects;
+			visualsHandlerType["setVertexTextureRect"] = sol::overload([](VisualHandlerFrontEnd& vh, const sf::FloatRect& rect, std::size_t index) { return vh.setVertexTextureRect(rect, index); },
+																	[](VisualHandlerFrontEnd& vh, const std::string& key, std::size_t index) { return vh.setVertexTextureRect(key, index); });
+			visualsHandlerType["setVertexRectPosition"] = &VisualHandlerFrontEnd::setVertexRectPosition;
+			visualsHandlerType["setVertexPoints"] = &VisualHandlerFrontEnd::setVertexPoints;
+			visualsHandlerType["newVertexRect"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.newVertexRect(); },
+																[](VisualHandlerFrontEnd& vh, const sf::FloatRect& rect) { return vh.newVertexRect(rect); },
+																[](VisualHandlerFrontEnd& vh, const std::string& key) { return vh.newVertexRect(key); });
+			visualsHandlerType["setVertexRectColor"] = &VisualHandlerFrontEnd::setVertexRectColor;
+			visualsHandlerType["getPoint"] = &VisualHandlerFrontEnd::getPoint;
+			visualsHandlerType["getSpritePosition"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpritePosition(); },
+																	[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getSpritePosition(index); });
+			visualsHandlerType["getSpriteScale"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpriteScale(); },
+																[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getSpriteScale(index); });
+			visualsHandlerType["getSpriteRotation"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpriteRotation(); },
+																	[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getSpriteRotation(index); });
+			visualsHandlerType["getSpriteOrigin"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpriteOrigin(); },
+																	[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getSpriteOrigin(index); });
+			visualsHandlerType["getSpriteTextureRect"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpriteTextureRect(); },
+																		[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getSpriteTextureRect(index); });
+			visualsHandlerType["getSpriteBounds"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpriteBounds(); },
+																[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getSpriteBounds(index); });
+			visualsHandlerType["getSpriteUntransformedBounds"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpriteUntransformedBounds(); },
+																				[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getSpriteUntransformedBounds(index); });
+			visualsHandlerType["setSpriteTextureRect"] = sol::overload([](VisualHandlerFrontEnd& vh, const sf::FloatRect& rect) { vh.setSpriteTextureRect(rect); },
+																		[](VisualHandlerFrontEnd& vh, const sf::FloatRect& rect, std::size_t index) { vh.setSpriteTextureRect(rect, index); },
+																		[](VisualHandlerFrontEnd& vh, const std::string& key) { vh.setSpriteTextureRect(key); },
+																			[](VisualHandlerFrontEnd& vh, const std::string& key, std::size_t index) { vh.setSpriteTextureRect(key, index); });
+			visualsHandlerType["setSpritePosition"] = sol::overload([](VisualHandlerFrontEnd& vh, const sf::Vector2f& pos) { vh.setSpritePosition(pos); },
+																		[](VisualHandlerFrontEnd& vh, const sf::Vector2f& pos, std::size_t index) { vh.setSpritePosition(pos, index); });
+			visualsHandlerType["setSpriteRotation"] = sol::overload([](VisualHandlerFrontEnd& vh, float rotation) { vh.setSpriteRotation(rotation); },
+																	[](VisualHandlerFrontEnd& vh, float rotation, std::size_t index) { vh.setSpriteRotation(rotation, index); });
+			visualsHandlerType["setSpriteScale"] = sol::overload([](VisualHandlerFrontEnd& vh, const sf::Vector2f& scale) { vh.setSpriteScale(scale); },
+																[](VisualHandlerFrontEnd& vh, const sf::Vector2f& scale, std::size_t index) { vh.setSpriteScale(scale, index); });
+			visualsHandlerType["setSpriteOrigin"] = sol::overload([](VisualHandlerFrontEnd& vh, const sf::Vector2f& origin) { vh.setSpriteOrigin(origin); },
+																[](VisualHandlerFrontEnd& vh, const sf::Vector2f& origin, std::size_t index) { vh.setSpriteOrigin(origin, index); });
+			visualsHandlerType["setSpriteColor"] = sol::overload([](VisualHandlerFrontEnd& vh, const sf::Color& color) { vh.setSpriteColor(color); },
+																[](VisualHandlerFrontEnd& vh, const sf::Color& color, std::size_t index) { vh.setSpriteColor(color, index); });
+			visualsHandlerType["bindSpriteToAnimation"] = sol::overload([](VisualHandlerFrontEnd& vh) { vh.bindSpriteToAnimation(); },
+																		[](VisualHandlerFrontEnd& vh, std::size_t spriteIndex, std::size_t animationIndex) { vh.bindSpriteToAnimation(spriteIndex, animationIndex); });
+			visualsHandlerType["bindVertexToAnimation"] = sol::overload([](VisualHandlerFrontEnd& vh, std::size_t vertexIndex) { vh.bindVertexToAnimation(vertexIndex); },
+																	[](VisualHandlerFrontEnd& vh, std::size_t vertexIndex, std::size_t animationIndex) { vh.bindVertexToAnimation(vertexIndex, animationIndex); });
+			visualsHandlerType["setAffectorActive"] = sol::overload([](VisualHandlerFrontEnd& vh, bool active) { vh.setAffectorActive(active); },
+																		[](VisualHandlerFrontEnd& vh, bool active, std::size_t index) { vh.setAffectorActive(active, index); });
+			visualsHandlerType["isAffectorActive"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.isAffectorActive(); },
+																	[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.isAffectorActive(index); });
+			visualsHandlerType["isAnimationLooping"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.isAnimationLooping(); },
+																	[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.isAnimationLooping(index); });
+			visualsHandlerType["isAnimationRunning"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.isAnimationRunning(); },
+																	[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.isAnimationRunning(index); });
+			visualsHandlerType["getAnimationKey"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getAnimationKey(); },
+																	[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getAnimationKey(index); });
+			visualsHandlerType["getFrameIndex"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getFrameIndex(); },
+																[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getFrameIndex(index); });
+			visualsHandlerType["getAnimationSpeed"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getAnimationSpeed(); },
+															[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getAnimationSpeed(index); });
+			visualsHandlerType["setAnimationState"] = sol::overload([](VisualHandlerFrontEnd& vh, const std::string& key) { return vh.setAnimationState(key); },
+																	[](VisualHandlerFrontEnd& vh, const std::string& key, std::size_t index) { return vh.setAnimationState(key, index); });
+			visualsHandlerType["newAnimationState"] = &VisualHandlerFrontEnd::newAnimationState;
+			visualsHandlerType["setAnimationRunning"] = sol::overload([](VisualHandlerFrontEnd& vh, bool running) { return vh.setAnimationRunning(running); },
+																		[](VisualHandlerFrontEnd& vh, bool running, std::size_t index) { return vh.setAnimationRunning(running, index); });
+			visualsHandlerType["setAnimationSpeed"] = sol::overload([](VisualHandlerFrontEnd& vh, float speed) { return vh.setAnimationSpeed(speed); },
+																	[](VisualHandlerFrontEnd& vh, float speed, std::size_t index) { return vh.setAnimationSpeed(speed, index); });
+			visualsHandlerType["isBigSpriteLoaded"] = &VisualHandlerFrontEnd::isBigSpriteLoaded;
+			visualsHandlerType["isBigSpriteVisible"] = &VisualHandlerFrontEnd::isBigSpriteVisible;
+			visualsHandlerType["getBigSpriteFilePath"] = &VisualHandlerFrontEnd::getBigSpriteFilePath;
+			visualsHandlerType["getBigSpritePosition"] = &VisualHandlerFrontEnd::getBigSpritePosition;
+			visualsHandlerType["getBigSpriteScale"] = &VisualHandlerFrontEnd::getBigSpriteScale;
+			visualsHandlerType["getBigSpriteOrigin"] = &VisualHandlerFrontEnd::getBigSpriteOrigin;
+			visualsHandlerType["getBigSpriteRotation"] = &VisualHandlerFrontEnd::getBigSpriteRotation;
+			visualsHandlerType["getBigSpriteBounds"] = &VisualHandlerFrontEnd::getBigSpriteBounds;
+			visualsHandlerType["getBigSpriteColor"] = &VisualHandlerFrontEnd::getBigSpriteColor;
+			visualsHandlerType["loadBigTexture"] = &VisualHandlerFrontEnd::loadBigTexture;
+			visualsHandlerType["setBigSpriteVisibility"] = &VisualHandlerFrontEnd::setBigSpriteVisibility;
+			visualsHandlerType["setBigSpritePosition"] = &VisualHandlerFrontEnd::setBigSpritePosition;
+			visualsHandlerType["setBigSpriteScale"] = &VisualHandlerFrontEnd::setBigSpriteScale;
+			visualsHandlerType["setBigSpriteOrigin"] = &VisualHandlerFrontEnd::setBigSpriteOrigin;
+			visualsHandlerType["setBigSpriteColor"] = &VisualHandlerFrontEnd::setBigSpriteColor;
+			visualsHandlerType["setBigSpriteRotation"] = &VisualHandlerFrontEnd::setBigSpriteRotation;
+			visualsHandlerType["getLowerBound"] = &VisualHandlerFrontEnd::getLowerBound;
+			visualsHandlerType["getUpperBound"] = &VisualHandlerFrontEnd::getUpperBound;
+			visualsHandlerType["setOpacity"] = &VisualHandlerFrontEnd::setOpacity;
 
-			script::Usertype < VertexArrayComponent> vertexArrayCompType = state.registerUsertype<VertexArrayComponent>("VertexArrayComponent");
-			vertexArrayCompType["textureRectCount"] = [](const VertexArrayComponent& vert) {return vert.getVertices().textureRectCount(); };
-			vertexArrayCompType["getPosition"] = [](const VertexArrayComponent& vert, std::size_t index) {return vert.getVertices().getPosition(index); };
-			vertexArrayCompType["getTextureRect"] = [](const VertexArrayComponent& vert, std::size_t index) {return vert.getVertices().getTextureRect(index); };
-			vertexArrayCompType["getBounds"] = [](const VertexArrayComponent& vert) {return vert.getVertices().getBounds(); };
-
-			script::Usertype < SpriteComponent> spriteCompType = state.registerUsertype<SpriteComponent>("SpriteComponent");
-			spriteCompType["getPosition"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getPosition(); };
-			spriteCompType["getScale"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getScale(); };
-			spriteCompType["getRotation"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getRotation(); };
-			spriteCompType["getOrigin"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getOrigin(); };
-			spriteCompType["getTextureRect"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getTextureRect(); };
-			spriteCompType["getBounds"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getBounds(); };
-			spriteCompType["getUntransformedBounds"] = [](const SpriteComponent& sprite) {return sprite.getSprite().getUntransformedBounds(); };
-
-            detail::registerMultiComponent<SpriteComponent>(state, "MultiSpriteComponent");
-
-			script::Usertype < VisualAffectorComponent> affectorCompType = state.registerUsertype<VisualAffectorComponent>("VisualAffectorComponent");
-			affectorCompType["setActive"] = &VisualAffectorComponent::setActive;
-			affectorCompType["isActive"] = & VisualAffectorComponent::isActive;
-
-            detail::registerMultiComponent<VisualAffectorComponent>(state, "MultiVisualAffectorComponent");
-
-            state.registerUsertype<SpriteMetadataComponent>("SpriteMetadataComponent");
-
-			script::Usertype < AnimationComponent> animCompType = state.registerUsertype<AnimationComponent>("AnimationComponent");
-			animCompType["isLooping"] = [](const AnimationComponent& anim) {return anim.getAnimation().isLooping(); };
-			animCompType["isRunning"] = [](const AnimationComponent& anim) {return anim.getAnimation().isRunning(); };
-			animCompType["getKey"] = [](const AnimationComponent& anim) {return anim.getAnimation().getKey(); };
-			animCompType["getCurrentIndex"] = [](const AnimationComponent& anim) {return anim.getAnimation().getCurrentIndex(); };
-			animCompType["getSpeed"] = [](const AnimationComponent& anim) {return anim.getAnimation().getSpeed(); };
-
-            detail::registerMultiComponent<AnimationComponent>(state, "MultiAnimationComponent");
-
-			script::Usertype <BigSpriteComponent> bigspriteCompType = state.registerUsertype<BigSpriteComponent>("BigSpriteComponent");
-			bigspriteCompType["isLoaded"] = & BigSpriteComponent::isLoaded;
-			bigspriteCompType["isVisible"] = & BigSpriteComponent::isVisible;
-			bigspriteCompType["getFilepath"] = & BigSpriteComponent::getFilePath;
-			bigspriteCompType["getPosition"] = [](const BigSpriteComponent& sprite) {return sprite.getBigSprite().getPosition(); };
-			bigspriteCompType["getScale"] = [](const BigSpriteComponent& sprite) {return sprite.getBigSprite().getScale(); };
-			bigspriteCompType["getRotation"] = [](const BigSpriteComponent& sprite) {return sprite.getBigSprite().getRotation(); };
-			bigspriteCompType["getOrigin"] = [](const BigSpriteComponent& sprite) {return sprite.getBigSprite().getOrigin(); };
-			bigspriteCompType["getBounds"] = [](const BigSpriteComponent& sprite) {return sprite.getBigSprite().getGlobalBounds(); };
-			bigspriteCompType["getColor"] = [](const BigSpriteComponent& sprite) {return sprite.getBigSprite().getColor(); };
-
-			script::Usertype <VisualsHandler> visualsmngrType = state.registerUsertype<VisualsHandler>("VisualsManager");
-			visualsmngrType["initTextureRects"] = & VisualsHandler::initTextureRects;
-			visualsmngrType["setSpriteTextureRect"] = sol::overload([](VisualsHandler& vm, Entity e, const sf::FloatRect& rect) { vm.setSpriteTextureRect(e, rect); },
-				[](VisualsHandler& vm, Entity e, const sf::FloatRect& rect, std::size_t index) { vm.setSpriteTextureRect(e, rect, index); },
-				[](VisualsHandler& vm, Entity e, const std::string& key) { vm.setSpriteTextureRect(e, key); },
-				[](VisualsHandler& vm, Entity e, const std::string& key, std::size_t index) { vm.setSpriteTextureRect(e, key, index); });
-			visualsmngrType["setSpritePosition"] = sol::overload([](VisualsHandler& vm, Entity e, const sf::Vector2f& pos) { vm.setSpritePosition(e, pos); },
-				[](VisualsHandler& vm, Entity e, const sf::Vector2f& pos, std::size_t index) { vm.setSpritePosition(e, pos, index); });
-			visualsmngrType["setArrayTextureRect"] = sol::overload([](VisualsHandler& vm, Entity e, const sf::FloatRect& rect, std::size_t index) { vm.setArrayTextureRect(e, rect, index); },
-				[](VisualsHandler& vm, Entity e, std::size_t index, const std::string& key) { vm.setArrayTextureRect(e, index, key); });
-			visualsmngrType["setTextureRectPosition"] = & VisualsHandler::setTextureRectPosition;
-			visualsmngrType["setPoints"] = [](VisualsHandler& vm, Entity e, std::size_t index, const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4)
-			{ vm.setPoints(e, index, p1, p2, p3, p4); };
-			visualsmngrType["getPoint"] = & VisualsHandler::getPoint;
-			visualsmngrType["newTextureRect"] = sol::overload([](VisualsHandler& vm, Entity e, const sf::FloatRect& rect) { return vm.newTextureRect(e, rect); },
-				[](VisualsHandler& vm, Entity e) { return vm.newTextureRect(e); },
-				[](VisualsHandler& vm, Entity e, const std::string& key) { return vm.newTextureRect(e, key); });
-			visualsmngrType["loadTexture"] = sol::overload([](VisualsHandler& vm, Entity e, const std::string& imageID, const script::ProtectedFunc& func) { return vm.loadTexture(e, imageID, [func](VisualsComponent& vis) { func(vis); }); },
-				[](VisualsHandler& vm, Entity e, const std::string& imageID, LoadPolicy policy) { vm.loadTexture(e, imageID, policy); },
-				[](VisualsHandler& vm, Entity e, const std::string& imageID) { vm.loadTexture(e, imageID); });
-			visualsmngrType["loadMetadata"] = & VisualsHandler::loadMetadata;
-			visualsmngrType["setVisible"] = & VisualsHandler::setVisible;
-			visualsmngrType["bindSpriteToAnimation"] = sol::overload([](VisualsHandler& vm, Entity e) { vm.bindSpriteToAnimation(e); },
-				[](VisualsHandler& vm, Entity e, std::size_t multiSpriteIndex, std::size_t multiAnimationIndex) { vm.bindSpriteToAnimation(e, multiSpriteIndex, multiAnimationIndex); });
-			visualsmngrType["bindArrayToAnimation"] = sol::overload([](VisualsHandler& vm, Entity e, std::size_t index) { vm.bindArrayToAnimation(e, index); },
-				[](VisualsHandler& vm, Entity e, std::size_t index, std::size_t multiAnimationIndex) { vm.bindArrayToAnimation(e, index, multiAnimationIndex); });
-			visualsmngrType["setAnimationState"] = sol::overload([](VisualsHandler& vm, Entity e, const std::string& key) { return vm.setAnimationState(e, key); },
-				[](VisualsHandler& vm, Entity e, const std::string& key, std::size_t multiAnimationIndex) { return vm.setAnimationState(e, key, multiAnimationIndex); });
-			visualsmngrType["newAnimationState"] = & VisualsHandler::newAnimationState;
-			visualsmngrType["setRunning"] = sol::overload([](VisualsHandler& vm, Entity e, bool running) { return vm.setRunning(e, running); },
-				[](VisualsHandler& vm, Entity e, bool running, std::size_t animationIndex) { return vm.setRunning(e, running, animationIndex); });
-			visualsmngrType["setAnimationSpeed"] = sol::overload([](VisualsHandler& vm, Entity e, float speed) { return vm.setAnimationSpeed(e, speed); },
-				[](VisualsHandler& vm, Entity e, float speed, std::size_t animationIndex) { return vm.setAnimationSpeed(e, speed, animationIndex); });
-			visualsmngrType["getLowerBound"] = & VisualsHandler::getLowerBound;
-			visualsmngrType["getUpperBound"] = & VisualsHandler::getUpperBound;
-			visualsmngrType["getUntransformedLowerBound"] = & VisualsHandler::getUntransformedLowerBound;
-			visualsmngrType["getUntransformedUpperBound"] = & VisualsHandler::getUntransformedUpperBound;
-			visualsmngrType["setRotation"] = sol::overload([](VisualsHandler& vm, Entity e, float rotation) { return vm.setRotation(e, rotation); },
-			[](VisualsHandler& vm, Entity e, float rotation, std::size_t multiindex) { return vm.setRotation(e, rotation, multiindex); });
-			visualsmngrType["setScale"] = sol::overload([](VisualsHandler& vm, Entity e, float scalex, float scaley) { return vm.setScale(e, scalex, scaley); },
-				[](VisualsHandler& vm, Entity e, float scalex, float scaley, std::size_t multiindex) { return vm.setScale(e, scalex, scaley, multiindex); });
-			visualsmngrType["setOrigin"] = sol::overload([](VisualsHandler& vm, Entity e, const sf::Vector2f& origin) { return vm.setOrigin(e, origin); },
-				[](VisualsHandler& vm, Entity e, const sf::Vector2f& origin, std::size_t multiindex) { return vm.setOrigin(e, origin, multiindex); });
-			visualsmngrType["setSpriteColor"] = sol::overload([](VisualsHandler& vm, Entity e, const sf::Color& color) { return vm.setSpriteColor(e, color); },
-				[](VisualsHandler& vm, Entity e, const sf::Color& color, std::size_t multiindex) { return vm.setSpriteColor(e, color, multiindex); });
-			visualsmngrType["setArrayRectColor"] = [](VisualsHandler& vm, Entity e, const sf::Color& color, std::size_t index) { vm.setArrayRectColor(e, color, index); };
-			visualsmngrType["setOpacity"] = & VisualsHandler::setOpacity;
-			visualsmngrType["loadBigTexture"] = sol::overload([](VisualsHandler& vm, Entity e, const std::string& imageID, LoadPolicy policy) { vm.loadBigTexture(e, imageID, policy); },
-				[](VisualsHandler& vm, Entity e, const std::string& imageID) { vm.loadBigTexture(e, imageID); });
-			visualsmngrType["setBigSpriteVisibility"] = [](VisualsHandler& vm, Entity e, bool visible) { vm.setBigSpriteVisibility(e, visible); };
-			visualsmngrType["setBigSpritePosition"] = [](VisualsHandler& vm, Entity e, const sf::Vector2f& position) { vm.setBigSpritePosition(e, position); };
-			visualsmngrType["setBigSpriteColor"] = [](VisualsManager& vm, Entity e, const sf::Color& color) { vm.setBigSpriteColor(e, color); };
-			visualsmngrType["setBigSpriteScale"] = [](VisualsHandler& vm, Entity e, const sf::Vector2f& scale) { vm.setBigSpriteScale(e, scale); };
-			visualsmngrType["setBigSpriteOrigin"] = [](VisualsHandler& vm, Entity e, const sf::Vector2f& origin) { vm.setBigSpriteOrigin(e, origin); };
-			visualsmngrType["setBigSpriteRotation"] = [](VisualsHandler& vm, Entity e, float rotation) { vm.setBigSpriteRotation(e, rotation); };
 
 			script::Usertype<Camera> camType = state.registerUsertype<Camera>("Camera");
 			camType["lockToEntity"] = & Camera::lockToEntity;

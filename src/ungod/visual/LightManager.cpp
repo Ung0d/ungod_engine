@@ -31,7 +31,7 @@
 
 namespace ungod
 {
-    void LightManager::LightManager(Application& app) :
+    LightManager::LightManager(Application& app) 
     {
         setImageSize(app.getWindow().getSize());
         mAppSignalLink = app.onTargetSizeChanged([this](const sf::Vector2u& targetsize)
@@ -39,20 +39,20 @@ namespace ungod
                 setImageSize(targetsize);
             });
 
-        auto unshadowVertex = mApp.getConfig().get<std::string>("light/unshadow_vertex_shader");
-        auto unshadowFrag = mApp.getConfig().get<std::string>("light/unshadow_frag_shader");
-        auto lightVertex = mApp.getConfig().get<std::string>("light/light_vertex_shader");
-        auto lightFrag = mApp.getConfig().get<std::string>("light/light_frag_shader");
-        auto penumbraTexture = mApp.getConfig().get<std::string>("light/default_penumbra_texture");
+        auto unshadowVertex = app.getConfig().get<std::string>("light/unshadow_vertex_shader");
+        auto unshadowFrag = app.getConfig().get<std::string>("light/unshadow_frag_shader");
+        auto lightVertex = app.getConfig().get<std::string>("light/light_vertex_shader");
+        auto lightFrag = app.getConfig().get<std::string>("light/light_frag_shader");
+        auto penumbraTexture = app.getConfig().get<std::string>("light/default_penumbra_texture");
         if (!(unshadowVertex && unshadowFrag && lightVertex && lightFrag && penumbraTexture))
             Logger::error("Can not instantiate the light system, because the config file seems to be corrupted. \n Consider deleting it and let the application generate a fresh one.");
         else
         {
-            mUnshadowShader.loadFromFile(unshadowVertex, unshadowFrag);
-            mLightOverShapeShader.loadFromFile(lightVertex, lightFrag);
+            mUnshadowShader.loadFromFile(unshadowVertex.value(), unshadowFrag.value());
+            mLightOverShapeShader.loadFromFile(lightVertex.value(), lightFrag.value());
 
 
-            mPenumbraTexture.load(penumbraTexture, LoadPolicy::ASYNC, true);
+            mPenumbraTexture.load(penumbraTexture.value(), LoadPolicy::ASYNC, true);
             if (mPenumbraTexture.isLoaded())
                 mUnshadowShader.setUniform("penumbraTexture", mPenumbraTexture.get());
             else

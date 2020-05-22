@@ -119,10 +119,7 @@ void Entity::rem() const
         static_cast<ComponentSignalBase&>(mHandle.getUniverse()).notifyComponentRemoved<C>(*this);
     }
     else
-    {
         ungod::Logger::warning("Tried to remove a component from an entity, that is not listed as optional-component.");
-        ungod::Logger::endl();
-    }
 }
 
 template<typename MULTI, typename ... PARAM>

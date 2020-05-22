@@ -30,27 +30,81 @@ namespace ungod
 {
     namespace scriptRegistration
     {
+		sf::Vector2f TransformHandlerFrontEnd::getPosition() const
+		{
+			return mEntity.get<TransformComponent>().getPosition();
+		}
+
+		sf::Vector2f TransformHandlerFrontEnd::getSize() const
+		{
+			return mEntity.get<TransformComponent>().getSize();
+		}
+
+		sf::Vector2f TransformHandlerFrontEnd::getCenterPosition() const
+		{
+			return mEntity.get<TransformComponent>().getCenterPosition();
+		}
+
+		sf::Vector2f TransformHandlerFrontEnd::getOriginPosition() const
+		{
+			return mEntity.get<TransformComponent>().getOriginPosition();
+		}
+
+		const sf::Vector2f& TransformHandlerFrontEnd::getUpperBounds() const
+		{
+			return mEntity.get<TransformComponent>().getUpperBounds();
+		}
+
+		const sf::Vector2f& TransformHandlerFrontEnd::getLowerBounds() const
+		{
+			return mEntity.get<TransformComponent>().getLowerBounds();
+		}
+
+		const sf::Vector2f& TransformHandlerFrontEnd::getScale() const
+		{
+			return mEntity.get<TransformComponent>().getScale();
+		}
+
+		const sf::Vector2f& TransformHandlerFrontEnd::getBaseLineOffsets() const
+		{
+			return mEntity.get<TransformComponent>().getBaseLineOffsets();
+		}
+
+		void TransformHandlerFrontEnd::setPosition(const sf::Vector2f& pos)
+		{
+			mHandler.setPosition(mEntity, pos);
+		}
+
+		void TransformHandlerFrontEnd::setScale(const sf::Vector2f& scale)
+		{
+			mHandler.setScale(mEntity, scale);
+		}
+
+		void TransformHandlerFrontEnd::setBaseLineOffsets(const sf::Vector2f& offsets)
+		{
+			mHandler.setBaseLineOffsets(mEntity, offsets);
+		}
+
+		void TransformHandlerFrontEnd::move(const sf::Vector2f& offset)
+		{
+			mHandler.move(mEntity, offset);
+		}
+
         void registerTransform(ScriptStateBase& state)
         {
-			script::Usertype<TransformComponent> transfType = state.registerUsertype<TransformComponent>("Transform"); 
-			transfType["getSize"] = &TransformComponent::getSize;
-			transfType["getPosition"] = &TransformComponent::getPosition;
-			transfType["getCenterPosition"] = &TransformComponent::getCenterPosition;
-			transfType["getOriginPosition"] = &TransformComponent::getOriginPosition;
-			transfType["getUpperBounds"] = &TransformComponent::getUpperBounds;
-			transfType["getLowerBounds"] = &TransformComponent::getLowerBounds;
-			transfType["getScale"] = &TransformComponent::getScale;
-			transfType["getBaseLineOffsets"] = &TransformComponent::getBaseLineOffsets;
-
-			script::Usertype<TransformHandler> transfManagerType = state.registerUsertype<TransformHandler>("TransformManager");
-			transfManagerType["setPosition"] = sol::overload([](TransformHandler& tm, Entity e, float x, float y) { tm.setPosition(e, { x,y }); },
-				[](TransformHandler& tm, Entity e, const sf::Vector2f& pos) { tm.setPosition(e, pos); });
-			transfManagerType["setBaseLineOffsets"] = sol::overload([](TransformHandler& tm, Entity e, float x, float y) { tm.setBaseLineOffsets(e, { x,y }); },
-				[](TransformHandler& tm, Entity e, const sf::Vector2f& pos) { tm.setBaseLineOffsets(e, pos); });
-			transfManagerType["setScale"] = sol::overload([](TransformHandler& tm, Entity e, float scale) { tm.setScale(e, scale); },
-				[](TransformHandler& tm, Entity e, const sf::Vector2f& scale) { tm.setScale(e, scale); });
-			transfManagerType["move"] = sol::overload( [] (TransformHandler& tm, Entity e, float x, float y) { tm.move(e, {x,y}); },
-                                                      [] (TransformHandler& tm, Entity e, const sf::Vector2f& pos) { tm.move(e, pos); });
+			script::Usertype<TransformHandlerFrontEnd> transfHandlerFrontEndType = state.registerUsertype<TransformHandlerFrontEnd>("TransformHandlerFrontEnd");
+			transfHandlerFrontEndType["getSize"] = &TransformHandlerFrontEnd::getSize;
+			transfHandlerFrontEndType["getPosition"] = &TransformHandlerFrontEnd::getPosition;
+			transfHandlerFrontEndType["getCenterPosition"] = &TransformHandlerFrontEnd::getCenterPosition;
+			transfHandlerFrontEndType["getOriginPosition"] = &TransformHandlerFrontEnd::getOriginPosition;
+			transfHandlerFrontEndType["getUpperBounds"] = &TransformHandlerFrontEnd::getUpperBounds;
+			transfHandlerFrontEndType["getLowerBounds"] = &TransformHandlerFrontEnd::getLowerBounds;
+			transfHandlerFrontEndType["getScale"] = &TransformHandlerFrontEnd::getScale;
+			transfHandlerFrontEndType["getBaseLineOffsets"] = &TransformHandlerFrontEnd::getBaseLineOffsets;
+			transfHandlerFrontEndType["setPosition"] = &TransformHandlerFrontEnd::setPosition;
+			transfHandlerFrontEndType["setBaseLineOffsets"] = &TransformHandlerFrontEnd::setBaseLineOffsets;
+			transfHandlerFrontEndType["setScale"] = &TransformHandlerFrontEnd::setScale;
+			transfHandlerFrontEndType["move"] = &TransformHandlerFrontEnd::move;
         }
     }
 }

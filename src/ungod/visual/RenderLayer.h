@@ -127,7 +127,7 @@ namespace ungod
         bool renderDebug(sf::RenderTarget& target, Camera& camera, sf::RenderStates states,
                          bool bounds = true, bool texrects = true, bool colliders = true, bool audioemitters = true, bool lights = true) const;
 
-        void update(float delta, const Camera& camera);
+        void update(float delta, const sf::Vector2f& areaPosition, const sf::Vector2f& areaSize);
 
         void handleInput(const sf::Event& event, const sf::RenderTarget& target);
 
@@ -156,9 +156,12 @@ namespace ungod
 		/** \brief Resizes all internal layers. This may be a costly operation if the layers already have content since attached layers may have to reorganize their entire content. */
 		void setSize(const sf::Vector2f& size);
 
+        const sf::Vector2f& getSize() const { return mSize; }
+
     private:
         std::vector<std::pair<RenderLayerPtr, bool>> mRenderLayers;
         std::queue<std::pair<std::size_t, bool>> mToMove;
+        sf::Vector2f mSize;
     };
 }
 

@@ -51,7 +51,7 @@ namespace ungod
     };
 
 
-    template <class GETTER> using PatternMap = std::unordered_map< std::string, SteeringPattern<GETTER> >;
+    template <class GETTER> using PatternMap = std::unordered_map< std::string, std::unique_ptr<SteeringPattern<GETTER>> >;
 
     /**
     * \ingroup Components
@@ -88,7 +88,7 @@ namespace ungod
 
         /** \brief Returns a handle to the given pattern for faster access. Useful when chaining
         * multiple operations on the same pattern. */
-        SteeringPattern<GETTER>* getPattern(const std::string& key);
+        SteeringPattern<GETTER>* getPattern(const std::string& key) const;
 
         /** \brief Attaches a steering to the pattern. */
         void attachSteering(const std::string& key, const SteeringFunc<GETTER>& steering);
@@ -141,13 +141,13 @@ namespace ungod
     template <class GETTER>
     SteeringPattern<GETTER>* SteeringManager<GETTER>::newPattern(const std::string& key)
     {
-        return &mPatterns.emplace(key, SteeringPattern<GETTER>{}).first->second;
+        return mPatterns.emplace(key, std::make_unique<SteeringPattern<GETTER>>()).first->second.get();
     }
 
     template <class GETTER>
-    SteeringPattern<GETTER>* SteeringManager<GETTER>::getPattern(const std::string& key)
+    SteeringPattern<GETTER>* SteeringManager<GETTER>::getPattern(const std::string& key) const
     {
-        return &mPatterns.find(key)->second;
+        return mPatterns.find(key)->second.get();
     }
 
     template <class GETTER>

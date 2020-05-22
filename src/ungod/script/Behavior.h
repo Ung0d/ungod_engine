@@ -409,8 +409,7 @@ namespace ungod
         detail::OptionalEnvironment getStaticEnvironment(const std::string& key) const;
 
         /** \brief Creates a unique environment for a instance. Id must be unique. */
-        template<typename ID>
-        script::Environment makeInstanceEnvironment(const ID& id);
+        script::Environment makeInstanceEnvironment();
 
         /** \brief Reloads all internal scripts. This will invalidate all behavior and stateBehavior pointers.
         * Returns a list of all reloaded script-files (path-names) along with their corresponding ErrorCodes. */
@@ -886,10 +885,9 @@ namespace ungod
 
 
     template <typename ... INIT_PARAM>
-    template<typename ID>
-    script::Environment BehaviorManager<INIT_PARAM...>::makeInstanceEnvironment(const ID& id)
+    script::Environment BehaviorManager<INIT_PARAM...>::makeInstanceEnvironment()
     {
-        return mMainEnv.create_named(id);
+        return mMainEnv.create();
     }
 
 

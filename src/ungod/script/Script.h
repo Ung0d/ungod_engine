@@ -106,28 +106,38 @@ namespace ungod
 
     /** \brief A free method that converts a script environment into a vector. */
     template <typename T>
+    void env2vec(script::Environment env, std::vector<T>& res)
+    {
+        res.reserve(env.size());
+        env.for_each([&res](sol::object key, sol::object value)
+            {
+                if (value.is<T>())
+                    res.emplace_back(value.as<T>());
+            });
+    }
+    template <typename T>
     std::vector<T> env2vec(script::Environment env)
     {
         std::vector<T> res;
-        res.reserve(env.size());
-        env.for_each([&res](sol::object key, sol::object value)
-        {
-            if (value.is<T>())
-                res.emplace_back(value.as<T>());
-        });
+        env2vec<T>(env, res);
         return res;
     }
 
     /** \brief A free method that converts a script environment into a list. */
     template <typename T>
+    void env2list(script::Environment env, std::list<T>& res)
+    {
+        env.for_each([&res](sol::object key, sol::object value)
+            {
+                if (value.is<T>())
+                    res.emplace_back(value.as<T>());
+            });
+    }
+    template <typename T>
     std::list<T> env2list(script::Environment env)
     {
         std::list<T> res;
-        env.for_each([&res](sol::object key, sol::object value)
-        {
-            if (value.is<T>())
-                res.emplace_back(value.as<T>());
-        });
+        env2list<T>(env, res);
         return res;
     }
 

@@ -35,10 +35,10 @@ namespace ungod
         SerialBehavior<RenderLayer>::serialize(data, serializer, context);
 
         quad::Bounds bounds = data.mQuadTree.getBoundary();
-        context.serializeProperty("ambient_light_r", data.getLightSystem().getAmbientColor().r, serializer);
-        context.serializeProperty("ambient_light_g", data.getLightSystem().getAmbientColor().g, serializer);
-        context.serializeProperty("ambient_light_b", data.getLightSystem().getAmbientColor().b, serializer);
-        context.serializeProperty("ambient_light_a", data.getLightSystem().getAmbientColor().a, serializer);
+        context.serializeProperty("ambient_light_r", data.getLightHandler().getAmbientColor().r, serializer);
+        context.serializeProperty("ambient_light_g", data.getLightHandler().getAmbientColor().g, serializer);
+        context.serializeProperty("ambient_light_b", data.getLightHandler().getAmbientColor().b, serializer);
+        context.serializeProperty("ambient_light_a", data.getLightHandler().getAmbientColor().a, serializer);
 
         quad::PullResult<Entity> contentPull;
         data.mQuadTree.getContent(contentPull);
@@ -53,7 +53,7 @@ namespace ungod
         }
 
         for (const auto& v : sorted)
-            context.serializeObjectContainer(v.first, v.first, v.second, serializer, data, static_cast<const Application&>(*data.mMaster->getApp()));
+            context.serializeObjectContainer(v.first, v.first, v.second, serializer);
 
         MetaNode nameMapNode = context.appendSubnode(serializer, "name_map");
         for (const auto& nameEntityPair : data.mEntityNames)
@@ -65,14 +65,14 @@ namespace ungod
 
     void DeserialBehavior<World, DeserialMemory&>::deserialize(World& data, MetaNode deserializer, DeserializationContext& context, DeserialMemory& deserialMemory)
     {
-        DeserialBehavior<RenderLayer>::deserialize(data, deserializer, context, deserialMemory);
+        DeserialBehavior<RenderLayer, DeserialMemory&>::deserialize(data, deserializer, context, deserialMemory);
 
         initDeserial(context, data);
 
         //get the most basic parameters of the worlds
         auto result = deserializer.getAttributes<uint8_t, uint8_t, uint8_t, uint8_t>
                             ( {"ambient_light_r", 255}, {"ambient_light_g", 255}, {"ambient_light_b", 255}, {"ambient_light_a", 255} );
-        data.getLightSystem().setAmbientColor(sf::Color{ std::get<0>(result), std::get<1>(result), std::get<2>(result), std::get<3>(result) });
+        data.getLightHandler().setAmbientColor(sf::Color{ std::get<0>(result), std::get<1>(result), std::get<2>(result), std::get<3>(result) });
 
         //retrieve all entities and add them to the quadtree
         for (const auto& instantiation : data.mDeserialMap)

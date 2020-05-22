@@ -40,7 +40,7 @@ namespace ungod
     class TransformComponent : public Serializable<TransformComponent>
     {
     friend class TransformHandler;
-    friend struct SerialBehavior<TransformComponent>;
+    friend struct SerialBehavior<TransformComponent, Entity>;
     friend struct DeserialBehavior<TransformComponent, Entity, DeserialMemory&>;
     public:
         TransformComponent() : mTransform(), mUpperBound(0, 0), mLowerBound(0, 0), mBaseLineOffsets(0.0f, 0.0f) {}

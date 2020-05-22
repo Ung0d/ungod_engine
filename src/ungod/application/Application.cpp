@@ -349,8 +349,8 @@ namespace ungod
         scriptRegistration::registerMenuState(scriptBase);
         scriptRegistration::registerGameState(scriptBase);
         scriptRegistration::registerApplication(scriptBase, *this);
-        scriptRegistration::registerWater(scriptBase, *this);
-        scriptRegistration::registerTileMap(scriptBase, *this);
+        scriptRegistration::registerWater(scriptBase);
+        scriptRegistration::registerTileMap(scriptBase);
         scriptRegistration::registerWorldGraph(scriptBase);
         scriptRegistration::registerEntity(scriptBase);
         scriptRegistration::registerSerialization(scriptBase);

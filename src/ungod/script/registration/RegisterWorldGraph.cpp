@@ -37,12 +37,25 @@ namespace ungod
 			worldGraphNodeType["getWorld"] = &WorldGraphNode::getWorld;
 			worldGraphNodeType["setSize"] = &WorldGraphNode::setSize;
 			worldGraphNodeType["setPosition"] = &WorldGraphNode::setPosition;
+			worldGraphNodeType["getBounds"] = &WorldGraphNode::getBounds;
+			worldGraphNodeType["getPosition"] = &WorldGraphNode::getPosition;
+			worldGraphNodeType["moveLayerDown"] = &WorldGraphNode::moveLayerDown;
+			worldGraphNodeType["moveLayerUp"] = &WorldGraphNode::moveLayerUp;
+			worldGraphNodeType["isLoaded"] = &WorldGraphNode::isLoaded;
+			worldGraphNodeType["getNumWorld"] = &WorldGraphNode::getNumWorld;
 
 			script::Usertype<WorldGraph> worldGraphType = state.registerUsertype<WorldGraph>("WorldGraph");
 			worldGraphType["createNode"] = &WorldGraph::createNode;
 			worldGraphType["activateNode"] = &WorldGraph::activateNode;
 			worldGraphType["getActiveNode"] = &WorldGraph::getActiveNode;
 			worldGraphType["getNodeByIdentifier"] = [](WorldGraph& wg, const std::string& id) { return wg.getNode(id); };
+			worldGraphType["getNodeByPosition"] = [](WorldGraph& wg, const sf::Vector2f& p) { return wg.getNode(p); };
+			worldGraphType["connect"] = &WorldGraph::connect;
+			worldGraphType["disconnect"] = &WorldGraph::disconnect;
+			worldGraphType["setDistance"] = &WorldGraph::setDistance;
+			worldGraphType["getDistance"] = &WorldGraph::getDistance;
+			worldGraphType["getNumberOfNodes"] = &WorldGraph::getNumberOfNodes;
+			worldGraphType["getCamera"] = [](WorldGraph& wg) -> Camera& { return wg.getCamera(); };
         }
     }
 }

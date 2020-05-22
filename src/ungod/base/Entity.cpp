@@ -51,6 +51,8 @@ namespace ungod
 
     EntityID Entity::getID() const { return mHandle.getID(); }
 
+    const EntityData* Entity::getData() const { return &mHandle.getEntityData(); }
+
     InstantiationBase* Entity::getInstantiation() const { return mInstantiation; }
 
     ungod::World& Entity::getWorld() const

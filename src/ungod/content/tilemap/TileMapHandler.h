@@ -92,9 +92,9 @@ namespace ungod
         void addKey(Entity e, const std::string& key);
 
         /** \brief Performs flood fill for the given entity with a tilemap component. */
-        inline static void floodFillTileMap(Entity e, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs)
+        inline void floodFillTileMap(Entity e, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs)
         { floodFillTileMap(e.modify<TileMapComponent>(), ix, iy, replacementIDs); }
-        static void floodFillTileMap(TileMapComponent& tilemap, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs);
+        void floodFillTileMap(TileMapComponent& tilemap, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs);
 
         /** \brief Returns a brush object that can be used to paint on the tilemap associated with entity e.
         * Changes to the tilemap through the brush, are send notifications the renderer. */

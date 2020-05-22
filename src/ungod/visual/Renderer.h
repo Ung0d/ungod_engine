@@ -38,6 +38,7 @@ namespace ungod
     class ParticleSystemComponent;
     class MusicEmitterComponent;
     class LightEmitterComponent;
+    class Application;
 
     /** \brief A "system" class that renders entities to a render target.
     * Also updates entities with animation components. */
@@ -47,10 +48,10 @@ namespace ungod
         Renderer(Application& app);
 
         /** \brief Computes a new list of entities that intersect the render area. */
-        void renewRenderlist(sf::RenderTarget& target, quad::PullResult<Entity>& pull) const;
+        void renewRenderlist(const quad::QuadTree<Entity>& entities, quad::PullResult<Entity>& pull, const sf::RenderTarget& target, sf::RenderStates states) const;
 
         /** \brief Draws the internal list of entities that must have a Transform and a Visual component and that are non-plane. */
-        void render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states);
+        void render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states, VisualsHandler& visualsHandler);
 
         /** \brief Draws the bounding boxes of all entities in the internal render-list. */
         void renderBounds(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const;

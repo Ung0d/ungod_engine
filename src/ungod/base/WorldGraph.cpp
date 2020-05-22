@@ -337,6 +337,7 @@ namespace ungod
     {
         context.serializeObjectContainer<WorldGraphNode>("nodes", [&data] (std::size_t i) -> const WorldGraphNode& { return *data.mNodes[i]; }, data.mNodes.size(), serializer);
         context.serializeObject("graph", data.mAdjacencies, serializer);
+        context.serializeObject("cam", data.mCamera, serializer);
     }
 
 
@@ -353,6 +354,7 @@ namespace ungod
                             "nodes", deserializer);
 		for (const auto& n : data.mNodes)
 			data.notifyBoundsChanged(n.get());
-        attr = context.next(context.deserializeObject(data.mAdjacencies), "graph", deserializer, attr);
+        attr = context.next(context.deserializeObject(data.mAdjacencies), "graph", deserializer, attr); 
+        context.next(context.deserializeObject(data.mCamera, static_cast<sf::RenderTarget&>(gamestate.getApp().getWindow())), "cam", deserializer, attr);
     }
 }

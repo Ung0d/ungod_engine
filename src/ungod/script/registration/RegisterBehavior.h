@@ -30,8 +30,28 @@
 
 namespace ungod
 {
+    class Entity;
+    class EntityBehaviorHandler;
+
     namespace scriptRegistration
     {
+        class EntityBehaviorHandlerFrontEnd
+        {
+        public:
+            EntityBehaviorHandlerFrontEnd(Entity& e, EntityBehaviorHandler& h) : mEntity(e), mHandler(h) {}
+            bool hasValidEnvironment() const;
+            bool hasValidStateEnvironment(const std::string& stateName) const;
+            script::Environment getEnvironment() const;
+            script::Environment getStateEnvironment(const std::string& stateName) const;
+            void assignBehavior(const std::string& name);
+            void assignBehavior(const std::string& name, script::Environment param);
+            void setUpdateInterval(float interval);
+
+        private:
+            Entity& mEntity;
+            EntityBehaviorHandler& mHandler;
+        };
+
         /** \brief Registers script behavior for entities. */
         void registerBehavior(ScriptStateBase& state);
     }

@@ -32,7 +32,7 @@ namespace ungod
 {
     void initDeserial(DeserializationContext& context, World& world)
     {
-        prepareParticleSystemDeserial(context, &world.getParticleSystemManager().getFunctorMaster());
+        prepareParticleSystemDeserial(context, &world.getParticleSystemHandler().getFunctorMaster());
     }
 
 

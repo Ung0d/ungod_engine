@@ -216,12 +216,7 @@ namespace ungod
             mContentsChangedSignal.emit(e, sprite.mSprite.getBounds());
         }
         else
-        {
-            Logger::warning(key);
-            Logger::warning(" not found in meta file: ");
-            Logger::warning(data.mMeta.getFilePath());
-            Logger::endl();
-        }
+            Logger::warning(key, "not found in meta file:", data.mMeta.getFilePath());
     }
 
     void VisualsHandler::setArrayTextureRect(Entity e, std::size_t index, const std::string& key)
@@ -240,10 +235,7 @@ namespace ungod
         }
         else
         {
-            Logger::warning(key);
-            Logger::warning(" not found in meta file: ");
-            Logger::warning(data.mMeta.getFilePath());
-            Logger::endl();
+            Logger::warning(key, "not found in meta file: ", data.mMeta.getFilePath());
         }
     }
 

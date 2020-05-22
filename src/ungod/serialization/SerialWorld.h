@@ -33,6 +33,7 @@ namespace ungod
 {
     class World;
     class Application;
+    struct DeserialMemory;
 
     template <>
     struct SerialIdentifier<World>

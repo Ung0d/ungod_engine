@@ -43,10 +43,7 @@ namespace ungod
             if ( !result.valid() )
             {
                 sol::error err = result;
-                Logger::error("An error occured during a script.");
-                Logger::endl();
-                Logger::error(err.what());
-                Logger::endl();
+                Logger::error("An error occured during a script. \n", err.what());
             }
         }
 
@@ -73,7 +70,6 @@ namespace ungod
                                 {
                                     success = false;
                                     Logger::warning("An element in the script enviroment is not of the required type. Cant append it to the vector.");
-                                    Logger::endl();
                                 }
                             });
             return success;

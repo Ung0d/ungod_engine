@@ -34,8 +34,7 @@ namespace ungod
         {
             script::Usertype<ScriptedMenuState> menuStateType = state.registerUsertype<ScriptedMenuState>("ScriptedMenuState", sol::base_classes, sol::bases<State>());
 			menuStateType["gui"] = &ScriptedMenuState::getGui;
-			menuStateType["audioManager"] = &ScriptedMenuState::getAudioManager;
-			menuStateType["inputHandler"] = &ScriptedMenuState::getInputHandler;
+			menuStateType["soundHandler"] = &ScriptedMenuState::getSoundHandler;
         }
     }
 }

@@ -108,11 +108,7 @@ namespace ungod
         }
         else
         {
-            Logger::warning("Attempt to set an animation state that does not exist.");
-            Logger::endl();
-            Logger::warning("Key: ");
-            Logger::warning(key);
-            Logger::endl();
+            Logger::warning("Attempt to set an animation state that does not exist. Key:", key);
             return false;
         }
     }

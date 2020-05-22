@@ -91,29 +91,16 @@ namespace ungod
 			worldType["makeCopy"] = &World::makeCopy;
 			worldType["add"] = &World::addEntity;
 			worldType["addNearby"] = &World::addEntityNearby;
-			//Component manipulation.
-			worldType["transform"] = &World::getTransformManager;
-			worldType["movement"] = &World::getMovementManager;
-			worldType["steering"] = &World::getSteeringManager;
-			worldType["pathplanner"] = &World::getPathPlanner;
-			worldType["visuals"] = &World::getVisualsManager;
-			worldType["collisionMov"] = &World::getMovementCollisionManager;
-			worldType["collisionSem"] = &World::getSemanticsCollisionManager;
-			worldType["rigidbodyMov"] = &World::getMovementRigidbodyManager;
-			worldType["rigidbodySem"] = &World::getSemanticsRigidbodyManager;
-			worldType["input"] = &World::getInputManager;
-			worldType["audio"] = &World::getAudioManager;
-			worldType["light"] = static_cast<LightHandler& (World::*)() >(&World::getLightSystem);
-			worldType["behavior"] = &World::getBehaviorManager;
-			worldType["tilemap"] = &World::getTileMapRenderer;
-			worldType["particles"] = &World::getParticleSystemManager;
-			worldType["parentChild"] = &World::getParentChildManager;
 			worldType["setRenderDepth"] = &World::setRenderDepth;
 			worldType["setName"] = &World::setName;
 			worldType["getName"] = &World::getName;
 			worldType["gamestate"] = &World::getState;
 			worldType["tagWithName"] = &World::tagWithName;
 			worldType["getEntityByName"] = &World::getEntityByName;
+			worldType["getGraph"] = &World::getGraph;
+			worldType["getNode"] = &World::getNode;
+			//handlers
+			worldType["getLightHandler"] = [](World& w) -> LightHandler& { return w.getLightHandler();  };
         }
     }
 }

@@ -49,11 +49,11 @@ namespace ungod
 
             state.registerFunction("quitApplication", [&app] () { app.quitApplication(); });
             state.registerFunction("buildVersion", [&app] () { return app.getBuildVersion(); });
-            state.registerFunction("addGameState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<ScriptedGameState>(id, scriptfile); });
-            state.registerFunction("addMenuState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<ScriptedMenuState>(id, scriptfile); });
-            state.registerFunction("addCutsceneState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<CutsceneState>(id, scriptfile); });
-            state.registerFunction("addInactiveGameState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<ScriptedGameState>(id, scriptfile); });
-            state.registerFunction("addInactiveMenuState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<ScriptedMenuState>(id, scriptfile); });
+            state.registerFunction("addGameState", [&app] (StateID id, const std::string& scriptfile) { app.getStateManager().addState<ScriptedGameState>(id, scriptfile); });
+            state.registerFunction("addMenuState", [&app] (StateID id, const std::string& scriptfile) { app.getStateManager().addState<ScriptedMenuState>(id, scriptfile); });
+            state.registerFunction("addCutsceneState", [&app] (StateID id, const std::string& scriptfile) { app.getStateManager().addState<CutsceneState>(id, scriptfile); });
+            state.registerFunction("addInactiveGameState", [&app] (StateID id, const std::string& scriptfile) { app.getStateManager().addState<ScriptedGameState>(id, scriptfile); });
+            state.registerFunction("addInactiveMenuState", [&app] (StateID id, const std::string& scriptfile) { app.getStateManager().addState<ScriptedMenuState>(id, scriptfile); });
             state.registerFunction("moveStateToForeground", [&app] (StateID id) { return app.getStateManager().moveToForeground(id); });
             state.registerFunction("moveStateToBackground", [&app] (StateID id) { return app.getStateManager().moveToBackground(id); });
             state.registerFunction("getState", [&app] (StateID id) { return app.getStateManager().getState(id); } );
@@ -79,7 +79,9 @@ namespace ungod
             state.registerFunction("isFullscreen", [&app]() { return app.isFullscreen(); });
             state.registerFunction("isVsyncEnabled", [&app]() { return app.vsyncEnabled(); });
 
-            state.registerFunction("getMusicManager", [&app]() { return app.getMusicManager(); });
+            state.registerFunction("getMusicManager", [&app]() -> MusicManager& { return app.getMusicManager(); });
+            state.registerFunction("getSoundProfileManager", [&app]() -> SoundProfileManager&{ return app.getSoundProfileManager(); });
+            state.registerFunction("getInputManager", [&app]() -> InputManager& { return app.getInputManager(); });
 
             state.registerFunction("world2Screen", sol::overload([&app](const sf::Vector2f& pos, const ScriptedGameState& state)
                                    { return app.getWindow().mapCoordsToPixel(pos, state.getWorldGraph().getCamera().getView()); },

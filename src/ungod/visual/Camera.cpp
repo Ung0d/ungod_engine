@@ -82,7 +82,7 @@ namespace ungod
         if (!mLocked)
             return;  //nothing to do anymore
 
-        sf::Vector2f lockedCenter = mLocked.getWorld().getContainer()->mapToGlobalPosition(mLocked.get<TransformComponent>().getCenterPosition());
+        sf::Vector2f lockedCenter = mLocked.getWorld().getNode().mapToGlobalPosition(mLocked.get<TransformComponent>().getCenterPosition());
 
         float dist = distance(lockedCenter, mView.getCenter());
 
@@ -99,14 +99,10 @@ namespace ungod
         }
     }
 
-    void Camera::renderBegin(const RenderLayer* layer)
+    void Camera::renderBegin(float depth)
     {
         mStor = mTarget->getView();
-        sf::View finView;
-        if (layer)
-            finView = getView(layer);
-        else
-            finView = getView();
+        sf::View finView = getView(depth);
         finView.move(mNoise);
         finView.setCenter( std::round(finView.getCenter().x), std::round(finView.getCenter().y) );
         finView.setSize( std::round(finView.getSize().x), std::round(finView.getSize().y) );
@@ -188,11 +184,10 @@ namespace ungod
         return mView;
     }
 
-    sf::View Camera::getView(const RenderLayer* layer) const
+    sf::View Camera::getView(float depth) const
     {
         sf::View finView = mView;
-        sf::Vector2f scaledDiff = layer->getRenderDepth() * (mView.getCenter() - layer->getContainer()->getPosition());
-        finView.setCenter(layer->getContainer()->getPosition() + scaledDiff);
+        finView.setCenter(depth * mView.getCenter());
         return finView;
     }
 

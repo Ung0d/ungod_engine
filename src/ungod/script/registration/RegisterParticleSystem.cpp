@@ -31,116 +31,167 @@ namespace ungod
 {
     namespace scriptRegistration
     {
+		void ParticleSystemHandlerFrontEnd::clearAffectors()
+		{
+			mHandler.clearAffectors(mEntity);
+		}
+
+		void ParticleSystemHandlerFrontEnd::setMaxForce(float maxforce)
+		{
+			mHandler.setMaxForce(mEntity, maxforce);
+		}
+
+		void ParticleSystemHandlerFrontEnd::setMaxVelocity(float maxvel)
+		{
+			mHandler.setMaxVelocity(mEntity, maxvel);
+		}
+
+		void ParticleSystemHandlerFrontEnd::setParticleSpeed(float speed)
+		{
+			mHandler.setParticleSpeed(mEntity, speed);
+		}
+
+		void ParticleSystemHandlerFrontEnd::setUniversalEmitter()
+		{
+			mHandler.setEmitter<UniversalEmitter, UniversalEstimator>(mEntity, PS_UNIVERSAL_EMITTER, PS_UNIVERSAL_ESTIMATE);
+		}
+
+		void ParticleSystemHandlerFrontEnd::setFixedPosition(const sf::Vector2f& position)
+		{
+			mHandler.setPositionDist<FixedPosition>(mEntity, PS_FIXED_POSITION, position);
+		}
+
+		void ParticleSystemHandlerFrontEnd::setEllipseDist(const sf::Vector2f& center, const sf::Vector2f& radius)
+		{
+			mHandler.setPositionDist<EllipseDist>(mEntity, PS_ELLIPSE_DIST, center, radius);
+		}
+
+		void ParticleSystemHandlerFrontEnd::setRectangleDist(const sf::Vector2f& topleft, const sf::Vector2f& sizes)
+		{
+			mHandler.setPositionDist<RectangleDist>(mEntity, PS_RECTANGLE_DIST, topleft, sizes);
+		}
+
+		void ParticleSystemHandlerFrontEnd::setLineSegmentDist(const sf::Vector2f& point1, const sf::Vector2f& point2)
+		{
+			mHandler.setPositionDist<LineSegmentDist>(mEntity, PS_LINE_SEGMENT_DIST, point1, point2);
+		}
+
+		void ParticleSystemHandlerFrontEnd::setFixedVelocity(const sf::Vector2f& vel)
+		{
+			mHandler.setVelocityDist<FixedVelocity>(mEntity, PS_FIXED_VELOCITY, vel);
+		}
+
+		void ParticleSystemHandlerFrontEnd::setConeDist(const sf::Vector2f& d1, const sf::Vector2f& d2)
+		{
+			mHandler.setVelocityDist<ConeDist>(mEntity, PS_CONE_DIST, d1, d2);
+		}
+
+		void ParticleSystemHandlerFrontEnd::setIntervalTick(float imsmin, float imsmax, int inumparticle)
+		{
+			mHandler.setSpawnInterval<IntervalTick>(mEntity, PS_INTERVAL_TICK, imsmin, imsmax, inumparticle);
+		}
+
+		void ParticleSystemHandlerFrontEnd::setOneShotTick(int inumparticle)
+		{
+			mHandler.setSpawnInterval<OneShotTick>(mEntity, PS_ONE_SHOT_TICK, inumparticle);
+		}
+
+		void ParticleSystemHandlerFrontEnd::setLifetimeInterval(float ltmin, float ltmax)
+		{
+			mHandler.setLifetimeDist<IntervalLifetime>(mEntity, PS_INTERVAL_LIFETIME, ltmin, ltmax);
+		}
+
+		void ParticleSystemHandlerFrontEnd::addDirectionalForce(const sf::Vector2f& force)
+		{
+			mHandler.addAffector<DirectionalForce>(mEntity, PS_DIRECTIONAL_FORCE, force);
+		}
+
+		void ParticleSystemHandlerFrontEnd::addDisplaceForce(float speed, float circle, float angle)
+		{
+			mHandler.addAffector<DisplaceForce>(mEntity, PS_DISPLACE_FORCE, speed, circle, angle);
+		}
+
+		void ParticleSystemHandlerFrontEnd::addAnimatedParticles(const std::string& metaID, const std::string& key, std::size_t numAnim)
+		{
+			mHandler.addAffector<AnimatedParticles>(mEntity, PS_ANIMATED_PARTICLES, metaID, key, numAnim);
+		}
+
+		void ParticleSystemHandlerFrontEnd::addParticleFadeOut()
+		{
+			mHandler.addAffector<FadeOut>(mEntity, PS_FADE_OUT);
+		}
+
+		void ParticleSystemHandlerFrontEnd::addColorShift(const sf::Color& colorBegin, const sf::Color& colorEnd)
+		{
+			mHandler.addAffector<ColorShift>(mEntity, PS_COLOR_SHIFT, colorBegin, colorEnd);
+		}
+
+		void ParticleSystemHandlerFrontEnd::addParticleRotation(float speed)
+		{
+			mHandler.addAffector<RotateParticle>(mEntity, PS_ROTATE_PARTICLE, speed);
+		}
+
+		void ParticleSystemHandlerFrontEnd::addParticleScale(const sf::Vector2f& scalesBegin, const sf::Vector2f& scalesEnd)
+		{
+			mHandler.addAffector<ScaleParticle>(mEntity, PS_SCALE_PARTICLE, scalesBegin, scalesEnd);
+		}
+
+		void ParticleSystemHandlerFrontEnd::addVelocityBasedRotation()
+		{
+			mHandler.addAffector<VelocityBasedRotation>(mEntity, PS_ROTATE_PARTICLE);
+		}
+
+		void ParticleSystemHandlerFrontEnd::addExplicitTexrectInitalizer(const sf::IntRect& rect)
+		{
+			mHandler.setTexrectInitializer<ExplicitTexrect>(mEntity, PS_EXPLICIT_TEXRECT, rect);
+		}
+
+		void ParticleSystemHandlerFrontEnd::addKeyTexrectInitalizer(const std::string& metaID, const std::string& key)
+		{
+			mHandler.setTexrectInitializer<TexrectByKey>(mEntity, PS_TEXRECT_BY_KEY, metaID, key);
+		}
+
+		void ParticleSystemHandlerFrontEnd::addMultipleKeyTexrectInitalizer(const std::string& metaID, script::Environment keys)
+		{
+			mHandler.setTexrectInitializer<MultipleTexrectsByKey>(mEntity, PS_MULTIPLE_TEXRECTS_BY_KEY, metaID, env2vec<std::string>(keys));
+		}
+
+
         void registerParticleSystem(ScriptStateBase& state)
         {
-			script::Usertype< ParticleSystemHandler> psmType = state.registerUsertype<ParticleSystemHandler>("ParticleSystemManager");
-			psmType["clearAffectors"] = & ParticleSystemHandler::clearAffectors;
-			psmType["setMaxForce"] = & ParticleSystemHandler::setMaxForce;
-			psmType["setMaxVelocity"] = &ParticleSystemHandler::setMaxVelocity;
-			psmType["setParticleSpeed"] = & ParticleSystemHandler::setParticleSpeed;
+			script::Usertype< ParticleSystemHandlerFrontEnd> psmType = state.registerUsertype<ParticleSystemHandlerFrontEnd>("ParticleSystemHandlerFrontEnd");
+			psmType["clearAffectors"] = &ParticleSystemHandlerFrontEnd::clearAffectors;
+			psmType["setMaxForce"] = &ParticleSystemHandlerFrontEnd::setMaxForce;
+			psmType["setMaxVelocity"] = &ParticleSystemHandlerFrontEnd::setMaxVelocity;
+			psmType["setParticleSpeed"] = &ParticleSystemHandlerFrontEnd::setParticleSpeed;
                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			psmType["setUniversalEmitter"] = [](ParticleSystemHandler& psm,
-				Entity e)
-			{
-				psm.setEmitter<UniversalEmitter, UniversalEstimator>(e, PS_UNIVERSAL_EMITTER, PS_UNIVERSAL_ESTIMATE);
-			};
+			psmType["setUniversalEmitter"] = &ParticleSystemHandlerFrontEnd::setUniversalEmitter;
                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			psmType["setFixedPosition"] = [](ParticleSystemHandler& psm,
-				Entity e, const sf::Vector2f& position)
-			{
-				psm.setPositionDist<FixedPosition>(e, PS_FIXED_POSITION, position);
-			};
-			psmType["setEllipseDist"] = [](ParticleSystemHandler& psm,
-				Entity e, const sf::Vector2f& center, const sf::Vector2f& radius)
-			{
-				psm.setPositionDist<EllipseDist>(e, PS_ELLIPSE_DIST, center, radius);
-			};
-			psmType["setRectangleDist"] = [](ParticleSystemHandler& psm,
-				Entity e, const sf::Vector2f& topleft, const sf::Vector2f& sizes)
-			{
-				psm.setPositionDist<RectangleDist>(e, PS_RECTANGLE_DIST, topleft, sizes);
-			};
-			psmType["setLineSegmentDist"] = [](ParticleSystemHandler& psm,
-				Entity e, const sf::Vector2f& point1, const sf::Vector2f& point2)
-			{
-				psm.setPositionDist<LineSegmentDist>(e, PS_LINE_SEGMENT_DIST, point1, point2);
-			};
+			psmType["setFixedPosition"] = &ParticleSystemHandlerFrontEnd::setFixedPosition;
+			psmType["setEllipseDist"] = &ParticleSystemHandlerFrontEnd::setEllipseDist;
+			psmType["setRectangleDist"] = &ParticleSystemHandlerFrontEnd::setRectangleDist;
+			psmType["setLineSegmentDist"] = &ParticleSystemHandlerFrontEnd::setLineSegmentDist;
                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			psmType["setFixedVelocity"] = [](ParticleSystemHandler& psm,
-				Entity e, const sf::Vector2f& vel)
-			{
-				psm.setVelocityDist<FixedVelocity>(e, PS_FIXED_VELOCITY, vel);
-			};
-			psmType["setConeDist"] = [](ParticleSystemHandler& psm,
-				Entity e, const sf::Vector2f& d1, const sf::Vector2f& d2)
-			{
-				psm.setVelocityDist<ConeDist>(e, PS_CONE_DIST, d1, d2);
-			};
+			psmType["setFixedVelocity"] = &ParticleSystemHandlerFrontEnd::setFixedVelocity;
+			psmType["setIntervalTick"] = &ParticleSystemHandlerFrontEnd::setIntervalTick;
                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			psmType["setIntervalTick"] = [](ParticleSystemHandler& psm,
-				Entity e, float imsmin, float imsmax, int inumparticle)
-			{
-				psm.setSpawnInterval<IntervalTick>(e, PS_INTERVAL_TICK, imsmin, imsmax, inumparticle);
-			};
-			psmType["setOneShotTick"] = [](ParticleSystemHandler& psm,
-				Entity e, int inumparticle)
-			{
-				psm.setSpawnInterval<OneShotTick>(e, PS_ONE_SHOT_TICK, inumparticle);
-			};
+			psmType["setIntervalTick"] = &ParticleSystemHandlerFrontEnd::setIntervalTick;
+			psmType["setOneShotTick"] = &ParticleSystemHandlerFrontEnd::setOneShotTick;
                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			psmType["setLifetimeInterval"] = [](ParticleSystemHandler& psm,
-				Entity e, float ltmin, float ltmax)
-			{
-				psm.setLifetimeDist<IntervalLifetime>(e, PS_INTERVAL_LIFETIME, ltmin, ltmax);
-			};
+			psmType["setLifetimeInterval"] = &ParticleSystemHandlerFrontEnd::setLifetimeInterval;
                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			psmType["addDirectionalForce"] = [](ParticleSystemHandler& psm, Entity e, const sf::Vector2f& force)
-			{
-				psm.addAffector<DirectionalForce>(e, PS_DIRECTIONAL_FORCE, force);
-			};
-			psmType["addDisplaceForce"] = [](ParticleSystemHandler& psm, Entity e, float speed, float circle, float angle)
-			{
-				psm.addAffector<DisplaceForce>(e, PS_DISPLACE_FORCE, speed, circle, angle);
-			};
-			psmType["addAnimatedParticles"] = [](ParticleSystemHandler& psm, Entity e, const std::string& metaID, const std::string& key, std::size_t numAnim)
-			{
-				psm.addAffector<AnimatedParticles>(e, PS_ANIMATED_PARTICLES, metaID, key, numAnim);
-			};
-			psmType["addParticleFadeOut"] = [](ParticleSystemHandler& psm, Entity e)
-			{
-				psm.addAffector<FadeOut>(e, PS_FADE_OUT);
-			};
-			psmType["addColorShift"] = [](ParticleSystemHandler& psm, Entity e, const sf::Color& colorBegin, const sf::Color& colorEnd)
-			{
-				psm.addAffector<ColorShift>(e, PS_COLOR_SHIFT, colorBegin, colorEnd);
-			};
-			psmType["addParticleRotation"] = [](ParticleSystemHandler& psm, Entity e, float speed)
-			{
-				psm.addAffector<RotateParticle>(e, PS_ROTATE_PARTICLE, speed);
-			};
-			psmType["addParticleScale"] = [](ParticleSystemHandler& psm, Entity e, const sf::Vector2f& scalesBegin, const sf::Vector2f& scalesEnd)
-			{
-				psm.addAffector<ScaleParticle>(e, PS_SCALE_PARTICLE, scalesBegin, scalesEnd);
-			};
-			psmType["addVelocityBasedRotation"] = [](ParticleSystemHandler& psm, Entity e)
-			{
-				psm.addAffector<VelocityBasedRotation>(e, PS_ROTATE_PARTICLE);
-			};
+			psmType["addDirectionalForce"] = &ParticleSystemHandlerFrontEnd::addDirectionalForce;
+			psmType["addDisplaceForce"] = &ParticleSystemHandlerFrontEnd::addDisplaceForce;
+			psmType["addAnimatedParticles"] = &ParticleSystemHandlerFrontEnd::addAnimatedParticles;
+			psmType["addParticleFadeOut"] = &ParticleSystemHandlerFrontEnd::addParticleFadeOut;
+			psmType["addColorShift"] = &ParticleSystemHandlerFrontEnd::addColorShift;
+			psmType["addParticleRotation"] = &ParticleSystemHandlerFrontEnd::addParticleRotation;
+			psmType["addParticleScale"] = &ParticleSystemHandlerFrontEnd::addParticleScale;
+			psmType["addVelocityBasedRotation"] = &ParticleSystemHandlerFrontEnd::addVelocityBasedRotation;
                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			psmType["addExplicitTexrectInitalizer"] = [](ParticleSystemHandler& psm, Entity e, const sf::IntRect& rect)
-			{
-				psm.setTexrectInitializer<ExplicitTexrect>(e, PS_EXPLICIT_TEXRECT, rect);
-			};
-			psmType["addKeyTexrectInitalizer"] = [](ParticleSystemHandler& psm, Entity e, const std::string& metaID, const std::string& key)
-			{
-				psm.setTexrectInitializer<TexrectByKey>(e, PS_TEXRECT_BY_KEY, metaID, key);
-			};
-			psmType["addMultipleKeyTexrectInitalizer"] = [](ParticleSystemHandler& psm, Entity e, const std::string& metaID, script::Environment keys)
-			{
-				psm.setTexrectInitializer<MultipleTexrectsByKey>(e, PS_MULTIPLE_TEXRECTS_BY_KEY, metaID, env2vec<std::string>(keys));
-			};
-
-            state.registerUsertype<ParticleSystemComponent>("ParticleSystemComponent");
+			psmType["addExplicitTexrectInitalizer"] = &ParticleSystemHandlerFrontEnd::addExplicitTexrectInitalizer;
+			psmType["addKeyTexrectInitalizer"] = &ParticleSystemHandlerFrontEnd::addKeyTexrectInitalizer;
+			psmType["addMultipleKeyTexrectInitalizer"] = &ParticleSystemHandlerFrontEnd::addMultipleKeyTexrectInitalizer;
         }
     }
 }

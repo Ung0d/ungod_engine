@@ -77,7 +77,7 @@ namespace ungod
 
     World* WorldGraphNode::addWorld(unsigned i)
     {
-        return static_cast<World*>(mLayers.registerLayer(RenderLayerPtr{new World(*this)}, i));
+        return static_cast<World*>(mLayers.registerLayer(RenderLayerPtr{ new World(*this) }, i));
     }
 
     World* WorldGraphNode::addWorld()
@@ -108,7 +108,9 @@ namespace ungod
     {
         if (mLoadingInProcess)
             mLoadingInProcess = !tryInit();
-        mLayers.update(delta, mWorldGraph.getCamera());
+        sf::View camview = mWorldGraph.getCamera().getView();
+        sf::Vector2f viewpos = mapToLocalPosition(sf::Vector2f{ camview.getCenter().x - camview.getSize().x / 2,camview.getCenter().y - camview.getSize().y / 2 });
+        mLayers.update(delta, viewpos, camview.getSize());
     }
 
     void WorldGraphNode::handleInput(const sf::Event& event, const sf::RenderTarget& target)

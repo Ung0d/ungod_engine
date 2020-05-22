@@ -212,10 +212,9 @@ namespace ungod
 
     bool World::render(sf::RenderTarget& target, sf::RenderStates states)
     {
-        mRenderedEntities.getList().clear();
-        mMaster->getRenderer().renewRenderlist(target, mRenderedEntities);
+        mMaster->getRenderer().renewRenderlist(mQuadTree, mRenderedEntities, target, states);
 
-        mMaster->getRenderer().render(mRenderedEntities, target, states);
+        mMaster->getRenderer().render(mRenderedEntities, target, states, mVisualsHandler);
 
         if (mRenderLight)
             mLightHandler.render(mRenderedEntities, mQuadTree, target, states);

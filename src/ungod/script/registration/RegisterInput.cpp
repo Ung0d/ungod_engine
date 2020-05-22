@@ -39,13 +39,10 @@ namespace ungod
                                      {{"MouseInput", InputManager::InputType::MOUSE_INPUT},
                                      {"KeyboardInput", InputManager::InputType::KEYBOARD_INPUT}});
 
-            state.registerUsertype<InputManager>("InputHandler",
+            state.registerUsertype<InputManager>("InputManager",
                                                        "loadBindings", &InputManager::loadBindings,
                                                        "addBinding", &InputManager::addBinding,
                                                        "clearBindings", &InputManager::clearBindings);
-
-            state.registerUsertype<InputManager>("InputManager",
-                                                       sol::base_classes, sol::bases<InputManager>());
 
             state.registerEnum<sf::Mouse::Button>("MouseButtons",
                                      {{"Left", sf::Mouse::Button::Left},

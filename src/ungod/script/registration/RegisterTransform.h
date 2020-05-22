@@ -26,12 +26,38 @@
 #ifndef REGISTER_TRANSFORM_H
 #define REGISTER_TRANSFORM_H
 
+#include <SFML/System/Vector2.hpp>
 #include "ungod/script/Behavior.h"
 
 namespace ungod
 {
+	class Entity;
+	class TransformHandler;
+
     namespace scriptRegistration
     {
+		class TransformHandlerFrontEnd
+		{
+		public:
+			TransformHandlerFrontEnd(Entity& e, TransformHandler& h) : mEntity(e), mHandler(h) {}
+			sf::Vector2f getPosition() const;
+			sf::Vector2f getSize() const;
+			sf::Vector2f getCenterPosition() const;
+			sf::Vector2f getOriginPosition() const;
+			const sf::Vector2f& getUpperBounds() const;
+			const sf::Vector2f& getLowerBounds() const;
+			const sf::Vector2f& getScale() const;
+			const sf::Vector2f& getBaseLineOffsets() const;
+			void setPosition(const sf::Vector2f& pos);
+			void setScale(const sf::Vector2f& scale);
+			void setBaseLineOffsets(const sf::Vector2f& offsets);
+			void move(const sf::Vector2f& offset);
+
+		private:
+			Entity& mEntity;
+			TransformHandler& mHandler;
+		};
+
         /** \brief Registers transform functionality for scripts. */
         void registerTransform(ScriptStateBase& state);
     }

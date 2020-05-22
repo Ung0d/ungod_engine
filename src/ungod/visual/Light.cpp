@@ -27,6 +27,7 @@
 */
 
 #include "ungod/visual/Light.h"
+#include "ungod/physics/Physics.h"
 
 namespace ungod
 {

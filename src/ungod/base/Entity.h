@@ -41,6 +41,8 @@ namespace ungod
     class World;
     class InstantiationBase;
 
+    using EntityData = dom::EntityData<>;
+
     /**
     * \brief An entity in the "world" of every ungod-application. Very lightweight.
     * Is based on an dom::entity with a Transform and a Visual component per default.
@@ -131,8 +133,13 @@ namespace ungod
         template<typename MULTI, typename ... PARAM>
         void initMulti(std::size_t num, PARAM&&... param) const;
 
-        /** \brief Returns the unique id of the entity. */
+        /** \brief Returns the id of the entity. This id is unique locally for the world graph node this entity was created at. It alone can not be
+        * used to compare entities from different nodes. */
         EntityID getID() const;
+
+        /** \brief Returns a low level ptr to the underlying entity data. This ptr can be used as a unique identifier of the entity even when
+        * comparing entities from different nodes. */
+        const EntityData* getData() const;
 
         /** \brief Instantiates a component with parameters. */
         template<typename C, typename ... PARAM>

@@ -104,15 +104,11 @@ namespace ungod
         }
         catch(rapidxml::parse_error &e)
         {
-            Logger::error("Cant parse metadata file ");
-            Logger::error(filepath);
-            Logger::endl();
+            Logger::error("Cant parse metadata file", filepath);
         }
         catch(const std::runtime_error& e)
         {
-            Logger::error("Cant open metadata file ");
-            Logger::error(filepath);
-            Logger::endl();
+            Logger::error("Cant open metadata file", filepath);
         }
         return false;
     }

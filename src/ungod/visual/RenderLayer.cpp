@@ -67,7 +67,7 @@ namespace ungod
         {
             if (layer.second)
             {
-                camera.renderBegin(layer.first.get());
+                camera.renderBegin(layer.first->getRenderDepth());
 				check = check && layer.first->render(target, states);
                 camera.renderEnd();
             }
@@ -82,7 +82,7 @@ namespace ungod
         {
             if (layer.second)
             {
-                camera.renderBegin(layer.first.get());
+                camera.renderBegin(layer.first->getRenderDepth());
                 check = check && layer.first->renderDebug(target, states, bounds, texrects, colliders, audioemitters, lights);
                 camera.renderEnd();
             }
@@ -90,7 +90,7 @@ namespace ungod
         return check;
     }
 
-    void RenderLayerContainer::update(float delta, const Camera& camera)
+    void RenderLayerContainer::update(float delta, const sf::Vector2f& areaPosition, const sf::Vector2f& areaSize)
     {
         while (!mToMove.empty())
         {
@@ -109,14 +109,8 @@ namespace ungod
         }
 
         for (const auto& layer : mRenderLayers)
-        {
             if (layer.second)
-            {
-                sf::View camview = camera.getView();
-				sf::Vector2f viewpos = mapToLocalPosition(sf::Vector2f{ camview.getCenter().x - camview.getSize().x / 2,camview.getCenter().y - camview.getSize().y / 2 });
-				layer.first->update(delta, viewpos*layer.first->getRenderDepth(), camview.getSize());
-            }
-        }
+				layer.first->update(delta, areaPosition* layer.first->getRenderDepth(), areaSize);
     }
 
 
@@ -157,7 +151,7 @@ namespace ungod
 
     void RenderLayerContainer::removeLayer(RenderLayer* layer)
     {
-        auto pred = [layer](const std::pair<RenderLayerPtr, bool>& p) { p.first.get() == layer;  }
+        auto pred = [layer](const std::pair<RenderLayerPtr, bool>& p) { return p.first.get() == layer;  };
         mRenderLayers.erase(std::remove_if(mRenderLayers.begin(), mRenderLayers.end(), pred), mRenderLayers.end());
     }
 
@@ -197,9 +191,10 @@ namespace ungod
             mToMove.pop();
     }
 
-    void WorldGraphNode::setSize(const sf::Vector2f& size)
+    void RenderLayerContainer::setSize(const sf::Vector2f& size)
     {
+        mSize = size;
         for (const auto& layer : mRenderLayers)
-            layer.first->setSize(size);
+            layer.first->setSize(mSize);
     }
 }

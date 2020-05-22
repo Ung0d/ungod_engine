@@ -30,8 +30,41 @@
 
 namespace ungod
 {
+    class Entity;
+    class SoundHandler;
+    class MusicEmitterMixer;
+    class ProfileHandle;
+
     namespace scriptRegistration
     {
+        class SoundHandlerFrontEnd
+        {
+        public:
+            SoundHandlerFrontEnd(Entity& e, SoundHandler& h) : mEntity(e), mHandler(h) {}
+            void connectProfile(const std::string& profileKey);
+            void connectProfile(ProfileHandle handle);
+            void playSound(std::size_t index, std::size_t volumeSetting=0u, float pitch=1.0f);
+        private:
+            Entity& mEntity;
+            SoundHandler& mHandler;
+        };
+
+        class MusicEmitterFrontEnd
+        {
+        public:
+            MusicEmitterFrontEnd(Entity& e, MusicEmitterMixer& h) : mEntity(e), mHandler(h) {}
+            void loadMusic(const std::string& fileID);
+            void setDistanceCap(float cap);
+            void setEmitterActive(bool active);
+            void setEmitterVolume(float vol);
+            float getDistanceCap() const;
+            float getVolume() const;
+            bool isActive() const;
+        private:
+            Entity& mEntity;
+            MusicEmitterMixer& mHandler;
+        };
+
         /** \brief Registers audio functionality for scripts. */
         void registerAudio(ScriptStateBase& state);
     }

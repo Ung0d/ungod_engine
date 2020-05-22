@@ -47,17 +47,13 @@ namespace ungod
 
     void SerialBehavior<RenderLayerContainer>::serialize(const RenderLayerContainer& data, MetaNode serializer, SerializationContext& context)
     {
-		context.serializeProperty("w", data.getSize().x, serializer);
-		context.serializeProperty("h", data.getSize().y, serializer);
         context.serializeObjectContainer<RenderLayer>("l", [&data] (std::size_t i) -> const RenderLayer& { return *data.getVector()[i].first.get(); }, data.getVector().size(), serializer);
     }
 
     void DeserialBehavior<RenderLayerContainer, DeserialMemory&>::deserialize(
         RenderLayerContainer& data, MetaNode deserializer, DeserializationContext& context, DeserialMemory& deserialMemory)
     {
-		auto result = deserializer.getAttributes<float, float>({ "w", 0.0f }, { "h", 0.0f });
-		data.setSize({ std::get<0>(result), std::get<1>(result) });
-        context.instantiate<World>([&data, &state] ()
+        context.instantiate<World>([&data, &deserialMemory] ()
             {
                 return data.registerLayer(RenderLayerPtr{new World(*deserialMemory.node)}, data.mRenderLayers.size());
             }, deserialMemory);

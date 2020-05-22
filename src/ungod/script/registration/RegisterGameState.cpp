@@ -34,7 +34,6 @@ namespace ungod
         void registerGameState(ScriptStateBase& state)
         {
             script::Usertype<ScriptedGameState> stateType = state.registerUsertype<ScriptedGameState>("ScriptedGameState", sol::base_classes, sol::bases<State>());
-            stateType["camera"] = [] (ScriptedGameState& state) -> Camera& { return state.getCamera(); };
             stateType["toggleDebugmode"] = &ScriptedGameState::toggleDebugmode;
             stateType["debugEntityBounds"] = &ScriptedGameState::debugEntityBounds;
             stateType["debugTexrects"] = &ScriptedGameState::debugTexrects;
@@ -43,8 +42,11 @@ namespace ungod
             stateType["load"] = &ScriptedGameState::load;
             stateType["save"] = &ScriptedGameState::save;
             stateType["worldGraph"] = [] (ScriptedGameState& state) -> WorldGraph& {return state.getWorldGraph();};
+            stateType["behavior"] = [](ScriptedGameState& state) -> EntityBehaviorManager& {return state.getEntityBehaviorManager(); };
+            stateType["steering"] = [](ScriptedGameState& state) -> SteeringManager<script::Environment>& {return state.getSteeringManager(); };
+            stateType["light"] = [](ScriptedGameState& state) -> LightManager& {return state.getLightManager(); };
 			stateType["updateWorldGraph"] = [](ScriptedGameState& state) 
-					{ state.getWorldGraph().updateReferencePosition(state.getCamera().getCenter()); };
+					{ state.getWorldGraph().updateReferencePosition(state.getWorldGraph().getCamera().getCenter()); };
         }
     }
 }

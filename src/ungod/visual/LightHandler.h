@@ -170,7 +170,7 @@ namespace ungod
 
 
     private:
-        LightManager& mLightManager;
+        LightManager* mLightManager;
         sf::Color mAmbientColor;
         sf::Vector3f mColorShift;
         sf::Sprite mDisplaySprite;

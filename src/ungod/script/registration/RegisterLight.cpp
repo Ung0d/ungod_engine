@@ -25,12 +25,142 @@
 
 #include "ungod/script/registration/RegisterLight.h"
 #include "ungod/script/registration/RegistrationDetail.h"
-#include "ungod/visual/Light.h"
+#include "ungod/visual/LightHandler.h"
 
 namespace ungod
 {
     namespace scriptRegistration
     {
+		void LightHandlerFrontEnd::setLightPosition(const sf::Vector2f& pos)
+		{
+			mHandler.setLocalLightPosition(mEntity, pos);
+		}
+
+		void LightHandlerFrontEnd::setLightPosition(const sf::Vector2f& pos, std::size_t index)
+		{
+			mHandler.setLocalLightPosition(mEntity, pos, index);
+		}
+
+		void LightHandlerFrontEnd::setLightScale(const sf::Vector2f& scale)
+		{
+			mHandler.setLightScale(mEntity, scale);
+		}
+
+		void LightHandlerFrontEnd::setLightScale(const sf::Vector2f& scale, std::size_t index)
+		{
+			mHandler.setLightScale(mEntity, scale, index);
+		}
+
+		void LightHandlerFrontEnd::setLightColor(const sf::Color& color)
+		{
+			mHandler.setLightColor(mEntity, color);
+		}
+
+		void LightHandlerFrontEnd::setLightColor(const sf::Color& color, std::size_t index)
+		{
+			mHandler.setLightColor(mEntity, color, index);
+		}
+
+		void LightHandlerFrontEnd::setColliderPoint(const sf::Vector2f& point, std::size_t pointIndex)
+		{
+			mHandler.setPoint(mEntity, point, pointIndex);
+		}
+
+		void LightHandlerFrontEnd::setColliderPoint(const sf::Vector2f& point, std::size_t pointIndex, std::size_t colliderIndex)
+		{
+			mHandler.setPoint(mEntity, point, pointIndex, colliderIndex);
+		}
+
+		void LightHandlerFrontEnd::setColliderPointCount(std::size_t num)
+		{
+			mHandler.setPointCount(mEntity, num);
+		}
+
+		void LightHandlerFrontEnd::setColliderPointCount(std::size_t num, std::size_t colliderIndex)
+		{
+			mHandler.setPointCount(mEntity, num, colliderIndex);
+		}
+
+		void LightHandlerFrontEnd::setColliderPoints(script::Environment points)
+		{
+			std::vector<sf::Vector2f> pvec;
+			if (detail::table2vec(pvec, points))
+				mHandler.setPoints(mEntity, pvec);
+		}
+
+		void LightHandlerFrontEnd::setColliderPoints(script::Environment points, std::size_t index)
+		{
+			std::vector<sf::Vector2f> pvec;
+			if (detail::table2vec(pvec, points))
+				mHandler.setPoints(mEntity, pvec, index);
+		}
+
+		void LightHandlerFrontEnd::setLightOverShape(bool los)
+		{
+			mHandler.setLightOverShape(mEntity, los);
+		}
+
+		void LightHandlerFrontEnd::setLightOverShape(bool los, std::size_t index)
+		{
+			mHandler.setLightOverShape(mEntity, los, index);
+		}
+
+		void LightHandlerFrontEnd::setLightActive(bool active)
+		{
+			mHandler.setLightActive(mEntity, active);
+		}
+
+		void LightHandlerFrontEnd::setLightActive(bool active, std::size_t index)
+		{
+			mHandler.setLightActive(mEntity, active, index);
+		}
+
+		bool LightHandlerFrontEnd::isLightActive()
+		{
+			return mEntity.get<LightEmitterComponent>().getLight().isActive();
+		}
+
+		bool LightHandlerFrontEnd::isLightActive(std::size_t index)
+		{
+			return mEntity.get<MultiLightEmitter>().getComponent(index).getLight().isActive();
+		}
+
+		void LightHandlerFrontEnd::setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback)
+		{
+			mHandler.setAffectorCallback(mEntity, callback);
+		}
+
+		void LightHandlerFrontEnd::setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, std::size_t lightIndex)
+		{
+			mHandler.setAffectorCallback(mEntity, lightIndex, callback);
+		}
+
+		void LightHandlerFrontEnd::setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, std::size_t lightIndex, std::size_t affectorIndex)
+		{
+			mHandler.setAffectorCallback(mEntity, lightIndex, affectorIndex, callback);
+		}
+
+		void LightHandlerFrontEnd::setAffectorActive(bool active)
+		{
+			mEntity.modify<LightAffectorComponent>().setActive(active);
+		}
+
+		void LightHandlerFrontEnd::setAffectorActive(bool active, std::size_t affectorIndex)
+		{
+			mEntity.modify<MultiLightAffector>().getComponent(affectorIndex).setActive(active);
+		}
+
+		bool LightHandlerFrontEnd::isAffectorActive()
+		{
+			return mEntity.get<LightAffectorComponent>().isActive();
+		}
+
+		bool LightHandlerFrontEnd::isAffectorActive(std::size_t affectorIndex)
+		{
+			return mEntity.get<MultiLightAffector>().getComponent(affectorIndex).isActive();
+		}
+
+
         void registerLight(ScriptStateBase& state)
         {
 			state.registerFunction("LightFlickering",
@@ -41,78 +171,64 @@ namespace ungod
 				[](float baseperiod, float strength) -> std::function<void(float, LightEmitterComponent&)>
 				{ return RandomizedFlickering(baseperiod, strength); });
 
-			script::Usertype<BaseLight> baseLightType = state.registerUsertype<BaseLight>("BaseLight");
-			baseLightType["setActive"] = &BaseLight::setActive;
-			baseLightType["isActive"] = &BaseLight::isActive;
-			baseLightType["toggleActive"] = &BaseLight::toggleActive;
-
-			state.registerUsertype<LightCollider>("LightCollider", sol::base_classes, sol::bases<BaseLight>());
-
-			state.registerUsertype<PointLight>("PointLight", sol::base_classes, sol::bases<BaseLight>());
-
-			state.registerUsertype<ShadowEmitterComponent>("ShadowEmitter");
-
 			state.registerUsertype<LightEmitterComponent>("LightEmitter");
 
-			detail::registerMultiComponent<ShadowEmitterComponent>(state, "MultiShadowEmitter");
+			script::Usertype<LightHandler> lightHandlerType = state.registerUsertype<LightHandler>("LightHandler");
+			lightHandlerType["setAmbientColor"] = & LightHandler::setAmbientColor;
+			lightHandlerType["getAmbientColor"] = &LightHandler::getAmbientColor;
 
-			detail::registerMultiComponent<LightEmitterComponent>(state, "MultiLightEmitter");
-
-			script::Usertype<LightAffectorComponent> lightAffectorType = state.registerUsertype<LightAffectorComponent>("LightAffector");
-			lightAffectorType["setActive"] = &LightAffectorComponent::setActive;
-			lightAffectorType["isActive"] = &LightAffectorComponent::isActive;
-
-			detail::registerMultiComponent<LightAffectorComponent>(state, "MultiLightAffector");
-
-			script::Usertype<LightHandler> lightSystemType = state.registerUsertype<LightHandler>("LightSystem");
-			lightSystemType["setAmbientColor"] = & LightHandler::setAmbientColor;
-			lightSystemType["setLocalLightPosition"] =
+			script::Usertype<LightHandlerFrontEnd> lightHandlerFrontEndType = state.registerUsertype<LightHandlerFrontEnd>("LightHandlerFrontEnd");
+			lightHandlerFrontEndType["setLightPosition"] =
 				sol::overload(
-					[](LightHandler& ls, Entity e, const sf::Vector2f& position) { ls.setLocalLightPosition(e, position); },
-					[](LightHandler& ls, Entity e, const sf::Vector2f& position, std::size_t index) { ls.setLocalLightPosition(e, position, index); });
-			lightSystemType["setLightScale"] =
+					[](LightHandlerFrontEnd& lhfe, const sf::Vector2f& position) { lhfe.setLightPosition(position); },
+					[](LightHandlerFrontEnd& lhfe, const sf::Vector2f& position, std::size_t index) { lhfe.setLightPosition(position, index); });
+			lightHandlerFrontEndType["setLightScale"] =
 				sol::overload(
-					[](LightHandler& ls, Entity e, const sf::Vector2f& scale) { ls.setLightScale(e, scale); },
-					[](LightHandler& ls, Entity e, const sf::Vector2f& scale, std::size_t index) { ls.setLightScale(e, scale, index); });
-			lightSystemType["setLightColor"] =
+					[](LightHandlerFrontEnd& lhfe, const sf::Vector2f& scale) { lhfe.setLightScale(scale); },
+					[](LightHandlerFrontEnd& lhfe, const sf::Vector2f& scale, std::size_t index) { lhfe.setLightScale(scale, index); });
+			lightHandlerFrontEndType["setLightColor"] =
 				sol::overload(
-					[](LightHandler& ls, Entity e, const sf::Color& color) { ls.setLightColor(e, color); },
-					[](LightHandler& ls, Entity e, const sf::Color& color, std::size_t index) { ls.setLightColor(e, color, index); });
-			lightSystemType["setPoint"] =
+					[](LightHandlerFrontEnd& lhfe, const sf::Color& color) { lhfe.setLightColor(color); },
+					[](LightHandlerFrontEnd& lhfe, const sf::Color& color, std::size_t index) { lhfe.setLightColor(color, index); });
+			lightHandlerFrontEndType["setColliderPoint"] =
 				sol::overload(
-					[](LightHandler& ls, Entity e, const sf::Vector2f& point, std::size_t i) { ls.setPoint(e, point, i); },
-					[](LightHandler& ls, Entity e, const sf::Vector2f& point, std::size_t pointIndex, std::size_t colliderIndex) { ls.setPoint(e, point, pointIndex, colliderIndex); });
-			lightSystemType["setPointCount"] =
+					[](LightHandlerFrontEnd& lhfe, const sf::Vector2f& point, std::size_t i) { lhfe.setColliderPoint(point, i); },
+					[](LightHandlerFrontEnd& lhfe, const sf::Vector2f& point, std::size_t pointIndex, std::size_t colliderIndex) { lhfe.setColliderPoint(point, pointIndex, colliderIndex); });
+			lightHandlerFrontEndType["setColliderPointCount"] =
 				sol::overload(
-					[](LightHandler& ls, Entity e, std::size_t num) { ls.setPointCount(e, num); },
-					[](LightHandler& ls, Entity e, std::size_t num, std::size_t colliderIndex) { ls.setPointCount(e, num, colliderIndex); });
-			lightSystemType["setPoints"] =
+					[](LightHandlerFrontEnd& lhfe, std::size_t num) { lhfe.setColliderPointCount(num); },
+					[](LightHandlerFrontEnd& lhfe, std::size_t num, std::size_t colliderIndex) { lhfe.setColliderPointCount(num, colliderIndex); });
+			lightHandlerFrontEndType["setColliderPoints"] =
 				sol::overload(
-					[](LightHandler& ls, Entity e, script::Environment points)
-					{
-						std::vector<sf::Vector2f> pvec;
-						if (detail::table2vec(pvec, points))
-							ls.setPoints(e, pvec);
-					},
-					[](LightHandler& ls, Entity e, script::Environment points, std::size_t colliderIndex)
-					{
-						std::vector<sf::Vector2f> pvec;
-						if (detail::table2vec(pvec, points))
-							ls.setPoints(e, pvec, colliderIndex);
-					});
-			lightSystemType["setLightOverShape"] =
+					[](LightHandlerFrontEnd& lhfe, script::Environment points) { lhfe.setColliderPoints(points); },
+					[](LightHandlerFrontEnd& lhfe, script::Environment points, std::size_t colliderIndex) { lhfe.setColliderPoints(points, colliderIndex); });
+			lightHandlerFrontEndType["setLightOverShape"] =
 				sol::overload(
-					[](LightHandler& ls, Entity e, bool los) { ls.setLightOverShape(e, los); },
-					[](LightHandler& ls, Entity e, bool los, std::size_t colliderIndex) { ls.setLightOverShape(e, los, colliderIndex); });
-			lightSystemType["setAffectorCallback"] =
-				sol::overload([](LightHandler& ls, Entity e, const std::function<void(float, LightEmitterComponent&)>& callback)
-					{ ls.setAffectorCallback(e, callback); },
-					[](LightHandler& ls, Entity e, std::size_t lightIndex, const std::function<void(float, LightEmitterComponent&)>& callback)
-					{ ls.setAffectorCallback(e, lightIndex, callback); },
-					[](LightHandler& ls, Entity e, std::size_t lightIndex, std::size_t affectorIndex, const std::function<void(float, LightEmitterComponent&)>& callback)
-					{ ls.setAffectorCallback(e, lightIndex, affectorIndex, callback); });
-			lightSystemType["getLowerBound"] = & LightHandler::getLowerBound;
-			lightSystemType["getUpperBound"] = & LightHandler::getUpperBound;
+					[](LightHandlerFrontEnd& lhfe, bool los) { lhfe.setLightOverShape(los); },
+					[](LightHandlerFrontEnd& lhfe, bool los, std::size_t colliderIndex) { lhfe.setLightOverShape(los, colliderIndex); });
+			lightHandlerFrontEndType["setLightActive"] =
+				sol::overload(
+					[](LightHandlerFrontEnd& lhfe, bool active) { lhfe.setLightActive(active); },
+					[](LightHandlerFrontEnd& lhfe, bool active, std::size_t colliderIndex) { lhfe.setLightActive(active, colliderIndex); });
+			lightHandlerFrontEndType["isLightActive"] =
+				sol::overload(
+					[](LightHandlerFrontEnd& lhfe) { return lhfe.isLightActive(); },
+					[](LightHandlerFrontEnd& lhfe, std::size_t colliderIndex) { return lhfe.isLightActive(colliderIndex); });
+			lightHandlerFrontEndType["setAffectorCallback"] =
+				sol::overload([](LightHandlerFrontEnd& lhfe, const std::function<void(float, LightEmitterComponent&)>& callback)
+					{ lhfe.setAffectorCallback(callback); },
+					[](LightHandlerFrontEnd& lhfe, const std::function<void(float, LightEmitterComponent&)>& callback, std::size_t lightIndex)
+					{ lhfe.setAffectorCallback(callback, lightIndex); },
+					[](LightHandlerFrontEnd& lhfe, const std::function<void(float, LightEmitterComponent&)>& callback, std::size_t lightIndex, std::size_t affectorIndex)
+					{ lhfe.setAffectorCallback(callback, lightIndex, affectorIndex); });
+			lightHandlerFrontEndType["setAffectorActive"] =
+				sol::overload(
+					[](LightHandlerFrontEnd& lhfe, bool active) { lhfe.setAffectorActive(active); },
+					[](LightHandlerFrontEnd& lhfe, bool active, std::size_t colliderIndex) { lhfe.setAffectorActive(active, colliderIndex); });
+			lightHandlerFrontEndType["isAffectorActive"] =
+				sol::overload(
+					[](LightHandlerFrontEnd& lhfe) { return lhfe.isAffectorActive(); },
+					[](LightHandlerFrontEnd& lhfe, std::size_t colliderIndex) { return lhfe.isAffectorActive(colliderIndex); });
         }
     }
 }

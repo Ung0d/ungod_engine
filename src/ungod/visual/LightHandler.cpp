@@ -36,24 +36,26 @@ namespace ungod
 
     void LightHandler::init(LightManager& lightManager)
     {
-        mLightManager = lightManager;
+        mLightManager = &lightManager;
     }
 
     void LightHandler::render(const quad::PullResult<Entity>& pull, const quad::QuadTree<Entity>& quadtree, sf::RenderTarget& target, sf::RenderStates states, bool drawShadows)
     {
-        mLightManager.getCompositionTexture().clear(mAmbientColor);
-        mLightManager.getCompositionTexture().setView(mCompositionTexture.getDefaultView());
+        mLightManager->getCompositionTexture().clear(mAmbientColor);
+        // mLightManager->getCompositionTexture().setView(mLightManager->getCompositionTexture().getDefaultView());
+        mLightManager->getCompositionTexture().setView(target.getView()); //TODO check correctness of this
+
 
         //iterator over the one-light-components
         dom::Utility<Entity>::iterate<TransformComponent, LightEmitterComponent>(pull.getList(),
-          [this, &target, &states, drawShadows] (Entity e, TransformComponent& lightTransf, LightEmitterComponent& light)
+          [this, &target, &states, drawShadows, &quadtree] (Entity e, TransformComponent& lightTransf, LightEmitterComponent& light)
           {
               renderLight(target, states, quadtree, e, lightTransf, light, drawShadows);
           });
 
         //iterate over the multiple-light-components
         dom::Utility<Entity>::iterate<TransformComponent, MultiLightEmitter>(pull.getList(),
-          [this, &target, &states, drawShadows] (Entity e, TransformComponent& lightTransf, MultiLightEmitter& light)
+          [this, &target, &states, drawShadows, &quadtree] (Entity e, TransformComponent& lightTransf, MultiLightEmitter& light)
           {
               for (std::size_t i = 0; i < light.getComponentCount(); ++i)
               {
@@ -61,12 +63,12 @@ namespace ungod
               }
           });
 
-        mLightManager.getCompositionTexture().display();
+        mLightManager->getCompositionTexture().display();
 
         sf::RenderStates lightstates{};
 		lightstates.blendMode = sf::BlendMultiply;
 
-		mDisplaySprite.setTexture(mLightManager.getCompositionTexture().getTexture(), true);
+		mDisplaySprite.setTexture(mLightManager->getCompositionTexture().getTexture(), true);
 		sf::View view = target.getView();
         target.setView(sf::View{ sf::FloatRect{0.0f,0.0f,(float)target.getSize().x,(float)target.getSize().y} });
 		target.draw(mDisplaySprite, lightstates);
@@ -113,20 +115,20 @@ namespace ungod
 
         //render the light and the colliders, draw umbras, penumbras + antumbras
         light.mLight.render(target.getView(), 
-                            mLightManager.getLightTexture(),
-                            mLightManager.getEmissionTexture(),
-                            mLightManager.getAntumbraTexture(),
+                            mLightManager->getLightTexture(),
+                            mLightManager->getEmissionTexture(),
+                            mLightManager->getAntumbraTexture(),
                             states,
                             colliders, 
-                            mUnshadowShader, 
-                            mLightOverShapeShader, 
+                            mLightManager->getUnshadowShader(),
+                            mLightManager->getLightOverShapeShader(), 
                             lightTransf);
 
         //draw the resulting texture in the application window
         sf::RenderStates compoRenderStates;
         compoRenderStates.blendMode = sf::BlendAdd;
-        mDisplaySprite.setTexture(mLightTexture.getTexture(), true);
-        mLightManager.getCompositionTexture().draw(mDisplaySprite, compoRenderStates);
+        mDisplaySprite.setTexture(mLightManager->getLightTexture().getTexture(), true);
+        mLightManager->getCompositionTexture().draw(mDisplaySprite, compoRenderStates);
     }
 
     void LightHandler::update(const std::list<Entity>& entities, float delta)

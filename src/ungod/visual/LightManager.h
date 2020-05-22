@@ -35,6 +35,8 @@
 
 namespace ungod
 {
+    class Application;
+
     /** \brief Manages shared resources for all LightHandlers. */
     class LightManager : sf::NonCopyable
     {
@@ -48,6 +50,9 @@ namespace ungod
         sf::RenderTexture& getEmissionTexture() { return mEmissionTexture; }
         sf::RenderTexture& getAntumbraTexture() { return mAntumbraTexture; }
         sf::RenderTexture& getCompositionTexture() { return mCompositionTexture; }
+
+        sf::Shader& getUnshadowShader() { return mUnshadowShader; }
+        sf::Shader& getLightOverShapeShader() { return mLightOverShapeShader; }
         
         ~LightManager();
 

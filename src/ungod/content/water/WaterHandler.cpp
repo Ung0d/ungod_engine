@@ -29,7 +29,7 @@
 
 namespace ungod
 {
-    void WaterHandler::init(const World& world)
+    void WaterHandler::init(World& world)
     {
         targetSizeChanged(world, world.getState()->getApp().getWindow().getSize());
         world.onComponentAdded<WaterComponent>([&world](Entity e)

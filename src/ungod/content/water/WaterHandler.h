@@ -41,6 +41,7 @@ namespace ungod
     class WaterComponent : public Serializable<WaterComponent>
     {
     friend class WaterHandler;
+    friend class Renderer;
     friend struct DeserialBehavior<WaterComponent, Entity, DeserialMemory&>;
 
     public:
@@ -57,7 +58,7 @@ namespace ungod
     public:
         WaterHandler() = default;
 
-        void init(const World & world);
+        void init(World & world);
 
         void update(const std::list<Entity>& entities);
 

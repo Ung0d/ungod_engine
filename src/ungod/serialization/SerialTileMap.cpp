@@ -24,7 +24,7 @@
 */
 
 #include "ungod/serialization/SerialTileMap.h"
-#include "ungod/content/TileMap.h"
+#include "ungod/content/tilemap/TileMap.h"
 
 namespace ungod
 {
@@ -38,14 +38,14 @@ namespace ungod
         context.serializePropertyContainer("keys", data.mKeymap, serializer);
 
         if (data.mTiles.ids)
-            context.serializePropertyContainer<int>("ids", [&data] (std::size_t i) { return data.mTiles.ids->get(i); } , data.mTiles.ids->ssize(), serializer);
+            context.serializePropertyContainer<int>("ids", [&data] (std::size_t i) { return data.mTiles.ids->at(i); } , data.mTiles.ids->size(), serializer);
     }
 
     void DeserialBehavior<TileMap>::deserialize(TileMap& data, MetaNode deserializer, DeserializationContext& context)
     {
         unsigned tileWidth, tileHeight, mapWidth, mapHeight;
 
-        auto attr = context.next(context.deserializeProperty(tileWidth, 0u), "tile_width", deserializer, attr);
+        auto attr = context.first(context.deserializeProperty(tileWidth, 0u), "tile_width", deserializer);
         attr = context.next(context.deserializeProperty(tileHeight, 0u), "tile_height", deserializer, attr);
         attr = context.next(context.deserializeProperty(mapWidth, 0u), "map_width", deserializer, attr);
         attr = context.next(context.deserializeProperty(mapHeight, 0u), "map_height", deserializer, attr);
@@ -58,13 +58,13 @@ namespace ungod
 
         data.setTileDims( tileWidth, tileHeight, keymap);
 
-        TileData data;
-        data.ids = std::make_unique<std::vector<int>>();
+        TileData tmdata;
+        tmdata.ids = std::make_unique<std::vector<int>>();
         attr = context.next(
-            context.deserializeContainer<int>([&data] (std::size_t num) { data.ids->reserve(num); },
-                             [&data] (int id) { data.ids->emplace_back(id); }),
+            context.deserializeContainer<int>([&tmdata] (std::size_t num) { tmdata.ids->reserve(num); },
+                             [&tmdata] (int id) { tmdata.ids->emplace_back(id); }),
                              "ids", deserializer, attr );
 
-        data.setTiles(data, mapWidth, mapHeight);
+        data.setTiles(tmdata, mapWidth, mapHeight);
     }
 }
