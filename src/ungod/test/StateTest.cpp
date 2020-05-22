@@ -13,7 +13,7 @@ public:
     virtual void update(const float delta) override
     {
         if (updateCounter == 3)
-            mApp->quitApplication();
+            mApp.quitApplication();
         updateCounter++;
     }
 

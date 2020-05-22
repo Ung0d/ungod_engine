@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
-#include "ungod/content/TileMap.h"
-#include "ungod/content/FloodFill.h"
-#include "ungod/content/TilemapBrush.h"
+#include "ungod/content/tilemap/TileMap.h"
+#include "ungod/content/tilemap/FloodFill.h"
+#include "ungod/content/tilemap/TilemapBrush.h"
 #include "ungod/base/World.h"
 #include "ungod/test/mainTest.h"
 #include <boost/filesystem.hpp>
@@ -41,22 +41,27 @@ BOOST_AUTO_TEST_CASE( tilemap_test )
     sf::RenderTexture rendertex{};
     rendertex.create(800,600);
     ungod::TileMap tilemap;
-    tilemap.loadTiles("test_data/tilemap_test.png", "test_data/tilemap_test.xml", 32, 32, {"geen", "red", "blue", "yellow"});
-    tilemap.setTiles({0,1,2,3,0,1,2,3,0,1,2,3}, 4, 3);
+    ungod::Image tex{ "test_data/tilemap_test.png" };
+    ungod::MetaMap meta{ "test_data/tilemap_test.xml" };
+    tilemap.setMetaMap(meta);
+    tilemap.setTileDims(32, 32, {"geen", "red", "blue", "yellow"});
+    ungod::TileData tiledata;
+    tiledata.ids = std::make_shared<std::vector<int>>(std::initializer_list<int>{ 0,1,2,3,0,1,2,3,0,1,2,3 });
+    tilemap.setTiles(tiledata, 4, 3);
 
 
-    BOOST_CHECK_EQUAL(tilemap.getTiledata(0,0)->getTileID(), 0);
-    BOOST_CHECK_EQUAL(tilemap.getTiledata(1,2)->getTileID(), 1);
-    BOOST_CHECK_EQUAL(tilemap.getTiledata(3,1)->getTileID(), 2);
+    BOOST_CHECK_EQUAL(tilemap.getTileID(0,0), 0);
+    BOOST_CHECK_EQUAL(tilemap.getTileID(1,2), 1);
+    BOOST_CHECK_EQUAL(tilemap.getTileID(3,1), 2);
 
-    BOOST_CHECK_EQUAL(tilemap.getTiledata(sf::Vector2f{50,50})->getTileID(), 0);
+    BOOST_CHECK_EQUAL(tilemap.getTileID(sf::Vector2f{50,50}), 0);
 
-    tilemap.getTiledata(1,1)->setTileID(3);
+    tilemap.setTile(3, 1, 1);
 
-    BOOST_CHECK_EQUAL(tilemap.getTiledata(sf::Vector2f{50,50})->getTileID(), 3);
+    BOOST_CHECK_EQUAL(tilemap.getTileID(sf::Vector2f{50,50}), 3);
 
     {  //test correct output with the default view
-        tilemap.render(rendertex, {});
+        tilemap.render(rendertex, &tex.get(), {});
 
         sf::Image result = rendertex.getTexture().copyToImage();
         BOOST_CHECK_EQUAL(result.getPixel(10, 10).r, sf::Color::Green.r);
@@ -72,7 +77,7 @@ BOOST_AUTO_TEST_CASE( tilemap_test )
         view.move(32,0);
         rendertex.setView(view);
 
-        tilemap.render(rendertex, {});
+        tilemap.render(rendertex, &tex.get(), {});
 
         sf::Image result = rendertex.getTexture().copyToImage();
         BOOST_CHECK_EQUAL(result.getPixel(10, 10).b, sf::Color::Yellow.b);
@@ -86,43 +91,53 @@ BOOST_AUTO_TEST_CASE( tilemap_test )
 BOOST_AUTO_TEST_CASE( tilemap_brush_test )
 {
     ungod::TileMap tilemap;
-    tilemap.loadTiles("test_data/ground.png", "test_data/ground.xml", 128, 128, {"purple_stone", "brown_stone", "brown_stone_iso",
+    //ungod::Image tex{ "test_data/ground.png" };
+    ungod::MetaMap meta{ "test_data/ground.xml" };
+    tilemap.setMetaMap(meta);
+    tilemap.setTileDims(128, 128, {"purple_stone", "brown_stone", "brown_stone_iso",
                                                                                 "brown_stone_pathend_down", "brown_stone_pathend_up", "brown_stone_pathend_left", "brown_stone_pathend_right",
                                                                                 "brown_stone_pathcurve_1", "brown_stone_pathcurve_2", "brown_stone_pathcurve_3", "brown_stone_pathcurve_4",
                                                                                 "brown_stone_corner_1", "brown_stone_corner_2", "brown_stone_corner_3", "brown_stone_corner_4"});
-    tilemap.setTiles({0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, 5, 5);
+    ungod::TileData tiledata;
+    tiledata.ids = std::make_shared<std::vector<int>>(std::initializer_list<int>{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 });
+    tilemap.setTiles(tiledata, 5, 5);
     ungod::TilemapBrush brush("brown_stone", tilemap);
 
     brush.paintTile(2,2);
-    BOOST_CHECK_EQUAL( tilemap.getTiledata(2,2)->getTileID(), 2 );
+    BOOST_CHECK_EQUAL( tilemap.getTileID(2,2), 2 );
     brush.paintTile(3,2);
-    BOOST_CHECK_EQUAL( tilemap.getTiledata(2,2)->getTileID(), 6 );
-    BOOST_CHECK_EQUAL( tilemap.getTiledata(3,2)->getTileID(), 5 );
+    BOOST_CHECK_EQUAL( tilemap.getTileID(2,2), 6 );
+    BOOST_CHECK_EQUAL( tilemap.getTileID(3,2), 5 );
     brush.paintTile(3,3);
-    BOOST_CHECK_EQUAL( tilemap.getTiledata(3,2)->getTileID(), 10 );
-    BOOST_CHECK_EQUAL( tilemap.getTiledata(3,3)->getTileID(), 4 );
+    BOOST_CHECK_EQUAL( tilemap.getTileID(3,2), 10 );
+    BOOST_CHECK_EQUAL( tilemap.getTileID(3,3), 4 );
     brush.paintTile(2,3);
-    BOOST_CHECK_EQUAL( tilemap.getTiledata(2,2)->getTileID(), 13 );
-    BOOST_CHECK_EQUAL( tilemap.getTiledata(3,2)->getTileID(), 14 );
-    BOOST_CHECK_EQUAL( tilemap.getTiledata(3,3)->getTileID(), 11 );
-    BOOST_CHECK_EQUAL( tilemap.getTiledata(2,3)->getTileID(), 12 );
+    BOOST_CHECK_EQUAL( tilemap.getTileID(2,2), 13 );
+    BOOST_CHECK_EQUAL( tilemap.getTileID(3,2), 14 );
+    BOOST_CHECK_EQUAL( tilemap.getTileID(3,3), 11 );
+    BOOST_CHECK_EQUAL( tilemap.getTileID(2,3), 12 );
 }
 
 BOOST_AUTO_TEST_CASE( floodfill_test )
 {
     {
         ungod::TileMap tilemap;
-        tilemap.loadTiles("test_data/tilemap_test.png", "test_data/tilemap_test.xml", 32, 32, {"geen", "red", "blue", "yellow"});
-        tilemap.setTiles({0,0,0,0,0,0,0,0,0,0,0,0}, 4, 3);
+        //ungod::Image tex{ "test_data/tilemap_test.png" };
+        ungod::MetaMap meta{ "test_data/tilemap_test.xml" };
+        tilemap.setMetaMap(meta);
+        tilemap.setTileDims(32, 32, {"geen", "red", "blue", "yellow"});
+        ungod::TileData tiledata;
+        tiledata.ids = std::make_shared<std::vector<int>>(std::initializer_list<int>{ 0,0,0,0,0,0,0,0,0,0,0,0 });
+        tilemap.setTiles(tiledata, 4, 3);
 
-        ungod::floodFill(tilemap, 1, 1, {1}, true);
+        ungod::floodFill(tilemap, 1, 1, {1});
 
-        BOOST_REQUIRE(tilemap.getTiledata(0,0));
-        BOOST_CHECK_EQUAL(1, tilemap.getTiledata(2,2)->getTileID());
-        BOOST_CHECK_EQUAL(1, tilemap.getTiledata(0,2)->getTileID());
-        BOOST_CHECK_EQUAL(1, tilemap.getTiledata(2,1)->getTileID());
-        BOOST_CHECK_EQUAL(1, tilemap.getTiledata(0,0)->getTileID());
-        BOOST_CHECK_EQUAL(1, tilemap.getTiledata(3,2)->getTileID());
+        BOOST_REQUIRE(tilemap.getTileID(0,0) != -1);
+        BOOST_CHECK_EQUAL(1, tilemap.getTileID(2,2));
+        BOOST_CHECK_EQUAL(1, tilemap.getTileID(0,2));
+        BOOST_CHECK_EQUAL(1, tilemap.getTileID(2,1));
+        BOOST_CHECK_EQUAL(1, tilemap.getTileID(0,0));
+        BOOST_CHECK_EQUAL(1, tilemap.getTileID(3,2));
     }
 }
 

@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( asset_image_test )
 	ungod::World* world = node.addWorld();
 	ungod::Entity e = world->create(ungod::BaseComponents<ungod::TransformComponent, ungod::VisualsComponent>(), ungod::OptionalComponents<>());
 	BOOST_CHECK(e);
-    world->getVisualsManager().loadTexture(e, "test_data/test_sheet.png", ungod::LoadPolicy::ASYNC);
+    world->getVisualsHandler().loadTexture(e, "test_data/test_sheet.png", ungod::LoadPolicy::ASYNC);
 	//BOOST_CHECK(e.get<ungod::VisualsComponent>().isLoaded());
 	world->destroy(e); //queue entity for destruction
 	world->update(20.0f, {}, {}); //destroys entity in queue
@@ -63,24 +63,24 @@ BOOST_AUTO_TEST_CASE( transform_system_test )
 	ungod::World* world = node.addWorld();
     ungod::Entity e1 = world->create(ungod::BaseComponents<ungod::TransformComponent>(), ungod::OptionalComponents<>());
     ungod::Entity e2 = world->create(ungod::BaseComponents<ungod::TransformComponent>(), ungod::OptionalComponents<>());
-    world->getTransformManager().setPosition(e1, {100,0});
+    world->getTransformHandler().setPosition(e1, {100,0});
     BOOST_CHECK_EQUAL(e1.get<ungod::TransformComponent>().getPosition().x, 100);
     BOOST_CHECK_EQUAL(e1.get<ungod::TransformComponent>().getPosition().y, 0);
-    world->getTransformManager().move(e1, {10,10});
+    world->getTransformHandler().move(e1, {10,10});
     BOOST_CHECK_EQUAL(e1.get<ungod::TransformComponent>().getPosition().x, 110);
     BOOST_CHECK_EQUAL(e1.get<ungod::TransformComponent>().getPosition().y, 10);
 
     //test position changed signal
-    world->getTransformManager().onPositionChanged([world, e1, e2] (ungod::Entity e, const sf::Vector2f& position)
+    world->getTransformHandler().onPositionChanged([world, e1, e2] (ungod::Entity e, const sf::Vector2f& position)
                                                   {
                                                     //automatically move e2 when e1 is moved
                                                     if (e == e1)
                                                     {
-                                                        world->getTransformManager().setPosition(e2, position);
+                                                        world->getTransformHandler().setPosition(e2, position);
                                                     }
                                                   });
-    world->getTransformManager().setPosition(e2, {50,50});
-    world->getTransformManager().move(e1, {10,10});
+    world->getTransformHandler().setPosition(e2, {50,50});
+    world->getTransformHandler().move(e1, {10,10});
     BOOST_CHECK_EQUAL(e2.get<ungod::TransformComponent>().getPosition().x, 120);
     BOOST_CHECK_EQUAL(e2.get<ungod::TransformComponent>().getPosition().y, 20);
 	world->destroy(e1); //queue entity for destruction
@@ -95,9 +95,9 @@ BOOST_AUTO_TEST_CASE( movement_system_test )
 	node.setSize({ 800,600 });
 	ungod::World* world = node.addWorld();
     ungod::Entity e1 = world->create(ungod::BaseComponents<ungod::TransformComponent, ungod::MovementComponent>(), ungod::OptionalComponents<>());
-    world->getTransformManager().setPosition(e1, {0,0});
-    world->getMovementManager().accelerate(e1, {1,1});
-    world->getMovementManager().update({e1}, 20);
+    world->getTransformHandler().setPosition(e1, {0,0});
+    world->getMovementHandler().accelerate(e1, {1,1});
+    world->getMovementHandler().update({e1}, 20);
     BOOST_CHECK(  e1.get<ungod::TransformComponent>().getPosition().x > 0);
 	world->destroy(e1); //queue entity for destruction
 	world->update(20.0f, {}, {}); //destroys entity in queue
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( render_system_test )
 	node.setSize({ 800,600 });
 	ungod::World* world = node.addWorld();
     ungod::Entity e = world->create(ungod::BaseComponents<ungod::TransformComponent, ungod::VisualsComponent>(), ungod::OptionalComponents<>());
-    world->getVisualsManager().loadTexture(e, "test_data/test.png", ungod::LoadPolicy::SYNC);
+    world->getVisualsHandler().loadTexture(e, "test_data/test.png", ungod::LoadPolicy::SYNC);
     BOOST_REQUIRE( e.get<ungod::VisualsComponent>().isLoaded() );
 	world->destroy(e); //queue entity for destruction
 	world->update(20.0f, {}, {}); //destroys entity in queue
@@ -353,13 +353,13 @@ BOOST_AUTO_TEST_CASE( entity_copy_test )
 	ungod::World* world = node.addWorld();
     ungod::Entity e = world->create(ungod::BaseComponents<ungod::VisualsComponent, ungod::TransformComponent, ungod::SpriteMetadataComponent>(), ungod::OptionalComponents<ungod::SpriteComponent, ungod::MovementComponent>());
     e.add<ungod::SpriteComponent>();
-    world->getTransformManager().setPosition(e, {150,40});
-    world->getVisualsManager().loadTexture(e, "resource/penumbraTexture.png");
-    world->getVisualsManager().setSpriteTextureRect(e, sf::FloatRect{60,60,60,60});
+    world->getTransformHandler().setPosition(e, {150,40});
+    world->getVisualsHandler().loadTexture(e, "resource/penumbraTexture.png");
+    world->getVisualsHandler().setSpriteTextureRect(e, sf::FloatRect{60,60,60,60});
     ungod::Entity ecopy = e.getWorld().makeCopy(e);
     world->getQuadTree().insert(e);
     world->getQuadTree().insert(ecopy);
-    world->getTransformManager().setPosition(ecopy, {150,770});
+    world->getTransformHandler().setPosition(ecopy, {150,770});
 
     BOOST_CHECK(ecopy.has<ungod::TransformComponent>());
     BOOST_CHECK(ecopy.has<ungod::VisualsComponent>());
@@ -417,13 +417,13 @@ BOOST_AUTO_TEST_CASE( parent_child_test )
     ungod::Entity parent = world->create(ungod::EntityBaseComponents(), ungod::EntityOptionalComponents());
     ungod::Entity child = world->create(ungod::EntityBaseComponents(), ungod::EntityOptionalComponents());
 
-    world->getTransformManager().setPosition(parent, {100.0f, 100.f});
+    world->getTransformHandler().setPosition(parent, {100.0f, 100.f});
 
-    world->getParentChildManager().addChild(parent, child);
+    world->getParentChildHandler().addChild(parent, child);
 
     BOOST_CHECK_EQUAL(child.get<ungod::TransformComponent>().getPosition().x , 100.0f);
 
-    world->getParentChildManager().setChildPosition(child, {20.0f, 20.0f});
+    world->getParentChildHandler().setChildPosition(child, {20.0f, 20.0f});
 
     BOOST_CHECK_EQUAL(child.get<ungod::TransformComponent>().getPosition().x , 120.0f);
 
@@ -465,9 +465,9 @@ BOOST_AUTO_TEST_CASE(copy_between_worlds_test)
 	ungod::World* world1 = node.addWorld();
 	ungod::World* world2 = node.addWorld();
 	ungod::Entity e1 = world1->create(ungod::EntityBaseComponents(), ungod::EntityOptionalComponents());
-	world1->getTransformManager().setPosition(e1, { 100,100 });
+	world1->getTransformHandler().setPosition(e1, { 100,100 });
 	e1.add<ungod::SpriteComponent>();
-	world1->getVisualsManager().setSpritePosition(e1, { 20,20 });
+	world1->getVisualsHandler().setSpritePosition(e1, { 20,20 });
 	ungod::Entity e2 = world2->makeForeignCopy(e1);
 	BOOST_CHECK(e2.has<ungod::SpriteComponent>());
 	BOOST_CHECK(e2.has<ungod::TransformComponent>());

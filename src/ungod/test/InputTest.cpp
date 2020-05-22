@@ -22,22 +22,17 @@ BOOST_AUTO_TEST_CASE( entity_mouse_events_test )
 
     //create an entity with a collider that shall trigger some events
     ungod::Entity e = world->create(ungod::BaseComponents<ungod::TransformComponent, ungod::RigidbodyComponent<>>());
-    world->getTransformManager().setPosition(e, {25, 25});
-    world->getMovementRigidbodyManager().addCollider(e, ungod::makeRotatedRect({10,10}, {50, 50}));
+    world->getTransformHandler().setPosition(e, {25, 25});
+    world->getMovementRigidbodyHandler().addCollider(e, ungod::makeRotatedRect({10,10}, {50, 50}));
     world->getQuadTree().insert(e);
 
     //shift the windows view to be sure things still work with a non default view
     window.setView( sf::View( sf::FloatRect( {20, 20}, {640, 640} ) ) );
 
     //catch and evaluate signals
-    world->getInputManager().onMouseEnter( [&mouseEnter] (ungod::Entity e) { mouseEnter = true; } );
-    world->getInputManager().onMouseClick( [&mouseClick] (ungod::Entity e) { mouseClick = true; } );
-    world->getInputManager().onMouseExit( [&mouseExit] (ungod::Entity e) { mouseExit = true; } );
-
-    ungod::Logger::info(window.mapPixelToCoords({50,50}).x);
-    ungod::Logger::endl();
-    ungod::Logger::info(window.mapPixelToCoords({50,50}).y);
-    ungod::Logger::endl();
+    world->getInputEventHandler().onMouseEnter( [&mouseEnter] (ungod::Entity e) { mouseEnter = true; } );
+    world->getInputEventHandler().onMouseClick( [&mouseClick] (ungod::Entity e) { mouseClick = true; } );
+    world->getInputEventHandler().onMouseExit( [&mouseExit] (ungod::Entity e) { mouseExit = true; } );
 
     //simulate a "mouse enter"
     sf::Event event;

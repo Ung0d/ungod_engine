@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( script_test )
         bm.loadBehavior("test_data/global_test.lua");
 
         {
-            script::Environment instance = bm.makeInstanceEnvironment(0);
+            script::Environment instance = bm.makeInstanceEnvironment();
             ungod::BehaviorPtr<> behavior = bm.makeBehavior("global_test", instance);
 
             BOOST_REQUIRE(behavior);
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( script_test )
 
             {
                 //static constr NOT called twice when creating multiple instances? --- sheeeesh that would be sucky
-                script::Environment instance2 = bm.makeInstanceEnvironment(1);
+                script::Environment instance2 = bm.makeInstanceEnvironment();
                 ungod::BehaviorPtr<> behavior2 = bm.makeBehavior("global_test", instance2);
                 staticconstr = behavior2->getStaticVariable<int>("constr");
                 BOOST_REQUIRE(staticconstr);
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( script_test )
 
         BehaviorManager<> bm( {"onCreate", "onInit", "onUncheck", "onStaticConstr", "onStaticDestr", "onEvent"}, ON_CREATE, ON_INIT, ON_UNCHECK, ON_SC, ON_SD );
         bm.loadBehavior("test_data/state_test.lua");
-        script::Environment instance = bm.makeInstanceEnvironment(0);
+        script::Environment instance = bm.makeInstanceEnvironment();
         StateBehaviorPtr<> behavior = bm.makeStateBehavior("state_test", instance);
 
         BOOST_REQUIRE(behavior);
@@ -204,14 +204,14 @@ BOOST_AUTO_TEST_CASE( script_test )
 		node.setSize({ 15000, 15000 });
 		ungod::World* world = node.addWorld();
         state->getWorldGraph().activateNode("nodeid");
-        world->getBehaviorManager().loadBehaviorScript("test_data/entity_behavior.lua");
-        world->getBehaviorManager().loadBehaviorScript("test_data/entity_behavior2.lua");
+        world->getState()->getEntityBehaviorManager().loadBehaviorScript("test_data/entity_behavior.lua");
+        world->getState()->getEntityBehaviorManager().loadBehaviorScript("test_data/entity_behavior2.lua");
         Entity e = world->create(BaseComponents<TransformComponent, EntityBehaviorComponent, EntityUpdateTimer>(), "entity_behavior");
         Entity e2 = world->create(BaseComponents<TransformComponent, EntityBehaviorComponent, EntityUpdateTimer>(), "entity_behavior2");
         world->getQuadTree().insert(e);
         world->getQuadTree().insert(e2);
 
-        auto globaltest = world->getBehaviorManager().getGlobalVariable<int>("test");
+        auto globaltest = world->getState()->getEntityBehaviorManager().getGlobalVariable<int>("test");
         BOOST_REQUIRE(globaltest);
         BOOST_CHECK_EQUAL(2, *globaltest);
 
@@ -361,8 +361,8 @@ BOOST_AUTO_TEST_CASE(trigger_test)
     WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
     node.setSize({ 15000, 15000 });
     ungod::World* world = node.addWorld();
-    world->getBehaviorManager().loadBehaviorScript("test_data/trigger.lua");
-    world->getBehaviorManager().loadBehaviorScript("test_data/trigger_tester.lua");
+    world->getState()->getEntityBehaviorManager().loadBehaviorScript("test_data/trigger.lua");
+    world->getState()->getEntityBehaviorManager().loadBehaviorScript("test_data/trigger_tester.lua");
     Entity trigger = world->create(TriggerBaseComponents(), TriggerOptionalComponents(), "trigger");
     Entity tester = world->create(ActorBaseComponents(), ActorOptionalComponents(), "trigger_tester");
     world->addEntity(trigger);
@@ -374,7 +374,7 @@ BOOST_AUTO_TEST_CASE(trigger_test)
     BOOST_CHECK(*check_enter);
     BOOST_REQUIRE(check_coll);
     BOOST_CHECK(*check_coll);
-    world->getTransformManager().setPosition(tester, { 400,400 });
+    world->getTransformHandler().setPosition(tester, { 400,400 });
     world->update(20.0f, { 0,0 }, { 15000,15000 });
     auto check_exit = trigger.get<EntityBehaviorComponent>().getStateVariable<bool>("trigger", "check_exit");
     BOOST_REQUIRE(check_exit);

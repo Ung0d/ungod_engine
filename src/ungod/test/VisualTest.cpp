@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include "ungod/base/World.h"
 #include "ungod/application/Application.h"
-#include "ungod/content/TileMap.h"
+#include "ungod/content/tilemap/TileMap.h"
 #include "ungod/test/mainTest.h"
 
 BOOST_AUTO_TEST_SUITE(VisualTest)
@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE( animation_test )
     bool loopedInitCheck = false;
     bool otoEndCheck = false;
 
-    world->getVisualsManager().onAnimationStart([&] (ungod::Entity e, const std::string& key)
+    world->getVisualsHandler().onAnimationStart([&] (ungod::Entity e, const std::string& key)
                                                {
                                                  if (key == "normal")
                                                  {
@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE( animation_test )
                                                  }
                                                });
 
-    world->getVisualsManager().onAnimationStop([&] (ungod::Entity e, const std::string& key)
+    world->getVisualsHandler().onAnimationStop([&] (ungod::Entity e, const std::string& key)
                                                {
                                                  if (key == "normal")
                                                  {
@@ -47,53 +47,53 @@ BOOST_AUTO_TEST_CASE( animation_test )
                                                  }
                                                });
 
-    world->getVisualsManager().loadTexture(e, "test_data/test.png");
-    world->getVisualsManager().loadMetadata(e, "test_data/animation_test.xml");
-    world->getVisualsManager().bindSpriteToAnimation(e);
+    world->getVisualsHandler().loadTexture(e, "test_data/test.png");
+    world->getVisualsHandler().loadMetadata(e, "test_data/animation_test.xml");
+    world->getVisualsHandler().bindSpriteToAnimation(e);
 
     BOOST_CHECK(!e.get<ungod::AnimationComponent>().getAnimation().isRunning());
 
-    world->getVisualsManager().setAnimationState(e, "normal");
+    world->getVisualsHandler().setAnimationState(e, "normal");
 
     BOOST_CHECK(e.get<ungod::AnimationComponent>().getAnimation().isRunning());
     BOOST_CHECK(normalInitCheck);
     BOOST_CHECK_EQUAL(e.get<ungod::AnimationComponent>().getAnimation().getCurrentIndex(), 0u);
 
-    world->getRenderer().update(entities, 21);
+    state.getRenderer().update(entities, 21, world->getVisualsHandler());
 
     BOOST_CHECK_EQUAL(e.get<ungod::AnimationComponent>().getAnimation().getCurrentIndex(), 1u);
 
-    world->getVisualsManager().setAnimationState(e, "looped");
+    world->getVisualsHandler().setAnimationState(e, "looped");
 
     BOOST_CHECK(normalEndCheck);
     BOOST_CHECK(loopedInitCheck);
 
-    world->getRenderer().update(entities, 21);
-    world->getRenderer().update(entities, 21);
+    state.getRenderer().update(entities, 21, world->getVisualsHandler());
+    state.getRenderer().update(entities, 21, world->getVisualsHandler());
 
     BOOST_CHECK_EQUAL(e.get<ungod::AnimationComponent>().getAnimation().getCurrentIndex(), 2u);
 
-    world->getRenderer().update(entities, 21);
+    state.getRenderer().update(entities, 21, world->getVisualsHandler());
 
     BOOST_CHECK_EQUAL(e.get<ungod::AnimationComponent>().getAnimation().getCurrentIndex(), 1u); //check looping
 
-    world->getVisualsManager().setAnimationState(e, "oneTimeOnly");
+    world->getVisualsHandler().setAnimationState(e, "oneTimeOnly");
 
-    world->getRenderer().update(entities, 21);
-    world->getRenderer().update(entities, 21);
+    state.getRenderer().update(entities, 21, world->getVisualsHandler());
+    state.getRenderer().update(entities, 21, world->getVisualsHandler());
 
     BOOST_CHECK(!e.get<ungod::AnimationComponent>().getAnimation().isRunning());
 
-    world->getVisualsManager().setAnimationState(e, "loopedOneTimeOnly");
+    world->getVisualsHandler().setAnimationState(e, "loopedOneTimeOnly");
 
     BOOST_CHECK(e.get<ungod::AnimationComponent>().getAnimation().isRunning());
 
-    world->getRenderer().update(entities, 21);
-    world->getRenderer().update(entities, 21);
+    state.getRenderer().update(entities, 21, world->getVisualsHandler());
+    state.getRenderer().update(entities, 21, world->getVisualsHandler());
 
     BOOST_CHECK(e.get<ungod::AnimationComponent>().getAnimation().isRunning());
 
-    world->getRenderer().update(entities, 21);
+    state.getRenderer().update(entities, 21, world->getVisualsHandler());
 
     BOOST_CHECK(!e.get<ungod::AnimationComponent>().getAnimation().isRunning());
 
@@ -140,27 +140,27 @@ BOOST_AUTO_TEST_CASE( render_order_test )
 
     BOOST_REQUIRE_EQUAL(world->getQuadTree().size(), 6u);
 
-    world->getTransformManager().setPosition(e[0], sf::Vector2f{ 10, 10 });
-    world->getMovementRigidbodyManager().addCollider(e[0], 
+    world->getTransformHandler().setPosition(e[0], sf::Vector2f{ 10, 10 });
+    world->getMovementRigidbodyHandler().addCollider(e[0], 
 			ungod::makeRotatedRect(sf::Vector2f{0,0}, sf::Vector2f{30,50}));  //giving a collider just to set the size of the entity to 30x50 pixel
-    world->getTransformManager().setPosition(e[1], sf::Vector2f{ 40, 20 });
-    world->getMovementRigidbodyManager().addCollider(e[1], 
+    world->getTransformHandler().setPosition(e[1], sf::Vector2f{ 40, 20 });
+    world->getMovementRigidbodyHandler().addCollider(e[1], 
 			ungod::makeRotatedRect(sf::Vector2f{0,0}, sf::Vector2f{30,50}));
 
-    world->getTransformManager().setPosition(e[2], sf::Vector2f{ 120, 150 });
-    world->getMovementRigidbodyManager().addCollider(e[2], 
+    world->getTransformHandler().setPosition(e[2], sf::Vector2f{ 120, 150 });
+    world->getMovementRigidbodyHandler().addCollider(e[2], 
 			ungod::makeRotatedRect(sf::Vector2f{0,0}, sf::Vector2f{50,70}));
-    world->getTransformManager().setBaseLineOffsets(e[2], sf::Vector2f{ 0, 70 });
-    world->getTransformManager().setPosition(e[3], sf::Vector2f{ 145, 195 });
-    world->getMovementRigidbodyManager().addCollider(e[3], 
+    world->getTransformHandler().setBaseLineOffsets(e[2], sf::Vector2f{ 0, 70 });
+    world->getTransformHandler().setPosition(e[3], sf::Vector2f{ 145, 195 });
+    world->getMovementRigidbodyHandler().addCollider(e[3], 
 			ungod::makeRotatedRect(sf::Vector2f{0,0}, sf::Vector2f{20,20}));
 
-    world->getTransformManager().setPosition(e[4], sf::Vector2f{ 320, 350 });
-    world->getMovementRigidbodyManager().addCollider(e[4], 
+    world->getTransformHandler().setPosition(e[4], sf::Vector2f{ 320, 350 });
+    world->getMovementRigidbodyHandler().addCollider(e[4], 
 			ungod::makeRotatedRect(sf::Vector2f{0,0}, sf::Vector2f{50,70}));
-    world->getTransformManager().setBaseLineOffsets(e[4], sf::Vector2f{ 70, 0 });
-    world->getTransformManager().setPosition(e[5], sf::Vector2f{ 330, 370 });
-    world->getMovementRigidbodyManager().addCollider(e[5], 
+    world->getTransformHandler().setBaseLineOffsets(e[4], sf::Vector2f{ 70, 0 });
+    world->getTransformHandler().setPosition(e[5], sf::Vector2f{ 330, 370 });
+    world->getMovementRigidbodyHandler().addCollider(e[5], 
 			ungod::makeRotatedRect(sf::Vector2f{0,0}, sf::Vector2f{20,20}));
 
     world->render(window, sf::RenderStates{});

@@ -54,19 +54,19 @@ BOOST_AUTO_TEST_CASE( collision_events_test )
     Entity e1 = world->create(BaseComponents<TransformComponent, RigidbodyComponent<>, MovementComponent>());
     Entity e2 = world->create(BaseComponents<TransformComponent, RigidbodyComponent<>, MovementComponent>());
     Entity e3 = world->create(BaseComponents<TransformComponent, RigidbodyComponent<>, MovementComponent>());
-    world->getMovementRigidbodyManager().addCollider(e1, ungod::makeRotatedRect({0,0}, {10.0f, 10.0f}));
-    world->getMovementRigidbodyManager().addCollider(e2, ungod::makeRotatedRect({0.0f,0.0f}, {40.0f, 40.0f}));
+    world->getMovementRigidbodyHandler().addCollider(e1, ungod::makeRotatedRect({0,0}, {10.0f, 10.0f}));
+    world->getMovementRigidbodyHandler().addCollider(e2, ungod::makeRotatedRect({0.0f,0.0f}, {40.0f, 40.0f}));
 
-    world->getMovementCollisionManager().onCollision([&collisionDetected] (Entity e, Entity other, const sf::Vector2f& mdv,
+    world->getMovementCollisionHandler().onCollision([&collisionDetected] (Entity e, Entity other, const sf::Vector2f& mdv,
                                                 const Collider& collider, const Collider& otherCollider)
                                             {
                                                 collisionDetected = true;
                                             });
-    world->getMovementCollisionManager().onBeginCollision([&collisionDetectedBegin] (Entity e, Entity other)
+    world->getMovementCollisionHandler().onBeginCollision([&collisionDetectedBegin] (Entity e, Entity other)
                                             {
                                                 collisionDetectedBegin = true;
                                             });
-    world->getMovementCollisionManager().onEndCollision([&collisionDetectedEnd] (Entity e, Entity other)
+    world->getMovementCollisionHandler().onEndCollision([&collisionDetectedEnd] (Entity e, Entity other)
                                             {
                                                 collisionDetectedEnd = true;
                                             });
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( collision_events_test )
     BOOST_CHECK(collisionDetected);
     BOOST_CHECK(collisionDetectedBegin);
 
-    world->getTransformManager().setPosition(e1, {1000, 1000});
+    world->getTransformHandler().setPosition(e1, {1000, 1000});
 
     world->update(0.1f, {0,0}, {800, 600});
 

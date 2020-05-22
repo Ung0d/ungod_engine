@@ -12,13 +12,11 @@ struct EmbeddedTestApp
 		embeddedApp = new ungod::Application();
 		embeddedApp->initApplication();
         ungod::Logger::info("Test application object constructed...");
-        ungod::Logger::endl();	
     }
 	~EmbeddedTestApp()
     {
 		delete embeddedApp;
         ungod::Logger::info("Test application object destroyed...");
-        ungod::Logger::endl();
     }
 
     static ungod::Application& getApp() { return *embeddedApp; }
