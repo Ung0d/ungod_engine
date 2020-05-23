@@ -9,27 +9,25 @@ function wild_west.onInit(static, state)
     --create a global table
     --all entities and other gamestates can access this
     ungod.wild_west = {}
-    w = ungod.wild_west
+    local w = ungod.wild_west
 
     print("hello wild west world...")
 
+   state:behavior():loadBehaviorScript("data/miner.lua")
+   state:behavior():loadBehaviorScript("data/wife.lua")
+
     --create a new node of size 1000x1000 in the world graph and add a world to it
-    w.node = state:worldGraph():createNode(state, "wild_west", "wild_west.world")
-    w.node:setSize(Vec2f.new(1000,1000))
-    state:worldGraph():activateNode("wild_west")
-    w.world = w.node:addWorld()
+    w.node = state:worldGraph():createNode(state, "wild_west", "data/wild_west.world")
 
-    --create an entity using the behavior script "miner" and add it to the world so it can be updated
-    w.world:behavior():loadBehaviorScript("data/miner.lua")
-    w.miner = w.world:createEntity("miner", {name = "Bob"})
-    w.miner:add():UpdateTimer()
-    w.world:add(w.miner)
-
-    --create another entity using the behavior script "wife"
-    w.world:behavior():loadBehaviorScript("data/wife.lua")
-    w.wife = w.world:createEntity("wife", {name = "Elsa", husband = w.miner})
-    w.wife:add():UpdateTimer()
-    w.world:add(w.wife)
+    --uncomment for reset when wild_west.world file is missing
+    -- w.node:setSize(Vec2f.new(1000,1000))
+    -- w.world = w.node:addWorld()
+    -- w.miner = w.world:createEntity("miner", {name = "Bob"})
+    -- w.miner:add():updateTimer()
+    -- w.world:add(w.miner)
+    -- w.wife = w.world:createEntity("wife", {name = "Elsa", husband = w.miner})
+    -- w.wife:add():updateTimer()
+    -- w.world:add(w.wife)
 
 end
 

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serialroot>
+	<root_obj ref="RenderLayerContainer@0"/>
+	<pool>
+		<RenderLayerContainer object_count="1">
+			<s l="1 World@0"/>
+		</RenderLayerContainer>
+		<World object_count="1">
+			<s d="1.000000" n="" Entity="2 Entity@0 Entity@1">
+				<name_map/>
+			</s>
+		</World>
+		<Entity object_count="2">
+			<s>
+				<b T="T@0" EB="EB@0"/>
+				<o EUP="EUP@0"/>
+			</s>
+			<s>
+				<b T="T@1" EB="EB@1"/>
+				<o EUP="EUP@1"/>
+			</s>
+		</Entity>
+		<T object_count="2">
+			<s t_x="0.000000" t_y="0.000000"/>
+			<s t_x="0.000000" t_y="0.000000"/>
+		</T>
+		<EB object_count="2">
+			<s n="miner"/>
+			<s n="wife"/>
+		</EB>
+		<EUP object_count="2">
+			<s/>
+			<s/>
+		</EUP>
+	</pool>
+</serialroot>
+

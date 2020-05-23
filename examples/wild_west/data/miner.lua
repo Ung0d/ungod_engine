@@ -26,6 +26,14 @@ function miner_global.onUpdate(static, miner, delta)
     miner.thirst = miner.thirst + 1
 end
 
+function miner_global.onSerialize(static, miner, node, context)
+  context:serialize("name", miner.name)
+end
+
+function miner_global.onDeserialize(static, miner, node, context)
+  miner.name = context:deserializeString("name", node)
+end
+
 function miner_global.changeLocation(miner, location)
     if miner.location ~= location then
       print(miner.name .. " is entering " .. location)
