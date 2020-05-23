@@ -589,7 +589,8 @@ namespace ungod
     void SerialBehavior<EntityBehaviorComponent, Entity>::serialize(const EntityBehaviorComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         if (data.valid())
-            context.serializeProperty("n", data.getScriptName(), serializer);
+            context.serializeProperty("n", data.getScriptName(), serializer); 
+        context.appendSubnode(serializer, "userdata");
     }
 
     void DeserialBehavior<EntityBehaviorComponent, Entity, DeserialMemory&>::deserialize(

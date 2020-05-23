@@ -31,8 +31,6 @@
 
 namespace ungod
 {
-    class Application;
-
     namespace scriptRegistration
     {
         namespace detail
@@ -49,7 +47,7 @@ namespace ungod
         }
 
         /** \brief Registers world functionality for scripts. */
-        void registerWorld(ScriptStateBase& state, Application& app);
+        void registerWorld(ScriptStateBase& state);
     }
 }
 

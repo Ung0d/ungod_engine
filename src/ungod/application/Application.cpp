@@ -341,6 +341,7 @@ namespace ungod
         ScriptStateBase scriptBase{ mScriptState, getGlobalScriptEnv() };
 
         //register functionality
+        scriptRegistration::registerWorld(scriptBase);
         scriptRegistration::registerAssets(scriptBase);
         scriptRegistration::registerUtility(scriptBase);
         scriptRegistration::registerGui(scriptBase);

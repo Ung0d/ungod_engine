@@ -155,6 +155,8 @@ namespace ungod
         void buttonPressed(const std::string& binding) const;
         void buttonDown(const std::string& binding) const;
         void buttonReleased(const std::string& binding) const;
+        void entitySerialized(Entity e, MetaNode serializer, SerializationContext& context);
+        void entityDeserialized(Entity e, MetaNode deserializer, DeserializationContext& context);
         void scriptInternalReassign(ScriptQueues& toReload);
         void scriptInternalDissociate(ScriptQueues& toReload);
 

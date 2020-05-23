@@ -122,12 +122,13 @@ namespace ungod
 
         /** \brief Returns a reference to the light manager. */
         LightManager& getLightManager() { return mLightManager; }
+        
+        virtual ~ScriptedGameState();
 
+    protected:
         virtual void init() override;
 
-        virtual void close() override; 
-        
-        ~ScriptedGameState();
+        virtual void close() override;
 
     private:
         /** \brief Defines ids for script callbacks. */

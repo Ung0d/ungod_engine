@@ -54,7 +54,6 @@ namespace ungod
 				[](MetaNode& node, const std::string& name) { return node.next(name.c_str()); });
 			metaNodeType["prev"] = sol::overload([](MetaNode& node) { return node.prev(); },
 				[](MetaNode& node, const std::string& name) { return node.prev(name.c_str()); });
-			metaNodeType["parent"] = & MetaNode::parent;
 			metaNodeType["name"] = & MetaNode::name;
 			metaNodeType["value"] = & MetaNode::value;
 			metaNodeType["appendSubnode"] = & MetaNode::appendSubnode;
@@ -63,20 +62,30 @@ namespace ungod
 			script::Usertype<SerializationContext> serializationContextType = state.registerUsertype<SerializationContext>("SerializationContext");
 			serializationContextType["appendSubnode"] = [](SerializationContext& context, MetaNode node, const std::string& name)
 				{ return context.appendSubnode(node, name); };
-			serializationContextType["serializeProperty"] = sol::overload(
+			serializationContextType["serialize"] = sol::overload(
 				[](SerializationContext& context, const std::string& id, bool data, MetaNode serializer)
-				{ context.serializeProperty(id.c_str(), data, serializer); },
+				{ context.serializeProperty(id, data, serializer); },
 				[](SerializationContext& context, const std::string& id, int data, MetaNode serializer)
-				{ context.serializeProperty(id.c_str(), data, serializer); },
+				{ context.serializeProperty(id, data, serializer); },
 				[](SerializationContext& context, const std::string& id, float data, MetaNode serializer)
-				{ context.serializeProperty(id.c_str(), data, serializer); },
+				{ context.serializeProperty(id, data, serializer); },
 				[](SerializationContext& context, const std::string& id, const std::string& data, MetaNode serializer)
-				{ context.serializeProperty(id.c_str(), data, serializer); },
-				[](SerializationContext& context, const std::string& id, unsigned data, MetaNode serializer)
-				{ context.serializeProperty(id.c_str(), data, serializer); });
+				{ context.serializeProperty(id, data, serializer); },
+				[](SerializationContext& context, const std::string& id, Entity e, MetaNode serializer)
+				{ context.serializeWeak(id, e, e.getInstantiation()->getSerialIdentifier(), serializer); });
 
 
-            state.registerUsertype<DeserializationContext>("DeserializationContext");
+			script::Usertype<DeserializationContext> deserializationContextType = state.registerUsertype<DeserializationContext>("DeserializationContext");
+			deserializationContextType["deserializeString"] = [](DeserializationContext& context, const std::string& id, MetaNode deserializer)
+																{ return deserializer.getAttribute<std::string>(id); };
+			deserializationContextType["deserializeBool"] = [](DeserializationContext& context, const std::string& id, MetaNode deserializer)
+																{ return deserializer.getAttribute<bool>(id); };
+			deserializationContextType["deserializeInt"] = [](DeserializationContext& context, const std::string& id, MetaNode deserializer)
+																{ return deserializer.getAttribute<int>(id); };
+			deserializationContextType["deserializeFloat"] = [](DeserializationContext& context, const std::string& id, MetaNode deserializer)
+																{ return deserializer.getAttribute<float>(id); };
+			deserializationContextType["deserializeFloat"] = [](DeserializationContext& context, const std::string& id, MetaNode deserializer)
+																{ return context.; };
 
 
 			script::Usertype<MetaMap> metaMapType = state.registerUsertype<MetaMap>("MetaMap", sol::constructors<MetaMap(), MetaMap(const std::string id)>());

@@ -109,11 +109,6 @@ namespace ungod
         mTranscendent = transcendent;
     }
 
-    State::~State()
-    {
-        closeState();
-    }
-
 
 
     StateManager::StateManager(Application& app) : mApp(&app), mStates() {}
@@ -274,5 +269,11 @@ namespace ungod
         if (res != mHash.end())
             return res->second.get();
         return nullptr;
+    }
+
+    StateManager::~StateManager()
+    {
+        for (const auto& p : mHash)
+            p.second->closeState();
     }
 }

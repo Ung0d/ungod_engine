@@ -57,6 +57,8 @@ namespace ungod
         mParentChildHandler(*this),
         mRenderLight(true)
     {
+        //register instantiations for deserialization
+        registerTypes(*this);
     }
 
 
@@ -71,9 +73,6 @@ namespace ungod
         mSoundHandler.init(master.getApp().getSoundProfileManager(), mListener.get());
         mTileMapHandler.init(*this);
         mWaterHandler.init(*this);
-
-        //register instantiations for deserialization
-        registerTypes(*this);
 
         //connect signals
         mVisualsHandler.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)

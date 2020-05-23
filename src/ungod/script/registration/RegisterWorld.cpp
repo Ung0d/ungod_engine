@@ -25,30 +25,12 @@
 
 #include "ungod/script/registration/RegisterWorld.h"
 #include "ungod/content/EntityTypes.h"
-#include "ungod/script/registration/RegistrationDetail.h"
-#include "ungod/script/registration/RegisterWorldGraph.h"
-#include "ungod/script/registration/RegisterAsset.h"
-#include "ungod/script/registration/RegisterAudio.h"
-#include "ungod/script/registration/RegisterBehavior.h"
-#include "ungod/script/registration/RegisterCollision.h"
-#include "ungod/script/registration/RegisterInput.h"
-#include "ungod/script/registration/RegisterLight.h"
-#include "ungod/script/registration/RegisterMovement.h"
-#include "ungod/script/registration/RegisterSerialization.h"
-#include "ungod/script/registration/RegisterTransform.h"
-#include "ungod/script/registration/RegisterUtility.h"
-#include "ungod/script/registration/RegisterVisuals.h"
-#include "ungod/script/registration/RegistrationDetail.h"
-#include "ungod/script/registration/RegisterEntity.h"
-#include "ungod/script/registration/RegisterParticleSystem.h"
-#include "ungod/script/registration/RegisterParentChild.h"
-#include "ungod/application/Application.h"
 
 namespace ungod
 {
     namespace scriptRegistration
     {
-        void registerWorld(ScriptStateBase& state, Application& app)
+        void registerWorld(ScriptStateBase& state)
         {
 			script::Usertype<World> worldType = state.registerUsertype<World>("World");
             // Factory methods to produce single entities.

@@ -71,8 +71,9 @@ namespace ungod
 
         world.onEntityCreation([this](Entity e) { entityCreation(e); });
         world.onEntityDestruction([this](Entity e) { entityDestruction(e); });
-        world.onEntitySerialized([this](Entity e, MetaNode serializer, SerializationContext& context) { callbackInvoker(ON_SERIALIZED, e, serializer, context); });
-        world.onEntityDeserialized([this](Entity e, MetaNode deserializer, DeserializationContext& context) { callbackInvoker(ON_DESERIALIZED, e, deserializer, context); });
+
+        world.onEntitySerialized([this](Entity e, MetaNode serializer, SerializationContext& context) { entitySerialized(e, serializer, context); };
+        world.onEntityDeserialized([this](Entity e, MetaNode deserializer, DeserializationContext& context) { entityDeserialized(e, deserializer, context); };
 
         world.getState()->getApp().getInputManager().onDown([this](const std::string& binding) { buttonDown(binding); });
         world.getState()->getApp().getInputManager().onReleased([this](const std::string& binding) { buttonReleased(binding); });
@@ -287,6 +288,42 @@ namespace ungod
             {
                 behavior.mBehavior->execute(ON_BUTTON_RELEASED, binding);
             }
+        }
+    }
+
+    void EntityBehaviorHandler::entitySerialized(Entity e, MetaNode serializer, SerializationContext& context)
+    {
+        if (e.has<EntityBehaviorComponent>() && e.modify<EntityBehaviorComponent>().mBehavior)
+        {
+            auto ebNode = serializer.firstNode(SerialIdentifier<EntityBehaviorComponent>::get().c_str());
+            if (ebNode)
+            {
+                auto userdataNode = ebNode.firstNode("userdata");
+                if (userdataNode)
+                    e.modify<EntityBehaviorComponent>().mBehavior->execute(ON_SERIALIZED, userdataNode, context);
+                else
+                    Logger::error("Can not find userdata node. The safe file might be corrupted.");
+            }
+            else
+                Logger::error("Can not find entity behavior component node. The safe file might be corrupted.");
+        }
+    }
+
+    void EntityBehaviorHandler::entityDeserialized(Entity e, MetaNode deserializer, DeserializationContext& context)
+    {
+        if (e.has<EntityBehaviorComponent>() && e.modify<EntityBehaviorComponent>().mBehavior)
+        {
+            auto ebNode = deserializer.firstNode(SerialIdentifier<EntityBehaviorComponent>::get().c_str());
+            if (ebNode)
+            {
+                auto userdataNode = ebNode.firstNode("userdata");
+                if (userdataNode)
+                    e.modify<EntityBehaviorComponent>().mBehavior->execute(ON_DESERIALIZED, userdataNode, context);
+                else
+                    Logger::error("Can not find userdata node. The safe file might be corrupted.");
+            }
+            else
+                Logger::error("Can not find entity behavior component node. The safe file might be corrupted.");
         }
     }
 
