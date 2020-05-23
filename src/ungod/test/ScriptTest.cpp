@@ -256,101 +256,33 @@ BOOST_AUTO_TEST_CASE( input_script_test )
     using namespace ungod;
 
     {
-    ScriptedMenuState menustate(EmbeddedTestApp::getApp(), 0, "test_data/input_test.lua");
+        ScriptedMenuState menustate(EmbeddedTestApp::getApp(), 0, "test_data/input_test.lua");
 
-    menustate.init();
+        menustate.init();
 
-    auto check = menustate.getEnvironment().get<Optional<bool>>("check");
-    auto check2 = menustate.getEnvironment().get<Optional<bool>>("check2");
+        auto check = menustate.getEnvironment().get<Optional<bool>>("check");
+        auto check2 = menustate.getEnvironment().get<Optional<bool>>("check2");
 
-    BOOST_REQUIRE(check);
-    BOOST_REQUIRE(!(*check));
-    BOOST_REQUIRE(check2);
-    BOOST_REQUIRE(!(*check2));
+        BOOST_REQUIRE(check);
+        BOOST_REQUIRE(!(*check));
+        BOOST_REQUIRE(check2);
+        BOOST_REQUIRE(!(*check2));
 
-    //emulate key press events
-    sf::Event event;
-    event.type = sf::Event::KeyPressed;
-    event.key.code = sf::Keyboard::A;
-    menustate.handleEvent(event);
+        //emulate key press events
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        menustate.update(20.0f);
 
-    check = menustate.getEnvironment().get<Optional<bool>>("check");
+        check = menustate.getEnvironment().get<Optional<bool>>("check");
 
-    BOOST_REQUIRE(check);
-    BOOST_REQUIRE(*check);
+        BOOST_REQUIRE(check);
+        BOOST_REQUIRE(*check);
 
-    event.type = sf::Event::KeyReleased;
-    event.key.code = sf::Keyboard::A;
-    menustate.handleEvent(event);
+        menustate.close();
 
-    check2 = menustate.getEnvironment().get<Optional<bool>>("check2");
+        check2 = menustate.getEnvironment().get<Optional<bool>>("check2");
 
-    BOOST_REQUIRE(check2);
-    BOOST_REQUIRE(*check2);
-    }
-	
-    {
-        /*ScriptedGameState gamestate(EmbeddedTestApp::getApp(), 0, "test_data/input_test2.lua");
-
-        gamestate.init();
-
-        auto hovered = gamestate.getEnvironment().get<Optional<bool>>("hovered");
-        auto exit = gamestate.getEnvironment().get<Optional<bool>>("exit");
-        auto click = gamestate.getEnvironment().get<Optional<bool>>("click");
-        auto release = gamestate.getEnvironment().get<Optional<bool>>("release");
-
-        BOOST_REQUIRE(hovered);
-        BOOST_REQUIRE(!(*hovered));
-        BOOST_REQUIRE(exit);
-        BOOST_REQUIRE(!(*exit));
-        BOOST_REQUIRE(click);
-        BOOST_REQUIRE(!(*click));
-        BOOST_REQUIRE(release);
-        BOOST_REQUIRE(!(*release));
-
-        sf::Event event;
-        event.type = sf::Event::MouseMoved;
-        event.mouseMove.x = 45;
-        event.mouseMove.y = 45;
-		gamestate.update(20.0f);
-        gamestate.handleEvent(event);
-
-        hovered = gamestate.getEnvironment().get<Optional<bool>>("hovered");
-
-        BOOST_REQUIRE(hovered);
-        BOOST_REQUIRE(*hovered);
-
-        event.type = sf::Event::MouseButtonPressed;
-        event.mouseButton.x = 45;
-        event.mouseButton.y = 45;
-        event.mouseButton.button = sf::Mouse::Left;
-        gamestate.handleEvent(event);
-
-        click = gamestate.getEnvironment().get<Optional<bool>>("click");
-
-        BOOST_REQUIRE(click);
-        BOOST_REQUIRE(*click);
-
-        event.type = sf::Event::MouseButtonPressed;
-        event.mouseButton.x = 5;
-        event.mouseButton.y = 5;
-        event.mouseButton.button = sf::Mouse::Left;
-        gamestate.handleEvent(event);
-
-        release = gamestate.getEnvironment().get<Optional<bool>>("release");
-
-        BOOST_REQUIRE(release);
-        BOOST_REQUIRE(*release);
-
-        event.type = sf::Event::MouseMoved;
-        event.mouseMove.x = 5;
-        event.mouseMove.y = 5;
-        gamestate.handleEvent(event);
-
-        exit = gamestate.getEnvironment().get<Optional<bool>>("exit");
-
-        BOOST_REQUIRE(exit);
-        BOOST_REQUIRE(*exit);*/
+        BOOST_REQUIRE(check2);
+        BOOST_REQUIRE(*check2);
     }
 }
 

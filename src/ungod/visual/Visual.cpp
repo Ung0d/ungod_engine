@@ -194,6 +194,11 @@ namespace ungod
           });
     }
 
+    void VisualsHandler::waitForLoading(Entity e)
+    {
+        e.modify<VisualsComponent>().mImage.getWait();
+    }
+
     void VisualsHandler::loadTexture(VisualsComponent& visuals, const std::string& imageID, const LoadPolicy policy)
     {
         visuals.mImage.load(imageID, policy);

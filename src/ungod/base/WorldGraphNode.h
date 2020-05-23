@@ -47,7 +47,8 @@ namespace ungod
     {
      friend struct SerialBehavior<WorldGraphNode>;
     friend struct DeserialBehavior<WorldGraphNode>;
-    constexpr static float DEFAULT_SIZE = 1000.0f;
+    public:
+        constexpr static float DEFAULT_SIZE = 1000.0f;
     public:
         WorldGraphNode(WorldGraph& wg, unsigned index, ScriptedGameState& gamestate, const std::string& identifier = {}, const std::string& datafile = {});
 
@@ -63,10 +64,10 @@ namespace ungod
         sf::FloatRect getBounds() const;
 
         /** \brief Adds a new world to position i of the layer stack. */
-        World* addWorld(unsigned i);
+        World* addWorld(unsigned i, bool init = true);
 
         /** \brief Adds a new world to the end of the layer stack. */
-        World* addWorld();
+        World* addWorld(bool init = true);
 
         /** \brief Returns a pointer to the world at position i of the layer stack. */
         World* getWorld(unsigned i) const;
@@ -126,6 +127,13 @@ namespace ungod
 
         inline sf::Vector2f getSize() const { return{ mBounds.width, mBounds.height }; }
 
+        /**  \brief Waits for the node to load, if loading is currently in process. */
+        void wait();
+
+        void setSaveContents(bool save) { mSaveContents = save; }
+
+        ~WorldGraphNode();
+
     private:
         WorldGraph& mWorldGraph;
         unsigned mIndex;
@@ -137,6 +145,7 @@ namespace ungod
         std::string mIdentifier;
         std::string mDataFile;
         sf::FloatRect mBounds;
+        bool mSaveContents;
 
     private:
         // if loading is currently in progress, attempts to init the loaded render layers if ready returning success

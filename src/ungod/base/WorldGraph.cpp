@@ -212,16 +212,15 @@ namespace ungod
     WorldGraphNode& WorldGraph::createNode(ScriptedGameState& gamestate, const std::string& identifier, const std::string& datafile)
     {
         mNodes.emplace_back(std::make_unique<WorldGraphNode>(*this, (unsigned)mNodes.size(), gamestate, identifier, datafile));
+        mAdjacencies.setVertexCount((unsigned)mAdjacencies.getVertexCount() + 1);
         notifyBoundsChanged(mNodes.back().get());
-        mAdjacencies.setVertexCount((unsigned)mAdjacencies.getVertexCount()+1);
-        updateReferencePosition(mReferencePosition, false);
         return *mNodes.back();
     }
 
     void WorldGraph::save(const ScriptedGameState& gamestate) const
     {
-		for (const auto& i : mCurrentNeighborhood)
-			mNodes[i]->save();
+        for (const auto& i : mCurrentNeighborhood)
+            mNodes[i]->save();
     }
 
     void WorldGraph::notifyBoundsChanged(WorldGraphNode* node)
@@ -268,6 +267,8 @@ namespace ungod
         if (left != qtBounds.position.x || top != qtBounds.position.y || width != qtBounds.size.x || height != qtBounds.size.y)
             mWorldQT.setBoundary({left, top, width, height});
 		mWorldQT.insert(node);
+
+        updateReferencePosition(mReferencePosition, false);
     }
 
     void WorldGraph::checkOutOfBounds()
@@ -332,29 +333,44 @@ namespace ungod
     }
 
 
+    void WorldGraph::unloadAll()
+    {
+        for (const auto& i : mCurrentNeighborhood)
+            mNodes[i]->unload();
+        mCurrentNeighborhood.clear();
+        mActive = -1;
+    }
+
+
 
     void SerialBehavior<WorldGraph>::serialize(const WorldGraph& data, MetaNode serializer, SerializationContext& context)
     {
-        context.serializeObjectContainer<WorldGraphNode>("nodes", [&data] (std::size_t i) -> const WorldGraphNode& { return *data.mNodes[i]; }, data.mNodes.size(), serializer);
         context.serializeObject("graph", data.mAdjacencies, serializer);
         context.serializeObject("cam", data.mCamera, serializer);
+        context.serializeProperty("refX", data.mReferencePosition.x, serializer);
+        context.serializeProperty("refY", data.mReferencePosition.y, serializer);
+        context.serializeObjectContainer<WorldGraphNode>("nodes", [&data](std::size_t i) -> const WorldGraphNode& { return *data.mNodes[i]; }, data.mNodes.size(), serializer);
     }
 
 
     void DeserialBehavior<WorldGraph, ScriptedGameState&>::deserialize(WorldGraph& data, MetaNode deserializer, DeserializationContext& context, ScriptedGameState& gamestate)
     {
-        MetaAttribute attr = context.first(context.deserializeObjectContainer<WorldGraphNode>(
-                        [&data, &gamestate](std::size_t num)
-                        {
-                            data.mNodes.reserve(num);
-                            for (unsigned i = 0; i < num; i++)
-                                data.mNodes.emplace_back(std::make_unique<WorldGraphNode>(data, i, gamestate));
-                        },
-                        [&data](std::size_t i) ->WorldGraphNode& {return *data.mNodes[i];}),
-                            "nodes", deserializer);
-		for (const auto& n : data.mNodes)
-			data.notifyBoundsChanged(n.get());
-        attr = context.next(context.deserializeObject(data.mAdjacencies), "graph", deserializer, attr); 
-        context.next(context.deserializeObject(data.mCamera, static_cast<sf::RenderTarget&>(gamestate.getApp().getWindow())), "cam", deserializer, attr);
+        MetaAttribute attr = context.first(context.deserializeObject(data.mAdjacencies), "graph", deserializer);
+        attr = context.next(context.deserializeObject(data.mCamera, static_cast<sf::RenderTarget&>(gamestate.getApp().getWindow())), "cam", deserializer, attr);
+        sf::Vector2f ref;
+        attr = context.next(context.deserializeProperty(ref.x, 0.0f), "refX", deserializer, attr);
+        attr = context.next(context.deserializeProperty(ref.y, 0.0f), "refY", deserializer, attr);
+        data.updateReferencePosition(ref);
+        attr = context.next(context.deserializeObjectContainer<WorldGraphNode>(
+            [&data, &gamestate](std::size_t num)
+            {
+                data.mNodes.reserve(num);
+                for (unsigned i = 0; i < num; i++)
+                    data.mNodes.emplace_back(std::make_unique<WorldGraphNode>(data, i, gamestate));
+            },
+            [&data](std::size_t i) ->WorldGraphNode& {return *data.mNodes[i]; }),
+            "nodes", deserializer, attr);
+        for (const auto& n : data.mNodes)
+            data.notifyBoundsChanged(n.get());
     }
 }

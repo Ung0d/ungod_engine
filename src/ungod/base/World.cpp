@@ -391,6 +391,7 @@ namespace ungod
 		for (const auto& e : fullpull.getList())
 			if (e)
 				destroy(e);
+        destroyQueued();
 	}
 
     void World::destroyQueued()

@@ -93,7 +93,7 @@ namespace ungod
         /** \brief Removes the connection between n1 and n2 if it exists. */
         void disconnect(WorldGraphNode& n1, WorldGraphNode& n2);
 
-        /** \brief Creates a new, empty node and returns a reference to it. */
+        /** \brief Creates a new, empty node with default bounds and returns a reference to it. */
         WorldGraphNode& createNode(ScriptedGameState& gamestate, const std::string& identifier, const std::string& datafile);
 
         unsigned getDistance() const { return mDistance; }
@@ -132,6 +132,8 @@ namespace ungod
         Camera& getCamera() { return mCamera; }
         const Camera& getCamera() const { return mCamera; }
 
+        /** \brief Unloads all active nodes */
+        void unloadAll();
 
     private:
         int mActive;

@@ -42,9 +42,12 @@ namespace ungod
         mLayers(), 
         mIdentifier(identifier), 
         mDataFile(datafile),
-        mBounds(0.0f, 0.0f, 0.0f, 0.0f)
+        mBounds(0.0f, 0.0f, 0.0f, 0.0f),
+        mSaveContents(true)
     {
-        setSize({ DEFAULT_SIZE , DEFAULT_SIZE });
+        mBounds.width = DEFAULT_SIZE;
+        mBounds.height = DEFAULT_SIZE;
+        mLayers.setSize({ DEFAULT_SIZE , DEFAULT_SIZE });
     }
 
     void WorldGraphNode::load()
@@ -56,7 +59,6 @@ namespace ungod
 
     void WorldGraphNode::unload()
     {
-        mData.getWait(); //wait if loading is not ready
         save();
         mLayers.clearEverything();
         mIsLoaded = false;
@@ -65,6 +67,9 @@ namespace ungod
 
 	void WorldGraphNode::save()
 	{
+        wait();
+        if (!mSaveContents)
+            return;
 		SerializationContext context;
 		context.serializeRootObject(mLayers);
 		context.save(mDataFile);
@@ -75,14 +80,17 @@ namespace ungod
 		return mBounds;
 	}
 
-    World* WorldGraphNode::addWorld(unsigned i)
+    World* WorldGraphNode::addWorld(unsigned i, bool init)
     {
-        return static_cast<World*>(mLayers.registerLayer(RenderLayerPtr{ new World(*this) }, i));
+        World* world = new World(*this);
+        if (init)
+            world->init(mGamestate);
+        return static_cast<World*>(mLayers.registerLayer(RenderLayerPtr{ world }, i));
     }
 
-    World* WorldGraphNode::addWorld()
+    World* WorldGraphNode::addWorld(bool init)
     {
-        return addWorld((unsigned)mLayers.getVector().size());
+        return addWorld((unsigned)mLayers.getVector().size(), init);
     }
 
     World* WorldGraphNode::getWorld(unsigned i) const
@@ -170,19 +178,36 @@ namespace ungod
         return position - getPosition() + mWorldGraph.getActiveNode()->getPosition();
     }
 
+    void WorldGraphNode::wait() 
+    {
+        while (mLoadingInProcess)
+            mLoadingInProcess = !tryInit();
+    }
+
+    WorldGraphNode::~WorldGraphNode()
+    {
+        while (mData.isLoading())
+            continue;
+    }
+
     bool WorldGraphNode::tryInit()
     {
-        if (mData.isLoaded())
+        if (!mData.isLoading())
         {
-            mIsLoaded = true;
-            //init loaded worlds
-            for (unsigned i = 0; i < mData.get().container.getVector().size(); i++)
+            if (mData.isLoaded())
             {
-                World* world = static_cast<World*>(mLayers.registerLayer(mData.get().container.getVector()[i].first, mLayers.getVector().size()));
-                world->init(mGamestate, &mData.get().memory);
+                mIsLoaded = true;
+                //init loaded worlds
+                for (unsigned i = 0; i < mData.get().container.getVector().size(); i++)
+                {
+                    World* world = static_cast<World*>(mLayers.registerLayer(mData.get().container.getVector()[i].first, mLayers.getVector().size()));
+                    world->init(mGamestate, &mData.get().memory);
+                }
+                mData.drop(); //we can drop the asset, it is no longer required
+                Logger::info("Loaded node:", getIdentifier());
             }
-            mData.drop(); //we can drop the asset, it is no longer required
-            Logger::info("Loaded node:", getIdentifier());
+            else
+                Logger::info("Failed to load node:", getIdentifier());
             return true;
         }
         else
@@ -207,8 +232,12 @@ namespace ungod
 			{"id", ""}, {"file", ""}, { "x", 0.0f }, { "y", 0.0f }, { "w", 0.0f }, { "h", 0.0f });
         data.mIdentifier = std::get<0>(result);
         data.mDataFile = std::get<1>(result);
-		data.setPosition({ std::get<2>(result) , std::get<3>(result) });
-		data.setSize({ std::get<4>(result) , std::get<5>(result) });
+        data.mBounds.left = std::get<2>(result);
+        data.mBounds.top = std::get<3>(result);
+        sf::Vector2f size{ std::get<4>(result) , std::get<5>(result) };
+        data.mBounds.width = size.x;
+        data.mBounds.height = size.y;
+        data.mLayers.setSize(size);
     }
 }
 

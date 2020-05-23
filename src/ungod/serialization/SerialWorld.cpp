@@ -35,10 +35,14 @@ namespace ungod
         SerialBehavior<RenderLayer>::serialize(data, serializer, context);
 
         quad::Bounds bounds = data.mQuadTree.getBoundary();
-        context.serializeProperty("ambient_light_r", data.getLightHandler().getAmbientColor().r, serializer);
-        context.serializeProperty("ambient_light_g", data.getLightHandler().getAmbientColor().g, serializer);
-        context.serializeProperty("ambient_light_b", data.getLightHandler().getAmbientColor().b, serializer);
-        context.serializeProperty("ambient_light_a", data.getLightHandler().getAmbientColor().a, serializer);
+        if (data.getLightHandler().getAmbientColor().r != 255)
+            context.serializeProperty("ambient_light_r", data.getLightHandler().getAmbientColor().r, serializer);
+        if (data.getLightHandler().getAmbientColor().r != 255)
+            context.serializeProperty("ambient_light_g", data.getLightHandler().getAmbientColor().g, serializer);
+        if (data.getLightHandler().getAmbientColor().r != 255)
+            context.serializeProperty("ambient_light_b", data.getLightHandler().getAmbientColor().b, serializer);
+        if (data.getLightHandler().getAmbientColor().r != 255)
+            context.serializeProperty("ambient_light_a", data.getLightHandler().getAmbientColor().a, serializer);
 
         quad::PullResult<Entity> contentPull;
         data.mQuadTree.getContent(contentPull);

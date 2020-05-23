@@ -298,6 +298,9 @@ namespace ungod
          { loadTexture(e.modify<VisualsComponent>(), imageID, callback); }
         void loadTexture(VisualsComponent& visuals, const std::string& imageID, std::function<void(VisualsComponent&)> callback);
 
+        /** \brief Waits for the loading of the image of the given entity. */
+        void waitForLoading(Entity e);
+
         /** \brief Initializes sync or async loading of the internal texture. */
         inline void loadTexture(Entity e, const std::string& imageID, const LoadPolicy policy = LoadPolicy::SYNC)
         { loadTexture(e.modify<VisualsComponent>(), imageID, policy); }

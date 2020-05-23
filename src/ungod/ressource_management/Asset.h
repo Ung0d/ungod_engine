@@ -74,6 +74,9 @@ namespace ungod
         /** \brief Loads a new asset data and drops the old one (if the asset was non-empty). */
         void load(const std::string filePath, const LoadPolicy policy, PARAM&& ... param);
 
+        /** \brief Returns true if and only if async loading is currently in process. */
+        bool isLoading() const;
+
         /**
         * \brief Drops the loaded asset. Decrements reference count and may unload the asset.
         */
@@ -188,6 +191,12 @@ namespace ungod
         if (mData)
             handler->drop(mData, this);
         mData = handler->getData(filePath, policy, std::forward<PARAM>(param)... );
+    }
+
+    template <typename T, typename ... PARAM>
+    bool Asset<T, PARAM...>::isLoading() const
+    {
+        return mData && mData->future.wait_for(std::chrono::seconds(0)) != std::future_status::ready;
     }
 
     template <typename T, typename ... PARAM>

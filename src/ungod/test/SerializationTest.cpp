@@ -120,8 +120,9 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
         sf::RenderWindow window;
         ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 		ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+        node.setSaveContents(false);
 		node.setSize({ 800,600 });
-		ungod::World* world = node.addWorld();
+		ungod::World* world = node.addWorld(false);
 
         typedef ungod::BaseComponents<ungod::SoundEmitterComponent, ungod::TransformComponent> Base1;
         typedef ungod::OptionalComponents<> Opt1;
@@ -183,22 +184,30 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
 		node2.setSize({ 1600, 1200 });
 		node2.setPosition({ 1600, 0 });
 
-		/*ungod::World* world1 = node.addWorld(); //only use for test reset, dont generate new worlds AND load existing files
-		ungod::World* world2 = node.addWorld(); //only use for test reset, dont generate new worlds AND load existing files
-		node.save();
-		node2.save(); */
+        node.wait();
 
-        BOOST_CHECK(!node.isLoaded());
+        BOOST_CHECK(node.isLoaded());
 		BOOST_CHECK(!node2.isLoaded());
 
 		state.getWorldGraph().connect(node, node2);
 
-		BOOST_CHECK(state.getWorldGraph().updateReferencePosition({ 1000.0f,1000.0f })); //pos in node1
+        node2.wait();
+
 		BOOST_CHECK(node.isLoaded());
 		BOOST_CHECK(node2.isLoaded());
 
-		ungod::World* world1 = node.getWorld(0);
-		ungod::World* world2 = node.getWorld(1);
+        ungod::World* world1;
+        ungod::World* world2;
+        if (node.getNumWorld() == 0) //reset case if files are deleted
+        {
+            world1 = node.addWorld();
+            world2 = node.addWorld();
+        }
+        else
+        {
+            world1 = node.getWorld(0);
+            world2 = node.getWorld(1);
+        }
 
 		BOOST_REQUIRE(world1);
 		BOOST_REQUIRE(world2);
@@ -215,12 +224,13 @@ BOOST_AUTO_TEST_CASE( serializsation_test )
         ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
         state.load("test_output/renderlayers_state_sav.xml");
 
-		BOOST_CHECK(state.getWorldGraph().updateReferencePosition({ 1000.0f,1000.0f }));
 		ungod::WorldGraphNode* node = state.getWorldGraph().getNode(sf::Vector2f{ 1000.0f,1000.0f });
 		BOOST_REQUIRE(node);
+        node->wait();
         BOOST_CHECK(node->isLoaded());
 		ungod::WorldGraphNode* node2 = state.getWorldGraph().getNode(sf::Vector2f{ 2000.0f,1000.0f });
 		BOOST_REQUIRE(node2);
+        node2->wait();
 		BOOST_CHECK(node2->isLoaded());
 
         ungod::World* world = node->getWorld(0);
@@ -243,6 +253,7 @@ BOOST_AUTO_TEST_CASE(serial_colliders_test)
 		sf::RenderWindow window;
 		ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 		ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+        node.setSaveContents(false);
 		node.setSize({ 800,600 });
 		ungod::World* world = node.addWorld();
 		ungod::Entity e_rect = world->create(Base(), Opt()); world->addEntity(e_rect);
@@ -259,8 +270,6 @@ BOOST_AUTO_TEST_CASE(serial_colliders_test)
 								{ { 100.0f, 130.0f }, { 200.0f, 300.0f }, { 200.0f, 600.0f } });
 		world->getMovementRigidbodyHandler().addEdgeChain(e_edge,
 								{ { 100.0f, 130.0f }, { 200.0f, 300.0f }, { 200.0f, 600.0f } });
-		/*world->getMovementRigidbodyManager().addCircle(e_circ,
-								{ 100.0f, 130.0f }, 50.0f);*/
 		ungod::SerializationContext context;
 		context.serializeRootObject(*world);
 		context.save("test_output/colliders_serial_world_sav.xml");
@@ -269,6 +278,7 @@ BOOST_AUTO_TEST_CASE(serial_colliders_test)
 		sf::RenderWindow window;
 		ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 		ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+        node.setSaveContents(false);
 		node.setSize({ 800,600 });
 		ungod::World* world = node.addWorld();
 		world->registerInstantiation(Base(), Opt());
@@ -322,13 +332,6 @@ BOOST_AUTO_TEST_CASE(serial_colliders_test)
 		BOOST_CHECK_EQUAL(psa2.getPointY(1), 300.0f);
 		BOOST_CHECK_EQUAL(psa2.getPointX(2), 200.0f);
 		BOOST_CHECK_EQUAL(psa2.getPointY(2), 600.0f);
-
-		/*BOOST_REQUIRE_EQUAL(static_cast<std::underlying_type_t<ungod::ColliderType>>(e_circ.get<ungod::RigidbodyComponent<>>().getCollider().getType()),
-			static_cast<std::underlying_type_t<ungod::ColliderType>>(ungod::ColliderType::CIRCLE));
-		ungod::CircleConstAggregator ca{ e_circ.get<ungod::RigidbodyComponent<>>().getCollider() };
-		BOOST_CHECK_EQUAL(ca.getCenterX(), 100.0f);
-		BOOST_CHECK_EQUAL(ca.getCenterY(), 130.0f);
-		BOOST_CHECK_EQUAL(ca.getRadius(), 50.0f);*/
 	}
 }
 
@@ -341,12 +344,12 @@ BOOST_AUTO_TEST_CASE( serial_graph_test )
 {
     {
         //(de)serialize this graph
-        /*
-        *   a --2-- b --1-- c ---2-- d -1-- e
-        *     \      \          ____/
-        *    2 \    2 \   __9__/
-        *       f -1-- g /
-        */
+        //
+        //   a --2-- b --1-- c ---2-- d -1-- e
+        //    \      \          ____/
+        //    2 \    2 \   __9__/
+        //       f -1-- g /
+        
 
         std::vector<ungod::graph::EdgeInstantiator> edges = { {0,1}, {1,2}, {2,3}, {3,4}, {0,5}, {1,6}, {5,6}, {6,3} };
 

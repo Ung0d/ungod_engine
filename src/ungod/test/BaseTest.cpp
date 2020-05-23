@@ -10,22 +10,13 @@
 
 BOOST_AUTO_TEST_SUITE(BaseTest)
 
-struct T
-{
-	std::future<void> f;
-};
-
-void load(std::weak_ptr<T> w)
-{
-
-};
-
 
 BOOST_AUTO_TEST_CASE(iterate_over_component_test)
 {
 	ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
-	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
-	node.setSize({ 800,600 });
+    ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+    node.setSaveContents(false); //do not serialize any changes we make to this node
+    node.setSize({ 800,600 });
 	ungod::World* world = node.addWorld();
 	std::list<ungod::Entity> entities;
 	world->create(ungod::BaseComponents<ungod::TransformComponent>(), 
@@ -45,12 +36,14 @@ BOOST_AUTO_TEST_CASE( asset_image_test )
 {
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+    node.setSaveContents(false); //do not serialize any changes we make to this node
 	node.setSize({800,600});
 	ungod::World* world = node.addWorld();
 	ungod::Entity e = world->create(ungod::BaseComponents<ungod::TransformComponent, ungod::VisualsComponent>(), ungod::OptionalComponents<>());
 	BOOST_CHECK(e);
     world->getVisualsHandler().loadTexture(e, "test_data/test_sheet.png", ungod::LoadPolicy::ASYNC);
-	//BOOST_CHECK(e.get<ungod::VisualsComponent>().isLoaded());
+    world->getVisualsHandler().waitForLoading(e);
+	BOOST_CHECK(e.get<ungod::VisualsComponent>().isLoaded());
 	world->destroy(e); //queue entity for destruction
 	world->update(20.0f, {}, {}); //destroys entity in queue
 }
@@ -59,6 +52,7 @@ BOOST_AUTO_TEST_CASE( transform_system_test )
 {
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+    node.setSaveContents(false); //do not serialize any changes we make to this node
 	node.setSize({ 800,600 });
 	ungod::World* world = node.addWorld();
     ungod::Entity e1 = world->create(ungod::BaseComponents<ungod::TransformComponent>(), ungod::OptionalComponents<>());
@@ -87,11 +81,11 @@ BOOST_AUTO_TEST_CASE( transform_system_test )
 	world->destroy(e2); //queue entity for destruction
 	world->update(20.0f, {}, {}); //destroys entity in queue
 }
-
 BOOST_AUTO_TEST_CASE( movement_system_test )
 {
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+    node.setSaveContents(false); //do not serialize any changes we make to this node
 	node.setSize({ 800,600 });
 	ungod::World* world = node.addWorld();
     ungod::Entity e1 = world->create(ungod::BaseComponents<ungod::TransformComponent, ungod::MovementComponent>(), ungod::OptionalComponents<>());
@@ -107,6 +101,7 @@ BOOST_AUTO_TEST_CASE( render_system_test )
 {
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+    node.setSaveContents(false); //do not serialize any changes we make to this node
 	node.setSize({ 800,600 });
 	ungod::World* world = node.addWorld();
     ungod::Entity e = world->create(ungod::BaseComponents<ungod::TransformComponent, ungod::VisualsComponent>(), ungod::OptionalComponents<>());
@@ -226,12 +221,12 @@ BOOST_AUTO_TEST_CASE( metadata_test )
 BOOST_AUTO_TEST_CASE( graph_test )
 {
     //test this graph
-    /*
-    *   a --2-- b --1-- c ---2-- d -1-- e
-    *     \      \          ____/
-    *    2 \    2 \   __9__/
-    *       f -1-- g /
-    */
+    //
+    //   a --2-- b --1-- c ---2-- d -1-- e
+    //     \      \          ____/
+    //    2 \    2 \   __9__/
+    //       f -1-- g /
+    //
 
     std::vector<ungod::graph::EdgeInstantiator> edges = { {0,1}, {1,2}, {2,3}, {3,4}, {0,5}, {1,6}, {5,6}, {6,3} };
     std::vector< float > weights = {2,1,1,1,2,2,1,9};
@@ -323,6 +318,7 @@ BOOST_AUTO_TEST_CASE( component_signal_test )
 
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+    node.setSaveContents(false); //do not serialize any changes we make to this node
 	node.setSize({ 800,600 });
 	ungod::World* world = node.addWorld();
     world->onComponentAdded<ungod::TransformComponent>([&transfAdded] (ungod::Entity e) { transfAdded = true; });
@@ -349,6 +345,7 @@ BOOST_AUTO_TEST_CASE( entity_copy_test )
 {
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+    node.setSaveContents(false); //do not serialize any changes we make to this node
 	node.setSize({ 8000,6000 });
 	ungod::World* world = node.addWorld();
     ungod::Entity e = world->create(ungod::BaseComponents<ungod::VisualsComponent, ungod::TransformComponent, ungod::SpriteMetadataComponent>(), ungod::OptionalComponents<ungod::SpriteComponent, ungod::MovementComponent>());
@@ -381,6 +378,7 @@ BOOST_AUTO_TEST_CASE( entity_instantiation_test )
 {
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+    node.setSaveContents(false); //do not serialize any changes we make to this node
 	node.setSize({ 800,600 });
 	ungod::World* world = node.addWorld();
 
@@ -411,6 +409,7 @@ BOOST_AUTO_TEST_CASE( parent_child_test )
 {
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+    node.setSaveContents(false); //do not serialize any changes we make to this node
 	node.setSize({ 800,600 });
 	ungod::World* world = node.addWorld();
 
@@ -434,34 +433,62 @@ BOOST_AUTO_TEST_CASE( parent_child_test )
 
 BOOST_AUTO_TEST_CASE( world_graph_test )
 {
-	ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
-	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
-	ungod::World* world1 = node.addWorld();
-	ungod::World* world2 = node.addWorld();
-	BOOST_CHECK_EQUAL(0.0f, world1->getSize().x);
-	BOOST_CHECK_EQUAL(0.0f, world1->getSize().y);
-	BOOST_CHECK_EQUAL(0.0f, world2->getSize().x);
-	BOOST_CHECK_EQUAL(0.0f, world2->getSize().y);
-	node.setSize({ 800,600 });
-    state.getWorldGraph().activateNode("nodeid"); //size is now set, node can be activated
-    BOOST_CHECK_EQUAL(state.getWorldGraph().getActiveNode(), &node);
-	BOOST_CHECK_EQUAL(800.0f, node.getBounds().width);
-	BOOST_CHECK_EQUAL(600.0f, node.getBounds().height);
-	BOOST_CHECK_EQUAL(800.0f, world1->getSize().x);
-	BOOST_CHECK_EQUAL(600.0f, world1->getSize().y);
-	BOOST_CHECK_EQUAL(800.0f, world2->getSize().x);
-	BOOST_CHECK_EQUAL(600.0f, world2->getSize().y);
-	node.setPosition({ 400,400 });
-	ungod::WorldGraphNode* nodeptr = state.getWorldGraph().getNode(sf::Vector2f{ 0,0 });
-	BOOST_CHECK(!nodeptr);
-	nodeptr = state.getWorldGraph().getNode(sf::Vector2f{ 500,500 });
-	BOOST_CHECK(nodeptr);
+    constexpr int NUM_TRYS = 1;
+    for (int i = 0; i < NUM_TRYS; i++) //we can try the following a number of times to have a good chance of detecting race conditions or cpu stalls
+    {
+        ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+        ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "test_output/nodefile");
+        node.wait();
+        ungod::World* world1;
+        ungod::World* world2;
+        if (node.getNumWorld() == 0)
+        {
+            world1 = node.addWorld();
+            world2 = node.addWorld();
+        }
+        else
+        {
+            world1 = node.getWorld(0);
+            world2 = node.getWorld(1);
+        }
+        BOOST_CHECK_EQUAL(ungod::WorldGraphNode::DEFAULT_SIZE, world1->getSize().x);
+        BOOST_CHECK_EQUAL(ungod::WorldGraphNode::DEFAULT_SIZE, world1->getSize().y);
+        BOOST_CHECK_EQUAL(ungod::WorldGraphNode::DEFAULT_SIZE, world2->getSize().x);
+        BOOST_CHECK_EQUAL(ungod::WorldGraphNode::DEFAULT_SIZE, world2->getSize().y);
+        BOOST_CHECK_EQUAL(state.getWorldGraph().getActiveNode(), &node);
+        node.setSize({ 800,600 });
+        BOOST_CHECK_EQUAL(state.getWorldGraph().getActiveNode(), &node);
+        node.setPosition({ 100,100 });
+        BOOST_CHECK(!state.getWorldGraph().getActiveNode());
+        BOOST_CHECK(!node.isLoaded());
+        state.getWorldGraph().activateNode("nodeid");
+        BOOST_CHECK_EQUAL(state.getWorldGraph().getActiveNode(), &node);
+        node.wait();
+        world1 = node.getWorld(0);
+        world2 = node.getWorld(1);
+        BOOST_REQUIRE(world1);
+        BOOST_REQUIRE(world2);
+        BOOST_CHECK(node.isLoaded());
+        BOOST_CHECK_EQUAL(800.0f, node.getBounds().width);
+        BOOST_CHECK_EQUAL(600.0f, node.getBounds().height);
+        BOOST_CHECK_EQUAL(800.0f, world1->getSize().x);
+        BOOST_CHECK_EQUAL(600.0f, world1->getSize().y);
+        BOOST_CHECK_EQUAL(800.0f, world2->getSize().x);
+        BOOST_CHECK_EQUAL(600.0f, world2->getSize().y);
+        node.setPosition({ 400,400 });
+        ungod::WorldGraphNode* nodeptr = state.getWorldGraph().getNode(sf::Vector2f{ 0,0 });
+        BOOST_CHECK(!nodeptr);
+        nodeptr = state.getWorldGraph().getNode(sf::Vector2f{ 500,500 });
+        BOOST_CHECK(nodeptr);
+    }
 }
+
 
 BOOST_AUTO_TEST_CASE(copy_between_worlds_test)
 {
 	ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+    node.setSaveContents(false); //do not serialize any changes we make to this node
 	ungod::World* world1 = node.addWorld();
 	ungod::World* world2 = node.addWorld();
 	ungod::Entity e1 = world1->create(ungod::EntityBaseComponents(), ungod::EntityOptionalComponents());

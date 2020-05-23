@@ -141,6 +141,7 @@ namespace ungod
     void ScriptedGameState::close()
     {
         mScriptCallbacks.execute(ON_CLOSE, this);
+        mWorldGraph.unloadAll();
     }
 
     ScriptedGameState::~ScriptedGameState()

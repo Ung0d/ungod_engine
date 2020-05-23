@@ -33,7 +33,7 @@ namespace ungod
         void registerWorldGraph(ScriptStateBase& state)
         {
 			script::Usertype<WorldGraphNode> worldGraphNodeType = state.registerUsertype<WorldGraphNode>("WorldGraphNode");
-			worldGraphNodeType["addWorld"] = static_cast<World * (WorldGraphNode::*)()>(&WorldGraphNode::addWorld);
+			worldGraphNodeType["addWorld"] = [](WorldGraphNode& node) { return node.addWorld(); };
 			worldGraphNodeType["getWorld"] = &WorldGraphNode::getWorld;
 			worldGraphNodeType["setSize"] = &WorldGraphNode::setSize;
 			worldGraphNodeType["setPosition"] = &WorldGraphNode::setPosition;

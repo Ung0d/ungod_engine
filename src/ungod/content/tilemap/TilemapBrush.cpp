@@ -1434,8 +1434,8 @@ namespace ungod
     {
         if (id != -1)
         {
-            mTilemap->setTile(tile.id, tile.x, tile.y);
-            mChangeNotificator->notifyTileChanged(tile.id, tile.x, tile.y);
+            mTilemap->setTile(id, tile.x, tile.y);
+            mChangeNotificator->notifyTileChanged(id, tile.x, tile.y);
         }
         else
         {

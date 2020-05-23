@@ -45,6 +45,7 @@ BOOST_AUTO_TEST_CASE( collision_events_test )
 {
     ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
 	ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+	node.setSaveContents(false);
 	node.setSize({ 8000,6000 });
 	ungod::World* world = node.addWorld();
 
@@ -122,15 +123,6 @@ BOOST_AUTO_TEST_CASE( point_inside_collider_test )
 		BOOST_CHECK(!ungod::containsPoint(poly, transf, isNotInside1));
 		BOOST_CHECK(!ungod::containsPoint(poly, transf, isNotInside2));
 	}
-	/*{
-		sf::Vector2f isInside{ 10.0f, 10.0f };
-		sf::Vector2f isNotInside{ 0.0f, 0.0f };
-		ungod::Collider circle;
-		circle.initCircle({ 8.0f, 8.0f }, 6.0f);
-		ungod::TransformComponent transf;
-		BOOST_CHECK(ungod::containsPoint(circle, transf, isInside));
-		BOOST_CHECK(!ungod::containsPoint(circle, transf, isNotInside));
-	}*/
 }
 
 BOOST_AUTO_TEST_SUITE_END()
