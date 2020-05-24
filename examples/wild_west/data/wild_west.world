@@ -21,12 +21,16 @@
 			</s>
 		</Entity>
 		<T object_count="2">
-			<s t_x="0.000000" t_y="0.000000"/>
-			<s t_x="0.000000" t_y="0.000000"/>
+			<s t_x="0.000000" t_y="0.000000" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="0.000000" t_y="0.000000" baseline_x="1.000000" baseline_y="0.000000"/>
 		</T>
 		<EB object_count="2">
-			<s n="miner"/>
-			<s n="wife"/>
+			<s n="miner">
+				<userdata name="Bob"/>
+			</s>
+			<s n="wife">
+				<userdata name="Elsa" husband="Entity@0"/>
+			</s>
 		</EB>
 		<EUP object_count="2">
 			<s/>

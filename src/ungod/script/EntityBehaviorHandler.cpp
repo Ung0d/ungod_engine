@@ -26,6 +26,7 @@
 #include "EntityBehaviorHandler.h"
 #include "ungod/base/World.h"
 #include "ungod/application/Application.h"
+#include "ungod/script/SerializationScriptContext.h"
 
 namespace ungod
 {
@@ -72,8 +73,8 @@ namespace ungod
         world.onEntityCreation([this](Entity e) { entityCreation(e); });
         world.onEntityDestruction([this](Entity e) { entityDestruction(e); });
 
-        world.onEntitySerialized([this](Entity e, MetaNode serializer, SerializationContext& context) { entitySerialized(e, serializer, context); };
-        world.onEntityDeserialized([this](Entity e, MetaNode deserializer, DeserializationContext& context) { entityDeserialized(e, deserializer, context); };
+        world.onEntitySerialized([this](Entity e, MetaNode serializer, SerializationContext& context) { entitySerialized(e, serializer, context); });
+        world.onEntityDeserialized([this](Entity e, MetaNode deserializer, DeserializationContext& context) { entityDeserialized(e, deserializer, context); });
 
         world.getState()->getApp().getInputManager().onDown([this](const std::string& binding) { buttonDown(binding); });
         world.getState()->getApp().getInputManager().onReleased([this](const std::string& binding) { buttonReleased(binding); });
@@ -158,6 +159,11 @@ namespace ungod
         //track entity if it has no transform
         if (!e.has<TransformComponent>())
             mMetaEntities.emplace(e);
+    }
+
+    void EntityBehaviorHandler::initBehavior(Entity e)
+    {
+        mWorld->getState()->getEntityBehaviorManager().getBehaviorManager().initBehavior(e.modify<EntityBehaviorComponent>().mBehavior);
     }
 
     void EntityBehaviorHandler::dissociateBehavior(Entity e)
@@ -295,17 +301,10 @@ namespace ungod
     {
         if (e.has<EntityBehaviorComponent>() && e.modify<EntityBehaviorComponent>().mBehavior)
         {
-            auto ebNode = serializer.firstNode(SerialIdentifier<EntityBehaviorComponent>::get().c_str());
-            if (ebNode)
-            {
-                auto userdataNode = ebNode.firstNode("userdata");
-                if (userdataNode)
-                    e.modify<EntityBehaviorComponent>().mBehavior->execute(ON_SERIALIZED, userdataNode, context);
-                else
-                    Logger::error("Can not find userdata node. The safe file might be corrupted.");
-            }
+            if (serializer)
+                e.modify<EntityBehaviorComponent>().mBehavior->execute(ON_SERIALIZED, script::SerializationScriptContext{ context, serializer });
             else
-                Logger::error("Can not find entity behavior component node. The safe file might be corrupted.");
+                Logger::error("Invalid user data serialization node. The safe file might be corrupted.");
         }
     }
 
@@ -313,17 +312,10 @@ namespace ungod
     {
         if (e.has<EntityBehaviorComponent>() && e.modify<EntityBehaviorComponent>().mBehavior)
         {
-            auto ebNode = deserializer.firstNode(SerialIdentifier<EntityBehaviorComponent>::get().c_str());
-            if (ebNode)
-            {
-                auto userdataNode = ebNode.firstNode("userdata");
-                if (userdataNode)
-                    e.modify<EntityBehaviorComponent>().mBehavior->execute(ON_DESERIALIZED, userdataNode, context);
-                else
-                    Logger::error("Can not find userdata node. The safe file might be corrupted.");
-            }
+            if (deserializer)
+                e.modify<EntityBehaviorComponent>().mBehavior->execute(ON_DESERIALIZED, script::DeserializationScriptContext{ context, deserializer });
             else
-                Logger::error("Can not find entity behavior component node. The safe file might be corrupted.");
+                Logger::error("Invalid user data deserialization node. The safe file might be corrupted.");
         }
     }
 

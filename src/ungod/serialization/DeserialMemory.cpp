@@ -27,13 +27,13 @@
 
 namespace ungod
 {
-	void DeserialMemory::notifyDeserial(Entity e, MetaNode serializer, DeserializationContext& context)
+	void DeserialMemory::notifyDeserial(Entity e)
 	{
-		all.emplace_front(e, serializer, context);
+		all.emplace_front(e);
 	}
 
-	void  DeserialMemory::notifyScriptedEntity(Entity e, const std::string& scriptname)
+	void  DeserialMemory::notifyScriptedEntity(Entity e, const std::string& scriptname, MetaNode serializer, DeserializationContext& context)
 	{
-		scriptEntities.emplace_front(e, scriptname);
+		scriptEntities.emplace_front(e, scriptname, serializer, context);
 	}
 }

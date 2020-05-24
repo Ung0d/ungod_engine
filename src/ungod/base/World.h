@@ -427,6 +427,7 @@ namespace ungod
             Entity en(std::move(e), cb, co);
             mMaster->getEntityBehaviorManager().assignBehavior(en, script, param);
             mEntityCreationSignal(en);
+            mMaster->getEntityBehaviorManager().initBehavior(en);
             f( en );
         });
     }
@@ -446,6 +447,7 @@ namespace ungod
         Entity e(dom::Universe<>::create<BASE...>(), cb, co);
         mEntityBehaviorHandler.assignBehavior(e, script);
         mEntityCreationSignal(e);
+        mEntityBehaviorHandler.initBehavior(e);
         return e;
     }
 
@@ -455,6 +457,7 @@ namespace ungod
         Entity e(dom::Universe<>::create<BASE...>(), cb, co);
         mEntityBehaviorHandler.assignBehavior(e, script, param);
         mEntityCreationSignal(e);
+        mEntityBehaviorHandler.initBehavior(e);
         return e;
     }
 
@@ -473,6 +476,7 @@ namespace ungod
         Entity e(dom::Universe<>::create<BASE...>(), cb, OptionalComponents<>());
         mEntityBehaviorHandler.assignBehavior(e, script);
         mEntityCreationSignal(e);
+        mEntityBehaviorHandler.initBehavior(e);
         return e;
     }
 
@@ -482,6 +486,7 @@ namespace ungod
         Entity e(dom::Universe<>::create<BASE...>(), cb, OptionalComponents<>());
         mEntityBehaviorHandler.assignBehavior(e, script, param);
         mEntityCreationSignal(e);
+        mEntityBehaviorHandler.initBehavior(e);
         return e;
     }
 
@@ -500,6 +505,7 @@ namespace ungod
         Entity e(dom::Universe<>::create(), BaseComponents<>(), co);
         mEntityBehaviorHandler.assignBehavior(e, script);
         mEntityCreationSignal(e);
+        mEntityBehaviorHandler.initBehavior(e);
         return e;
     }
 
@@ -509,6 +515,7 @@ namespace ungod
         Entity e(dom::Universe<>::create(), BaseComponents<>(), co);
         mEntityBehaviorHandler.assignBehavior(e, script, param);
         mEntityCreationSignal(e);
+        mEntityBehaviorHandler.initBehavior(e);
         return e;
     }
 
@@ -527,6 +534,7 @@ namespace ungod
         Entity e(dom::Universe<>::create<BASE...>(ci...), cb, co);
         mEntityBehaviorHandler.assignBehavior(e, script);
         mEntityCreationSignal(e);
+        mEntityBehaviorHandler.initBehavior(e);
         return e;
     }
 
@@ -536,6 +544,7 @@ namespace ungod
         Entity e(dom::Universe<>::create<BASE...>(ci...), cb, co);
         mEntityBehaviorHandler.assignBehavior(e, script, param);
         mEntityCreationSignal(e);
+        mEntityBehaviorHandler.initBehavior(e);
         return e;
     }
 
@@ -554,6 +563,7 @@ namespace ungod
         Entity e(dom::Universe<>::create<BASE...>(ci...), cb, OptionalComponents<>());
         mEntityBehaviorHandler.assignBehavior(e, script);
         mEntityCreationSignal(e);
+        mEntityBehaviorHandler.initBehavior(e);
         return e;
     }
 
@@ -563,6 +573,7 @@ namespace ungod
         Entity e(dom::Universe<>::create<BASE...>(ci...), cb, OptionalComponents<>());
         mEntityBehaviorHandler.assignBehavior(e, script, param);
         mEntityCreationSignal(e);
+        mEntityBehaviorHandler.initBehavior(e);
         return e;
     }
 

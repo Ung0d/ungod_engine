@@ -590,14 +590,14 @@ namespace ungod
     {
         if (data.valid())
             context.serializeProperty("n", data.getScriptName(), serializer); 
-        context.appendSubnode(serializer, "userdata");
+        e.getWorld().notifySerialized(e, context.appendSubnode(serializer, "userdata"), context);
     }
 
     void DeserialBehavior<EntityBehaviorComponent, Entity, DeserialMemory&>::deserialize(
         EntityBehaviorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         auto result = deserializer.getAttributes<std::string>({ "n", "" });
-        deserialmemory.notifyScriptedEntity(e, std::get<0>(result));
+        deserialmemory.notifyScriptedEntity(e, std::get<0>(result), deserializer.firstNode("userdata"), context);
 
     }
 

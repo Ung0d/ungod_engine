@@ -124,6 +124,9 @@ namespace ungod
         void assignBehavior(Entity e, const std::string& name);
         void assignBehavior(Entity e, const std::string& name, script::Environment param);
 
+        /** \brief Inits the behavior of the entity. A behavior has to be attached. */
+        void initBehavior(Entity e);
+
         /** \brief Dissociates the current behavior from the entity, if any. */
         void dissociateBehavior(Entity e);
 

@@ -308,7 +308,6 @@ namespace ungod
         serialize(const Entity& data, MetaNode serializer, SerializationContext& context)
     {
         data.mInstantiation->serialize(serializer, context, Entity(data));
-        data.getWorld().notifySerialized(data, serializer, context);
     }
 
     template<typename ... BASE, typename ... OPTIONAL>
@@ -319,8 +318,7 @@ namespace ungod
         DeserialBehavior<EntityInstantiation<BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>>, Entity, DeserialMemory&>::
             deserialize(static_cast<EntityInstantiation<BaseComponents<BASE...>, OptionalComponents<OPTIONAL...>>&>(*data.getInstantiation()),
                         deserializer, context, Entity(data), deserialMemory);
-
-        deserialMemory.notifyDeserial(data, deserializer.appendSubnode(), context);
+        deserialMemory.notifyDeserial(data);
     }
 
     inline std::uintptr_t SerialID<Entity>::get(const Entity& t)

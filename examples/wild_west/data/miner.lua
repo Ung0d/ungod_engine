@@ -26,12 +26,12 @@ function miner_global.onUpdate(static, miner, delta)
     miner.thirst = miner.thirst + 1
 end
 
-function miner_global.onSerialize(static, miner, node, context)
-  context:serialize("name", miner.name)
+function miner_global.onSerialize(static, miner, context)
+  context:serializeString("name", miner)
 end
 
-function miner_global.onDeserialize(static, miner, node, context)
-  miner.name = context:deserializeString("name", node)
+function miner_global.onDeserialize(static, miner, context)
+  context:deserializeString("name", miner)
 end
 
 function miner_global.changeLocation(miner, location)

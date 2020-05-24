@@ -105,6 +105,7 @@ BOOST_AUTO_TEST_CASE( script_test )
         {
             script::Environment instance = bm.makeInstanceEnvironment();
             ungod::BehaviorPtr<> behavior = bm.makeBehavior("global_test", instance);
+            bm.initBehavior(behavior);
 
             BOOST_REQUIRE(behavior);
 
@@ -121,8 +122,7 @@ BOOST_AUTO_TEST_CASE( script_test )
                 BOOST_REQUIRE(staticconstr);
                 BOOST_CHECK_EQUAL(37, *staticconstr);
 
-                //is called automatically
-                //behavior->execute(ON_INIT);
+                bm.initBehavior(behavior2);
 
                 auto tcheck = behavior->getVariable<bool>("check1");
 
@@ -161,6 +161,7 @@ BOOST_AUTO_TEST_CASE( script_test )
         bm.loadBehavior("test_data/state_test.lua");
         script::Environment instance = bm.makeInstanceEnvironment();
         StateBehaviorPtr<> behavior = bm.makeStateBehavior("state_test", instance);
+        bm.initBehavior(behavior);
 
         BOOST_REQUIRE(behavior);
 
@@ -201,6 +202,7 @@ BOOST_AUTO_TEST_CASE( script_test )
         EmbeddedTestApp::getApp().getStateManager().addState<ungod::ScriptedGameState>(0);
         auto* state = EmbeddedTestApp::getApp().getStateManager().getState<ungod::ScriptedGameState>(0);
 		ungod::WorldGraphNode& node = state->getWorldGraph().createNode(*state, "nodeid", "nodefile");
+        node.setSaveContents(false);
 		node.setSize({ 15000, 15000 });
 		ungod::World* world = node.addWorld();
         state->getWorldGraph().activateNode("nodeid");

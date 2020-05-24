@@ -35,17 +35,11 @@ namespace ungod
 	{
 		struct EntityScriptPair
 		{
-			EntityScriptPair(Entity e, const std::string& s) : entity(e), script(s) {}
+			EntityScriptPair(Entity e, const std::string& s, MetaNode n, DeserializationContext& c) : 
+				entity(e), script(s), node(n), context(c) {}
 
 			Entity entity;
 			std::string script;
-		};
-
-		struct EntityDeserialNote
-		{
-			EntityDeserialNote(Entity e, MetaNode n, DeserializationContext& c) : entity(e), node(n), context(c) {}
-
-			Entity entity;
 			MetaNode node;
 			DeserializationContext& context;
 		};
@@ -61,12 +55,12 @@ namespace ungod
 		DeserialMemory() : node(nullptr) {}
 
 		WorldGraphNode* node;
-		std::forward_list<detail::EntityDeserialNote> all;
+		std::forward_list<Entity> all;
 		std::forward_list<detail::EntityScriptPair> scriptEntities;
 
-		void notifyDeserial(Entity e, MetaNode serializer, DeserializationContext& context);
+		void notifyDeserial(Entity e);
 
-		void notifyScriptedEntity(Entity e, const std::string& scriptname);
+		void notifyScriptedEntity(Entity e, const std::string& scriptname, MetaNode serializer, DeserializationContext& context);
 	};
 }
 
