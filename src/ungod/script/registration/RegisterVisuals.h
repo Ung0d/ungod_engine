@@ -47,7 +47,7 @@ namespace ungod
             bool isVisible() const;
             void setVisible(bool visible);
             float getOpacity() const;
-            void loadTexture(const std::string& imageID, LoadPolicy policy);
+            void loadTexture(const std::string& imageID);
             void loadMetadata(const std::string& file);
             std::size_t getVertexRectCount() const;
             sf::Vector2f getVertexRectPosition(std::size_t index) const;

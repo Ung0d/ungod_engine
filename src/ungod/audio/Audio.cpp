@@ -72,7 +72,7 @@ namespace ungod
 
 
 
-    SoundProfileManager::SoundProfileManager() 
+    SoundProfileManager::SoundProfileManager() : mMuteSound(false)
     {
         mVolumeSettings.resize(1, 1.0f);
     }
@@ -167,8 +167,32 @@ namespace ungod
     }
 
 
+    void SoundProfileManager::setMuteSound(bool mute)
+    {
+        mMuteSound = mute;
+        if (mute)
+            for (std::size_t i = 0; i < SOUND_PLAY_CAP; ++i)
+                mSoundslots[i].mPlaying = false;
+    }
 
-    SoundHandler::SoundHandler() : mMuteSound(false) {}
+    SoundSlot* SoundProfileManager::getFreeSlot() 
+    {
+        if (mMuteSound)
+            return nullptr;
+        for (std::size_t i = 0; i < SOUND_PLAY_CAP; i++)
+            if (!mSoundslots[i].mProfile.mIter)
+                return &mSoundslots[i];
+        return nullptr;
+    }
+
+    SoundProfileManager::~SoundProfileManager()
+    {
+        for (std::size_t i = 0; i < SOUND_PLAY_CAP; ++i)
+            mSoundslots[i].mSound.stop();
+    }
+
+
+
 
     void SoundHandler::init(SoundProfileManager& soundprofilemngr, const AudioListener* listener)
     {
@@ -221,66 +245,48 @@ namespace ungod
 
     void SoundHandler::playSound(ProfileHandle profile, std::size_t index, float scaling, std::size_t volumeSetting, float pitch)
     {
-        if (mMuteSound)
-            return;
+        SoundSlot* free = mSoundProfileMngr->getFreeSlot();
 
-        //find free slot
-        std::size_t free = SOUND_PLAY_CAP;
-        for (std::size_t i = 0; i < SOUND_PLAY_CAP; i++)
-        {
-            if (!mSoundslots[i].mProfile.mIter)
-            {
-                free = i;
-                break;
-            }
-        }
-
-        if (free == SOUND_PLAY_CAP)
+        if (!free)
             return;
 
         profile.mIter->second.mSounds[index]->linkageCounter++;
 
-        mSoundslots[free].mProfile = profile;
-        mSoundslots[free].mIndex = index;
-        mSoundslots[free].mSound.setBuffer(mSoundslots[free].mProfile.mIter->second.mSounds[index]->sound.get());
+        free->mProfile = profile;
+        free->mIndex = index;
+        free->mSound.setBuffer(free->mProfile.mIter->second.mSounds[index]->sound.get());
 
-        mSoundslots[free].mSound.setVolume(100.0f * mSoundProfileMngr->getVolume(volumeSetting) * scaling);
-        mSoundslots[free].mSound.setPitch(pitch);
+        free->mSound.setVolume(100.0f * mSoundProfileMngr->getVolume(volumeSetting) * scaling);
+        free->mSound.setPitch(pitch);
 
-        mSoundslots[free].mPlaying = true;
-        mSoundslots[free].mPlayTimer = (float)mSoundslots[free].mSound.getBuffer()->getDuration().asMilliseconds();
-        mSoundslots[free].mSound.play();
+        free->mPlaying = true;
+        free->mPlayTimer = (float)free->mSound.getBuffer()->getDuration().asMilliseconds();
+        free->mSound.play();
 
         mSoundBegin(profile.mIter->first, index);
-    }
 
-    void SoundHandler::setMuteSound(bool mute)
-    {
-        mMuteSound = mute;
-        if (mute)
-            for (std::size_t i = 0; i < SOUND_PLAY_CAP; ++i)
-                mSoundslots[i].mPlaying = false;
+        mOccupied.emplace_back(free);
     }
 
     void SoundHandler::update(float delta)
     {
-        for (std::size_t i = 0; i < SOUND_PLAY_CAP; ++i)
+        for (auto* slot : mOccupied)
         {
-            if (!mSoundslots[i].mPlaying && mSoundslots[i].mProfile.mIter)
+            if (!slot->mPlaying && slot->mProfile.mIter)
             {
-                mSoundslots[i].mProfile.mIter->second.mSounds[mSoundslots[i].mIndex]->linkageCounter--;
-                if (mSoundslots[i].mProfile.mIter->second.mExpired && mSoundslots[i].mProfile.mIter->second.mSounds[mSoundslots[i].mIndex]->linkageCounter == 0)
-                    mSoundslots[i].mProfile.mIter->second.mSounds.erase(mSoundslots[i].mProfile.mIter->second.mSounds.begin() + mSoundslots[i].mIndex);
-                mSoundEnd(mSoundslots[i].mProfile.mIter->first, mSoundslots[i].mIndex);
-                mSoundslots[i].mProfile = { nullptr };
-                mSoundslots[i].mIndex = 0;
+                slot->mProfile.mIter->second.mSounds[slot->mIndex]->linkageCounter--;
+                if (slot->mProfile.mIter->second.mExpired && slot->mProfile.mIter->second.mSounds[slot->mIndex]->linkageCounter == 0)
+                    slot->mProfile.mIter->second.mSounds.erase(slot->mProfile.mIter->second.mSounds.begin() + slot->mIndex);
+                mSoundEnd(slot->mProfile.mIter->first, slot->mIndex);
+                slot->mProfile = { nullptr };
+                slot->mIndex = 0;
             }
             else
             {
-                if (mSoundslots[i].mPlayTimer > 0)
-                    mSoundslots[i].mPlayTimer -= delta;
+                if (slot->mPlayTimer > 0)
+                    slot->mPlayTimer -= delta;
                 else
-                    mSoundslots[i].mPlaying = false;
+                    slot->mPlaying = false;
             }
         }
     }
@@ -293,13 +299,5 @@ namespace ungod
     void SoundHandler::onSoundEnd(const std::function<void(std::string, std::size_t)>& callback)
     {
         mSoundEnd.connect(callback);
-    }
-
-    SoundHandler::~SoundHandler()
-    {
-        for (std::size_t i = 0; i < SOUND_PLAY_CAP; ++i)
-        {
-            mSoundslots[i].mSound.stop();
-        }
     }
 }

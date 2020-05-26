@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serialroot>
+	<root_obj ref="RenderLayerContainer@0"/>
+	<pool>
+		<RenderLayerContainer object_count="1">
+			<s l="1 World@0"/>
+		</RenderLayerContainer>
+		<World object_count="1">
+			<s d="1.000000" n="" WorldObject="20 WorldObject@0 WorldObject@1 WorldObject@2 WorldObject@3 WorldObject@4 WorldObject@5 WorldObject@6 WorldObject@7 WorldObject@8 WorldObject@9 WorldObject@10 WorldObject@11 WorldObject@12 WorldObject@13 WorldObject@14 WorldObject@15 WorldObject@16 WorldObject@17 WorldObject@18 WorldObject@19">
+				<name_map/>
+			</s>
+		</World>
+		<WorldObject object_count="20">
+			<s>
+				<b T="T@0" V="V@0"/>
+				<o SPM="SPM@0" SP="SP@0"/>
+			</s>
+			<s>
+				<b T="T@1" V="V@1"/>
+				<o SPM="SPM@1" SP="SP@1"/>
+			</s>
+			<s>
+				<b T="T@2" V="V@2"/>
+				<o SPM="SPM@2" SP="SP@2"/>
+			</s>
+			<s>
+				<b T="T@3" V="V@3"/>
+				<o SPM="SPM@3" SP="SP@3"/>
+			</s>
+			<s>
+				<b T="T@4" V="V@4"/>
+				<o SPM="SPM@4" SP="SP@4"/>
+			</s>
+			<s>
+				<b T="T@5" V="V@5"/>
+				<o SPM="SPM@5" SP="SP@5"/>
+			</s>
+			<s>
+				<b T="T@6" V="V@6"/>
+				<o SPM="SPM@6" SP="SP@6"/>
+			</s>
+			<s>
+				<b T="T@7" V="V@7"/>
+				<o SPM="SPM@7" SP="SP@7"/>
+			</s>
+			<s>
+				<b T="T@8" V="V@8"/>
+				<o SPM="SPM@8" SP="SP@8"/>
+			</s>
+			<s>
+				<b T="T@9" V="V@9"/>
+				<o SPM="SPM@9" SP="SP@9"/>
+			</s>
+			<s>
+				<b T="T@10" V="V@10"/>
+				<o SPM="SPM@10" SP="SP@10"/>
+			</s>
+			<s>
+				<b T="T@11" V="V@11"/>
+				<o SPM="SPM@11" SP="SP@11"/>
+			</s>
+			<s>
+				<b T="T@12" V="V@12"/>
+				<o SPM="SPM@12" SP="SP@12"/>
+			</s>
+			<s>
+				<b T="T@13" V="V@13"/>
+				<o SPM="SPM@13" SP="SP@13"/>
+			</s>
+			<s>
+				<b T="T@14" V="V@14"/>
+				<o SPM="SPM@14" SP="SP@14"/>
+			</s>
+			<s>
+				<b T="T@15" V="V@15"/>
+				<o SPM="SPM@15" SP="SP@15"/>
+			</s>
+			<s>
+				<b T="T@16" V="V@16"/>
+				<o SPM="SPM@16" SP="SP@16"/>
+			</s>
+			<s>
+				<b T="T@17" V="V@17"/>
+				<o SPM="SPM@17" SP="SP@17"/>
+			</s>
+			<s>
+				<b T="T@18" V="V@18"/>
+				<o SPM="SPM@18" SP="SP@18"/>
+			</s>
+			<s>
+				<b T="T@19" V="V@19"/>
+				<o SPM="SPM@19" SP="SP@19"/>
+			</s>
+		</WorldObject>
+		<T object_count="20">
+			<s t_x="555.256104" t_y="678.147888"/>
+			<s t_x="907.809082" t_y="1108.987183"/>
+			<s t_x="314.808136" t_y="1548.584595"/>
+			<s t_x="1952.246094" t_y="1358.374146"/>
+			<s t_x="855.344360" t_y="1441.517944"/>
+			<s t_x="1599.440186" t_y="1562.692749"/>
+			<s t_x="827.987549" t_y="1346.814819"/>
+			<s t_x="1358.708618" t_y="1861.542847"/>
+			<s t_x="701.526062" t_y="706.391663"/>
+			<s t_x="575.590088" t_y="1408.023315"/>
+			<s t_x="995.666016" t_y="490.341064"/>
+			<s t_x="1540.280762" t_y="1565.120850"/>
+			<s t_x="408.977997" t_y="234.255539"/>
+			<s t_x="306.253418" t_y="104.088562"/>
+			<s t_x="1114.287109" t_y="145.994843"/>
+			<s t_x="1556.673706" t_y="456.827637"/>
+			<s t_x="685.563782" t_y="1629.226929"/>
+			<s t_x="404.089508" t_y="1215.640381"/>
+			<s t_x="100.970032" t_y="1168.242188"/>
+			<s t_x="1429.786011" t_y="1507.030640"/>
+		</T>
+		<V object_count="20">
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/pale_trees.png"/>
+		</V>
+		<SPM object_count="20">
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/pale_trees.xml"/>
+		</SPM>
+		<SP object_count="20">
+			<s key="tree_5"/>
+			<s key="tree_5"/>
+			<s key="tree_3"/>
+			<s key="tree_5"/>
+			<s key="tree_5"/>
+			<s key="tree_1"/>
+			<s key="tree_7"/>
+			<s key="tree_2"/>
+			<s key="tree_7"/>
+			<s key="tree_3"/>
+			<s key="tree_1"/>
+			<s key="tree_2"/>
+			<s key="tree_7"/>
+			<s tex_x="0" tex_y="0" size_x="0" size_y="0"/>
+			<s key="tree_7"/>
+			<s key="tree_4"/>
+			<s key="tree_4"/>
+			<s key="tree_2"/>
+			<s key="tree_6"/>
+			<s key="tree_5"/>
+		</SP>
+	</pool>
+</serialroot>
+

@@ -54,9 +54,9 @@ namespace ungod
 			return mEntity.get<VisualsComponent>().getOpacity();
 		}
 
-		void VisualHandlerFrontEnd::loadTexture(const std::string& imageID, LoadPolicy policy)
+		void VisualHandlerFrontEnd::loadTexture(const std::string& imageID)
 		{
-			mHandler.loadTexture(mEntity, imageID, policy);
+			mHandler.loadTexture(mEntity, imageID, LoadPolicy::ASYNC);
 		}
 
 		void VisualHandlerFrontEnd::loadMetadata(const std::string& file)

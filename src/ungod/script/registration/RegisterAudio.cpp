@@ -111,6 +111,7 @@ namespace ungod
 			profmngrType["initVolumeSettings"] = &SoundProfileManager::initVolumeSettings;
 			profmngrType["setVolume"] = &SoundProfileManager::setVolume;
 			profmngrType["getVolume"] = &SoundProfileManager::getVolume;
+			profmngrType["setMuteSound"] = &SoundProfileManager::setMuteSound;
 
 			script::Usertype<SoundHandler> shType = state.registerUsertype<SoundHandler>("SoundHandler");
 			shType["playSound"] = sol::overload([](SoundHandler& sh, const std::string& key, std::size_t index) { sh.playSound(key, index); },
@@ -118,7 +119,6 @@ namespace ungod
 
 				[](SoundHandler& sh, ProfileHandle handle, std::size_t index) { sh.playSound(handle, index); },
 				[](SoundHandler& sh, ProfileHandle handle, std::size_t index, std::size_t volumeSetting, float pitch) { sh.playSound(handle, index, 1.0f, volumeSetting, pitch); });
-			shType["setMuteSound"] = &SoundHandler::setMuteSound;
 
 
 			script::Usertype<SoundHandlerFrontEnd> shFrontType = state.registerUsertype<SoundHandlerFrontEnd>("SoundHandlerFrontEnd");

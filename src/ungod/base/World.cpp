@@ -59,6 +59,71 @@ namespace ungod
     {
         //register instantiations for deserialization
         registerTypes(*this);
+
+        //connect signals
+        mVisualsHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+            {
+                mTransformHandler.handleContentsChanged(e, rect);
+            });
+        mMovementRigidbodyHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+            {
+                mTransformHandler.handleContentsChanged(e, rect);
+            });
+        mSemanticsRigidbodyHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+            {
+                mTransformHandler.handleContentsChanged(e, rect);
+            });
+        mMovementRigidbodyHandler.onContentRemoved([this](Entity e)
+            {
+                mTransformHandler.handleContentsRemoved(e);
+            });
+        mSemanticsRigidbodyHandler.onContentRemoved([this](Entity e)
+            {
+                mTransformHandler.handleContentsRemoved(e);
+            });
+        mLightHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+            {
+                mTransformHandler.handleContentsChanged(e, rect);
+            });
+        mParticleSystemHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+            {
+                mTransformHandler.handleContentsChanged(e, rect);
+            });
+        mMovementCollisionHandler.onCollision([this](Entity e, Entity other, const sf::Vector2f& vec, const Collider& c1, const Collider& c2)
+            {
+                mMovementHandler.handleCollision(e, other, vec, c1, c2);
+            });
+        mTileMapHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+            {
+                mTransformHandler.handleContentsChanged(e, rect);
+            });
+        mTransformHandler.onMoveContents([this](Entity e, const sf::Vector2f& vec)
+            {
+                mLightHandler.moveLights(e, vec);
+                mLightHandler.moveLightColliders(e, vec);
+                mMovementRigidbodyHandler.moveColliders(e, vec);
+                mSemanticsRigidbodyHandler.moveColliders(e, vec);
+                mVisualsHandler.moveVisuals(e, vec);
+                mTileMapHandler.moveTilemap(e, vec);
+            });
+
+
+        onComponentAdded<ParticleSystemComponent>([this](Entity e) { mParticleSystemHandler.handleParticleSystemAdded(e); });
+
+
+        //connect lower bounds methods
+        mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mVisualsHandler.getLowerBound(e); });
+        mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mLightHandler.getLowerBound(e); });
+        mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mMovementRigidbodyHandler.getLowerBound(e); });
+        mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyHandler.getLowerBound(e); });
+        mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mParticleSystemHandler.getLowerBound(e); });
+
+        //connect upper bounds methods
+        mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mVisualsHandler.getUpperBound(e); });
+        mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mLightHandler.getUpperBound(e); });
+        mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mMovementRigidbodyHandler.getUpperBound(e); });
+        mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyHandler.getUpperBound(e); });
+        mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mParticleSystemHandler.getUpperBound(e); });
     }
 
 
@@ -74,71 +139,6 @@ namespace ungod
         mTileMapHandler.init(*this);
         mWaterHandler.init(*this);
 
-        //connect signals
-        mVisualsHandler.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
-                                          {
-                                                mTransformHandler.handleContentsChanged(e, rect);
-                                          });
-        mMovementRigidbodyHandler.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
-                                          {
-                                                mTransformHandler.handleContentsChanged(e, rect);
-                                          });
-		mSemanticsRigidbodyHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
-											{
-												mTransformHandler.handleContentsChanged(e, rect);
-											});
-        mMovementRigidbodyHandler.onContentRemoved( [this] (Entity e)
-                                          {
-                                                mTransformHandler.handleContentsRemoved(e);
-                                          });
-		mSemanticsRigidbodyHandler.onContentRemoved([this](Entity e)
-											{
-                                                mTransformHandler.handleContentsRemoved(e);
-											});
-        mLightHandler.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
-                                          {
-                                                mTransformHandler.handleContentsChanged(e, rect);
-                                          });
-        mParticleSystemHandler.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
-                                          {
-                                                mTransformHandler.handleContentsChanged(e, rect);
-                                          });
-        mMovementCollisionHandler.onCollision( [this] (Entity e, Entity other, const sf::Vector2f& vec, const Collider& c1, const Collider& c2)
-                                          {
-                                                mMovementHandler.handleCollision(e, other, vec, c1, c2);
-                                          });
-		mTileMapHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
-			                                {
-                                                mTransformHandler.handleContentsChanged(e, rect);
-			                                });
-        mTransformHandler.onMoveContents( [this] (Entity e, const sf::Vector2f& vec)
-                                          {
-                                                mLightHandler.moveLights(e, vec);
-                                                mLightHandler.moveLightColliders(e, vec);
-												mMovementRigidbodyHandler.moveColliders(e, vec);
-												mSemanticsRigidbodyHandler.moveColliders(e, vec);
-                                                mVisualsHandler.moveVisuals(e, vec);
-												mTileMapHandler.moveTilemap(e, vec);
-                                          });
-
-
-        onComponentAdded<ParticleSystemComponent>( [this] (Entity e) { mParticleSystemHandler.handleParticleSystemAdded(e); });
-
-
-        //connect lower bounds methods
-        mTransformHandler.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mVisualsHandler.getLowerBound(e); });
-        mTransformHandler.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mLightHandler.getLowerBound(e); });
-        mTransformHandler.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mMovementRigidbodyHandler.getLowerBound(e); });
-        mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyHandler.getLowerBound(e); });
-        mTransformHandler.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mParticleSystemHandler.getLowerBound(e); });
-
-        //connect upper bounds methods
-        mTransformHandler.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mVisualsHandler.getUpperBound(e); });
-        mTransformHandler.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mLightHandler.getUpperBound(e); });
-        mTransformHandler.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mMovementRigidbodyHandler.getUpperBound(e); });
-        mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyHandler.getUpperBound(e); });
-        mTransformHandler.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mParticleSystemHandler.getUpperBound(e); });
-
         if (deserialMemory)
         {
             for (const auto& entry : deserialMemory->scriptEntities) //assign scripts first!
@@ -146,10 +146,10 @@ namespace ungod
                 mEntityBehaviorHandler.assignBehavior(entry.entity, entry.script);
                 mEntityDeserializedSignal(entry.entity, entry.node, entry.context);
             }
-            for (const auto& entity : deserialMemory->all) //signals may invoke script calls!
+            /*for (const auto& entity : deserialMemory->all) //signals may invoke script calls!
             {
                 mEntityCreationSignal(entity);
-            }
+            } */
             for (const auto& entry : deserialMemory->scriptEntities) 
             {
                 mEntityBehaviorHandler.initBehavior(entry.entity);
@@ -257,6 +257,12 @@ namespace ungod
     void World::destroy(Entity e)
     {
         mEntitiesToDestroy.push_front(e);
+    }
+
+    void World::remove(Entity e)
+    {
+        if (e.has<TransformComponent>())
+            mQuadTree.removeFromItsNode(e);
     }
 
     void World::destroyNamed(Entity e)
@@ -402,10 +408,7 @@ namespace ungod
         for (auto& e : mEntitiesToDestroy)
         {
             if (!e) continue;
-            if (e.has<TransformComponent>())
-            {
-                mQuadTree.removeFromItsNode(e);
-            }
+            remove(e);
             mEntityDestructionSignal(e);
             e.getInstantiation()->cleanup(e);
             e.mHandle.destroy();

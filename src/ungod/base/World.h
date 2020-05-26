@@ -147,6 +147,9 @@ namespace ungod
         * Emits entity destruction event. */
         void destroy(Entity e);
 
+        /** \brief Removes the entity from the world, but keeps the handle valid. Can be reverted by calling add. */
+        void remove(Entity e);
+
         /** \brief Does the same as destroy but additionally removes the entity from the name list.
         * If the entity was names before, if has to destroyed through this method to keep the name
         * map clean. */

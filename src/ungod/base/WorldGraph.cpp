@@ -125,8 +125,9 @@ namespace ungod
         bool done = true;
         for (const auto& i : mCurrentNeighborhood)
         {
-            states.transform.translate(mNodes[i]->getPosition() - mNodes[mActive]->getPosition());
-            done = done && mNodes[i]->renderDebug(target, states, bounds, texrects, colliders, audioemitters, lightemitters);
+            sf::RenderStates states2 = states;
+            states2.transform.translate(mNodes[i]->getPosition() - mNodes[mActive]->getPosition());
+            done = done && mNodes[i]->renderDebug(target, states2, bounds, texrects, colliders, audioemitters, lightemitters);
         }
         return done;
     }
@@ -268,7 +269,7 @@ namespace ungod
             mWorldQT.setBoundary({left, top, width, height});
 		mWorldQT.insert(node);
 
-        updateReferencePosition(mReferencePosition, false);
+        updateReferencePosition(mReferencePosition);
     }
 
     void WorldGraph::checkOutOfBounds()
@@ -295,7 +296,7 @@ namespace ungod
                     if (res != mJustHandled.end())
                         continue;
 
-                    if (!mNodes[j]->getWorld(j)->getQuadTree().isInsideBounds(e))
+                    if (!mNodes[i]->getWorld(j)->getQuadTree().isInsideBounds(e))
                     {
                         //find a new node for the entity
                         quad::PullResult<WorldGraphNode*> result;
@@ -323,7 +324,7 @@ namespace ungod
             }
         }
         //forget entities above timer
-        for (auto iter = mJustHandled.begin(); iter != mJustHandled.end(); iter++)
+        for (auto iter = mJustHandled.begin(); iter != mJustHandled.end();)
         {
             if (iter->second.getElapsedTime().asSeconds() > NODE_TRANSITION_TIMER_S) 
                 iter = mJustHandled.erase(iter);

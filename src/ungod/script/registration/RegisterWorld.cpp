@@ -69,6 +69,7 @@ namespace ungod
 			worldType["createAudioEmitters"] = &detail::entityCreator<AudioEmitterBaseComponents, AudioEmitterOptionalComponents>;
 			// Entity control methods.
 			worldType["destroy"] = &World::destroy;
+			worldType["remove"] = &World::remove;
 			worldType["destroyNamed"] = &World::destroyNamed;
 			worldType["makeCopy"] = &World::makeCopy;
 			worldType["add"] = &World::addEntity;

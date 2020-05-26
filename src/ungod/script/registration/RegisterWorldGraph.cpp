@@ -43,6 +43,7 @@ namespace ungod
 			worldGraphNodeType["moveLayerUp"] = &WorldGraphNode::moveLayerUp;
 			worldGraphNodeType["isLoaded"] = &WorldGraphNode::isLoaded;
 			worldGraphNodeType["getNumWorld"] = &WorldGraphNode::getNumWorld;
+			worldGraphNodeType["wait"] = &WorldGraphNode::wait;
 
 			script::Usertype<WorldGraph> worldGraphType = state.registerUsertype<WorldGraph>("WorldGraph");
 			worldGraphType["createNode"] = &WorldGraph::createNode;
@@ -55,6 +56,7 @@ namespace ungod
 			worldGraphType["setDistance"] = &WorldGraph::setDistance;
 			worldGraphType["getDistance"] = &WorldGraph::getDistance;
 			worldGraphType["getNumberOfNodes"] = &WorldGraph::getNumberOfNodes;
+			worldGraphType["updateReferencePosition"] = [](WorldGraph& wg, const sf::Vector2f& pos) { wg.updateReferencePosition(pos); };
 			worldGraphType["getCamera"] = [](WorldGraph& wg) -> Camera& { return wg.getCamera(); };
         }
     }

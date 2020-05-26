@@ -33,8 +33,8 @@ namespace ungod
         void registerAssets(ScriptStateBase& state)
         {
             state.registerEnum<LoadPolicy>("LoadPolicy", 
-				{ {"LoadPolicy::SYNC", LoadPolicy::SYNC},
-				{"LoadPolicy::ASYNC", LoadPolicy::ASYNC } });
+				{ {"SYNC", LoadPolicy::SYNC},
+				{"ASYNC", LoadPolicy::ASYNC } });
         }
     }
 }

@@ -121,6 +121,7 @@ namespace ungod
     class SoundSlot
     {
     friend class SoundHandler;
+    friend class SoundProfileManager;
     private:
         sf::Sound mSound;
         bool mPlaying;
@@ -143,8 +144,12 @@ namespace ungod
     {
     friend class SoundEmitterComponent;
     private:
+        static constexpr std::size_t SOUND_PLAY_CAP = 32;  ///maximum number of sounds playable concurrently
+
+        std::array<SoundSlot, SOUND_PLAY_CAP> mSoundslots;
         ProfileMap mSoundProfiles;
-        std::vector<float> mVolumeSettings; 
+        std::vector<float> mVolumeSettings;
+        bool mMuteSound;
 
     public:
         SoundProfileManager();
@@ -184,6 +189,14 @@ namespace ungod
 
         /** \brief Returns the volume level in range [0,1] */
         float getVolume(std::size_t index);
+
+        /** \brief Returns a free sound slot or nullptr if non is free. */
+        SoundSlot* getFreeSlot();
+
+        /** \brief Mutes all sounds. Stops all sounds currently playing. */
+        void setMuteSound(bool mute = true);
+
+        ~SoundProfileManager();
     };
 
     /**
@@ -194,17 +207,14 @@ namespace ungod
     {
     friend class SoundEmitterComponent;
     private:
-        static constexpr std::size_t SOUND_PLAY_CAP = 32;  ///maximum number of sounds playable concurrently
-
-        std::array<SoundSlot, SOUND_PLAY_CAP> mSoundslots;
         owls::Signal<std::string, std::size_t> mSoundBegin;
         owls::Signal<std::string, std::size_t> mSoundEnd;
-        bool mMuteSound;
         SoundProfileManager* mSoundProfileMngr;
         const AudioListener* mListener;
+        std::list<SoundSlot*> mOccupied;
 
     public:
-        SoundHandler();
+        SoundHandler() = default;
         SoundHandler(SoundHandler const&) = delete;
         SoundHandler& operator=(SoundHandler const&) = delete;
 
@@ -223,9 +233,6 @@ namespace ungod
         void playSound(const std::string& key, std::size_t index, float scaling = 1.0f, std::size_t volumeSetting = 0, float pitch = 1.0f);
         void playSound(ProfileHandle profile, std::size_t index, float scaling = 1.0f, std::size_t volumeSetting = 0, float pitch = 1.0f);
 
-        /** \brief Mutes all sounds. Stops all sounds currently playing. */
-        void setMuteSound(bool mute = true);
-
         /**
         * \brief Internal update that clears out expired sounds.
         */
@@ -238,9 +245,6 @@ namespace ungod
         /** \brief Connects a callback for the sound end signal. Arguments are
         * the name of the profile as string and the index of the sound. */
         void onSoundEnd(const std::function<void(std::string, std::size_t)>& callback);
-
-        /** \brief Stops playing of all active sounds. */
-        ~SoundHandler();
     };
 }
 
