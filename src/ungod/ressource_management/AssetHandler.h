@@ -102,7 +102,7 @@ namespace ungod
         /** \brief Sync load utility method. */
         void syncLoad(std::shared_ptr<AssetData<T, PARAM...>> data, const std::string filepath, PARAM&& ... param);
 
-		~AssetHandler();
+		virtual ~AssetHandler();
     };
 
     /** \brief Manages und bundles together the assetshandlers of all types.
@@ -138,10 +138,12 @@ namespace ungod
     AssetHandler<T, PARAM...>* AssetManager::getHandler()
     {
         std::size_t id = AssetTypeTraits<T, PARAM...>::getID();
-        if (id == mHandlers.size())
         {
             std::unique_lock<std::mutex> lock(mMutex);
-            mHandlers.emplace_back(new AssetHandler<T, PARAM...>());
+            if (id == mHandlers.size())
+            {
+                mHandlers.emplace_back(new AssetHandler<T, PARAM...>());
+            }
         }
         return static_cast<AssetHandler<T, PARAM...>*>( mHandlers[id].get() );
     }

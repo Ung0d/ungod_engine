@@ -72,6 +72,7 @@ namespace ungod
 			worldType["remove"] = &World::remove;
 			worldType["destroyNamed"] = &World::destroyNamed;
 			worldType["makeCopy"] = &World::makeCopy;
+			worldType["makeForeignCopy"] = &World::makeForeignCopy;
 			worldType["add"] = &World::addEntity;
 			worldType["addNearby"] = &World::addEntityNearby;
 			worldType["setRenderDepth"] = &World::setRenderDepth;

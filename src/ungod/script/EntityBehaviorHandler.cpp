@@ -30,7 +30,6 @@
 
 namespace ungod
 {
-
     bool EntityBehaviorComponent::valid() const
     {
         return mBehavior.get();
@@ -99,7 +98,10 @@ namespace ungod
         world.getSemanticsCollisionHandler().onEndCollision([this](Entity e1, Entity e2) { entityCollisionExit(e1, e2); });
 
         world.getState()->getWorldGraph().onEntityChangedNode([this](Entity e, WorldGraph& wg, WorldGraphNode& oldNode, WorldGraphNode& newNode)
-            { callbackInvoker<WorldGraph&, WorldGraphNode&, WorldGraphNode&>(ON_ENTERED_NEW_NODE, e, wg, oldNode, newNode);  });
+            { 
+                if (&e.getWorld().getBehaviorHandler() == this)
+                    callbackInvoker<WorldGraph&, WorldGraphNode&, WorldGraphNode&>(ON_ENTERED_NEW_NODE, e, wg, oldNode, newNode);  
+            });
     }
 
     void EntityBehaviorHandler::update(const std::list<Entity>& entities, float delta)

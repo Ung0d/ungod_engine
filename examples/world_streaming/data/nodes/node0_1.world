@@ -93,26 +93,26 @@
 			</s>
 		</WorldObject>
 		<T object_count="20">
-			<s t_x="1671.782837" t_y="1349.171021"/>
-			<s t_x="1511.076172" t_y="1825.817383"/>
-			<s t_x="141.671692" t_y="1454.287598"/>
-			<s t_x="642.255737" t_y="1860.727173"/>
-			<s t_x="702.263916" t_y="863.497986"/>
-			<s t_x="1756.526489" t_y="1750.682739"/>
-			<s t_x="1631.824829" t_y="1325.562500"/>
-			<s t_x="1949.770386" t_y="1793.317505"/>
-			<s t_x="1461.873413" t_y="1212.948730"/>
-			<s t_x="575.915466" t_y="1752.320068"/>
-			<s t_x="1296.667236" t_y="1719.732300"/>
-			<s t_x="1939.172485" t_y="1953.568604"/>
-			<s t_x="1804.755371" t_y="1432.673706"/>
-			<s t_x="593.282043" t_y="336.439972"/>
-			<s t_x="1586.867065" t_y="671.264526"/>
-			<s t_x="1259.729614" t_y="342.663269"/>
-			<s t_x="1380.613525" t_y="11.777288"/>
-			<s t_x="6.377427" t_y="1138.964355"/>
-			<s t_x="280.194855" t_y="1693.385986"/>
-			<s t_x="1285.467896" t_y="1018.095825"/>
+			<s t_x="1270.953125" t_y="1738.521973" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1862.894287" t_y="1768.560913" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1920.327026" t_y="20.620325" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1945.313599" t_y="74.591248" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1245.623291" t_y="715.552002" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1762.375977" t_y="1439.965576" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1725.550293" t_y="1991.514038" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="341.033997" t_y="838.371216" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="844.444885" t_y="1159.702393" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="482.271210" t_y="371.060120" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="232.605026" t_y="263.037476" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1661.750610" t_y="451.502533" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1142.490479" t_y="50.488705" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="423.946960" t_y="1414.240112" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="188.653061" t_y="1465.987061" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="271.822784" t_y="1193.740845" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="524.333496" t_y="1236.961670" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="189.893967" t_y="1353.464722" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="100.187416" t_y="1506.225952" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1460.566162" t_y="1027.612061" baseline_x="1.000000" baseline_y="0.000000"/>
 		</T>
 		<V object_count="20">
 			<s filepath="data/sprites/pale_trees.png"/>
@@ -159,25 +159,25 @@
 			<s filepath="data/sprites/pale_trees.xml"/>
 		</SPM>
 		<SP object_count="20">
-			<s key="tree_3"/>
+			<s key="tree_5"/>
+			<s key="tree_6"/>
 			<s key="tree_5"/>
 			<s key="tree_1"/>
 			<s key="tree_4"/>
-			<s key="tree_3"/>
-			<s key="tree_4"/>
+			<s key="tree_5"/>
 			<s key="tree_2"/>
 			<s key="tree_1"/>
-			<s key="tree_1"/>
-			<s key="tree_6"/>
-			<s key="tree_3"/>
-			<s key="tree_5"/>
-			<s key="tree_6"/>
-			<s key="tree_5"/>
-			<s tex_x="0" tex_y="0" size_x="0" size_y="0"/>
 			<s key="tree_4"/>
-			<s key="tree_6"/>
+			<s key="tree_4"/>
 			<s key="tree_5"/>
-			<s tex_x="0" tex_y="0" size_x="0" size_y="0"/>
+			<s key="tree_4"/>
+			<s key="tree_7"/>
+			<s key="tree_7"/>
+			<s key="tree_5"/>
+			<s key="tree_4"/>
+			<s key="tree_4"/>
+			<s key="tree_5"/>
+			<s key="tree_4"/>
 			<s tex_x="0" tex_y="0" size_x="0" size_y="0"/>
 		</SP>
 	</pool>

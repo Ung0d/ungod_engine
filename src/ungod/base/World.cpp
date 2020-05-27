@@ -280,9 +280,23 @@ namespace ungod
 
 	Entity World::makeForeignCopy(Entity e)
 	{
-		Entity fcpy = e.getInstantiation()->makeForeignCopy(e.mHandle, *this);
-		mEntityCreationSignal(fcpy);
-		return fcpy;
+        if (&e.getWorld() != this)
+        {
+            Entity fcpy = e.getInstantiation()->makeForeignCopy(e.mHandle, *this);
+            if (fcpy.has<EntityBehaviorComponent>())
+            {
+                const auto& eb = fcpy.get<EntityBehaviorComponent>();
+                if (eb.hasValidEnvironment())
+                    eb.getEnvironment()["entity"] = fcpy;
+            }
+            mEntityCreationSignal(fcpy);
+            return fcpy;
+        }
+        else
+        {
+            Logger::error("Attempt to foreign copy an entity to it's home world.");
+            return {};
+        }
 	}
 
 	void moveFromOtherWorld(Entity e);

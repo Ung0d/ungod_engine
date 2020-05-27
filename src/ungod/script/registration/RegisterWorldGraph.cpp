@@ -44,6 +44,9 @@ namespace ungod
 			worldGraphNodeType["isLoaded"] = &WorldGraphNode::isLoaded;
 			worldGraphNodeType["getNumWorld"] = &WorldGraphNode::getNumWorld;
 			worldGraphNodeType["wait"] = &WorldGraphNode::wait;
+			worldGraphNodeType["getIdentifier"] = &WorldGraphNode::getIdentifier;
+			worldGraphNodeType["mapToGlobalPosition"] = &WorldGraphNode::mapToGlobalPosition;
+			worldGraphNodeType["mapToLocalPosition"] = &WorldGraphNode::mapToLocalPosition;
 
 			script::Usertype<WorldGraph> worldGraphType = state.registerUsertype<WorldGraph>("WorldGraph");
 			worldGraphType["createNode"] = &WorldGraph::createNode;

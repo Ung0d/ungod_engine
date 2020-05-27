@@ -14,6 +14,8 @@ function playerGlobal.onCreation(static, player)
   player.entity:add():sprite()
   player.entity:add():spriteMetadata()
   player.entity:add():animation()
+  player.entity:add():updateTimer()
+  player.entity:add():movement()
 end
 
 
@@ -24,7 +26,6 @@ function playerGlobal.onInit(static, player)
   player.entity:visuals():bindSpriteToAnimation()
   player.entity:visuals():setAnimationState("idle")
 
-  player.entity:add():movement()
   player.baseSpeed = 0.20
   player.maxVel = 1.6
   player.entity:movement():setBaseSpeed(player.baseSpeed)
@@ -56,6 +57,33 @@ function playerGlobal.onButtonReleased(static, player, binding)
     elseif binding == "right" then
         player.entity:movement():stop()
     end
+end
+
+
+function playerGlobal.onEnteredNewNode(static, player, worldGraph, oldNode, newNode)
+
+  if player.transferTimer == nil or player.transferTimer:elapsedSeconds() > 6 then
+
+    --should return immediately
+    --if not, this may hint a design problem of the world graph
+    --or a problem with the pacing of the game agents
+    newNode:wait()
+
+    --timer to prevent immediante retransfer
+    player.transferTimer = ungod.makeClock()
+
+
+    --copy the entity and set to the correct position
+    local playerCpy = newNode:getWorld(0):makeForeignCopy(player.entity)
+    local newNodePos = newNode:mapToLocalPosition(
+                          oldNode:mapToGlobalPosition(
+                              player.entity:transform():getPosition()))
+    playerCpy:transform():setPosition(newNodePos)
+    newNode:getWorld(0):add(playerCpy)
+    player.entity:getWorld():destroy(player.entity)
+    global.player = playerCpy
+
+  end
 end
 
 

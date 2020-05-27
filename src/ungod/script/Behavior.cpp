@@ -29,7 +29,6 @@ namespace ungod
         {
             if (mMeta->isValid())
                 mEnvironment = parentEnv;
-                //mEnvironment = parentEnv.create_named(mMeta->getName()); old,,,, depr???
         }
 
         OptionalEnvironment InstanceCache::getEnvironment() const

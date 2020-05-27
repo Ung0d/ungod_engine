@@ -280,7 +280,7 @@ namespace std
       std::size_t operator () (const ungod::Entity& e) const
       {
         //return std::hash<EntityID>(e.getID());   // gcc
-        return std::hash<EntityID>()(e.getID());   // msvc
+        return std::hash<const ungod::EntityData*>()(e.getData());   // msvc
       }
     };
 
@@ -289,7 +289,7 @@ namespace std
       std::size_t operator () (const ungod::Entity& e) const
       {
         //return std::hash<EntityID>(e.getID());   // gcc
-		  return std::hash<EntityID>()(e.getID());   // msvc
+		  return std::hash<const ungod::EntityData*>()(e.getData());   // msvc
       }
     };
 }

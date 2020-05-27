@@ -3,7 +3,7 @@
 	<root_obj ref="ScriptedGameState@0"/>
 	<pool>
 		<ScriptedGameState object_count="1">
-			<s wg="WorldGraph@0" db="0"/>
+			<s wg="WorldGraph@0" db="1"/>
 		</ScriptedGameState>
 		<WorldGraph object_count="1">
 			<s graph="UndirectedAdjacencyLists@0" cam="Camera@0" refX="1000.000000" refY="1000.000000" nodes="100 WorldGraphNode@0 WorldGraphNode@1 WorldGraphNode@2 WorldGraphNode@3 WorldGraphNode@4 WorldGraphNode@5 WorldGraphNode@6 WorldGraphNode@7 WorldGraphNode@8 WorldGraphNode@9 WorldGraphNode@10 WorldGraphNode@11 WorldGraphNode@12 WorldGraphNode@13 WorldGraphNode@14 WorldGraphNode@15 WorldGraphNode@16 WorldGraphNode@17 WorldGraphNode@18 WorldGraphNode@19 WorldGraphNode@20 WorldGraphNode@21 WorldGraphNode@22 WorldGraphNode@23 WorldGraphNode@24 WorldGraphNode@25 WorldGraphNode@26 WorldGraphNode@27 WorldGraphNode@28 WorldGraphNode@29 WorldGraphNode@30 WorldGraphNode@31 WorldGraphNode@32 WorldGraphNode@33 WorldGraphNode@34 WorldGraphNode@35 WorldGraphNode@36 WorldGraphNode@37 WorldGraphNode@38 WorldGraphNode@39 WorldGraphNode@40 WorldGraphNode@41 WorldGraphNode@42 WorldGraphNode@43 WorldGraphNode@44 WorldGraphNode@45 WorldGraphNode@46 WorldGraphNode@47 WorldGraphNode@48 WorldGraphNode@49 WorldGraphNode@50 WorldGraphNode@51 WorldGraphNode@52 WorldGraphNode@53 WorldGraphNode@54 WorldGraphNode@55 WorldGraphNode@56 WorldGraphNode@57 WorldGraphNode@58 WorldGraphNode@59 WorldGraphNode@60 WorldGraphNode@61 WorldGraphNode@62 WorldGraphNode@63 WorldGraphNode@64 WorldGraphNode@65 WorldGraphNode@66 WorldGraphNode@67 WorldGraphNode@68 WorldGraphNode@69 WorldGraphNode@70 WorldGraphNode@71 WorldGraphNode@72 WorldGraphNode@73 WorldGraphNode@74 WorldGraphNode@75 WorldGraphNode@76 WorldGraphNode@77 WorldGraphNode@78 WorldGraphNode@79 WorldGraphNode@80 WorldGraphNode@81 WorldGraphNode@82 WorldGraphNode@83 WorldGraphNode@84 WorldGraphNode@85 WorldGraphNode@86 WorldGraphNode@87 WorldGraphNode@88 WorldGraphNode@89 WorldGraphNode@90 WorldGraphNode@91 WorldGraphNode@92 WorldGraphNode@93 WorldGraphNode@94 WorldGraphNode@95 WorldGraphNode@96 WorldGraphNode@97 WorldGraphNode@98 WorldGraphNode@99"/>
@@ -698,7 +698,7 @@
 			<s u="99" v="89"/>
 		</EdgeInstantiator>
 		<Camera object_count="1">
-			<s deadzone="200.000000" scroll_speed="0.250000" zoom="1.000000" center_x="1039.900391" center_y="1071.784912"/>
+			<s deadzone="200.000000" scroll_speed="0.250000" zoom="1.000000" center_x="1060.608398" center_y="1087.058228"/>
 		</Camera>
 		<WorldGraphNode object_count="100">
 			<s id="node0_0" file="data/nodes/node0_0.world" x="0.000000" y="0.000000" w="2000.000000" h="2000.000000"/>

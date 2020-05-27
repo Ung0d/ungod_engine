@@ -292,8 +292,7 @@ namespace ungod
                     if (!e.has<MovementComponent>())
                         continue;
                     //skip entities that just left their node
-                    auto res = mJustHandled.find(e);
-                    if (res != mJustHandled.end())
+                    if (mJustHandled.find(e) != mJustHandled.end())
                         continue;
 
                     if (!mNodes[i]->getWorld(j)->getQuadTree().isInsideBounds(e))
@@ -301,6 +300,7 @@ namespace ungod
                         //find a new node for the entity
                         quad::PullResult<WorldGraphNode*> result;
                         sf::Vector2f entityGlobal = e.getWorld().getNode().mapToGlobalPosition(e.get<TransformComponent>().getPosition());
+                        entityGlobal += e.getWorld().getGraph().getActiveNode()->getPosition();
                         mWorldQT.retrieve(result, 
                             { entityGlobal.x, entityGlobal.y, e.get<TransformComponent>().getSize().x, e.get<TransformComponent>().getSize().y });
                         WorldGraphNode* newNode = nullptr;
@@ -316,7 +316,7 @@ namespace ungod
                         }
                         if (newNode)
                         {
-                            mEntityChangedNode(e, *this, *mNodes[j], *newNode);
+                            mEntityChangedNode(e, *this, *mNodes[i], *newNode);
                             mJustHandled.emplace(e, sf::Clock{});
                         }
                     }
