@@ -111,8 +111,9 @@ namespace ungod
         bool done = true;
         for (const auto& i : mCurrentNeighborhood)
         {
-            states.transform.translate(mNodes[i]->getPosition() - mNodes[mActive]->getPosition());
-            done = done && mNodes[i]->render(target, states);
+            sf::RenderStates states2 = states;
+            states2.transform.translate(mNodes[i]->getPosition() - mNodes[mActive]->getPosition());
+            done = done && mNodes[i]->render(target, states2);
         }
         return done;
     }
