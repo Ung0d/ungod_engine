@@ -74,7 +74,7 @@ namespace ungod
 
     void GrassManager::handleCollision(Entity trampling, Entity grass, const sf::Vector2f& vec, const Collider& collider, const Collider&)
     {
-        if (grass.has<GrassPatch>())
+       /* if (grass.has<GrassPatch>())
         {
             const GrassPatch& grasspatch = grass.get<GrassPatch>();
             for (const auto& data : grasspatch.mGrassData)
@@ -88,19 +88,19 @@ namespace ungod
                     mWorld->getVisualsHandler().setArrayTextureRect(grass, data.rectIndex, data.sheetKey);
                 }
             }
-        }
+        }*/
     }
 
     void GrassManager::handleCollisionEnd(Entity trampling, Entity grass)
     {
-        if (grass.has<GrassPatch>())
+       /* if (grass.has<GrassPatch>())
         {
             const GrassPatch& grasspatch = grass.get<GrassPatch>();
             for (const auto& data : grasspatch.mGrassData)
             {
                 mWorld->getVisualsHandler().setArrayTextureRect(grass, data.rectIndex, data.sheetKey);
             }
-        }
+        } */
     }
 
 
@@ -145,6 +145,5 @@ namespace ungod
 
         //init texture rects and visuals
         mWorld->getVisualsHandler().loadTexture(grass, imagePath, LoadPolicy::ASYNC);
-        mWorld->getVisualsHandler().initTextureRects(grass, grassDensity);
     }
 }

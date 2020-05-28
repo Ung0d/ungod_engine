@@ -238,8 +238,6 @@ namespace ungod
     {
         auto result = deserializer.getAttributes<unsigned>({"rect_count", 0});
 
-        e.getWorld().getVisualsHandler().initTextureRects(e, std::get<0>(result));
-
         unsigned i = 0;
         forEachSubnode(deserializer, [&] (MetaNode texRectNode)
         {
@@ -268,7 +266,7 @@ namespace ungod
                      {"b", sf::Color::White.b},
                      {"a", sf::Color::White.a});
 
-                e.getWorld().getVisualsHandler().setArrayTextureRect(e, i, key);
+                e.getWorld().getVisualsHandler().newVertexTextureRect(e, key);
                 e.getWorld().getVisualsHandler().setPoints(e, data, i,
                                                     { std::get<0>(rectData), std::get<1>(rectData) },
                                                     { std::get<0>(rectData2), std::get<1>(rectData2) },
@@ -297,7 +295,7 @@ namespace ungod
                      {"b", sf::Color::White.b},
                      {"a", sf::Color::White.a});
 
-                e.getWorld().getVisualsHandler().setArrayTextureRect(data, { (float)std::get<0>(rectData), (float)std::get<1>(rectData), (float)std::get<2>(rectData), (float)std::get<3>(rectData) }, i);
+                e.getWorld().getVisualsHandler().newVertexTextureRect(e, data, { (float)std::get<0>(rectData), (float)std::get<1>(rectData), (float)std::get<2>(rectData), (float)std::get<3>(rectData) });
                 e.getWorld().getVisualsHandler().setPoints(e, data, i,
                                                     { std::get<4>(rectData), std::get<5>(rectData) },
                                                     { std::get<0>(rectData2), std::get<1>(rectData2) },

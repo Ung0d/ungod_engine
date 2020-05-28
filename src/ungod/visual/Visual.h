@@ -100,7 +100,7 @@ namespace ungod
 
     private:
         VertexArray mVertices;
-        std::vector<std::string> mKeys;
+        std::array<std::string, VertexArray::maxTextureRectCount()> mKeys;
     };
 
 
@@ -254,44 +254,41 @@ namespace ungod
     public:
         VisualsHandler() = default;
 
-        /** \brief Inits a given number of texture rects that have to be defined afterwards.
-        * Requires VertexArray component. */
-        void initTextureRects(Entity e, std::size_t num);
-
         /** \brief Sets the texture rect for the sprite component of the given entity. Requires
         * a Sprite or a MultiSprite component. */
         inline void setSpriteTextureRect(Entity e, const sf::FloatRect& rect) { setSpriteTextureRect(e, e.modify<SpriteComponent>(), rect); }
-        inline void setSpriteTextureRect(Entity e, const sf::FloatRect& rect, std::size_t multiIndex) { setSpriteTextureRect(e, e.modify<MultiSpriteComponent>().getComponent(multiIndex), rect); }
+        inline void setSpriteTextureRect(Entity e, const sf::FloatRect& rect, unsigned multiIndex) { setSpriteTextureRect(e, e.modify<MultiSpriteComponent>().getComponent(multiIndex), rect); }
         void setSpriteTextureRect(Entity e, SpriteComponent& sprite, const sf::FloatRect& rect);
 
         inline void setSpritePosition(Entity e, const sf::Vector2f& position) { setSpritePosition(e, e.modify<SpriteComponent>(), position); }
-        inline void setSpritePosition(Entity e, const sf::Vector2f& position, std::size_t multiIndex) { setSpritePosition(e, e.modify<MultiSpriteComponent>().getComponent(multiIndex), position);}
+        inline void setSpritePosition(Entity e, const sf::Vector2f& position, unsigned multiIndex) { setSpritePosition(e, e.modify<MultiSpriteComponent>().getComponent(multiIndex), position);}
         void setSpritePosition(Entity e, SpriteComponent& sprite, const sf::Vector2f& position);
 
-        /** \brief Sets the texture rect for the given index. Emits a "Contents-Changed" signal.
-        * Requires a VertexArray component. */
-        inline void setArrayTextureRect(Entity e, const sf::FloatRect& rect, std::size_t index) {setArrayTextureRect(e.modify<VertexArrayComponent>(), rect, index);}
-        void setArrayTextureRect(VertexArrayComponent& vertices, const sf::FloatRect& rect, std::size_t index);
-
         /** \brief Sets the position of a texture rect in a vertex array. Requires VertexArray components. */
-        void setTextureRectPosition(Entity e, const sf::Vector2f& position, std::size_t index);
+        void setTextureRectPosition(Entity e, const sf::Vector2f& position, unsigned index);
 
         /** \brief Sets points for the representation explicit. */
-        void setPoints(Entity e, std::size_t index, const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4)
+        void setPoints(Entity e, unsigned index, const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4)
         { setPoints(e, e.modify<VertexArrayComponent>(), index, p1, p2, p3, p4); }
-        void setPoints(Entity e, VertexArrayComponent& vertices, std::size_t index, const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4);
+        void setPoints(Entity e, VertexArrayComponent& vertices, unsigned index, const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4);
 
         /** \brief Allows examination of the points of the given texture rect and point.
         * Point indexing is clockwise 0 to 3. Requires VertexArray-component. */
-        const sf::Vector2f& getPoint(Entity e, std::size_t rectIndex, std::size_t pointIndex);
+        const sf::Vector2f& getPoint(Entity e, unsigned rectIndex, unsigned pointIndex);
 
         /** \brief Accomodates a new texture rect on a new index. The index is returned. Requires a VertexArray component. */
-        inline std::size_t newTextureRect(Entity e, const sf::FloatRect& rect) { return newTextureRect(e.modify<VertexArrayComponent>(), rect); }
-        std::size_t newTextureRect(VertexArrayComponent& vertices, const sf::FloatRect& rect);
+        inline bool newVertexTextureRect(Entity e, const sf::FloatRect& rect) { return newVertexTextureRect(e, e.modify<VertexArrayComponent>(), rect); }
+        bool newVertexTextureRect(Entity e, VertexArrayComponent& vertices, const sf::FloatRect& rect);
 
         /** \brief Creates a new texture rect with the bounds of the texture, if a texture is loaded. */
-        inline std::size_t newTextureRect(Entity e) { return newTextureRect(e, e.modify<VertexArrayComponent>(), e.modify<VisualsComponent>()); }
-        std::size_t newTextureRect(Entity e, VertexArrayComponent& vertices, VisualsComponent& vis);
+        inline bool newVertexTextureRect(Entity e) { return newVertexTextureRect(e, e.modify<VertexArrayComponent>(), e.modify<VisualsComponent>()); }
+        bool newVertexTextureRect(Entity e, VertexArrayComponent& vertices, VisualsComponent& vis);
+
+        /** \brief Adds texture rect with given index for the given entity e and the given key. Requires a
+        * SpriteMetadataComponent-component. */
+        inline bool newVertexTextureRect(Entity e, const std::string& key)
+        { return newVertexTextureRect(e, e.modify<VertexArrayComponent>(), e.get<SpriteMetadataComponent>(), key); }
+        bool newVertexTextureRect(Entity e, VertexArrayComponent& vertices, const SpriteMetadataComponent& data, const std::string& key);
 
         /** \brief Initializes async loading of the internal texture and invokes the given callback when the loading is done. */
         inline void loadTexture(Entity e, const std::string& imageID, std::function<void(VisualsComponent&)> callback)
@@ -313,17 +310,9 @@ namespace ungod
         * SpriteMetadataComponent-component. */
         inline void setSpriteTextureRect(Entity e, const std::string& key)
         { setSpriteTextureRect(e, e.modify<SpriteComponent>(), e.get<SpriteMetadataComponent>(), key); }
-        inline void setSpriteTextureRect(Entity e, const std::string& key, std::size_t multiIndex)
+        inline void setSpriteTextureRect(Entity e, const std::string& key, unsigned multiIndex)
         { setSpriteTextureRect(e, e.modify<MultiSpriteComponent>().getComponent(multiIndex), e.get<SpriteMetadataComponent>(), key); }
         void setSpriteTextureRect(Entity e, SpriteComponent& sprite, const SpriteMetadataComponent& data, const std::string& key);
-
-        /** \brief Sets up the texture rect with given index for the given entity e and the given key. Requires a
-        * SpriteMetadataComponent-component and a VertexArray component. */
-        void setArrayTextureRect(Entity e, std::size_t index, const std::string& key);
-
-        /** \brief Sets up anew texture rect for the given entity e and the given key. Requires a
-        * SpriteMetadataComponent-component. */
-        std::size_t newTextureRect(Entity e, const std::string& key);
 
         /** \brief Sets the visibility status of the given entity. Requires a visuals component. */
         void setVisible(Entity e, bool visible);
@@ -334,21 +323,21 @@ namespace ungod
         /** \brief Binds the vertices of a Sprite component to an animation. */
         inline static void bindSpriteToAnimation(Entity e)
         { bindSpriteToAnimation(e.modify<SpriteComponent>(), e.modify<AnimationComponent>()); }
-        inline static void bindSpriteToAnimation(Entity e, std::size_t multiSpriteIndex, std::size_t multiAnimationIndex)
+        inline static void bindSpriteToAnimation(Entity e, unsigned multiSpriteIndex, unsigned multiAnimationIndex)
         { bindSpriteToAnimation(e.modify<MultiSpriteComponent>().getComponent(multiSpriteIndex), e.modify<MultiAnimationComponent>().getComponent(multiAnimationIndex));}
         static void bindSpriteToAnimation(SpriteComponent& sprite, AnimationComponent& animation);
 
         /** \brief Binds the vertices of a specific subrect of a vertexarry-component to an animation. */
-        inline static void bindArrayToAnimation(Entity e, std::size_t index)
+        inline static void bindArrayToAnimation(Entity e, unsigned index)
         {  bindArrayToAnimation(e.modify<VertexArrayComponent>(), e.modify<AnimationComponent>(), index); }
-        inline static void bindArrayToAnimation(Entity e, std::size_t index, std::size_t multiAnimationIndex)
+        inline static void bindArrayToAnimation(Entity e, unsigned index, unsigned multiAnimationIndex)
         { bindArrayToAnimation(e.modify<VertexArrayComponent>(), e.modify<MultiAnimationComponent>().getComponent(multiAnimationIndex), index);  }
-        static void bindArrayToAnimation(VertexArrayComponent& vertices, AnimationComponent& animation, std::size_t index);
+        static void bindArrayToAnimation(VertexArrayComponent& vertices, AnimationComponent& animation, unsigned index);
 
         /** \brief Sets up a new animation state for entity e with Animation- and SpriteMetadataComponent-components.
         * The state is identified by the given string key. Running flag will be true after this call. */
         bool setAnimationState(Entity e, const std::string& key);
-        bool setAnimationState(Entity e, const std::string& key, std::size_t multiAnimationIndex);
+        bool setAnimationState(Entity e, const std::string& key, unsigned multiAnimationIndex);
         bool setAnimationState(Entity e, const SpriteMetadataComponent& meta, AnimationComponent& anim, const std::string& key);
 
         /** \brief Starts a new animation state for the given entity. This requires an VertexArray component and
@@ -361,14 +350,14 @@ namespace ungod
         void setRunning(Entity e, bool running);
 
         /** \brief Sets restarts or stops an animation. */
-        void setRunning(Entity e, bool running, std::size_t animationIndex);
+        void setRunning(Entity e, bool running, unsigned animationIndex);
 
 
         /** \brief Sets the running speed of an animation. */
         void setAnimationSpeed(Entity e, float speed);
 
         /** \brief Sets the running speed of an multi-animation. */
-        void setAnimationSpeed(Entity e, float speed, std::size_t animationIndex);
+        void setAnimationSpeed(Entity e, float speed, unsigned animationIndex);
 
 
         /** \brief Registers new callback for the ContentsChanged signal. */
@@ -406,34 +395,34 @@ namespace ungod
 
         /** \brief Sets the rotation of the sprite. Requires Sprite component. */
         inline void setRotation(Entity e, float rotation) {setRotation(e, e.modify<SpriteComponent>(), rotation);}
-        inline void setRotation(Entity e, float rotation, std::size_t multiIndex) {setRotation(e, e.modify<MultiSpriteComponent>().getComponent(multiIndex), rotation);}
+        inline void setRotation(Entity e, float rotation, unsigned multiIndex) {setRotation(e, e.modify<MultiSpriteComponent>().getComponent(multiIndex), rotation);}
         void setRotation(Entity e, SpriteComponent& sprite, float rotation);
 
         /** \brief Sets the scale of the sprite. Requires Sprite component.*/
         inline void setScale(Entity e, float scalex, float scaley) {setScale(e, e.modify<SpriteComponent>(), {scalex, scaley});}
         inline void setScale(Entity e, const sf::Vector2f& scale) {setScale(e, e.modify<SpriteComponent>(), scale);}
-        inline void setScale(Entity e, float scalex, float scaley, std::size_t multiIndex) { setScale(e, e.modify<MultiSpriteComponent>().getComponent(multiIndex),  {scalex, scaley});}
-        inline void setScale(Entity e, const sf::Vector2f& scale, std::size_t multiIndex) { setScale(e, e.modify<MultiSpriteComponent>().getComponent(multiIndex), scale);}
+        inline void setScale(Entity e, float scalex, float scaley, unsigned multiIndex) { setScale(e, e.modify<MultiSpriteComponent>().getComponent(multiIndex),  {scalex, scaley});}
+        inline void setScale(Entity e, const sf::Vector2f& scale, unsigned multiIndex) { setScale(e, e.modify<MultiSpriteComponent>().getComponent(multiIndex), scale);}
         void setScale(Entity e, SpriteComponent& sprite, const sf::Vector2f& scale);
 
         /** \brief Sets the origin of the sprite. Requires Sprite component. */
         inline void setOrigin(Entity e, const sf::Vector2f& origin) {setOrigin(e, e.modify<SpriteComponent>(), origin);}
-        inline void setOrigin(Entity e, const sf::Vector2f& origin, std::size_t multiIndex) {setOrigin(e, e.modify<MultiSpriteComponent>().getComponent(multiIndex), origin);}
+        inline void setOrigin(Entity e, const sf::Vector2f& origin, unsigned multiIndex) {setOrigin(e, e.modify<MultiSpriteComponent>().getComponent(multiIndex), origin);}
         void setOrigin(Entity e, SpriteComponent& sprite, const sf::Vector2f& origin);
 
         /** \brief Sets a affector callback. Requires a VisualAffectorComponent (MultiVisualAffectorComponent) component. */
         inline void setAffectorCallback(Entity e, const VisualAffectorComponentCallback& callback) {setAffectorCallback(e.modify<VisualAffectorComponent>(), callback);}
-        inline void setAffectorCallback(Entity e, const VisualAffectorComponentCallback& callback, std::size_t multiIndex) {setAffectorCallback(e.modify<MultiVisualAffectorComponent>().getComponent(multiIndex), callback);}
+        inline void setAffectorCallback(Entity e, const VisualAffectorComponentCallback& callback, unsigned multiIndex) {setAffectorCallback(e.modify<MultiVisualAffectorComponent>().getComponent(multiIndex), callback);}
         void setAffectorCallback(VisualAffectorComponent& affector, const VisualAffectorComponentCallback& callback);
 
         /** \brief Sets the color of a sprite component. */
         inline void setSpriteColor(Entity e, const sf::Color& color) {setSpriteColor(e.modify<SpriteComponent>(), color);}
-        inline void setSpriteColor(Entity e, const sf::Color& color, std::size_t multiIndex) {setSpriteColor(e.modify<MultiSpriteComponent>().getComponent(multiIndex), color);}
+        inline void setSpriteColor(Entity e, const sf::Color& color, unsigned multiIndex) {setSpriteColor(e.modify<MultiSpriteComponent>().getComponent(multiIndex), color);}
         void setSpriteColor(SpriteComponent& sprite, const sf::Color& color);
 
         /** \brief Sets the color of an array-texture-rect. */
-        inline void setArrayRectColor(Entity e, const sf::Color& color, std::size_t index) {setArrayRectColor(e.modify<VertexArrayComponent>(), color, index);}
-        void setArrayRectColor(VertexArrayComponent& vertices, const sf::Color& color, std::size_t index);
+        inline void setArrayRectColor(Entity e, const sf::Color& color, unsigned index) {setArrayRectColor(e.modify<VertexArrayComponent>(), color, index);}
+        void setArrayRectColor(VertexArrayComponent& vertices, const sf::Color& color, unsigned index);
 
         /** \brief Sets the opacity of the entity in range [0,1]. */
         static void setOpacity(Entity e, float opacity);
@@ -456,12 +445,12 @@ namespace ungod
 
         /** \brief Flips the sprite of the given entity in x direction. */
         inline static void flipSpriteX(Entity e) {flipSpriteX(e.modify<SpriteComponent>());}
-        inline static void flipSpriteX(Entity e, std::size_t multiIndex) {flipSpriteY(e.modify<MultiSpriteComponent>().getComponent(multiIndex));}
+        inline static void flipSpriteX(Entity e, unsigned multiIndex) {flipSpriteY(e.modify<MultiSpriteComponent>().getComponent(multiIndex));}
         static void flipSpriteX(SpriteComponent& sprite);
 
         /** \brief Flips the sprite of the given entity in y direction. */
         inline static void flipSpriteY(Entity e) {flipSpriteY(e.modify<SpriteComponent>());}
-        inline static void flipSpriteY(Entity e, std::size_t multiIndex) {flipSpriteY(e.modify<MultiSpriteComponent>().getComponent(multiIndex));}
+        inline static void flipSpriteY(Entity e, unsigned multiIndex) {flipSpriteY(e.modify<MultiSpriteComponent>().getComponent(multiIndex));}
         static void flipSpriteY(SpriteComponent& sprite);
 
 

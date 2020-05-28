@@ -287,7 +287,10 @@ namespace ungod
             {
                 const auto& eb = fcpy.get<EntityBehaviorComponent>();
                 if (eb.hasValidEnvironment())
+                {
                     eb.getEnvironment()["entity"] = fcpy;
+                    mEntityBehaviorHandler.initBehavior(fcpy);
+                }
             }
             mTransformHandler.setPosition(fcpy,
                 getNode().mapToLocalPosition(

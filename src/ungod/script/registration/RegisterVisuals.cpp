@@ -64,17 +64,17 @@ namespace ungod
 			mHandler.loadMetadata(mEntity, file);
 		}
 
-		std::size_t VisualHandlerFrontEnd::getVertexRectCount() const
+		unsigned VisualHandlerFrontEnd::getVertexRectCount() const
 		{
 			return mEntity.get<VertexArrayComponent>().getVertices().textureRectCount();
 		}
 
-		sf::Vector2f VisualHandlerFrontEnd::getVertexRectPosition(std::size_t index) const
+		sf::Vector2f VisualHandlerFrontEnd::getVertexRectPosition(unsigned index) const
 		{
 			return mEntity.get<VertexArrayComponent>().getVertices().getPosition(index);
 		}
 
-		sf::FloatRect VisualHandlerFrontEnd::getVertexTexureRect(std::size_t index) const
+		sf::FloatRect VisualHandlerFrontEnd::getVertexTexureRect(unsigned index) const
 		{
 			return mEntity.get<VertexArrayComponent>().getVertices().getTextureRect(index);
 		}
@@ -84,52 +84,37 @@ namespace ungod
 			return mEntity.get<VertexArrayComponent>().getVertices().getBounds();
 		}
 
-		void VisualHandlerFrontEnd::initVertexRects(std::size_t num)
+		bool VisualHandlerFrontEnd::newVertexTextureRect(const sf::FloatRect& rect)
 		{
-			mHandler.initTextureRects(mEntity, num);
+			return mHandler.newVertexTextureRect(mEntity, rect);
 		}
 
-		void VisualHandlerFrontEnd::setVertexTextureRect(const sf::FloatRect& rect, std::size_t index)
+		bool VisualHandlerFrontEnd::newVertexTextureRect(const std::string& key)
 		{
-			mHandler.setArrayTextureRect(mEntity, rect, index);
+			return mHandler.newVertexTextureRect(mEntity, key);
 		}
 
-		void VisualHandlerFrontEnd::setVertexTextureRect(const std::string& key, std::size_t index)
-		{
-			mHandler.setArrayTextureRect(mEntity, index, key);
-		}
-
-		void VisualHandlerFrontEnd::setVertexRectPosition(const sf::Vector2f& pos, std::size_t index)
+		void VisualHandlerFrontEnd::setVertexRectPosition(const sf::Vector2f& pos, unsigned index)
 		{
 			mHandler.setTextureRectPosition(mEntity, pos, index);
 		}
 
-		void VisualHandlerFrontEnd::setVertexPoints(std::size_t index, const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4)
+		void VisualHandlerFrontEnd::setVertexPoints(unsigned index, const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4)
 		{
 			mHandler.setPoints(mEntity, index, p1, p2, p3, p4);
 		}
 
-		std::size_t VisualHandlerFrontEnd::newVertexRect()
+		bool VisualHandlerFrontEnd::newVertexTextureRect()
 		{
-			return mHandler.newTextureRect(mEntity);
+			return mHandler.newVertexTextureRect(mEntity);
 		}
 
-		std::size_t VisualHandlerFrontEnd::newVertexRect(const sf::FloatRect& rect)
-		{
-			return mHandler.newTextureRect(mEntity, rect);
-		}
-
-		std::size_t VisualHandlerFrontEnd::newVertexRect(const std::string& key)
-		{
-			return mHandler.newTextureRect(mEntity, key);
-		}
-
-		void VisualHandlerFrontEnd::setVertexRectColor(const sf::Color& color, std::size_t index)
+		void VisualHandlerFrontEnd::setVertexRectColor(const sf::Color& color, unsigned index)
 		{
 			mHandler.setArrayRectColor(mEntity, color, index);
 		}
 
-		const sf::Vector2f& VisualHandlerFrontEnd::getPoint(std::size_t rectIndex, std::size_t pointIndex)
+		const sf::Vector2f& VisualHandlerFrontEnd::getPoint(unsigned rectIndex, unsigned pointIndex)
 		{
 			return mHandler.getPoint(mEntity, rectIndex, pointIndex);
 		}
@@ -139,7 +124,7 @@ namespace ungod
 			return mEntity.get<SpriteComponent>().getSprite().getPosition();
 		}
 
-		const sf::Vector2f& VisualHandlerFrontEnd::getSpritePosition(std::size_t index) const
+		const sf::Vector2f& VisualHandlerFrontEnd::getSpritePosition(unsigned index) const
 		{
 			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getPosition();
 		}
@@ -149,7 +134,7 @@ namespace ungod
 			return mEntity.get<SpriteComponent>().getSprite().getScale();
 		}
 
-		const sf::Vector2f& VisualHandlerFrontEnd::getSpriteScale(std::size_t index) const
+		const sf::Vector2f& VisualHandlerFrontEnd::getSpriteScale(unsigned index) const
 		{
 			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getScale();
 		}
@@ -159,7 +144,7 @@ namespace ungod
 			return mEntity.get<SpriteComponent>().getSprite().getRotation();
 		}
 
-		float VisualHandlerFrontEnd::getSpriteRotation(std::size_t index) const
+		float VisualHandlerFrontEnd::getSpriteRotation(unsigned index) const
 		{
 			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getRotation();
 		}
@@ -169,7 +154,7 @@ namespace ungod
 			return mEntity.get<SpriteComponent>().getSprite().getOrigin();
 		}
 
-		const sf::Vector2f& VisualHandlerFrontEnd::getSpriteOrigin(std::size_t index) const
+		const sf::Vector2f& VisualHandlerFrontEnd::getSpriteOrigin(unsigned index) const
 		{
 			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getOrigin();
 		}
@@ -179,7 +164,7 @@ namespace ungod
 			return mEntity.get<SpriteComponent>().getSprite().getTextureRect();
 		}
 
-		sf::FloatRect VisualHandlerFrontEnd::getSpriteTextureRect(std::size_t index) const
+		sf::FloatRect VisualHandlerFrontEnd::getSpriteTextureRect(unsigned index) const
 		{
 			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getTextureRect();
 		}
@@ -189,7 +174,7 @@ namespace ungod
 			return mEntity.get<SpriteComponent>().getSprite().getBounds();
 		}
 
-		sf::FloatRect VisualHandlerFrontEnd::getSpriteBounds(std::size_t index) const
+		sf::FloatRect VisualHandlerFrontEnd::getSpriteBounds(unsigned index) const
 		{
 			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getBounds();
 		}
@@ -199,7 +184,7 @@ namespace ungod
 			return mEntity.get<SpriteComponent>().getSprite().getUntransformedBounds();
 		}
 
-		sf::FloatRect VisualHandlerFrontEnd::getSpriteUntransformedBounds(std::size_t index) const
+		sf::FloatRect VisualHandlerFrontEnd::getSpriteUntransformedBounds(unsigned index) const
 		{
 			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getUntransformedBounds();
 		}
@@ -209,7 +194,7 @@ namespace ungod
 			mHandler.setSpriteTextureRect(mEntity, rect);
 		}
 
-		void VisualHandlerFrontEnd::setSpriteTextureRect(const sf::FloatRect& rect, std::size_t index) 
+		void VisualHandlerFrontEnd::setSpriteTextureRect(const sf::FloatRect& rect, unsigned index) 
 		{
 			mHandler.setSpriteTextureRect(mEntity, rect, index);
 		}
@@ -219,7 +204,7 @@ namespace ungod
 			mHandler.setSpriteTextureRect(mEntity, key);
 		}
 		
-		void VisualHandlerFrontEnd::setSpriteTextureRect(const std::string& key, std::size_t index) 
+		void VisualHandlerFrontEnd::setSpriteTextureRect(const std::string& key, unsigned index) 
 		{
 			mHandler.setSpriteTextureRect(mEntity, key, index);
 		}
@@ -229,7 +214,7 @@ namespace ungod
 			mHandler.setSpritePosition(mEntity, pos);
 		}
 
-		void VisualHandlerFrontEnd::setSpritePosition(const sf::Vector2f& pos, std::size_t index) 
+		void VisualHandlerFrontEnd::setSpritePosition(const sf::Vector2f& pos, unsigned index) 
 		{
 			mHandler.setSpritePosition(mEntity, pos, index);
 		}
@@ -240,7 +225,7 @@ namespace ungod
 			mHandler.setRotation(mEntity, rotation);
 		}
 
-		void VisualHandlerFrontEnd::setSpriteRotation(float rotation, std::size_t index)
+		void VisualHandlerFrontEnd::setSpriteRotation(float rotation, unsigned index)
 		{
 			mHandler.setRotation(mEntity, rotation, index);
 		}
@@ -250,7 +235,7 @@ namespace ungod
 			mHandler.setScale(mEntity, scale);
 		}
 
-		void VisualHandlerFrontEnd::setSpriteScale(const sf::Vector2f& scale, std::size_t index)
+		void VisualHandlerFrontEnd::setSpriteScale(const sf::Vector2f& scale, unsigned index)
 		{
 			mHandler.setScale(mEntity, scale, index);
 		}
@@ -260,7 +245,7 @@ namespace ungod
 			mHandler.setOrigin(mEntity, origin);
 		}
 
-		void VisualHandlerFrontEnd::setSpriteOrigin(const sf::Vector2f& origin, std::size_t index)
+		void VisualHandlerFrontEnd::setSpriteOrigin(const sf::Vector2f& origin, unsigned index)
 		{
 			mHandler.setOrigin(mEntity, origin, index);
 		}
@@ -270,7 +255,7 @@ namespace ungod
 			mHandler.setSpriteColor(mEntity, color);
 		}
 
-		void VisualHandlerFrontEnd::setSpriteColor(const sf::Color& color, std::size_t index)
+		void VisualHandlerFrontEnd::setSpriteColor(const sf::Color& color, unsigned index)
 		{
 			mHandler.setSpriteColor(mEntity, color, index);
 		}
@@ -281,17 +266,17 @@ namespace ungod
 			mHandler.bindSpriteToAnimation(mEntity);
 		}
 
-		void VisualHandlerFrontEnd::bindSpriteToAnimation(std::size_t spriteIndex, std::size_t animationIndex)
+		void VisualHandlerFrontEnd::bindSpriteToAnimation(unsigned spriteIndex, unsigned animationIndex)
 		{
 			mHandler.bindSpriteToAnimation(mEntity, spriteIndex, animationIndex);
 		}
 
-		void VisualHandlerFrontEnd::bindVertexToAnimation(std::size_t vertexIndex)
+		void VisualHandlerFrontEnd::bindVertexToAnimation(unsigned vertexIndex)
 		{
 			mHandler.bindArrayToAnimation(mEntity, vertexIndex);
 		}
 
-		void VisualHandlerFrontEnd::bindVertexToAnimation(std::size_t vertexIndex, std::size_t multiAnimationIndex)
+		void VisualHandlerFrontEnd::bindVertexToAnimation(unsigned vertexIndex, unsigned multiAnimationIndex)
 		{
 			mHandler.bindArrayToAnimation(mEntity, vertexIndex, multiAnimationIndex);
 		}
@@ -306,12 +291,12 @@ namespace ungod
 			return mEntity.get<VisualAffectorComponent>().isActive();
 		}
 
-		void VisualHandlerFrontEnd::setAffectorActive(bool active, std::size_t index)
+		void VisualHandlerFrontEnd::setAffectorActive(bool active, unsigned index)
 		{
 			mEntity.modify<MultiVisualAffectorComponent>().getComponent(index).setActive(active);
 		}
 
-		bool VisualHandlerFrontEnd::isAffectorActive(std::size_t index) const
+		bool VisualHandlerFrontEnd::isAffectorActive(unsigned index) const
 		{
 			return mEntity.modify<MultiVisualAffectorComponent>().getComponent(index).isActive();
 		}
@@ -321,7 +306,7 @@ namespace ungod
 			return mEntity.get<AnimationComponent>().getAnimation().isLooping();
 		}
 
-		bool VisualHandlerFrontEnd::isAnimationLooping(std::size_t index) const
+		bool VisualHandlerFrontEnd::isAnimationLooping(unsigned index) const
 		{
 			return mEntity.get<MultiAnimationComponent>().getComponent(index).getAnimation().isLooping();
 		}
@@ -331,7 +316,7 @@ namespace ungod
 			return mEntity.get<AnimationComponent>().getAnimation().isRunning();
 		}
 
-		bool VisualHandlerFrontEnd::isAnimationRunning(std::size_t index) const
+		bool VisualHandlerFrontEnd::isAnimationRunning(unsigned index) const
 		{
 			return mEntity.get<MultiAnimationComponent>().getComponent(index).getAnimation().isRunning();
 		}
@@ -341,7 +326,7 @@ namespace ungod
 			return mEntity.get<AnimationComponent>().getAnimation().getKey();
 		}
 
-		std::string VisualHandlerFrontEnd::getAnimationKey(std::size_t index) const
+		std::string VisualHandlerFrontEnd::getAnimationKey(unsigned index) const
 		{
 			return mEntity.get<MultiAnimationComponent>().getComponent(index).getAnimation().getKey();
 		}
@@ -351,7 +336,7 @@ namespace ungod
 			return mEntity.get<AnimationComponent>().getAnimation().getCurrentIndex();
 		}
 
-		unsigned VisualHandlerFrontEnd::getFrameIndex(std::size_t index) const
+		unsigned VisualHandlerFrontEnd::getFrameIndex(unsigned index) const
 		{
 			return mEntity.get<MultiAnimationComponent>().getComponent(index).getAnimation().getCurrentIndex();
 		}
@@ -361,7 +346,7 @@ namespace ungod
 			return mEntity.get<AnimationComponent>().getAnimation().getSpeed();
 		}
 
-		float VisualHandlerFrontEnd::getAnimationSpeed(std::size_t index) const
+		float VisualHandlerFrontEnd::getAnimationSpeed(unsigned index) const
 		{
 			return mEntity.get<MultiAnimationComponent>().getComponent(index).getAnimation().getSpeed();
 		}
@@ -371,7 +356,7 @@ namespace ungod
 			mHandler.setAnimationState(mEntity, key);
 		}
 
-		void VisualHandlerFrontEnd::setAnimationState(const std::string& key, std::size_t multiAnimationIndex)
+		void VisualHandlerFrontEnd::setAnimationState(const std::string& key, unsigned multiAnimationIndex)
 		{
 			mHandler.setAnimationState(mEntity, key, multiAnimationIndex);
 		}
@@ -386,7 +371,7 @@ namespace ungod
 			mHandler.setRunning(mEntity, running);
 		}
 
-		void VisualHandlerFrontEnd::setAnimationRunning(bool running, std::size_t multiAnimationIndex)
+		void VisualHandlerFrontEnd::setAnimationRunning(bool running, unsigned multiAnimationIndex)
 		{
 			mHandler.setRunning(mEntity, running, multiAnimationIndex);
 		}
@@ -396,7 +381,7 @@ namespace ungod
 			mHandler.setAnimationSpeed(mEntity, speed);
 		}
 
-		void VisualHandlerFrontEnd::setAnimationSpeed(float speed, std::size_t multiAnimationInde)
+		void VisualHandlerFrontEnd::setAnimationSpeed(float speed, unsigned multiAnimationInde)
 		{
 			mHandler.setAnimationSpeed(mEntity, speed, multiAnimationInde);
 		}
@@ -513,69 +498,66 @@ namespace ungod
 			visualsHandlerType["getVertexRectPosition"] = &VisualHandlerFrontEnd::getVertexRectPosition;
 			visualsHandlerType["getVertexTexureRect"] = &VisualHandlerFrontEnd::getVertexTexureRect;
 			visualsHandlerType["getVertexBounds"] = &VisualHandlerFrontEnd::getVertexBounds;
-			visualsHandlerType["initVertexRects"] = &VisualHandlerFrontEnd::initVertexRects;
-			visualsHandlerType["setVertexTextureRect"] = sol::overload([](VisualHandlerFrontEnd& vh, const sf::FloatRect& rect, std::size_t index) { return vh.setVertexTextureRect(rect, index); },
-																	[](VisualHandlerFrontEnd& vh, const std::string& key, std::size_t index) { return vh.setVertexTextureRect(key, index); });
 			visualsHandlerType["setVertexRectPosition"] = &VisualHandlerFrontEnd::setVertexRectPosition;
 			visualsHandlerType["setVertexPoints"] = &VisualHandlerFrontEnd::setVertexPoints;
-			visualsHandlerType["newVertexRect"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.newVertexRect(); },
-																[](VisualHandlerFrontEnd& vh, const sf::FloatRect& rect) { return vh.newVertexRect(rect); },
-																[](VisualHandlerFrontEnd& vh, const std::string& key) { return vh.newVertexRect(key); });
+			visualsHandlerType["newVertexTextureRect"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.newVertexTextureRect(); },
+																[](VisualHandlerFrontEnd& vh, const sf::FloatRect& rect) { return vh.newVertexTextureRect(rect); },
+																[](VisualHandlerFrontEnd& vh, const std::string& key) { return vh.newVertexTextureRect(key); });
 			visualsHandlerType["setVertexRectColor"] = &VisualHandlerFrontEnd::setVertexRectColor;
 			visualsHandlerType["getPoint"] = &VisualHandlerFrontEnd::getPoint;
 			visualsHandlerType["getSpritePosition"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpritePosition(); },
-																	[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getSpritePosition(index); });
+																	[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.getSpritePosition(index); });
 			visualsHandlerType["getSpriteScale"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpriteScale(); },
-																[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getSpriteScale(index); });
+																[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.getSpriteScale(index); });
 			visualsHandlerType["getSpriteRotation"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpriteRotation(); },
-																	[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getSpriteRotation(index); });
+																	[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.getSpriteRotation(index); });
 			visualsHandlerType["getSpriteOrigin"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpriteOrigin(); },
-																	[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getSpriteOrigin(index); });
+																	[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.getSpriteOrigin(index); });
 			visualsHandlerType["getSpriteTextureRect"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpriteTextureRect(); },
-																		[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getSpriteTextureRect(index); });
+																		[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.getSpriteTextureRect(index); });
 			visualsHandlerType["getSpriteBounds"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpriteBounds(); },
-																[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getSpriteBounds(index); });
+																[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.getSpriteBounds(index); });
 			visualsHandlerType["getSpriteUntransformedBounds"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpriteUntransformedBounds(); },
-																				[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getSpriteUntransformedBounds(index); });
+																				[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.getSpriteUntransformedBounds(index); });
 			visualsHandlerType["setSpriteTextureRect"] = sol::overload([](VisualHandlerFrontEnd& vh, const sf::FloatRect& rect) { vh.setSpriteTextureRect(rect); },
-																		[](VisualHandlerFrontEnd& vh, const sf::FloatRect& rect, std::size_t index) { vh.setSpriteTextureRect(rect, index); },
+																		[](VisualHandlerFrontEnd& vh, const sf::FloatRect& rect, unsigned index) { vh.setSpriteTextureRect(rect, index); },
 																		[](VisualHandlerFrontEnd& vh, const std::string& key) { vh.setSpriteTextureRect(key); },
-																			[](VisualHandlerFrontEnd& vh, const std::string& key, std::size_t index) { vh.setSpriteTextureRect(key, index); });
+																			[](VisualHandlerFrontEnd& vh, const std::string& key, unsigned index) { vh.setSpriteTextureRect(key, index); });
 			visualsHandlerType["setSpritePosition"] = sol::overload([](VisualHandlerFrontEnd& vh, const sf::Vector2f& pos) { vh.setSpritePosition(pos); },
-																		[](VisualHandlerFrontEnd& vh, const sf::Vector2f& pos, std::size_t index) { vh.setSpritePosition(pos, index); });
+																		[](VisualHandlerFrontEnd& vh, const sf::Vector2f& pos, unsigned index) { vh.setSpritePosition(pos, index); });
 			visualsHandlerType["setSpriteRotation"] = sol::overload([](VisualHandlerFrontEnd& vh, float rotation) { vh.setSpriteRotation(rotation); },
-																	[](VisualHandlerFrontEnd& vh, float rotation, std::size_t index) { vh.setSpriteRotation(rotation, index); });
+																	[](VisualHandlerFrontEnd& vh, float rotation, unsigned index) { vh.setSpriteRotation(rotation, index); });
 			visualsHandlerType["setSpriteScale"] = sol::overload([](VisualHandlerFrontEnd& vh, const sf::Vector2f& scale) { vh.setSpriteScale(scale); },
-																[](VisualHandlerFrontEnd& vh, const sf::Vector2f& scale, std::size_t index) { vh.setSpriteScale(scale, index); });
+																[](VisualHandlerFrontEnd& vh, const sf::Vector2f& scale, unsigned index) { vh.setSpriteScale(scale, index); });
 			visualsHandlerType["setSpriteOrigin"] = sol::overload([](VisualHandlerFrontEnd& vh, const sf::Vector2f& origin) { vh.setSpriteOrigin(origin); },
-																[](VisualHandlerFrontEnd& vh, const sf::Vector2f& origin, std::size_t index) { vh.setSpriteOrigin(origin, index); });
+																[](VisualHandlerFrontEnd& vh, const sf::Vector2f& origin, unsigned index) { vh.setSpriteOrigin(origin, index); });
 			visualsHandlerType["setSpriteColor"] = sol::overload([](VisualHandlerFrontEnd& vh, const sf::Color& color) { vh.setSpriteColor(color); },
-																[](VisualHandlerFrontEnd& vh, const sf::Color& color, std::size_t index) { vh.setSpriteColor(color, index); });
+																[](VisualHandlerFrontEnd& vh, const sf::Color& color, unsigned index) { vh.setSpriteColor(color, index); });
 			visualsHandlerType["bindSpriteToAnimation"] = sol::overload([](VisualHandlerFrontEnd& vh) { vh.bindSpriteToAnimation(); },
-																		[](VisualHandlerFrontEnd& vh, std::size_t spriteIndex, std::size_t animationIndex) { vh.bindSpriteToAnimation(spriteIndex, animationIndex); });
-			visualsHandlerType["bindVertexToAnimation"] = sol::overload([](VisualHandlerFrontEnd& vh, std::size_t vertexIndex) { vh.bindVertexToAnimation(vertexIndex); },
-																	[](VisualHandlerFrontEnd& vh, std::size_t vertexIndex, std::size_t animationIndex) { vh.bindVertexToAnimation(vertexIndex, animationIndex); });
+																		[](VisualHandlerFrontEnd& vh, unsigned spriteIndex, unsigned animationIndex) { vh.bindSpriteToAnimation(spriteIndex, animationIndex); });
+			visualsHandlerType["bindVertexToAnimation"] = sol::overload([](VisualHandlerFrontEnd& vh, unsigned vertexIndex) { vh.bindVertexToAnimation(vertexIndex); },
+																	[](VisualHandlerFrontEnd& vh, unsigned vertexIndex, unsigned animationIndex) { vh.bindVertexToAnimation(vertexIndex, animationIndex); });
 			visualsHandlerType["setAffectorActive"] = sol::overload([](VisualHandlerFrontEnd& vh, bool active) { vh.setAffectorActive(active); },
-																		[](VisualHandlerFrontEnd& vh, bool active, std::size_t index) { vh.setAffectorActive(active, index); });
+																		[](VisualHandlerFrontEnd& vh, bool active, unsigned index) { vh.setAffectorActive(active, index); });
 			visualsHandlerType["isAffectorActive"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.isAffectorActive(); },
-																	[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.isAffectorActive(index); });
+																	[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.isAffectorActive(index); });
 			visualsHandlerType["isAnimationLooping"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.isAnimationLooping(); },
-																	[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.isAnimationLooping(index); });
+																	[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.isAnimationLooping(index); });
 			visualsHandlerType["isAnimationRunning"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.isAnimationRunning(); },
-																	[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.isAnimationRunning(index); });
+																	[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.isAnimationRunning(index); });
 			visualsHandlerType["getAnimationKey"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getAnimationKey(); },
-																	[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getAnimationKey(index); });
+																	[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.getAnimationKey(index); });
 			visualsHandlerType["getFrameIndex"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getFrameIndex(); },
-																[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getFrameIndex(index); });
+																[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.getFrameIndex(index); });
 			visualsHandlerType["getAnimationSpeed"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getAnimationSpeed(); },
-															[](VisualHandlerFrontEnd& vh, std::size_t index) { return vh.getAnimationSpeed(index); });
+															[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.getAnimationSpeed(index); });
 			visualsHandlerType["setAnimationState"] = sol::overload([](VisualHandlerFrontEnd& vh, const std::string& key) { return vh.setAnimationState(key); },
-																	[](VisualHandlerFrontEnd& vh, const std::string& key, std::size_t index) { return vh.setAnimationState(key, index); });
+																	[](VisualHandlerFrontEnd& vh, const std::string& key, unsigned index) { return vh.setAnimationState(key, index); });
 			visualsHandlerType["newAnimationState"] = &VisualHandlerFrontEnd::newAnimationState;
 			visualsHandlerType["setAnimationRunning"] = sol::overload([](VisualHandlerFrontEnd& vh, bool running) { return vh.setAnimationRunning(running); },
-																		[](VisualHandlerFrontEnd& vh, bool running, std::size_t index) { return vh.setAnimationRunning(running, index); });
+																		[](VisualHandlerFrontEnd& vh, bool running, unsigned index) { return vh.setAnimationRunning(running, index); });
 			visualsHandlerType["setAnimationSpeed"] = sol::overload([](VisualHandlerFrontEnd& vh, float speed) { return vh.setAnimationSpeed(speed); },
-																	[](VisualHandlerFrontEnd& vh, float speed, std::size_t index) { return vh.setAnimationSpeed(speed, index); });
+																	[](VisualHandlerFrontEnd& vh, float speed, unsigned index) { return vh.setAnimationSpeed(speed, index); });
 			visualsHandlerType["isBigSpriteLoaded"] = &VisualHandlerFrontEnd::isBigSpriteLoaded;
 			visualsHandlerType["isBigSpriteVisible"] = &VisualHandlerFrontEnd::isBigSpriteVisible;
 			visualsHandlerType["getBigSpriteFilePath"] = &VisualHandlerFrontEnd::getBigSpriteFilePath;

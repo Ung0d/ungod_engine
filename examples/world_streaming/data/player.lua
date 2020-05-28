@@ -16,20 +16,20 @@ function playerGlobal.onCreation(static, player)
   player.entity:add():animation()
   player.entity:add():updateTimer()
   player.entity:add():movement()
-end
-
-
-function playerGlobal.onInit(static, player)
 
   player.entity:visuals():loadTexture("data/sprites/ondafella.png")
   player.entity:visuals():loadMetadata("data/sprites/ondafella.xml")
-  player.entity:visuals():bindSpriteToAnimation()
-  player.entity:visuals():setAnimationState("idle")
 
   player.baseSpeed = 0.20
   player.maxVel = 1.6
   player.entity:movement():setBaseSpeed(player.baseSpeed)
   player.entity:movement():setMaximumVelocity(player.maxVel)
+end
+
+
+function playerGlobal.onInit(static, player)
+  player.entity:visuals():bindSpriteToAnimation()
+  player.entity:visuals():setAnimationState("idle")
 
 end
 
@@ -80,7 +80,6 @@ function playerGlobal.onEnteredNewNode(static, player, worldGraph, oldNode, newN
     newNode:getWorld(0):add(playerCpy)
     global.player = playerCpy
     worldGraph:getCamera():lockToEntity(playerCpy)
-    playerCpy:visuals():bindSpriteToAnimation()
 
   end
 end

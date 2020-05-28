@@ -119,12 +119,6 @@ namespace ungod
     }
 
 
-    void VisualsHandler::initTextureRects(Entity e, std::size_t num)
-    {
-        e.modify<VertexArrayComponent>().mVertices.initRects(num);
-        e.modify<VertexArrayComponent>().mKeys.resize(num);
-    }
-
     void VisualsHandler::setSpriteTextureRect(Entity e, SpriteComponent& sprite, const sf::FloatRect& rect)
     {
         sprite.mSprite.setTextureRect(rect);
@@ -138,14 +132,7 @@ namespace ungod
         mContentsChangedSignal.emit(e, sprite.getSprite().getBounds());
     }
 
-    void VisualsHandler::setArrayTextureRect(VertexArrayComponent& vertices, const sf::FloatRect& rect, std::size_t index)
-    {
-        vertices.mVertices.setTextureRect(rect, index);
-        if (index < vertices.mKeys.size())
-            vertices.mKeys[index] = std::string{};
-    }
-
-    void VisualsHandler::setTextureRectPosition(Entity e, const sf::Vector2f& position, std::size_t index)
+    void VisualsHandler::setTextureRectPosition(Entity e, const sf::Vector2f& position, unsigned index)
     {
         VertexArrayComponent& vertices = e.modify<VertexArrayComponent>();
         vertices.mVertices.setRectPosition(position, index);
@@ -153,7 +140,7 @@ namespace ungod
         mContentsChangedSignal.emit(e, vertices.mVertices.getBounds());
     }
 
-    void VisualsHandler::setPoints(Entity e, VertexArrayComponent& vertices, std::size_t index, const sf::Vector2f& p1,
+    void VisualsHandler::setPoints(Entity e, VertexArrayComponent& vertices, unsigned index, const sf::Vector2f& p1,
                                    const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4)
     {
         vertices.mVertices.setPoints(p1, p2, p3, p4, index);
@@ -162,26 +149,46 @@ namespace ungod
     }
 
 
-   const sf::Vector2f& VisualsHandler::getPoint(Entity e, std::size_t rectIndex, std::size_t pointIndex)
+   const sf::Vector2f& VisualsHandler::getPoint(Entity e, unsigned rectIndex, unsigned pointIndex)
    {
         return e.get<VertexArrayComponent>().getVertices().getPoint(rectIndex, pointIndex);
    }
 
-    std::size_t VisualsHandler::newTextureRect(VertexArrayComponent& vertices, const sf::FloatRect& rect)
+   bool VisualsHandler::newVertexTextureRect(Entity e, VertexArrayComponent& vertices, const sf::FloatRect& rect)
     {
-        std::size_t index = vertices.mVertices.newTextureRect(rect);
-        return index;
+       bool done = vertices.mVertices.newTextureRect(rect);
+       if (done)
+       {
+           vertices.mVertices.setRectPosition({ 0.0f,0.0f }, vertices.mVertices.textureRectCount() - 1);
+           mContentsChangedSignal.emit(e, e.modify<VertexArrayComponent>().mVertices.getBounds());
+       }
+       return done;
     }
 
-    std::size_t VisualsHandler::newTextureRect(Entity e, VertexArrayComponent& vertices, VisualsComponent& vis)
+    bool VisualsHandler::newVertexTextureRect(Entity e, VertexArrayComponent& vertices, VisualsComponent& vis)
     {
-        std::size_t index = newTextureRect(vertices, {0,0,0,0});
         if (vis.isLoaded())
+            return newVertexTextureRect(e, vertices, 
+                sf::FloatRect{0.0f,0.0f, (float)vis.getTexture().getSize().x, (float)vis.getTexture().getSize().y});
+        return false;
+    }
+
+    bool VisualsHandler::newVertexTextureRect(Entity e, VertexArrayComponent& vertices, const SpriteMetadataComponent& data, const std::string& key)
+    {
+        auto node = data.mMeta.getNodeWithKey(key);
+        if (node)
         {
-            setArrayTextureRect(vertices, sf::FloatRect{0.0f,0.0f, (float)vis.getTexture().getSize().x, (float)vis.getTexture().getSize().y}, index);
-            setTextureRectPosition(e, {0,0}, index);
+            bool done = vertices.mVertices.newTextureRect(node);
+            if (done)
+            {
+                vertices.mKeys[vertices.mVertices.textureRectCount() - 1] = key;
+                mContentsChangedSignal.emit(e, e.modify<VertexArrayComponent>().mVertices.getBounds());
+                return true;
+            }
         }
-        return index;
+        else
+            Logger::warning(key, "not found in meta file: ", data.mMeta.getFilePath());
+        return false;
     }
 
     void VisualsHandler::loadTexture(VisualsComponent& visuals, const std::string& imageID, std::function<void(VisualsComponent&)> callback)
@@ -224,34 +231,6 @@ namespace ungod
             Logger::warning(key, "not found in meta file:", data.mMeta.getFilePath());
     }
 
-    void VisualsHandler::setArrayTextureRect(Entity e, std::size_t index, const std::string& key)
-    {
-        SpriteMetadataComponent& data = e.modify<SpriteMetadataComponent>();
-        auto node = data.mMeta.getNodeWithKey(key);
-        if (node)
-        {
-            e.modify<VertexArrayComponent>().mVertices.setTextureRect(node, index);
-            if (index >= e.modify<VertexArrayComponent>().mKeys.size())
-            {
-                e.modify<VertexArrayComponent>().mKeys.resize(index+1);
-            }
-            e.modify<VertexArrayComponent>().mKeys[index] = key;
-            mContentsChangedSignal.emit(e, e.modify<VertexArrayComponent>().mVertices.getBounds());
-        }
-        else
-        {
-            Logger::warning(key, "not found in meta file: ", data.mMeta.getFilePath());
-        }
-    }
-
-
-    std::size_t VisualsHandler::newTextureRect(Entity e, const std::string& key)
-    {
-        auto index = newTextureRect(e, sf::FloatRect{0.0f,0.0f,0.0f,0.0f});
-        setArrayTextureRect(e, index, key);
-        return index;
-    }
-
 
     void VisualsHandler::setVisible(Entity e, bool visible)
     {
@@ -271,9 +250,9 @@ namespace ungod
         animation.mVertices = sprite.mSprite.getVertices();
     }
 
-    void VisualsHandler::bindArrayToAnimation(VertexArrayComponent& vertices, AnimationComponent& animation, std::size_t index)
+    void VisualsHandler::bindArrayToAnimation(VertexArrayComponent& vertices, AnimationComponent& animation, unsigned index)
     {
-        animation.mVertices = &vertices.mVertices.getVertexArray()[0];
+        animation.mVertices = &vertices.mVertices.getVertices()[4*index];
     }
 
     bool VisualsHandler::setAnimationState(Entity e, const std::string& key)
@@ -282,7 +261,7 @@ namespace ungod
     }
 
 
-    bool VisualsHandler::setAnimationState(Entity e, const std::string& key, std::size_t multiAnimationIndex)
+    bool VisualsHandler::setAnimationState(Entity e, const std::string& key, unsigned multiAnimationIndex)
     {
         return setAnimationState(e, e.get<SpriteMetadataComponent>(), e.modify<MultiAnimationComponent>().getComponent(multiAnimationIndex), key);
     }
@@ -309,9 +288,14 @@ namespace ungod
 
     bool VisualsHandler::newAnimationState(Entity e, const std::string& key)
     {
-        auto index = newTextureRect(e, sf::FloatRect{0.0f,0.0f,0.0f,0.0f});
-        bindArrayToAnimation(e, index);
-        return setAnimationState(e, key);
+        bool done = newVertexTextureRect(e, sf::FloatRect{0.0f,0.0f,0.0f,0.0f});
+        if (done)
+        {
+            bindArrayToAnimation(e, e.get<VertexArrayComponent>().getVertices().textureRectCount() - 1);
+            return setAnimationState(e, key);
+        }
+        else
+            return false;
     }
 
     void VisualsHandler::setRunning(Entity e, bool running)
@@ -320,7 +304,7 @@ namespace ungod
     }
 
 
-    void VisualsHandler::setRunning(Entity e, bool running, std::size_t animationIndex)
+    void VisualsHandler::setRunning(Entity e, bool running, unsigned animationIndex)
     {
         e.modify<MultiAnimationComponent>().getComponent(animationIndex).mAnimation.setRunning(running);
     }
@@ -332,7 +316,7 @@ namespace ungod
     }
 
 
-    void VisualsHandler::setAnimationSpeed(Entity e, float speed, std::size_t animationIndex)
+    void VisualsHandler::setAnimationSpeed(Entity e, float speed, unsigned animationIndex)
     {
         e.modify<MultiAnimationComponent>().getComponent(animationIndex).mAnimation.setSpeed(speed);
     }
@@ -344,7 +328,7 @@ namespace ungod
     }
 
 
-    void VisualsHandler::setArrayRectColor(VertexArrayComponent& vertices, const sf::Color& color, std::size_t index)
+    void VisualsHandler::setArrayRectColor(VertexArrayComponent& vertices, const sf::Color& color, unsigned index)
     {
         vertices.mVertices.setRectColor(color, index);
     }
@@ -438,10 +422,10 @@ namespace ungod
         if (e.has<VertexArrayComponent>())
         {
             const VertexArrayComponent& vert = e.get<VertexArrayComponent>();
-            for (unsigned i = 2; i < vert.mVertices.getVertexArray().getVertexCount(); i += 4)  //iterate only over the bottom-right points
+            for (unsigned i = 0; i < vert.mVertices.textureRectCount(); i++)  //iterate only over the bottom-right points
             {
-                lowerBounds.x = std::max(vert.mVertices.getVertexArray()[i].position.x, lowerBounds.x);
-                lowerBounds.y = std::max(vert.mVertices.getVertexArray()[i].position.y, lowerBounds.y);
+                lowerBounds.x = std::max(vert.mVertices.getVertices()[4*i+2].position.x, lowerBounds.x);
+                lowerBounds.y = std::max(vert.mVertices.getVertices()[4*i+2].position.y, lowerBounds.y);
             }
         }
         if (e.has<SpriteComponent>())
@@ -471,10 +455,10 @@ namespace ungod
         if (e.has<VertexArrayComponent>())
         {
             const VertexArrayComponent& vert = e.get<VertexArrayComponent>();
-            for (unsigned i = 0; i < vert.mVertices.getVertexArray().getVertexCount(); i += 4)  //iterate only over the top-left points
+            for (unsigned i = 0; i < vert.mVertices.textureRectCount(); i++)  //iterate only over the top-left points
             {
-                upperBounds.x = std::min(vert.mVertices.getVertexArray()[i].position.x, upperBounds.x);
-                upperBounds.y = std::min(vert.mVertices.getVertexArray()[i].position.y, upperBounds.y);
+                upperBounds.x = std::min(vert.mVertices.getVertices()[4*i].position.x, upperBounds.x);
+                upperBounds.y = std::min(vert.mVertices.getVertices()[4*i].position.y, upperBounds.y);
             }
         }
         if (e.has<SpriteComponent>())
@@ -503,10 +487,8 @@ namespace ungod
         if (e.has<VertexArrayComponent>())
         {
             VertexArrayComponent& vert = e.modify<VertexArrayComponent>();
-            for (unsigned i = 0; i < vert.mVertices.getVertexArray().getVertexCount(); i += 4)  //iterate only over the top-left points
-            {
+            for (unsigned i = 0; i < vert.mVertices.textureRectCount(); i++)  //iterate only over the top-left points
                 vert.mVertices.moveRect(vec, i);
-            }
         }
         if (e.has<SpriteComponent>())
         {
