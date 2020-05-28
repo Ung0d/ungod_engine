@@ -256,6 +256,9 @@ namespace quad
 
         std::tuple<bool, QuadTreeNode<T,MAX_CAPACITY,MAX_LEVEL>*> removeFromNode(T deleteThis);
 
+        template <template<typename, std::size_t, std::size_t> typename RESULT_TYPE>
+        void retrieve(RESULT_TYPE<T, MAX_CAPACITY, MAX_LEVEL>& pullResult, const Bounds& bounds) const;
+
         /**
         * \brief Instantiates new boundaries. The whole content of the tree is removed and reinserted.
         */
@@ -682,6 +685,23 @@ namespace quad
     }
 
 
+    
+    template<typename T, std::size_t MAX_CAPACITY, std::size_t MAX_LEVEL>
+    template <template<typename, std::size_t, std::size_t> typename RESULT_TYPE>
+    void QuadTree<T, MAX_CAPACITY, MAX_LEVEL>::retrieve(RESULT_TYPE<T, MAX_CAPACITY, MAX_LEVEL>& pullResult, const Bounds& bounds) const
+    {
+        using QN = QuadTreeNode<T, MAX_CAPACITY, MAX_LEVEL>;
+        for (auto& element : QN::mContainer) { pullResult.quadTreeInsert(element); }
+        if (QN::mChildren[QN::NORTHWEST]) //one check is enough as there are always all 4 childs active or none of them (quad-tree principle)
+        {
+            QN::mChildren[QN::NORTHWEST]->retrieve(pullResult, bounds);
+            QN::mChildren[QN::NORTHEAST]->retrieve(pullResult, bounds);
+            QN::mChildren[QN::SOUTHWEST]->retrieve(pullResult, bounds);
+            QN::mChildren[QN::SOUTHEAST]->retrieve(pullResult, bounds);
+        }
+    }
+
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////RESULT_TYPES////////////////////////////////////////////////////////////
@@ -704,6 +724,7 @@ namespace quad
     template<typename T, std::size_t MAX_CAPACITY = 5, std::size_t MAX_LEVEL = 16>
     class PullResult
     {
+    friend class QuadTree<T, MAX_CAPACITY, MAX_LEVEL>;
     friend class QuadTreeNode<T, MAX_CAPACITY, MAX_LEVEL>;
 
     private:
