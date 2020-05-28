@@ -64,6 +64,8 @@ function playerGlobal.onEnteredNewNode(static, player, worldGraph, oldNode, newN
 
   if player.transferTimer == nil or player.transferTimer:elapsedSeconds() > 6 then
 
+    print("Transfer from " .. oldNode:getIdentifier() .. " to " .. newNode:getIdentifier())
+
     --should return immediately
     --if not, this may hint a design problem of the world graph
     --or a problem with the pacing of the game agents
@@ -72,16 +74,13 @@ function playerGlobal.onEnteredNewNode(static, player, worldGraph, oldNode, newN
     --timer to prevent immediante retransfer
     player.transferTimer = ungod.makeClock()
 
-
-    --copy the entity and set to the correct position
-    local playerCpy = newNode:getWorld(0):makeForeignCopy(player.entity)
-    local newNodePos = newNode:mapToLocalPosition(
-                          oldNode:mapToGlobalPosition(
-                              player.entity:transform():getPosition()))
-    playerCpy:transform():setPosition(newNodePos)
+    --copy the entity to the new node
+    --note that after calling, player.entity will point to the newly created entity
+    local playerCpy = newNode:getWorld(0):accomodateForeign(player.entity)
     newNode:getWorld(0):add(playerCpy)
-    player.entity:getWorld():destroy(player.entity)
     global.player = playerCpy
+    worldGraph:getCamera():lockToEntity(playerCpy)
+    playerCpy:visuals():bindSpriteToAnimation()
 
   end
 end

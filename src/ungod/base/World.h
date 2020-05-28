@@ -179,8 +179,9 @@ namespace ungod
         Entity makeCopy(Entity e);
 
 		/** \brief Copies an entity from another world to this world 
-		* i.e. returns a new entity which is an exact copy of e but now attached to this world. */
-		Entity makeForeignCopy(Entity e);
+		* i.e. returns a new entity which is an exact copy of e but now attached to this world.
+        * Removes the entity from its source world. */
+		Entity accomodateForeign(Entity e);
 
         /** \brief Tells the world that there exists an instantiation with the given components.
         * This call is mandatory for all instantiations that shall be deserialized. */

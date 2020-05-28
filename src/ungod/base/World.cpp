@@ -278,7 +278,7 @@ namespace ungod
         return cpy;
     }
 
-	Entity World::makeForeignCopy(Entity e)
+	Entity World::accomodateForeign(Entity e)
 	{
         if (&e.getWorld() != this)
         {
@@ -289,7 +289,10 @@ namespace ungod
                 if (eb.hasValidEnvironment())
                     eb.getEnvironment()["entity"] = fcpy;
             }
-            mEntityCreationSignal(fcpy);
+            mTransformHandler.setPosition(fcpy,
+                getNode().mapToLocalPosition(
+                    e.getWorld().getNode().mapToGlobalPosition(e.get<TransformComponent>().getPosition())));
+            e.getWorld().destroy(e);
             return fcpy;
         }
         else

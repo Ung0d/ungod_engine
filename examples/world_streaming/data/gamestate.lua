@@ -37,7 +37,7 @@ end
 
 function gamestate.onUpdate(static, state)
 
-  state:updateWorldGraph()
+  --state:updateWorldGraph()
 
 end
 
