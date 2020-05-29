@@ -38,6 +38,8 @@
 namespace ungod
 {
     struct DeserialMemory;
+    class WorldGraph;
+    class WorldGraphNode;
 
     /**
     * \ingroup Components
@@ -148,6 +150,10 @@ namespace ungod
         script::EventHandler mEventHandler;
         owls::SignalLink<void, ScriptQueues&> mDissociateLink;
         owls::SignalLink<void, ScriptQueues&> mReloadLink;
+        owls::SignalLink<void, std::string> mButtonDownLink;
+        owls::SignalLink<void, std::string> mButtonReleasedLink;
+        owls::SignalLink<void, std::string> mButtonPressedLink;
+        owls::SignalLink<void, Entity, WorldGraph&, WorldGraphNode&, WorldGraphNode&> mEntityChangedNodeLink;
 
     private:
         void entityCreation(Entity e) const;

@@ -6,7 +6,7 @@
 			<s l="1 World@0"/>
 		</RenderLayerContainer>
 		<World object_count="1">
-			<s d="1.000000" n="" WorldObject="20 WorldObject@0 WorldObject@1 WorldObject@2 WorldObject@3 WorldObject@4 WorldObject@5 WorldObject@6 WorldObject@7 WorldObject@8 WorldObject@9 WorldObject@10 WorldObject@11 WorldObject@12 WorldObject@13 WorldObject@14 WorldObject@15 WorldObject@16 WorldObject@17 WorldObject@18 WorldObject@19">
+			<s d="1.000000" n="" WorldObject="20 WorldObject@0 WorldObject@1 WorldObject@2 WorldObject@3 WorldObject@4 WorldObject@5 WorldObject@6 WorldObject@7 WorldObject@8 WorldObject@9 WorldObject@10 WorldObject@11 WorldObject@12 WorldObject@13 WorldObject@14 WorldObject@15 WorldObject@16 WorldObject@17 WorldObject@18 WorldObject@19" Entity="1 Entity@0">
 				<name_map/>
 			</s>
 		</World>
@@ -92,29 +92,30 @@
 				<o SPM="SPM@19" SP="SP@19"/>
 			</s>
 		</WorldObject>
-		<T object_count="20">
-			<s t_x="1356.840820" t_y="644.119568"/>
-			<s t_x="701.882446" t_y="1305.699585"/>
-			<s t_x="1767.930054" t_y="1860.805908"/>
-			<s t_x="737.996216" t_y="1482.423462"/>
-			<s t_x="1905.103149" t_y="452.975983"/>
-			<s t_x="1096.009277" t_y="1877.601318"/>
-			<s t_x="1254.710449" t_y="299.488342"/>
-			<s t_x="1918.856323" t_y="77.297752"/>
-			<s t_x="1973.380493" t_y="69.943253"/>
-			<s t_x="468.997986" t_y="613.969543"/>
-			<s t_x="1224.397095" t_y="1580.436035"/>
-			<s t_x="270.350250" t_y="1665.642822"/>
-			<s t_x="1326.619141" t_y="634.232605"/>
-			<s t_x="172.115555" t_y="115.069832"/>
-			<s t_x="59.680161" t_y="1139.848755"/>
-			<s t_x="356.184204" t_y="1188.413208"/>
-			<s t_x="1273.665405" t_y="1332.516235"/>
-			<s t_x="1065.679810" t_y="1219.854492"/>
-			<s t_x="1290.460693" t_y="1431.557617"/>
-			<s t_x="1611.229370" t_y="1100.308838"/>
+		<T object_count="21">
+			<s t_x="1356.840820" t_y="644.119568" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="701.882446" t_y="1305.699585" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1767.930054" t_y="1860.805908" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="737.996216" t_y="1482.423462" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1905.103149" t_y="452.975983" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1096.009277" t_y="1877.601318" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1254.710449" t_y="299.488342" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1918.856323" t_y="77.297752" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1973.380493" t_y="69.943253" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="468.997986" t_y="613.969543" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1224.397095" t_y="1580.436035" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="270.350250" t_y="1665.642822" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1326.619141" t_y="634.232605" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="172.115555" t_y="115.069832" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="59.680161" t_y="1139.848755" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="356.184204" t_y="1188.413208" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1273.665405" t_y="1332.516235" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1065.679810" t_y="1219.854492" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1290.460693" t_y="1431.557617" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="1611.229370" t_y="1100.308838" baseline_x="1.000000" baseline_y="0.000000"/>
+			<s t_x="2047.389526" t_y="1608.338867"/>
 		</T>
-		<V object_count="20">
+		<V object_count="21">
 			<s filepath="data/sprites/pale_trees.png"/>
 			<s filepath="data/sprites/pale_trees.png"/>
 			<s filepath="data/sprites/pale_trees.png"/>
@@ -135,8 +136,9 @@
 			<s filepath="data/sprites/pale_trees.png"/>
 			<s filepath="data/sprites/pale_trees.png"/>
 			<s filepath="data/sprites/pale_trees.png"/>
+			<s filepath="data/sprites/ondafella.png"/>
 		</V>
-		<SPM object_count="20">
+		<SPM object_count="21">
 			<s filepath="data/sprites/pale_trees.xml"/>
 			<s filepath="data/sprites/pale_trees.xml"/>
 			<s filepath="data/sprites/pale_trees.xml"/>
@@ -157,8 +159,9 @@
 			<s filepath="data/sprites/pale_trees.xml"/>
 			<s filepath="data/sprites/pale_trees.xml"/>
 			<s filepath="data/sprites/pale_trees.xml"/>
+			<s filepath="data/sprites/ondafella.xml"/>
 		</SPM>
-		<SP object_count="20">
+		<SP object_count="21">
 			<s key="tree_7"/>
 			<s key="tree_1"/>
 			<s key="tree_4"/>
@@ -179,7 +182,28 @@
 			<s key="tree_4"/>
 			<s tex_x="0" tex_y="0" size_x="0" size_y="0"/>
 			<s key="tree_6"/>
+			<s tex_x="516" tex_y="386" size_x="128" size_y="192"/>
 		</SP>
+		<Entity object_count="1">
+			<s>
+				<b T="T@20" EB="EB@0"/>
+				<o V="V@20" M="M@0" SPM="SPM@20" SP="SP@20" A="A@0" EUP="EUP@0"/>
+			</s>
+		</Entity>
+		<EB object_count="1">
+			<s n="player">
+				<userdata/>
+			</s>
+		</EB>
+		<M object_count="1">
+			<s vel_y="1.600000" direction="2"/>
+		</M>
+		<A object_count="1">
+			<s running="1" key="idle"/>
+		</A>
+		<EUP object_count="1">
+			<s/>
+		</EUP>
 	</pool>
 </serialroot>
 

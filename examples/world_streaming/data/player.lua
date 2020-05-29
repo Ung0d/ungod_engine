@@ -62,7 +62,7 @@ end
 
 function playerGlobal.onEnteredNewNode(static, player, worldGraph, oldNode, newNode)
 
-  if player.transferTimer == nil or player.transferTimer:elapsedSeconds() > 6 then
+  if player.transferTimer == nil or player.transferTimer:elapsedSeconds() > 2 then
 
     print("Transfer from " .. oldNode:getIdentifier() .. " to " .. newNode:getIdentifier())
 

@@ -60,7 +60,7 @@ namespace ungod
         return mBehavior->getScriptName();
     }
 
-    EntityBehaviorHandler::EntityBehaviorHandler() {}
+    EntityBehaviorHandler::EntityBehaviorHandler() : mWorld(nullptr) {}
 
     void EntityBehaviorHandler::init(World& world)
     {
@@ -75,9 +75,9 @@ namespace ungod
         world.onEntitySerialized([this](Entity e, MetaNode serializer, SerializationContext& context) { entitySerialized(e, serializer, context); });
         world.onEntityDeserialized([this](Entity e, MetaNode deserializer, DeserializationContext& context) { entityDeserialized(e, deserializer, context); });
 
-        world.getState()->getApp().getInputManager().onDown([this](const std::string& binding) { buttonDown(binding); });
-        world.getState()->getApp().getInputManager().onReleased([this](const std::string& binding) { buttonReleased(binding); });
-        world.getState()->getApp().getInputManager().onPressed([this](const std::string& binding) { buttonPressed(binding); });
+        mButtonDownLink = world.getState()->getApp().getInputManager().onDown([this](const std::string& binding) { buttonDown(binding); });
+        mButtonReleasedLink = world.getState()->getApp().getInputManager().onReleased([this](const std::string& binding) { buttonReleased(binding); });
+        mButtonPressedLink = world.getState()->getApp().getInputManager().onPressed([this](const std::string& binding) { buttonPressed(binding); });
 
         world.getInputEventHandler().onMouseClick([this](Entity e) { callbackInvoker(ON_MOUSE_CLICK, e); });
         world.getInputEventHandler().onMouseEnter([this](Entity e) { callbackInvoker(ON_MOUSE_ENTER, e); });
@@ -97,7 +97,7 @@ namespace ungod
             { entityCollision(e1, e2, mdv, c1, c2); });
         world.getSemanticsCollisionHandler().onEndCollision([this](Entity e1, Entity e2) { entityCollisionExit(e1, e2); });
 
-        world.getState()->getWorldGraph().onEntityChangedNode([this](Entity e, WorldGraph& wg, WorldGraphNode& oldNode, WorldGraphNode& newNode)
+        mEntityChangedNodeLink = world.getState()->getWorldGraph().onEntityChangedNode([this](Entity e, WorldGraph& wg, WorldGraphNode& oldNode, WorldGraphNode& newNode)
             { 
                 if (&e.getWorld().getBehaviorHandler() == this)
                     callbackInvoker<WorldGraph&, WorldGraphNode&, WorldGraphNode&>(ON_ENTERED_NEW_NODE, e, wg, oldNode, newNode);  
@@ -204,6 +204,10 @@ namespace ungod
     {
         mDissociateLink.disconnect();
         mReloadLink.disconnect();
+        mButtonDownLink.disconnect();
+        mButtonReleasedLink.disconnect();
+        mButtonPressedLink.disconnect();
+        mEntityChangedNodeLink.disconnect();
     }
 
     void EntityBehaviorHandler::entityCreation(Entity e) const

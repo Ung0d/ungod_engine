@@ -80,13 +80,13 @@ namespace ungod
         static bool canBind(const InputType inputType, int keyValue);
 
         /** \brief Registers a callback. */
-        void onPressed(const std::function<void(const std::string&)>& callback);
+        owls::SignalLink<void, std::string> onPressed(const std::function<void(const std::string&)>& callback);
 
         /** \brief Registers a callback. */
-        void onDown(const std::function<void(const std::string&)>& callback);
+        owls::SignalLink<void, std::string> onDown(const std::function<void(const std::string&)>& callback);
 
         /** \brief Registers a callback. */
-        void onReleased(const std::function<void(const std::string&)>& callback);
+        owls::SignalLink<void, std::string> onReleased(const std::function<void(const std::string&)>& callback);
 
     protected:
         std::list< KeyBinding > mBindings;

@@ -32,12 +32,10 @@ namespace ungod
     void SerialBehavior<ScriptedGameState>::serialize(const ScriptedGameState& data, MetaNode serializer, SerializationContext& context)
     {
         context.serializeObject("wg", data.mWorldGraph, serializer);
-        context.serializeProperty("db", data.mRenderDebug, serializer);
     }
 
     void DeserialBehavior<ScriptedGameState>::deserialize(ScriptedGameState& data, MetaNode deserializer, DeserializationContext& context)
     {
         MetaAttribute attr = context.first(context.deserializeObject(data.mWorldGraph, data), "wg", deserializer);
-        context.next(context.deserializeProperty(data.mRenderDebug, false), "db", deserializer, attr);
     }
 }

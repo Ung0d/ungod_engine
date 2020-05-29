@@ -67,7 +67,9 @@ namespace ungod
     class ParentChildHandler
     {
     public:
-        ParentChildHandler(World& world);
+        ParentChildHandler();
+
+        void init(World& world);
 
         /** \brief Adds a child entity to the parent. Adds a ChildComponent to the child entity
         * if it has none. Adds a ParentComponent to the parent entity if it has none.
@@ -81,7 +83,7 @@ namespace ungod
         void setChildScale(Entity child, const sf::Vector2f& scale);
 
     private:
-        World& mWorld;
+        World* mWorld;
 
     private:
         void updateAllChildPositions(Entity e);

@@ -365,20 +365,20 @@ namespace ungod
     }
 
 
-    void InputManager::onPressed(const std::function<void(const std::string&)>& callback)
+    owls::SignalLink<void, std::string> InputManager::onPressed(const std::function<void(const std::string&)>& callback)
     {
-        mPressedSignal.connect(callback);
+        return mPressedSignal.connect(callback);
     }
 
 
-    void InputManager::onDown(const std::function<void(const std::string&)>& callback)
+    owls::SignalLink<void, std::string> InputManager::onDown(const std::function<void(const std::string&)>& callback)
     {
-        mDownSignal.connect(callback);
+        return mDownSignal.connect(callback);
     }
 
 
-    void InputManager::onReleased(const std::function<void(const std::string&)>& callback)
+    owls::SignalLink<void, std::string> InputManager::onReleased(const std::function<void(const std::string&)>& callback)
     {
-        mReleasedSignal.connect(callback);
+        return mReleasedSignal.connect(callback);
     }
 }

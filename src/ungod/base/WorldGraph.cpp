@@ -219,6 +219,12 @@ namespace ungod
         return *mNodes.back();
     }
 
+    void WorldGraph::setDistance(unsigned distance) 
+    { 
+        mDistance = distance;
+        updateReferencePosition(mReferencePosition, false);
+    }
+
     void WorldGraph::save(const ScriptedGameState& gamestate) const
     {
         for (const auto& i : mCurrentNeighborhood)
@@ -292,9 +298,6 @@ namespace ungod
                 {
                     if (!e.has<MovementComponent>())
                         continue;
-                    //skip entities that just left their node
-                    if (mJustHandled.find(e) != mJustHandled.end())
-                        continue;
 
                     if (!mNodes[i]->getWorld(j)->getQuadTree().isInsideBounds(e))
                     {
@@ -316,21 +319,10 @@ namespace ungod
                             }
                         }
                         if (newNode)
-                        {
                             mEntityChangedNode(e, *this, *mNodes[i], *newNode);
-                            mJustHandled.emplace(e, sf::Clock{});
-                        }
                     }
                 }
             }
-        }
-        //forget entities above timer
-        for (auto iter = mJustHandled.begin(); iter != mJustHandled.end();)
-        {
-            if (iter->second.getElapsedTime().asSeconds() > NODE_TRANSITION_TIMER_S) 
-                iter = mJustHandled.erase(iter);
-            else 
-                ++iter;
         }
     }
 

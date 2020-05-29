@@ -495,7 +495,7 @@ BOOST_AUTO_TEST_CASE(copy_between_worlds_test)
 	world1->getTransformHandler().setPosition(e1, { 100,100 });
 	e1.add<ungod::SpriteComponent>();
 	world1->getVisualsHandler().setSpritePosition(e1, { 20,20 });
-	ungod::Entity e2 = world2->makeForeignCopy(e1);
+	ungod::Entity e2 = world2->accomodateForeign(e1);
 	BOOST_CHECK(e2.has<ungod::SpriteComponent>());
 	BOOST_CHECK(e2.has<ungod::TransformComponent>());
 	BOOST_CHECK_EQUAL(e2.get<ungod::TransformComponent>().getPosition().x, 100.0f);

@@ -52,9 +52,11 @@ namespace ungod
 
     void WorldGraphNode::load()
     {
+        wait();
+        if (mIsLoaded)
+            return;
         mData.load(mDataFile, LoadPolicy::ASYNC, this);
         mLoadingInProcess = true;
-		Logger::info("Started loading of node:", getIdentifier());
     }
 
     void WorldGraphNode::unload()

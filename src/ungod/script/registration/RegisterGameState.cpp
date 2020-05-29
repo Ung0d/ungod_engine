@@ -46,7 +46,12 @@ namespace ungod
             stateType["steering"] = [](ScriptedGameState& state) -> SteeringManager<script::Environment>& {return state.getSteeringManager(); };
             stateType["light"] = [](ScriptedGameState& state) -> LightManager& {return state.getLightManager(); };
 			stateType["updateWorldGraph"] = [](ScriptedGameState& state) 
-					{ state.getWorldGraph().updateReferencePosition(state.getWorldGraph().getCamera().getCenter()); };
+					{ 
+                        auto* node = state.getWorldGraph().getActiveNode();
+                        if (node)
+                            state.getWorldGraph().updateReferencePosition(
+                                state.getWorldGraph().getCamera().getCenter() + node->getPosition()); 
+                    };
         }
     }
 }

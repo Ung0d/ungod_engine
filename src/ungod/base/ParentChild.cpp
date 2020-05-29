@@ -47,25 +47,29 @@ namespace ungod
 
 
 
-    ParentChildHandler::ParentChildHandler(World& world) : mWorld(world)
+    ParentChildHandler::ParentChildHandler() : mWorld(nullptr) {}
+
+    void ParentChildHandler::init(World& world)
     {
+        mWorld = &world;
+
         //set child positions to child_local + parent_global
-        world.getTransformHandler().onPositionChanged([this] (Entity e, const sf::Vector2f& pos)
-          {
-              if (e.has<ParentComponent>())
-              {
-                updateAllChildPositions(e);
-              }
-          });
+        world.getTransformHandler().onPositionChanged([this](Entity e, const sf::Vector2f& pos)
+            {
+                if (e.has<ParentComponent>())
+                {
+                    updateAllChildPositions(e);
+                }
+            });
 
         //set child scales to child_local * parent_global
-        world.getTransformHandler().onScaleChanged([this] (Entity e, const sf::Vector2f& scale)
-          {
-              if (e.has<ParentComponent>())
-              {
-                updateAllChildScales(e);
-              }
-          });
+        world.getTransformHandler().onScaleChanged([this](Entity e, const sf::Vector2f& scale)
+            {
+                if (e.has<ParentComponent>())
+                {
+                    updateAllChildScales(e);
+                }
+            });
     }
 
 
@@ -120,7 +124,7 @@ namespace ungod
     {
         const TransformComponent& tc = e.get<TransformComponent>();
         const ChildComponent& cc = child.get<ChildComponent>();
-        mWorld.getTransformHandler().setPosition(child, cc.getPosition() + tc.getPosition());
+        mWorld->getTransformHandler().setPosition(child, cc.getPosition() + tc.getPosition());
     }
 
 
@@ -128,6 +132,6 @@ namespace ungod
     {
         const TransformComponent& tc = e.get<TransformComponent>();
         const ChildComponent& cc = child.get<ChildComponent>();
-        mWorld.getTransformHandler().setScale(child, {cc.getScale().x * tc.getScale().x, cc.getScale().y * tc.getScale().y});
+        mWorld->getTransformHandler().setScale(child, {cc.getScale().x * tc.getScale().x, cc.getScale().y * tc.getScale().y});
     }
 }

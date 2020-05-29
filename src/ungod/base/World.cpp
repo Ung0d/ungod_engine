@@ -54,7 +54,7 @@ namespace ungod
         mLightHandler(),
         mTileMapHandler(),
         mWaterHandler(),
-        mParentChildHandler(*this),
+        mParentChildHandler(),
         mRenderLight(true)
     {
         //register instantiations for deserialization
@@ -138,6 +138,7 @@ namespace ungod
         mSoundHandler.init(master.getApp().getSoundProfileManager(), mListener.get());
         mTileMapHandler.init(*this);
         mWaterHandler.init(*this);
+        mParentChildHandler.init(*this);
 
         if (deserialMemory)
         {

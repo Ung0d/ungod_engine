@@ -29,7 +29,7 @@ namespace ungod
 {
     void GrassManager::update(const std::list<Entity>& entities, float delta, float windForce)
     {
-        //calculate the "sway-range" that depends on the current windForce
+        /*//calculate the "sway-range" that depends on the current windForce
         float swayRange = windForce*10.0f;
 
         //calculate the "sway-offset" that determines how wide the grass sways in this frame
@@ -69,7 +69,7 @@ namespace ungod
                                   vm.getPoint(e, data.rectIndex, 3));
                  }
              }
-          });
+          });*/
     }
 
     void GrassManager::handleCollision(Entity trampling, Entity grass, const sf::Vector2f& vec, const Collider& collider, const Collider&)

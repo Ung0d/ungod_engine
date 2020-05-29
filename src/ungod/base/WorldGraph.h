@@ -98,7 +98,7 @@ namespace ungod
 
         unsigned getDistance() const { return mDistance; }
 
-        void setDistance(unsigned distance) { mDistance = distance; }
+        void setDistance(unsigned distance);
 
         /** \brief Saves state of all loaded graph nodes to memory using their respective file IDs. */
         void save(const ScriptedGameState& gamestate) const;
@@ -144,7 +144,6 @@ namespace ungod
         std::set<unsigned> mCurrentNeighborhood;
         sf::Vector2f mReferencePosition;
         Camera mCamera;
-        std::unordered_map<Entity, sf::Clock> mJustHandled;
 		owls::Signal<WorldGraph&, WorldGraphNode&, WorldGraphNode&> mActiveNodeChanged;
         owls::Signal<Entity, WorldGraph&, WorldGraphNode&, WorldGraphNode&> mEntityChangedNode;
         constexpr static float NODE_TRANSITION_TIMER_S = 10.0f;

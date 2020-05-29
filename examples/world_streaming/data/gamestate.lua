@@ -5,6 +5,9 @@ local ENTITIES_PER_CHUNK = 20
 
 global = {}
 
+local GRAPH_UPD_INTERVAL = 3
+local graphUpdateTimer = ungod.makeClock()
+
 function gamestate.onInit(static, state)
 
     print("Init World Streaming state...")
@@ -17,6 +20,7 @@ function gamestate.onInit(static, state)
 
     state:load("data/state_sav")
     state:worldGraph():updateReferencePosition(initPos)
+    state:worldGraph():setDistance(10)
 
     local initNode = state:worldGraph():getNodeByPosition(initPos)
     if initNode then
@@ -31,13 +35,18 @@ function gamestate.onInit(static, state)
       ungod.error("Can not get the initial world node.")
     end
 
-    state:toggleDebugmode(true)
+    --state:toggleDebugmode(true)
+
+    state:worldGraph():getCamera():setZoom(10)
 
 end
 
 function gamestate.onUpdate(static, state)
 
-  --state:updateWorldGraph()
+  if graphUpdateTimer:elapsedSeconds() > GRAPH_UPD_INTERVAL then
+    state:updateWorldGraph()
+    graphUpdateTimer:restart()
+  end
 
 end
 
