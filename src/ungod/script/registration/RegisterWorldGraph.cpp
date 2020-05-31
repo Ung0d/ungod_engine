@@ -44,6 +44,7 @@ namespace ungod
 			worldGraphNodeType["isLoaded"] = &WorldGraphNode::isLoaded;
 			worldGraphNodeType["getNumWorld"] = &WorldGraphNode::getNumWorld;
 			worldGraphNodeType["wait"] = &WorldGraphNode::wait;
+			worldGraphNodeType["save"] = &WorldGraphNode::save;
 			worldGraphNodeType["getIdentifier"] = &WorldGraphNode::getIdentifier;
 			worldGraphNodeType["mapToGlobalPosition"] = &WorldGraphNode::mapToGlobalPosition;
 			worldGraphNodeType["mapToLocalPosition"] = &WorldGraphNode::mapToLocalPosition;

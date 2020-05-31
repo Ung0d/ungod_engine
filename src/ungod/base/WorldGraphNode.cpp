@@ -61,7 +61,7 @@ namespace ungod
 
     void WorldGraphNode::unload()
     {
-        save();
+        //save();
         mLayers.clearEverything();
         mIsLoaded = false;
 		Logger::info("Node unloaded:", getIdentifier());

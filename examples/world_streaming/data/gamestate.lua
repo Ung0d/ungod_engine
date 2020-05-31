@@ -1,5 +1,5 @@
 
-local DIM = 3
+local DIM = 10
 local CHUNK_SIZE = 2560
 local ENTITIES_PER_CHUNK = 20
 
@@ -12,13 +12,13 @@ function gamestate.onInit(static, state)
 
     print("Init World Streaming state...")
 
-    genWorld(state)
+    --genWorld(state)
 
     state:behavior():loadBehaviorScript("data/player.lua")
 
     local initPos = Vec2f.new(CHUNK_SIZE/2, CHUNK_SIZE/2)
 
-    --state:load("data/state_sav")
+    state:load("data/state_sav")
     state:worldGraph():updateReferencePosition(initPos)
     state:worldGraph():setDistance(1)
 
@@ -62,7 +62,7 @@ function genWorld(state)
       node:setSize(Vec2f.new(CHUNK_SIZE, CHUNK_SIZE))
       node:setPosition(Vec2f.new(x*CHUNK_SIZE, y*CHUNK_SIZE))
       --activate the current node
-      --since we have no edges yet, this will unload and save the last activated node automatically
+      --since we have no edges yet, this will unload the last activated node automatically
       state:worldGraph():updateReferencePosition(Vec2f.new(CHUNK_SIZE/2 + x*CHUNK_SIZE, CHUNK_SIZE/2 + y*CHUNK_SIZE))
 
       local ground = node:addWorld()
@@ -92,8 +92,8 @@ function genWorld(state)
         e:movementRigidbody():addRotatedRect(upleft, downright, 0)
         world:add(e)
       end
-
       chunk_grid[x][y] = node
+      node:save()
     end
   end
 

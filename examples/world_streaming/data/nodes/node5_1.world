@@ -3,118 +3,127 @@
 	<root_obj ref="RenderLayerContainer@0"/>
 	<pool>
 		<RenderLayerContainer object_count="1">
-			<s l="1 World@0"/>
+			<s l="2 World@0 World@1"/>
 		</RenderLayerContainer>
-		<World object_count="1">
-			<s d="1.000000" n="" WorldObject="20 WorldObject@0 WorldObject@1 WorldObject@2 WorldObject@3 WorldObject@4 WorldObject@5 WorldObject@6 WorldObject@7 WorldObject@8 WorldObject@9 WorldObject@10 WorldObject@11 WorldObject@12 WorldObject@13 WorldObject@14 WorldObject@15 WorldObject@16 WorldObject@17 WorldObject@18 WorldObject@19">
+		<World object_count="2">
+			<s d="1.000000" n="" WorldObject="1 WorldObject@0">
+				<name_map/>
+			</s>
+			<s d="1.000000" n="" WorldObject="20 WorldObject@1 WorldObject@2 WorldObject@3 WorldObject@4 WorldObject@5 WorldObject@6 WorldObject@7 WorldObject@8 WorldObject@9 WorldObject@10 WorldObject@11 WorldObject@12 WorldObject@13 WorldObject@14 WorldObject@15 WorldObject@16 WorldObject@17 WorldObject@18 WorldObject@19 WorldObject@20">
 				<name_map/>
 			</s>
 		</World>
-		<WorldObject object_count="20">
+		<WorldObject object_count="21">
 			<s>
 				<b T="T@0" V="V@0"/>
-				<o SPM="SPM@0" SP="SP@0"/>
+				<o SPM="SPM@0" TM="TM@0"/>
 			</s>
 			<s>
 				<b T="T@1" V="V@1"/>
-				<o SPM="SPM@1" SP="SP@1"/>
+				<o SPM="SPM@1" RB0="RB0@0" SP="SP@0"/>
 			</s>
 			<s>
 				<b T="T@2" V="V@2"/>
-				<o SPM="SPM@2" SP="SP@2"/>
+				<o SPM="SPM@2" RB0="RB0@1" SP="SP@1"/>
 			</s>
 			<s>
 				<b T="T@3" V="V@3"/>
-				<o SPM="SPM@3" SP="SP@3"/>
+				<o SPM="SPM@3" RB0="RB0@2" SP="SP@2"/>
 			</s>
 			<s>
 				<b T="T@4" V="V@4"/>
-				<o SPM="SPM@4" SP="SP@4"/>
+				<o SPM="SPM@4" RB0="RB0@3" SP="SP@3"/>
 			</s>
 			<s>
 				<b T="T@5" V="V@5"/>
-				<o SPM="SPM@5" SP="SP@5"/>
+				<o SPM="SPM@5" RB0="RB0@4" SP="SP@4"/>
 			</s>
 			<s>
 				<b T="T@6" V="V@6"/>
-				<o SPM="SPM@6" SP="SP@6"/>
+				<o SPM="SPM@6" RB0="RB0@5" SP="SP@5"/>
 			</s>
 			<s>
 				<b T="T@7" V="V@7"/>
-				<o SPM="SPM@7" SP="SP@7"/>
+				<o SPM="SPM@7" RB0="RB0@6" SP="SP@6"/>
 			</s>
 			<s>
 				<b T="T@8" V="V@8"/>
-				<o SPM="SPM@8" SP="SP@8"/>
+				<o SPM="SPM@8" RB0="RB0@7" SP="SP@7"/>
 			</s>
 			<s>
 				<b T="T@9" V="V@9"/>
-				<o SPM="SPM@9" SP="SP@9"/>
+				<o SPM="SPM@9" RB0="RB0@8" SP="SP@8"/>
 			</s>
 			<s>
 				<b T="T@10" V="V@10"/>
-				<o SPM="SPM@10" SP="SP@10"/>
+				<o SPM="SPM@10" RB0="RB0@9" SP="SP@9"/>
 			</s>
 			<s>
 				<b T="T@11" V="V@11"/>
-				<o SPM="SPM@11" SP="SP@11"/>
+				<o SPM="SPM@11" RB0="RB0@10" SP="SP@10"/>
 			</s>
 			<s>
 				<b T="T@12" V="V@12"/>
-				<o SPM="SPM@12" SP="SP@12"/>
+				<o SPM="SPM@12" RB0="RB0@11" SP="SP@11"/>
 			</s>
 			<s>
 				<b T="T@13" V="V@13"/>
-				<o SPM="SPM@13" SP="SP@13"/>
+				<o SPM="SPM@13" RB0="RB0@12" SP="SP@12"/>
 			</s>
 			<s>
 				<b T="T@14" V="V@14"/>
-				<o SPM="SPM@14" SP="SP@14"/>
+				<o SPM="SPM@14" RB0="RB0@13" SP="SP@13"/>
 			</s>
 			<s>
 				<b T="T@15" V="V@15"/>
-				<o SPM="SPM@15" SP="SP@15"/>
+				<o SPM="SPM@15" RB0="RB0@14" SP="SP@14"/>
 			</s>
 			<s>
 				<b T="T@16" V="V@16"/>
-				<o SPM="SPM@16" SP="SP@16"/>
+				<o SPM="SPM@16" RB0="RB0@15" SP="SP@15"/>
 			</s>
 			<s>
 				<b T="T@17" V="V@17"/>
-				<o SPM="SPM@17" SP="SP@17"/>
+				<o SPM="SPM@17" RB0="RB0@16" SP="SP@16"/>
 			</s>
 			<s>
 				<b T="T@18" V="V@18"/>
-				<o SPM="SPM@18" SP="SP@18"/>
+				<o SPM="SPM@18" RB0="RB0@17" SP="SP@17"/>
 			</s>
 			<s>
 				<b T="T@19" V="V@19"/>
-				<o SPM="SPM@19" SP="SP@19"/>
+				<o SPM="SPM@19" RB0="RB0@18" SP="SP@18"/>
+			</s>
+			<s>
+				<b T="T@20" V="V@20"/>
+				<o SPM="SPM@20" RB0="RB0@19" SP="SP@19"/>
 			</s>
 		</WorldObject>
-		<T object_count="20">
-			<s t_x="1374.851196" t_y="1902.211548" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="1541.004272" t_y="1067.583740" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="1792.210693" t_y="1852.380981" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="1602.266479" t_y="641.085632" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="1704.526245" t_y="711.359680" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="1734.858887" t_y="983.646667" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="704.165100" t_y="1407.813965" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="954.185852" t_y="67.895782" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="741.760376" t_y="709.648743" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="1228.055298" t_y="351.846802" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="1571.266113" t_y="651.799622" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="297.251160" t_y="408.705353" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="108.784912" t_y="840.006470" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="1601.217529" t_y="658.549438" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="416.370300" t_y="694.933838" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="714.910645" t_y="521.757935" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="234.412750" t_y="469.878479" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="1149.500732" t_y="271.440613" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="294.372955" t_y="1287.940430" baseline_x="1.000000" baseline_y="0.000000"/>
-			<s t_x="1400.895020" t_y="1280.309692" baseline_x="1.000000" baseline_y="0.000000"/>
+		<T object_count="21">
+			<s t_x="0.000000" t_y="0.000000"/>
+			<s t_x="450.490784" t_y="2558.082520"/>
+			<s t_x="2335.523926" t_y="773.302490"/>
+			<s t_x="1289.679199" t_y="2275.414307"/>
+			<s t_x="1378.872070" t_y="1207.418945"/>
+			<s t_x="2222.359131" t_y="1357.153442"/>
+			<s t_x="966.406738" t_y="1348.071899"/>
+			<s t_x="233.877930" t_y="2301.407715"/>
+			<s t_x="1267.999023" t_y="1962.670776"/>
+			<s t_x="1203.577148" t_y="310.978699"/>
+			<s t_x="968.257446" t_y="284.258240"/>
+			<s t_x="714.167236" t_y="474.550110"/>
+			<s t_x="296.568329" t_y="865.789490"/>
+			<s t_x="136.913452" t_y="294.743011"/>
+			<s t_x="1118.795654" t_y="408.918610"/>
+			<s t_x="1664.375244" t_y="1968.341064"/>
+			<s t_x="1763.014160" t_y="693.241211"/>
+			<s t_x="1591.344482" t_y="351.776428"/>
+			<s t_x="2179.604248" t_y="370.709045"/>
+			<s t_x="859.882751" t_y="1665.188965"/>
+			<s t_x="282.330078" t_y="2029.062744"/>
 		</T>
-		<V object_count="20">
+		<V object_count="21">
+			<s filepath="data/sprites/ground.png"/>
 			<s filepath="data/sprites/pale_trees.png"/>
 			<s filepath="data/sprites/pale_trees.png"/>
 			<s filepath="data/sprites/pale_trees.png"/>
@@ -136,7 +145,8 @@
 			<s filepath="data/sprites/pale_trees.png"/>
 			<s filepath="data/sprites/pale_trees.png"/>
 		</V>
-		<SPM object_count="20">
+		<SPM object_count="21">
+			<s filepath="data/sprites/ground.xml"/>
 			<s filepath="data/sprites/pale_trees.xml"/>
 			<s filepath="data/sprites/pale_trees.xml"/>
 			<s filepath="data/sprites/pale_trees.xml"/>
@@ -158,27 +168,55 @@
 			<s filepath="data/sprites/pale_trees.xml"/>
 			<s filepath="data/sprites/pale_trees.xml"/>
 		</SPM>
+		<TM object_count="1">
+			<s tilemap="TileMap@0"/>
+		</TM>
+		<TileMap object_count="1">
+			<s tile_width="128" tile_height="128" map_width="20" map_height="20" keys="3 beach_dirt beach_dirt2 beach_dirt3" ids="400 2 0 2 0 1 1 1 2 2 1 1 0 1 0 1 0 1 0 0 1 2 1 1 0 2 2 2 0 1 1 0 2 1 2 1 1 2 1 1 1 1 1 1 2 0 1 1 1 2 2 2 1 2 2 2 0 1 0 1 2 2 2 0 2 1 2 0 0 2 1 1 2 1 1 1 2 2 1 2 0 1 1 2 0 1 1 2 2 2 2 1 2 1 1 0 2 0 2 2 2 2 0 0 1 2 2 2 1 1 1 2 0 1 1 2 1 1 2 2 2 2 2 1 1 2 2 0 2 2 2 0 2 1 1 2 2 2 1 2 2 2 1 1 2 2 2 2 2 1 2 2 1 2 2 0 2 1 2 1 2 2 2 2 2 2 2 1 2 0 1 0 1 1 1 1 2 2 2 2 1 2 0 2 0 1 2 1 2 1 2 2 2 2 2 2 1 1 1 2 1 2 2 1 1 2 1 2 2 0 2 2 2 2 1 2 1 1 2 1 1 1 1 0 1 2 1 1 0 2 1 2 1 2 2 2 2 1 1 2 1 1 2 1 2 1 2 2 2 2 2 1 1 2 1 2 1 1 0 2 1 1 1 2 2 2 2 1 1 2 1 2 1 1 2 2 0 1 1 0 2 1 1 1 0 2 1 1 2 1 1 2 0 2 0 2 2 2 0 2 1 2 2 1 1 1 2 1 0 1 1 2 2 0 2 2 2 1 1 2 1 2 1 0 1 2 2 1 1 1 1 1 2 0 0 1 2 2 1 1 0 0 2 1 1 0 1 2 1 1 1 2 2 0 1 1 1 2 1 2 2 1 1 2 2 1 1 2 2 1 1 1 2 2 1 1 2 2 1 2 2 1 2 2 0 2 1 0 1 1 2 1 1 0 0 2 1 0 2 1 1"/>
+		</TileMap>
+		<RB0 object_count="20">
+			<s a="1" t="1" p0="0.000000" p1="152.000000" p2="460.000000" p3="212.000000" p4="520.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="133.500000" p2="403.000000" p3="193.500000" p4="463.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="152.000000" p2="460.000000" p3="212.000000" p4="520.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="246.500000" p2="581.000000" p3="306.500000" p4="641.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="538.500000" p2="996.000000" p3="598.500000" p4="1056.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="215.500000" p2="547.000000" p3="275.500000" p4="607.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="538.500000" p2="996.000000" p3="598.500000" p4="1056.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="152.000000" p2="460.000000" p3="212.000000" p4="520.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="246.500000" p2="581.000000" p3="306.500000" p4="641.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="152.000000" p2="460.000000" p3="212.000000" p4="520.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="538.500000" p2="996.000000" p3="598.500000" p4="1056.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="151.500000" p2="414.000000" p3="211.500000" p4="474.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="538.500000" p2="996.000000" p3="598.500000" p4="1056.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="85.000000" p2="263.000000" p3="145.000000" p4="323.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="538.500000" p2="996.000000" p3="598.500000" p4="1056.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="85.000000" p2="263.000000" p3="145.000000" p4="323.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="133.500000" p2="403.000000" p3="193.500000" p4="463.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="85.000000" p2="263.000000" p3="145.000000" p4="323.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="152.000000" p2="460.000000" p3="212.000000" p4="520.000000"/>
+			<s a="1" t="1" p0="0.000000" p1="85.000000" p2="263.000000" p3="145.000000" p4="323.000000"/>
+		</RB0>
 		<SP object_count="20">
-			<s key="tree_5"/>
-			<s key="tree_2"/>
-			<s key="tree_5"/>
-			<s key="tree_3"/>
 			<s key="tree_7"/>
-			<s key="tree_1"/>
 			<s key="tree_6"/>
+			<s key="tree_7"/>
+			<s key="tree_1"/>
+			<s key="tree_3"/>
 			<s key="tree_2"/>
+			<s key="tree_3"/>
+			<s key="tree_7"/>
+			<s key="tree_1"/>
 			<s key="tree_7"/>
 			<s key="tree_3"/>
-			<s key="tree_1"/>
-			<s key="tree_2"/>
-			<s key="tree_4"/>
-			<s key="tree_1"/>
-			<s key="tree_7"/>
-			<s tex_x="0" tex_y="0" size_x="0" size_y="0"/>
-			<s key="tree_7"/>
 			<s key="tree_5"/>
-			<s key="tree_2"/>
-			<s tex_x="0" tex_y="0" size_x="0" size_y="0"/>
+			<s key="tree_3"/>
+			<s key="tree_4"/>
+			<s key="tree_3"/>
+			<s key="tree_4"/>
+			<s key="tree_6"/>
+			<s key="tree_4"/>
+			<s key="tree_7"/>
+			<s key="tree_4"/>
 		</SP>
 	</pool>
 </serialroot>
