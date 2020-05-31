@@ -27,6 +27,7 @@
 #define UNGOD_MUSIC_PLAYER_H
 
 #include <vector>
+#include <unordered_map>
 #include <SFML/Audio.hpp>
 #include "ungod/serialization/Serializable.h"
 #include "ungod/audio/Music.h"
@@ -38,8 +39,7 @@ namespace ungod
 /** \brief A base class for music players. */
     class MusicPlayerBase
     {
-    friend class AudioManager;
-     friend struct SerialBehavior<AudioManager>;
+    friend class MusicManager;
     public:
         MusicPlayerBase();
 
@@ -73,7 +73,7 @@ namespace ungod
         virtual float getVolume() const override;
 
     private:
-        Music mMusic;
+        MusicData mData;
     };
 
 
@@ -95,12 +95,67 @@ namespace ungod
     private:
         float mIntervalMin;
         float mIntervalMax;
-        std::vector<Music> mMusic;
+        std::vector<std::unique_ptr<MusicData>> mData;
         std::size_t mCurrentlyPlaying;
         bool mRandom;
         bool mSilence;
         bool mStopped;
         float mTimer;
+    };
+
+
+    /** \brief A manager object for ingame music. */
+    class MusicManager
+    {
+    static constexpr float DEFAULT_SILENCE_MIN = 0.0f;
+    static constexpr float DEFAULT_SILENCE_MAX = 0.0f;
+    public:
+        MusicManager();
+
+        /** \brief Loads a music track and returns and integer id for it. */
+        int loadMusic(const std::string& fileID);
+
+        /** \brief Bundles multiple music tracks to a playlist and loops either randomly or sequencial through this list. */
+        int loadPlaylist(const std::vector<std::string>& fileIDs, bool randomPlay = true, float intervalMin = DEFAULT_SILENCE_MIN, float intervalMax = DEFAULT_SILENCE_MAX);
+
+        /** \brief Plays a music track with the given index. */
+        void playMusic(int id);
+
+        /** \brief Pause the music track with the given index. */
+        void pauseMusic(int id);
+
+        /** \brief Stops the music track with the given index. */
+        void stopMusic(int id);
+
+        /** \brief Fades out the volume of the music track with the given index
+        * over the given period of time in milliseconds. */
+        void fadeoutMusic(float milliseconds, int id);
+
+        /** \brief Fades in the volume of the music track with the given index
+        * over the given period of time in milliseconds. */
+        void fadeinMusic(float milliseconds, int id);
+
+        /** \brief Sets the volume of the music with given index. */
+        void setMusicVolume(float volume, int id);
+
+        /** \brief Unloads a music track. */
+        void unloadMusic(int id);
+
+        void update(float delta);
+
+        /** \brief Mutes all music. Stops all songs and playlists currently playing. */
+        void setMuteMusic(bool mute = true);
+
+        ~MusicManager();
+
+    private:
+        std::unordered_map< int, std::unique_ptr<MusicPlayerBase> > mMusic;
+        std::unordered_map< int, float > mMusicVolumes;
+        bool mMuteMusic;
+        int mIDCounter; 
+
+    private:
+        MusicPlayerBase* assertID(int id);
     };
 }
 

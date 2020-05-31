@@ -29,7 +29,7 @@
 
 namespace ungod
 {
-        void UniversalEmitter::init(ParticleFunctorMaster* master)
+        void UniversalEmitter::init(const ParticleFunctorMaster* master)
         {
             mMaster = master;
             mPosInit = mMaster->getPositionDistributions().makeHandle<FixedPosition>(PS_FIXED_POSITION, sf::Vector2f{0,0});

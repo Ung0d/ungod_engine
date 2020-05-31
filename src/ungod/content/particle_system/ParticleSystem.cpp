@@ -27,7 +27,7 @@
 
 namespace ungod
 {
-        ParticleSystem::ParticleSystem(ParticleFunctorMaster& funcMaster) :
+        ParticleSystem::ParticleSystem(const ParticleFunctorMaster& funcMaster) :
             mFuncMaster(funcMaster),
             mParticleCount(0),
             mEstimateTimer(0.0f),

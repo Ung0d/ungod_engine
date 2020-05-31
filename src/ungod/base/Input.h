@@ -23,8 +23,8 @@
 *    source distribution.
 */
 
-#ifndef INPUT_H
-#define INPUT_H
+#ifndef UNGOD_INPUT_H
+#define UNGOD_INPUT_H
 
 #include <SFML/Window/Event.hpp>
 #include <list>
@@ -32,12 +32,9 @@
 #include "owls/Signal.h"
 #include "ungod/base/Utility.h"
 #include "ungod/serialization/MetaNode.h"
-#include "ungod/base/Entity.h"
 
 namespace ungod
 {
-    class RenderLayer;
-
     /** \brief A struct holding information about a key binding. */
     struct KeyBinding
     {
@@ -50,13 +47,13 @@ namespace ungod
     };
 
     /** \brief A class that manages player input. */
-    class InputHandler
+    class InputManager
     {
     public:
         enum InputType {MOUSE_INPUT = 0, KEYBOARD_INPUT = 1};
 
         /** \brief Default constructor. */
-        InputHandler() {}
+        InputManager() {}
 
         /** \brief Evaluates an input-event and sends out signals. */
         void handleEvent(const sf::Event& event);
@@ -83,13 +80,13 @@ namespace ungod
         static bool canBind(const InputType inputType, int keyValue);
 
         /** \brief Registers a callback. */
-        void onPressed(const std::function<void(const std::string&)>& callback);
+        owls::SignalLink<void, std::string> onPressed(const std::function<void(const std::string&)>& callback);
 
         /** \brief Registers a callback. */
-        void onDown(const std::function<void(const std::string&)>& callback);
+        owls::SignalLink<void, std::string> onDown(const std::function<void(const std::string&)>& callback);
 
         /** \brief Registers a callback. */
-        void onReleased(const std::function<void(const std::string&)>& callback);
+        owls::SignalLink<void, std::string> onReleased(const std::function<void(const std::string&)>& callback);
 
     protected:
         std::list< KeyBinding > mBindings;
@@ -111,56 +108,6 @@ namespace ungod
         */
         static std::string bindingAsString(std::pair<int, int> binding);
     };
-
-    /** \brief Helper class to maintain a swapable double-buffer of entities. */
-    struct Doublebuffer
-    {
-        std::array< std::unordered_set< Entity >, 2 > entities;
-        bool swapper;
-
-        Doublebuffer() : swapper(true) {}
-
-        void processMousePos(int x, int y, const sf::RenderTarget& target, quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer, owls::Signal<Entity>& enter, owls::Signal<Entity>& exit);
-
-        void clearBuffers();
-    };
-
-    /** \brief Sets world and entity functionality on top of the InputHandler like entity hovered signals. */
-    class InputManager : public InputHandler
-    {
-    public:
-        InputManager(quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer) : InputHandler(), mQuadtree(quadtree), mRenderLayer(renderlayer){}
-
-        /** \brief Evaluates an input-event and sends out signals. */
-        void handleEvent(const sf::Event& event, const sf::RenderTarget& target);
-
-        /** \brief Evaluates input and emits mouseEnter, mouseclick and mouseExit signals. */
-        void processMouse(const sf::Event& event, const sf::RenderTarget& target);
-
-        /** \brief Registers new callback for the MouseEnter signal. */
-        void onMouseEnter(const std::function<void(Entity)>& callback);
-
-        /** \brief Registers new callback for the MouseClick signal. */
-        void onMouseClick(const std::function<void(Entity)>& callback);
-
-        /** \brief Registers new callback for the MouseExit signal. */
-        void onMouseExit(const std::function<void(Entity)>& callback);
-
-        /** \brief Registers new callback for the MouseReleased signal. */
-        void onMouseReleased(const std::function<void(Entity)>& callback);
-
-    private:
-        quad::QuadTree<Entity>& mQuadtree;
-        RenderLayer const* mRenderLayer;
-
-        Doublebuffer mHoveredEntities;
-        Doublebuffer mClickedEntities;
-
-        owls::Signal<Entity> mMouseEnterSignal;
-        owls::Signal<Entity> mMouseClickedSignal;
-        owls::Signal<Entity> mMouseExitSignal;
-        owls::Signal<Entity> mMouseReleasedSignal;
-    };
 }
 
-#endif // INPUT_H
+#endif // UNGOD_INPUT_H

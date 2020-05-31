@@ -29,8 +29,8 @@ namespace ungod
 {
     MetaNode MetaMap::getNodeWithKey(const std::string& key) const
     {
-        auto metainfo = get()->metamap.find(key);
-        if(metainfo != get()->metamap.end())
+        auto metainfo = get().metamap.find(key);
+        if(metainfo != get().metamap.end())
             return metainfo->second;
         else
             return nullptr;
@@ -39,37 +39,37 @@ namespace ungod
 
     MetaNode MetaList::getNodeAt(const unsigned index) const
     {
-        if(index < get()->metalist.size())
+        if(index < get().metalist.size())
         {
-            return get()->metalist[index];
+            return get().metalist[index];
         }
         return nullptr;
     }
 
     std::size_t MetaList::getNodeCount() const
     {
-        return get()->metalist.size();
+        return get().metalist.size();
     }
 
 
     MetaNode MetaTable::getNodeAt(std::size_t outerIndex, std::size_t innerIndex) const
     {
-        if(outerIndex < get()->metatable.size() &&
-           innerIndex < get()->metatable[outerIndex].size())
+        if(outerIndex < get().metatable.size() &&
+           innerIndex < get().metatable[outerIndex].size())
         {
-            return get()->metatable[outerIndex][innerIndex];
+            return get().metatable[outerIndex][innerIndex];
         }
         return nullptr;
     }
 
     std::size_t MetaTable::getOuterSize() const
     {
-        return get()->metatable.size();
+        return get().metatable.size();
     }
 
     std::size_t MetaTable::getInnerSize(std::size_t outerIndex) const
     {
-        return get()->metatable[outerIndex].size();
+        return get().metatable[outerIndex].size();
     }
 
 

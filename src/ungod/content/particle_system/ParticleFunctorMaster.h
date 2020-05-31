@@ -66,14 +66,14 @@ namespace ungod
     public:
         ParticleFunctorMaster();
 
-        inline const FunctorSet<sf::Vector2f>& getPositionDistributions() { return mPositionDistributions; }
-        inline const FunctorSet<sf::Vector2f>& getVelocityDistributions() { return mVelocityDistributions; }
-        inline const FunctorSet<float>& getLifetimeDistributions() { return mLifetimeDistributions; }
-        inline const FunctorSet<int, float>& getIntervalDistributions() { return mIntervalDistributions; }
-        inline const FunctorSet<void, ParticleSystem&, float>& getEmitters() { return mEmitters; }
-        inline const FunctorSet<void, ParticleSystem&, float>& getAffectors() { return mAffectors; }
-        inline const FunctorSet<std::size_t, const FunctorHandle&>& getCountEstimators() { return mCountEstimators; }
-        inline const FunctorSet<sf::IntRect>& getTexrectInitializers() { return mTexrectInitializers; }
+        inline const FunctorSet<sf::Vector2f>& getPositionDistributions() const { return mPositionDistributions; }
+        inline const FunctorSet<sf::Vector2f>& getVelocityDistributions() const { return mVelocityDistributions; }
+        inline const FunctorSet<float>& getLifetimeDistributions() const { return mLifetimeDistributions; }
+        inline const FunctorSet<int, float>& getIntervalDistributions() const { return mIntervalDistributions; }
+        inline const FunctorSet<void, ParticleSystem&, float>& getEmitters() const { return mEmitters; }
+        inline const FunctorSet<void, ParticleSystem&, float>& getAffectors() const { return mAffectors; }
+        inline const FunctorSet<std::size_t, const FunctorHandle&>& getCountEstimators() const { return mCountEstimators; }
+        inline const FunctorSet<sf::IntRect>& getTexrectInitializers() const { return mTexrectInitializers; }
 
     private:
         FunctorSet<sf::Vector2f> mPositionDistributions;

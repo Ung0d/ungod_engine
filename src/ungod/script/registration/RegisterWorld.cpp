@@ -25,30 +25,12 @@
 
 #include "ungod/script/registration/RegisterWorld.h"
 #include "ungod/content/EntityTypes.h"
-#include "ungod/script/registration/RegistrationDetail.h"
-#include "ungod/script/registration/RegisterWorldGraph.h"
-#include "ungod/script/registration/RegisterAsset.h"
-#include "ungod/script/registration/RegisterAudio.h"
-#include "ungod/script/registration/RegisterBehavior.h"
-#include "ungod/script/registration/RegisterCollision.h"
-#include "ungod/script/registration/RegisterInput.h"
-#include "ungod/script/registration/RegisterLight.h"
-#include "ungod/script/registration/RegisterMovement.h"
-#include "ungod/script/registration/RegisterSerialization.h"
-#include "ungod/script/registration/RegisterTransform.h"
-#include "ungod/script/registration/RegisterUtility.h"
-#include "ungod/script/registration/RegisterVisuals.h"
-#include "ungod/script/registration/RegistrationDetail.h"
-#include "ungod/script/registration/RegisterEntity.h"
-#include "ungod/script/registration/RegisterParticleSystem.h"
-#include "ungod/script/registration/RegisterParentChild.h"
-#include "ungod/application/Application.h"
 
 namespace ungod
 {
     namespace scriptRegistration
     {
-        void registerWorld(ScriptStateBase& state, Application& app)
+        void registerWorld(ScriptStateBase& state)
         {
 			script::Usertype<World> worldType = state.registerUsertype<World>("World");
             // Factory methods to produce single entities.
@@ -87,52 +69,22 @@ namespace ungod
 			worldType["createAudioEmitters"] = &detail::entityCreator<AudioEmitterBaseComponents, AudioEmitterOptionalComponents>;
 			// Entity control methods.
 			worldType["destroy"] = &World::destroy;
+			worldType["remove"] = &World::remove;
 			worldType["destroyNamed"] = &World::destroyNamed;
 			worldType["makeCopy"] = &World::makeCopy;
+			worldType["accomodateForeign"] = &World::accomodateForeign;
 			worldType["add"] = &World::addEntity;
 			worldType["addNearby"] = &World::addEntityNearby;
-			//Component manipulation.
-			worldType["transform"] = &World::getTransformManager;
-			worldType["movement"] = &World::getMovementManager;
-			worldType["steering"] = &World::getSteeringManager;
-			worldType["pathplanner"] = &World::getPathPlanner;
-			worldType["visuals"] = &World::getVisualsManager;
-			worldType["collisionMov"] = &World::getMovementCollisionManager;
-			worldType["collisionSem"] = &World::getSemanticsCollisionManager;
-			worldType["rigidbodyMov"] = &World::getMovementRigidbodyManager;
-			worldType["rigidbodySem"] = &World::getSemanticsRigidbodyManager;
-			worldType["input"] = &World::getInputManager;
-			worldType["audio"] = &World::getAudioManager;
-			worldType["light"] = static_cast<LightSystem& (World::*)() >(&World::getLightSystem);
-			worldType["behavior"] = &World::getBehaviorManager;
-			worldType["tilemap"] = &World::getTileMapRenderer;
-			worldType["particles"] = &World::getParticleSystemManager;
-			worldType["parentChild"] = &World::getParentChildManager;
 			worldType["setRenderDepth"] = &World::setRenderDepth;
 			worldType["setName"] = &World::setName;
 			worldType["getName"] = &World::getName;
 			worldType["gamestate"] = &World::getState;
 			worldType["tagWithName"] = &World::tagWithName;
 			worldType["getEntityByName"] = &World::getEntityByName;
-
-            //if you register world, you rely on all the other stuff, so this is registered automatically
-			registerWorldGraph(state);
-            registerEntity(state);
-            registerUtility(state);
-            registerAudio(state);
-            registerSerialization(state);
-            registerInput(state);
-            registerTransform(state);
-            registerMovement(state);
-            registerAssets(state);
-            registerVisuals(state, app);
-            registerCollision<MOVEMENT_COLLISION_CONTEXT>(state);
-            registerCollision<SEMANTICS_COLLISION_CONTEXT>(state);
-            registerRigidbody(state);
-            registerLight(state);
-            registerBehavior(state);
-            registerParticleSystem(state);
-            registerParentChild(state);
+			worldType["getGraph"] = &World::getGraph;
+			worldType["getNode"] = &World::getNode;
+			//handlers
+			worldType["getLightHandler"] = [](World& w) -> LightHandler& { return w.getLightHandler();  };
         }
     }
 }

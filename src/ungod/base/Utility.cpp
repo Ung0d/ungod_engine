@@ -50,8 +50,7 @@ namespace ungod
         }
         else
         {
-            ungod::Logger::warning(pathToDir + "is no directory. Can not enumerate.");
-            ungod::Logger::endl();
+            ungod::Logger::warning(pathToDir, "is no directory. Can not enumerate.");
         }
 
         return enumFiles;

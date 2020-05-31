@@ -37,7 +37,7 @@
 namespace ungod
 {
     class World;
-    class MovementManager;
+    class MovementHandler;
     class PathPlanner;
 
     /** \brief Base class for different path objects. */
@@ -190,7 +190,7 @@ namespace ungod
         void buildNavGraph(World& world, float agentRadius);
 
         /** \brief Updates all entities with PathFinder and Movement components. */
-        void update(const std::list<Entity>& entities, float delta, MovementManager& mvm);
+        void update(const std::list<Entity>& entities, float delta, MovementHandler& mvm);
 
         /** \brief Sets manually a path for the given entity. */
         inline void setPath(Entity e, const PointContainer& points,

@@ -32,37 +32,39 @@
 
 namespace ungod
 {
-    enum ImageQuality { IMAGE_QUALITY_NORMAL, IMAGE_QUALITY_LOW };
-
-    struct Image : public Asset<sf::Texture>
+    class Image : public Asset<sf::Texture, bool, bool>
     {
-        static ImageQuality quality;
-
-        Image(const std::string& filePath, const LoadPolicy policy = LoadPolicy::SYNC);
+    public:
+        Image(const std::string& filePath, const LoadPolicy policy = LoadPolicy::SYNC, bool smooth = false, bool repeated = false);
 
         Image();
+
+        void load(const std::string filePath, const LoadPolicy policy = LoadPolicy::SYNC, bool smooth = false, bool repeated = false);
     };
 
     template<>
-    struct LoadBehavior<sf::Texture>
+    struct LoadBehavior<sf::Texture, bool, bool>
     {
-        static bool loadFromFile(const std::string& filepath, sf::Texture& data);
+        static bool loadFromFile(const std::string& filepath, sf::Texture& data, bool smooth, bool repeated);
         static std::string getIdentifier() { return "Image"; }
     };
 
 
     /** \brief For images that do not fit into the hardwares internal texture size. */
-    struct BigImage : public Asset<sf::BigTexture>
+    class BigImage : public Asset<sf::BigTexture, bool>
     {
-        BigImage(const std::string& filePath, const LoadPolicy policy = LoadPolicy::SYNC);
+    public:
+        BigImage(const std::string& filePath, const LoadPolicy policy = LoadPolicy::SYNC, bool smooth = false);
 
         BigImage();
+
+        void load(const std::string filePath, const LoadPolicy policy = LoadPolicy::SYNC, bool smooth = false);
     };
 
     template<>
-    struct LoadBehavior<sf::BigTexture>
+    struct LoadBehavior<sf::BigTexture, bool>
     {
-        static bool loadFromFile(const std::string& filepath, sf::BigTexture& data);
+        static bool loadFromFile(const std::string& filepath, sf::BigTexture& data, bool smooth);
         static std::string getIdentifier() { return "BigImage"; }
     };
 }

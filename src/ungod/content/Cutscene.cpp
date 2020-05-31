@@ -112,7 +112,6 @@ namespace ungod
             else
             {
                 Logger::warning("Tried to apply an effect to a scene, that does not exist.");
-                Logger::endl();
             }
         }
     }
@@ -129,7 +128,6 @@ namespace ungod
             else
             {
                 Logger::warning("Tried to initialize an effect for a scene, that does not exist.");
-                Logger::endl();
             }
         }
     }
@@ -192,7 +190,6 @@ namespace ungod
         if (mScenes.size() == 0)
         {
             Logger::warning("Tried to play a cutscene that has no scenes applied to it.");
-            Logger::endl();
             return;
         }
         mDataLoader.loadFirst(&mScenes[0]);
@@ -229,7 +226,7 @@ namespace ungod
                     mCurrent++;
                     mDataLoader.swapBuffers();
                     if (mCurrent < mScenes.size()-1)
-                        mDataLoader.loadNext(&mScenes[mCurrent+1]);
+                        mDataLoader.loadNext(&mScenes[std::size_t(mCurrent)+1u]);
                     setTextures();
                     mTimer.restart();
                     status = true;

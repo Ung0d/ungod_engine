@@ -417,7 +417,7 @@ namespace ungod
     }
 
 
-    void SerialBehavior<UniversalEmitter, ParticleFunctorMaster*>::serialize(const UniversalEmitter& data, MetaNode serializer, SerializationContext& context, ParticleFunctorMaster* master)
+    void SerialBehavior<UniversalEmitter, const ParticleFunctorMaster*>::serialize(const UniversalEmitter& data, MetaNode serializer, SerializationContext& context, const ParticleFunctorMaster* master)
     {
         context.serializeObject("pos", data.mPosInit, serializer);
         context.serializeObject("vel", data.mVelInit, serializer);
@@ -426,7 +426,7 @@ namespace ungod
     }
 
 
-    void DeserialBehavior<UniversalEmitter, ParticleFunctorMaster*>::deserialize(UniversalEmitter& data, MetaNode deserializer, DeserializationContext& context, ParticleFunctorMaster* master)
+    void DeserialBehavior<UniversalEmitter, const ParticleFunctorMaster*>::deserialize(UniversalEmitter& data, MetaNode deserializer, DeserializationContext& context, const ParticleFunctorMaster* master)
     {
         FunctorHandle posinit, velinit, lifetimeinit, spawninit;
         auto attr = context.first(context.deserializeObject(posinit), "pos", deserializer);
@@ -452,7 +452,7 @@ namespace ungod
 
 
 
-    void prepareParticleSystemDeserial(DeserializationContext& context, ParticleFunctorMaster* master)
+    void prepareParticleSystemDeserial(DeserializationContext& context, const ParticleFunctorMaster* master)
     {
         context.instantiate<DirectionalForce>([] () { return new DirectionalForce(); });
         context.instantiate<DisplaceForce>([] () { return new DisplaceForce(); });
@@ -473,7 +473,7 @@ namespace ungod
         context.instantiate<ConeDist>([] () { return new ConeDist(); });
         context.instantiate<IntervalTick>([] () { return new IntervalTick(); });
         context.instantiate<IntervalLifetime>([] () { return new IntervalLifetime(); });
-        context.instantiate<UniversalEmitter, ParticleFunctorMaster*>([] () { return new UniversalEmitter(); }, std::move(master));
+        context.instantiate<UniversalEmitter, const ParticleFunctorMaster*>([] () { return new UniversalEmitter(); }, std::move(master));
         context.instantiate<UniversalEstimator>([] () { return new UniversalEstimator(); });
     }
 }

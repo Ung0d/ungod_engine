@@ -1,9 +1,9 @@
 trigger_tester = ungod.newStateBehavior("trigger_tester")
 
 function trigger_tester.onInit(static, instance)
-  instance.entity:add():SemanticsRigidbody()
+  instance.entity:add():semanticsRigidbody()
   collider = ungod.makeRotatedRect(Vec2f.new(0,0), Vec2f.new(10,10), 0)
-  instance.world:rigidbodySem():addCollider(instance.entity, collider)
+  instance.entity:semanticsRigidbody():addCollider(collider)
   ungod.tester = instance.entity
 end
 

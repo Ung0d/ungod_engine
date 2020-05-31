@@ -28,11 +28,86 @@
 
 #include "ungod/script/Behavior.h"
 #include "ungod/physics/Movement.h"
+#include "ungod/physics/Path.h"
+#include "ungod/physics/Steering.h"
 
 namespace ungod
 {
     namespace scriptRegistration
     {
+        class MovementHandlerFrontEnd
+        {
+        public:
+            MovementHandlerFrontEnd(Entity& e, MovementHandler& h) : mEntity(e), mHandler(h) {}
+            const sf::Vector2f& getVelocity() const;
+            const sf::Vector2f& getAcceleration() const;
+            MovementComponent::Direction getDirection() const;
+            float getMaxVelocity() const;
+            float getMaxForce() const;
+            float getBaseSpeed() const;
+            void setMaximumVelocity(float maxvel);
+            void setBaseSpeed(float basespeed);
+            void setMaximumForce(float maxforce);
+            void accelerate(const sf::Vector2f& acceleration);
+            void resetAcceleration();
+            void flee(const sf::Vector2f& targetPos, float speed);
+            void arrival(const sf::Vector2f& targetPos, float speed, int arrivalRadius);
+            void pursuit(Entity target, float speed, unsigned arrivalRadius, float damp);
+            void evade(Entity target, float speed, float circleDistance, float damp);
+            void stop();
+            void displace(float speed, float circleDistance, float angleRange);
+            void avoidObstacles(float avoidStrength, float maxSight);
+            void directMovement(const sf::Vector2f& vec);
+            void slowDown(float strength);
+        private:
+            Entity& mEntity;
+            MovementHandler& mHandler;
+        };
+
+
+        template<typename GETTER>
+        class SteeringHandlerFrontEnd
+        {
+        public:
+            SteeringHandlerFrontEnd(Entity& e, SteeringHandler<GETTER>& h) : mEntity(e), mHandler(h) {}
+            bool isActive() const
+            {
+                return mEntity.get<SteeringComponent<GETTER>>().isActive();
+            }
+            void setActive(bool active)
+            {
+                mHandler.setActive(mEntity, active);
+            }
+            void disconnectPattern()
+            {
+                mHandler.disconnectPattern(mEntity);
+            }
+            void connectPattern(const std::string& key, const script::Environment& param)
+            {
+                mHandler.connectPattern(mEntity, key, param);
+            }
+            void connectPattern(SteeringPattern<script::Environment>* s, const script::Environment& param)
+            {
+                mHandler.connectPattern(mEntity, s, param);
+            }
+        private:
+            Entity& mEntity;
+            SteeringHandler<GETTER>& mHandler;
+        };
+
+
+        class PathPlannerFrontEnd
+        {
+        public:
+            PathPlannerFrontEnd(Entity& e, PathPlanner& p) : mEntity(e), mPathPlanner(p) {}
+            void setPath(script::Environment points);
+            void setPath(script::Environment points, PathFollowingPolicy policy, float speed, float radius);
+        private:
+            Entity& mEntity;
+            PathPlanner& mPathPlanner;
+        };
+
+
         /** \brief Registers movement functionality for scripts. */
         void registerMovement(ScriptStateBase& state);
 
@@ -47,10 +122,7 @@ namespace ungod
                     return *res;
                 else
                 {
-                    Logger::error("Could not retrieve parameter ");
-                    Logger::error(name);
-                    Logger::error(" from the given environment.");
-                    Logger::endl();
+                    Logger::error("Could not retrieve parameter", name, "from the given environment.");
                     return T();
                 }
             }

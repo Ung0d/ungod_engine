@@ -51,22 +51,14 @@ namespace ungod
 
     EntityID Entity::getID() const { return mHandle.getID(); }
 
+    const EntityData* Entity::getData() const { return &mHandle.getEntityData(); }
+
     InstantiationBase* Entity::getInstantiation() const { return mInstantiation; }
 
     ungod::World& Entity::getWorld() const
     {
         return static_cast<ungod::World&>(mHandle.getUniverse());
     }
-
-	sf::Vector2f Entity::getGlobalPosition() const
-	{
-		return getWorld().getContainer()->mapToGlobalPosition(get<TransformComponent>().getPosition());
-	}
-
-	sf::Vector2f Entity::getGlobalCenterPosition() const
-	{
-		return getWorld().getContainer()->mapToGlobalPosition(get<TransformComponent>().getCenterPosition());
-	}
 }
 
 namespace quad

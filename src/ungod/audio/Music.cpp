@@ -27,8 +27,4 @@
 
 namespace ungod
 {
-    bool LoadBehavior<sf::Music>::loadFromFile(const std::string& filepath, sf::Music& data)
-    {
-        return data.openFromFile(filepath);
-    }
 }

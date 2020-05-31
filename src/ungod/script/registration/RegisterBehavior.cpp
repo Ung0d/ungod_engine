@@ -32,6 +32,42 @@ namespace ungod
 {
     namespace scriptRegistration
     {
+        bool EntityBehaviorHandlerFrontEnd::hasValidEnvironment() const
+        {
+            return mEntity.get<EntityBehaviorComponent>().hasValidEnvironment();
+        }
+
+        bool EntityBehaviorHandlerFrontEnd::hasValidStateEnvironment(const std::string& stateName) const
+        {
+            return mEntity.get<EntityBehaviorComponent>().hasValidStateEnvironment(stateName);
+        }
+
+        script::Environment EntityBehaviorHandlerFrontEnd::getEnvironment() const
+        {
+            return mEntity.get<EntityBehaviorComponent>().getEnvironment();
+        }
+
+        script::Environment EntityBehaviorHandlerFrontEnd::getStateEnvironment(const std::string& stateName) const
+        {
+            return mEntity.get<EntityBehaviorComponent>().getStateEnvironment(stateName);
+        }
+
+        void EntityBehaviorHandlerFrontEnd::assignBehavior(const std::string& name)
+        {
+            mHandler.assignBehavior(mEntity, name);
+        }
+
+        void EntityBehaviorHandlerFrontEnd::assignBehavior(const std::string& name, script::Environment param)
+        {
+            mHandler.assignBehavior(mEntity, name, param);
+        }
+
+        void EntityBehaviorHandlerFrontEnd::setUpdateInterval(float interval)
+        {
+            mHandler.setUpdateInterval(mEntity, interval);
+        }
+
+
         void registerBehavior(ScriptStateBase& state)
         {
             state.registerEnum<ScriptErrorCode>("ScriptErrorCode",
@@ -41,26 +77,25 @@ namespace ungod
                                      {"ScriptExecutionError", ScriptErrorCode::SCRIPT_EXECUTION_ERROR},
                                      {"ScriptAlreadyLoaded", ScriptErrorCode::SCRIPT_ALREADY_LOADED}});
 
-           script::Usertype<EntityBehaviorComponent> ebType = state.registerUsertype<EntityBehaviorComponent>("EntityBehavior");
-           ebType["hasValidEnvironment"] = &EntityBehaviorComponent::hasValidEnvironment,
-           ebType["hasValidStateEnvironment"] = &EntityBehaviorComponent::hasValidStateEnvironment,
-           ebType["getEnvironment"] = &EntityBehaviorComponent::getEnvironment,
-           ebType["getStateEnvironment"] = &EntityBehaviorComponent::getStateEnvironment;
+           script::Usertype<EntityBehaviorManager> ebmanagerType = state.registerUsertype<EntityBehaviorManager>("EntityBehaviorManager");
+           ebmanagerType["loadBehaviorScript"] = &EntityBehaviorManager::loadBehaviorScript;
+           ebmanagerType["reload"] = [&state](EntityBehaviorManager& ebmngr) { ebmngr.reload(state.getSharedState(), state.getGlobalEnvironment());  };
 
-
-		   script::Usertype<EntityBehaviorManager> ebmanagerType = state.registerUsertype<EntityBehaviorManager>("EntityBehaviorManager");
-		   ebmanagerType["loadBehaviorScript"] = &EntityBehaviorManager::loadBehaviorScript;
-		   ebmanagerType["assignBehavior"] = sol::overload(
-			   [](EntityBehaviorManager& em, Entity e, const std::string& name)
-			   { em.assignBehavior(e, name); },
-			   [](EntityBehaviorManager& em, Entity e, const std::string& name, script::Environment param)
-			   { em.assignBehavior(e, name, param); });
-		   ebmanagerType["setUpdateInterval"] = [] (EntityBehaviorManager& ebm, Entity e, float interval) { ebm.setUpdateInterval(e, interval); };
-        
+           script::Usertype<EntityBehaviorHandlerFrontEnd> ebFrontEndType = state.registerUsertype<EntityBehaviorHandlerFrontEnd>("EntityBehaviorHandlerFrontEnd");
+           ebFrontEndType["hasValidEnvironment"] = &EntityBehaviorHandlerFrontEnd::hasValidEnvironment,
+           ebFrontEndType["hasValidStateEnvironment"] = &EntityBehaviorHandlerFrontEnd::hasValidStateEnvironment,
+           ebFrontEndType["getEnvironment"] = &EntityBehaviorHandlerFrontEnd::getEnvironment,
+           ebFrontEndType["getStateEnvironment"] = &EntityBehaviorHandlerFrontEnd::getStateEnvironment;
+           ebFrontEndType["assignBehavior"] = sol::overload(
+               [](EntityBehaviorHandlerFrontEnd& ebhfe, const std::string& name)
+               { ebhfe.assignBehavior(name); },
+               [](EntityBehaviorHandlerFrontEnd& ebhfe, const std::string& name, script::Environment param)
+               { ebhfe.assignBehavior(name, param); });
+           ebFrontEndType["setUpdateInterval"] = &EntityBehaviorHandlerFrontEnd::setUpdateInterval;
 
            state.registerFunction("listen", sol::overload(
-               [](Entity e, const std::string& type) { return e.getWorld().getBehaviorManager().addEventListener(e, type);  },
-               [](script::ProtectedFunc func, World& world, const std::string& type) { world.getBehaviorManager().addEventListener(func, type);  }));
+               [](Entity e, const std::string& type) { return e.getWorld().getBehaviorHandler().addEventListener(e, type);  },
+               [](script::ProtectedFunc func, World& world, const std::string& type) { world.getBehaviorHandler().addEventListener(func, type);  }));
 
            script::Usertype<script::EventListenerLink> evtListenerLink = state.registerUsertype<script::EventListenerLink>("ScriptEventListenerLink");
            evtListenerLink["disconnect"] = &script::EventListenerLink::disconnect;

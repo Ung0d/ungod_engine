@@ -487,8 +487,8 @@ namespace dom
         template<typename ... C>
         EntityHandle<CINDEX, COMP_TOTAL> checkedCopyEntity( const EntityHandle<CINDEX, COMP_TOTAL>& e );
 
-		/** \brief Makes a copy of the given entity. The new entity will share all
-		* Components and component-contents with the given entity. */
+		/** \brief Makes a copy of the given entity of another universe. The new entity will have a copied version
+        * of all Components. */
 		template<typename ... C>
 		EntityHandle<CINDEX, COMP_TOTAL> checkedForeignCopyEntity(const EntityHandle<CINDEX, COMP_TOTAL>& e);
 
@@ -562,7 +562,7 @@ namespace dom
 		/** \brief Iterates over all components of type T attached to any entity created via this Universe object. 
 		* Does however only provide access to the component, not to the entity. */
 		template<typename C, typename FUNC>
-		void iterateOverComponents(const FUNC& callback);
+		void iterateOverComponents(const FUNC& callback) const;
 
     private:
         std::array< std::unique_ptr<BaseChunkedArray>, COMP_TOTAL> mManagers;
@@ -963,7 +963,7 @@ namespace dom
 
 
     template<typename CINDEX, CINDEX COMP_TOTAL>
-    MetaData<CINDEX, COMP_TOTAL>::MetaData(std::bitset< COMP_TOTAL > initialMask) : mComponentMask(initialMask), mSharedCount(0)
+    MetaData<CINDEX, COMP_TOTAL>::MetaData(std::bitset< COMP_TOTAL > initialMask) : mComponentMask(initialMask), mSharedCount(0), mMetaData{ {CINDEX(0u)} }
     {
         CINDEX bitc = 0;
         for (CINDEX i = 0; i < COMP_TOTAL; ++i)
@@ -1367,7 +1367,7 @@ namespace dom
 
 	template<typename CINDEX, CINDEX COMP_TOTAL>
 	template<typename C, typename FUNC>
-	void Universe<CINDEX, COMP_TOTAL>::iterateOverComponents(const FUNC& callback)
+	void Universe<CINDEX, COMP_TOTAL>::iterateOverComponents(const FUNC& callback) const
 	{
 		if (!mManagers[ComponentTraits<C, CINDEX, COMP_TOTAL>::getID()])
 			return;

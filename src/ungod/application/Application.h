@@ -35,6 +35,9 @@
 #include "ungod/application/ConfigFile.h"
 #include "ungod/visual/Image.h"
 #include "ungod/visual/Camera.h"
+#include "ungod/audio/MusicPlayer.h"
+#include "ungod/audio/Audio.h"
+#include "ungod/base/Input.h"
 
 namespace ungod
 {
@@ -117,6 +120,9 @@ namespace ungod
         /** \brief Connects a callback to the on target size changed signal.*/
         owls::SignalLink<void, const sf::Vector2u&> onTargetSizeChanged(const std::function<void(const sf::Vector2u&)>& callback);
 
+        /** \brief Connects a callback to the on target size changed signal.*/
+        owls::SignalLink<void> onScriptStateChanged(const std::function<void()>& callback);
+
         /** \brief Restores the default value of a config property. */
         void restoreDefaultConfigProperty(const std::string& name);
 
@@ -125,6 +131,18 @@ namespace ungod
 
         /** \brief Returns true if and only if vsync is enabled. */
         bool vsyncEnabled() const { return mVsync; }
+
+        /** \brief Accesses the music manager to load and play music tracks or playlists. */
+        MusicManager& getMusicManager() { return mMusicManager; }
+
+        /** \brief Returns the audio manager. */
+        SoundProfileManager& getSoundProfileManager() { return mSoundProfileManager; }
+
+        /** \brief Returns a reference to the input manager. */
+        InputManager& getInputManager() { return mInputManager; }
+
+        /** \brief Clears the script state. */
+        void resetScriptState();
 
     private:
         //const
@@ -142,6 +160,11 @@ namespace ungod
         unsigned long mWindowStyle;
         sf::ContextSettings mContextSettings;
         bool mVsync;
+        //audio
+        MusicManager mMusicManager;
+        SoundProfileManager mSoundProfileManager;
+        //input
+        InputManager mInputManager;
         //configuration
         Configuration mConfig;
         //behavior
@@ -158,6 +181,7 @@ namespace ungod
         Camera mCursorCamera;
         //signals
         owls::Signal<const sf::Vector2u&> mTargetSizeChanged;
+        owls::Signal<> mScriptStateChanged;
         //statics
         static const std::string CONFIG_LOAD_PATH;
         static const std::string DEFAULT_CONFIG_XML;

@@ -32,7 +32,7 @@ namespace ungod
         bool Predictor::setModel(Model model)
         {
             tflite::ops::builtin::BuiltinOpResolver resolver;
-            tflite::InterpreterBuilder builder(*model.get()->get(), resolver);
+            tflite::InterpreterBuilder builder(*model.get(), resolver);
             builder(&mInterpreter);
             ungod::Logger::assertion((bool)mInterpreter, "Failed to build interpreter.");
             if (mInterpreter)

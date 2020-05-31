@@ -36,12 +36,12 @@ namespace ungod
     /**
     * \ingroup Components
     * \brief A component that contains the transform matrix of an object
-    * along with its size. Provides methods to alter the members. */
+    * along with its size. */
     class TransformComponent : public Serializable<TransformComponent>
     {
-    friend class TransformManager;
-    friend struct SerialBehavior<TransformComponent, Entity, const World&, const Application&>;
-    friend struct DeserialBehavior<TransformComponent, Entity, World&, const Application&>;
+    friend class TransformHandler;
+    friend struct SerialBehavior<TransformComponent, Entity>;
+    friend struct DeserialBehavior<TransformComponent, Entity, DeserialMemory&>;
     public:
         TransformComponent() : mTransform(), mUpperBound(0, 0), mLowerBound(0, 0), mBaseLineOffsets(0.0f, 0.0f) {}
 
@@ -94,10 +94,10 @@ namespace ungod
 
 
     /** \brief A manager structure that handles all operations that modify transform components. */
-    class TransformManager
+    class TransformHandler
     {
     public:
-        TransformManager(quad::QuadTree<Entity>& quadtree);
+        TransformHandler(quad::QuadTree<Entity>& quadtree) : mQuadTree(quadtree) {}
 
         /** \brief Sets position for the given entity. Emits a position changed signal. */
         void setPosition(Entity e, const sf::Vector2f& position);
@@ -131,7 +131,7 @@ namespace ungod
         /** \brief Registers new callback for the UpperBound-request. */
         void onUpperBoundRequest(const std::function<sf::Vector2f(Entity)>& callback);
 
-        /** \brief Callback if the "contents" (for example a sprite rect) of a entity has changed.
+        /** \brief Callback if the contents (for example a sprite rect) of a entity have changed.
         * The TransformManager does not care about what kind of content that was, it just processes
         * the bounding rect of the altered content and checks if it is still inside the transform-bounds. */
         void handleContentsChanged(Entity e, const sf::FloatRect& rect);

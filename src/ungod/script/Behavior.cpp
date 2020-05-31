@@ -29,7 +29,6 @@ namespace ungod
         {
             if (mMeta->isValid())
                 mEnvironment = parentEnv;
-                //mEnvironment = parentEnv.create_named(mMeta->getName()); old,,,, depr???
         }
 
         OptionalEnvironment InstanceCache::getEnvironment() const
@@ -135,7 +134,7 @@ namespace ungod
         boost::filesystem::path p{filepath};
         detail::NamedEnvironment env {mScriptState->create_named_table(p.stem().string()), p.stem().string()};
 
-        if (!mScript.runScript())
+        if (!mScript.run())
             return SCRIPT_EXECUTION_ERROR;
 
         mCallbackCache.init(env, mIdentifiers);

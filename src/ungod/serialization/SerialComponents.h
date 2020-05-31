@@ -60,6 +60,7 @@ namespace ungod
     class MusicEmitterComponent;
     class ParentComponent;
     class ChildComponent;
+    struct DeserialMemory;
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,39 +74,21 @@ namespace ungod
     };
 
     template <>
-    struct SerialBehavior<TransformComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<TransformComponent, Entity>
     {
-        static void serialize(const TransformComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+        static void serialize(const TransformComponent& data, MetaNode serializer, SerializationContext& context, Entity);
     };
 
     template <>
-    struct DeserialBehavior<TransformComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<TransformComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(TransformComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&);
+        static void deserialize(TransformComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// audio ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    template <>
-    struct SerialIdentifier<AudioManager>
-    {
-        static std::string get()  { return "AudioManager"; }
-    };
-
-    template <>
-    struct SerialBehavior<AudioManager>
-    {
-        static void serialize(const AudioManager& data, MetaNode serializer, SerializationContext& context);
-    };
-
-    template <>
-    struct DeserialBehavior<AudioManager>
-    {
-        static void deserialize(AudioManager& data, MetaNode deserializer, DeserializationContext& context);
-    };
 
 
     template <>
@@ -115,15 +98,15 @@ namespace ungod
     };
 
     template <>
-    struct SerialBehavior<SoundEmitterComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<SoundEmitterComponent, Entity>
     {
-        static void serialize(const SoundEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+        static void serialize(const SoundEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity);
     };
 
     template <>
-    struct DeserialBehavior<SoundEmitterComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<SoundEmitterComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(SoundEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&);
+        static void deserialize(SoundEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -134,15 +117,15 @@ namespace ungod
     };
 
     template <>
-    struct SerialBehavior<MusicEmitterComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<MusicEmitterComponent, Entity>
     {
-        static void serialize(const MusicEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+        static void serialize(const MusicEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity);
     };
 
     template <>
-    struct DeserialBehavior<MusicEmitterComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<MusicEmitterComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(MusicEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application&);
+        static void deserialize(MusicEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -157,15 +140,15 @@ namespace ungod
     };
 
     template <>
-    struct SerialBehavior<MovementComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<MovementComponent, Entity>
     {
-        static void serialize(const MovementComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World& world, const Application&);
+        static void serialize(const MovementComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
 
     template <>
-    struct DeserialBehavior<MovementComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<MovementComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(MovementComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(MovementComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -176,15 +159,15 @@ namespace ungod
     };
 
     template <>
-    struct SerialBehavior<SteeringComponent<script::Environment>, Entity, const World&, const Application&>
+    struct SerialBehavior<SteeringComponent<script::Environment>, Entity>
     {
-        static void serialize(const SteeringComponent<script::Environment>& data, MetaNode serializer, SerializationContext& context, Entity, const World& world, const Application&);
+        static void serialize(const SteeringComponent<script::Environment>& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
 
     template <>
-    struct DeserialBehavior<SteeringComponent<script::Environment>, Entity, World&, const Application&>
+    struct DeserialBehavior<SteeringComponent<script::Environment>, Entity, DeserialMemory&>
     {
-        static void deserialize(SteeringComponent<script::Environment>& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(SteeringComponent<script::Environment>& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -195,15 +178,15 @@ namespace ungod
     };
 
     template <>
-    struct SerialBehavior<PathFinderComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<PathFinderComponent, Entity>
     {
-        static void serialize(const PathFinderComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World& world, const Application&);
+        static void serialize(const PathFinderComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
 
     template <>
-    struct DeserialBehavior<PathFinderComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<PathFinderComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(PathFinderComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(PathFinderComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -218,14 +201,14 @@ namespace ungod
         static std::string get()  { return "V"; }
     };
     template <>
-    struct SerialBehavior<VisualsComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<VisualsComponent, Entity>
     {
-        static void serialize(const VisualsComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World& world, const Application&);
+        static void serialize(const VisualsComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<VisualsComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<VisualsComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(VisualsComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(VisualsComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
     template <>
@@ -234,14 +217,14 @@ namespace ungod
         static std::string get()  { return "VA"; }
     };
     template <>
-    struct SerialBehavior<VertexArrayComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<VertexArrayComponent, Entity>
     {
-        static void serialize(const VertexArrayComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World& world, const Application&);
+        static void serialize(const VertexArrayComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<VertexArrayComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<VertexArrayComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(VertexArrayComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(VertexArrayComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
     template <>
@@ -250,14 +233,14 @@ namespace ungod
         static std::string get()  { return "SP"; }
     };
     template <>
-    struct SerialBehavior<SpriteComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<SpriteComponent, Entity>
     {
-        static void serialize(const SpriteComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World& world, const Application&);
+        static void serialize(const SpriteComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<SpriteComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<SpriteComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(SpriteComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(SpriteComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -267,14 +250,14 @@ namespace ungod
         static std::string get()  { return "VisA"; }
     };
     template <>
-    struct SerialBehavior<VisualAffectorComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<VisualAffectorComponent, Entity>
     {
-        static void serialize(const VisualAffectorComponent& data, MetaNode serializer, SerializationContext& context, Entity,const  World& world, const Application&);
+        static void serialize(const VisualAffectorComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<VisualAffectorComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<VisualAffectorComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(VisualAffectorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(VisualAffectorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -284,14 +267,14 @@ namespace ungod
         static std::string get()  { return "SPM"; }
     };
     template <>
-    struct SerialBehavior<SpriteMetadataComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<SpriteMetadataComponent, Entity>
     {
-        static void serialize(const SpriteMetadataComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+        static void serialize(const SpriteMetadataComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<SpriteMetadataComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<SpriteMetadataComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(SpriteMetadataComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(SpriteMetadataComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -301,14 +284,14 @@ namespace ungod
         static std::string get()  { return "A"; }
     };
     template <>
-    struct SerialBehavior<AnimationComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<AnimationComponent, Entity>
     {
-        static void serialize(const AnimationComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+        static void serialize(const AnimationComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<AnimationComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<AnimationComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(AnimationComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(AnimationComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -318,14 +301,14 @@ namespace ungod
         static std::string get()  { return "BigS"; }
     };
     template <>
-    struct SerialBehavior<BigSpriteComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<BigSpriteComponent, Entity>
     {
-        static void serialize(const BigSpriteComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+        static void serialize(const BigSpriteComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<BigSpriteComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<BigSpriteComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(BigSpriteComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(BigSpriteComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -335,14 +318,14 @@ namespace ungod
         static std::string get()  { return "TM"; }
     };
     template <>
-    struct SerialBehavior<TileMapComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<TileMapComponent, Entity>
     {
-        static void serialize(const TileMapComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application& app);
+        static void serialize(const TileMapComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<TileMapComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<TileMapComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(TileMapComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application& app);
+        static void deserialize(TileMapComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -353,14 +336,14 @@ namespace ungod
         static std::string get()  { return "W"; }
     };
     template <>
-    struct SerialBehavior<WaterComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<WaterComponent, Entity>
     {
-        static void serialize(const WaterComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application& app);
+        static void serialize(const WaterComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<WaterComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<WaterComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(WaterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application& app);
+        static void deserialize(WaterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -371,14 +354,14 @@ namespace ungod
         static std::string get()  { return "PS"; }
     };
     template <>
-    struct SerialBehavior<ParticleSystemComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<ParticleSystemComponent, Entity>
     {
-        static void serialize(const ParticleSystemComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application& app);
+        static void serialize(const ParticleSystemComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<ParticleSystemComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<ParticleSystemComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(ParticleSystemComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application& app);
+        static void deserialize(ParticleSystemComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -391,14 +374,14 @@ namespace ungod
         static std::string get()  { return "SHE"; }
     };
     template <>
-    struct SerialBehavior<ShadowEmitterComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<ShadowEmitterComponent, Entity>
     {
-        static void serialize(const ShadowEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+        static void serialize(const ShadowEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<ShadowEmitterComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<ShadowEmitterComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(ShadowEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(ShadowEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
     template <>
@@ -407,14 +390,14 @@ namespace ungod
         static std::string get()  { return "LE"; }
     };
     template <>
-    struct SerialBehavior<LightEmitterComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<LightEmitterComponent, Entity>
     {
-        static void serialize(const LightEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+        static void serialize(const LightEmitterComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<LightEmitterComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<LightEmitterComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(LightEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(LightEmitterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
     template <>
@@ -423,54 +406,20 @@ namespace ungod
         static std::string get()  { return "LA"; }
     };
     template <>
-    struct SerialBehavior<LightAffectorComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<LightAffectorComponent, Entity>
     {
-        static void serialize(const LightAffectorComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+        static void serialize(const LightAffectorComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<LightAffectorComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<LightAffectorComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(LightAffectorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(LightAffectorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// entity behavior ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    template <>
-    struct SerialIdentifier<Initializer>
-    {
-        static std::string get()  { return "IN"; }
-    };
-    template <>
-    struct SerialBehavior<Initializer, Entity, const World&, const Application&>
-    {
-        static void serialize(const Initializer& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
-    };
-    template <>
-    struct DeserialBehavior<Initializer, Entity, World&, const Application&>
-    {
-        static void deserialize(Initializer& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
-    };
-
-
-
-    template <>
-    struct SerialIdentifier<EntityBehaviorManager>
-    {
-        static std::string get()  { return "EntityBehaviorManager"; }
-    };
-    template <>
-    struct SerialBehavior<EntityBehaviorManager, Entity, const World&, const Application&>
-    {
-        static void serialize(const EntityBehaviorManager& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
-    };
-    template <>
-    struct DeserialBehavior<EntityBehaviorManager, Entity, World&, const Application&>
-    {
-        static void deserialize(EntityBehaviorManager& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
-    };
 
 
     template <>
@@ -479,14 +428,14 @@ namespace ungod
         static std::string get()  { return "EB"; }
     };
     template <>
-    struct SerialBehavior<EntityBehaviorComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<EntityBehaviorComponent, Entity>
     {
-        static void serialize(const EntityBehaviorComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+        static void serialize(const EntityBehaviorComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<EntityBehaviorComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<EntityBehaviorComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(EntityBehaviorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(EntityBehaviorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -496,14 +445,14 @@ namespace ungod
         static std::string get()  { return "EUP"; }
     };
     template <>
-    struct SerialBehavior<EntityUpdateTimer, Entity, const World&, const Application&>
+    struct SerialBehavior<EntityUpdateTimer, Entity>
     {
-        static void serialize(const EntityUpdateTimer& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+        static void serialize(const EntityUpdateTimer& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<EntityUpdateTimer, Entity, World&, const Application&>
+    struct DeserialBehavior<EntityUpdateTimer, Entity, DeserialMemory&>
     {
-        static void deserialize(EntityUpdateTimer& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(EntityUpdateTimer& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -517,14 +466,14 @@ namespace ungod
         static std::string get()  { return "PRNT"; }
     };
     template <>
-    struct SerialBehavior<ParentComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<ParentComponent, Entity>
     {
-        static void serialize(const ParentComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+        static void serialize(const ParentComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<ParentComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<ParentComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(ParentComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(ParentComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
 
@@ -534,14 +483,14 @@ namespace ungod
         static std::string get()  { return "CHLD"; }
     };
     template <>
-    struct SerialBehavior<ChildComponent, Entity, const World&, const Application&>
+    struct SerialBehavior<ChildComponent, Entity>
     {
-        static void serialize(const ChildComponent& data, MetaNode serializer, SerializationContext& context, Entity, const World&, const Application&);
+        static void serialize(const ChildComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
     };
     template <>
-    struct DeserialBehavior<ChildComponent, Entity, World&, const Application&>
+    struct DeserialBehavior<ChildComponent, Entity, DeserialMemory&>
     {
-        static void deserialize(ChildComponent& data, MetaNode deserializer, DeserializationContext& context, Entity, World& world, const Application&);
+        static void deserialize(ChildComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 }
 

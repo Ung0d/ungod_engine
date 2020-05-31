@@ -42,71 +42,40 @@ namespace ungod
         using Environment = sol::table;
         using ProtectedFunc = sol::protected_function;
         using OptionalProtectedFunc = sol::optional<sol::protected_function>;
-
-        /** \brief Wraps data concerning a single script. */
-        class ScriptData
-        {
-        friend struct LoadBehavior<ScriptData, StateRef>;
-        private:
-            ProtectedFunc mCallback;
-            OptionalStateRef mState;
-            bool mValid;
-
-        private:
-            /** \brief Loads a script file. */
-            bool load(const std::string& filepath, StateRef state);
-
-        public:
-            ScriptData() : mValid(false) {}
-
-            /** \brief Runs a previously loaded script. */
-            bool run();
-
-            /** \brief Accesses the underlying script state. */
-            const OptionalStateRef& getState() const { return mState; }
-
-            /** \brief Runs if the loaded script was successfully executed. */
-            bool isValid();
-
-            /** \brief Resets the internals, that is removing all refs to the script state from this ScriptData
-            * in order to give the possibility to cleanly destroy the script state. A call of this method invalidates the data. */
-            void reset();
-        };
     }
 
-    //define how to load
-    template<>
-    struct LoadBehavior<script::ScriptData, script::StateRef>
-    {
-        static bool loadFromFile(const std::string& filepath, script::ScriptData& data, script::StateRef state);
-        static std::string getIdentifier() { return "ScriptData"; }
-    };
-
     /** \brief Expose the actual script object. */
-    class Script : protected Asset<script::ScriptData, script::StateRef>
+    class Script 
     {
     public:
         //constructors
-        Script();
+        Script() = default;
         Script(const std::string& filepath, script::StateRef state);
 
         /** \brief Loads the script but does not run it. */
-        void load(const std::string& filepath, script::StateRef state);
+        bool load(const std::string& filepath, script::StateRef state);
 
         //expose protected functionality
-        script::ScriptData* get() const;
-        std::string getFilePath() const;
+        const std::string& getFilePath() const;
+
         bool isLoaded() const;
 
         /** \brief Runs the underlying script and looks up the callback method. */
-        bool runScript();
+        bool run();
 
         /** \brief Runs if the loaded script was successfully executed. */
         bool isValid() const;
 
         /** \brief Resets the underlying script and removes all refs from the data to the script state.
         * It will be no longer valid. This automatically invalidates all other Script assets refering to that scriptdata. */
-        void reset() const;
+        void reset();
+
+    private:
+        script::ProtectedFunc mCallback;
+        bool mValid;
+        std::string mFilepath;
+    protected:
+        script::OptionalStateRef mState;
     };
 
 
@@ -120,10 +89,10 @@ namespace ungod
         InvokeableScript(const std::string& filepath, const std::string& methodName, script::StateRef state);
 
         /** \brief Loads the script but does not run it. */
-        void load(const std::string& filepath, const std::string& methodName, script::StateRef state);
+        bool load(const std::string& filepath, const std::string& methodName, script::StateRef state);
 
         /** \brief Runs the underlying script and looks up the callback method. */
-        bool runScript();
+        bool run();
 
         /** \brief Runs the callback-method if it was defined in the script. A call to runScript() is mandatory before. */
         template<typename ... PARAM>
@@ -137,28 +106,38 @@ namespace ungod
 
     /** \brief A free method that converts a script environment into a vector. */
     template <typename T>
+    void env2vec(script::Environment env, std::vector<T>& res)
+    {
+        res.reserve(env.size());
+        env.for_each([&res](sol::object key, sol::object value)
+            {
+                if (value.is<T>())
+                    res.emplace_back(value.as<T>());
+            });
+    }
+    template <typename T>
     std::vector<T> env2vec(script::Environment env)
     {
         std::vector<T> res;
-        res.reserve(env.size());
-        env.for_each([&res](sol::object key, sol::object value)
-        {
-            if (value.is<T>())
-                res.emplace_back(value.as<T>());
-        });
+        env2vec<T>(env, res);
         return res;
     }
 
     /** \brief A free method that converts a script environment into a list. */
     template <typename T>
+    void env2list(script::Environment env, std::list<T>& res)
+    {
+        env.for_each([&res](sol::object key, sol::object value)
+            {
+                if (value.is<T>())
+                    res.emplace_back(value.as<T>());
+            });
+    }
+    template <typename T>
     std::list<T> env2list(script::Environment env)
     {
         std::list<T> res;
-        env.for_each([&res](sol::object key, sol::object value)
-        {
-            if (value.is<T>())
-                res.emplace_back(value.as<T>());
-        });
+        env2list<T>(env, res);
         return res;
     }
 

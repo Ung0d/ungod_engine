@@ -39,30 +39,30 @@ namespace ungod
     };
 
     template <typename C>
-    struct SerialBehavior<MultiComponent<C>, Entity, const World&, const Application&>
+    struct SerialBehavior<MultiComponent<C>, Entity>
     {
-        static void serialize(const MultiComponent<C>& data, MetaNode serializer, SerializationContext& context, Entity e, const World& world, const Application& app)
+        static void serialize(const MultiComponent<C>& data, MetaNode serializer, SerializationContext& context, Entity e)
         {
             context.serializeProperty("cc", data.getComponentCount(), serializer);
             for (unsigned i = 0; i < data.getComponentCount(); ++i)
             {
                 MetaNode compNode = context.appendSubnode(serializer, "c");
-                SerialBehavior<C, Entity, const World&, const Application&>::serialize(data.getComponent(i), compNode, context, e, world, app);
+                SerialBehavior<C, Entity>::serialize(data.getComponent(i), compNode, context, e);
             }
         }
     };
 
     template <typename C>
-    struct DeserialBehavior<MultiComponent<C>, Entity, World&, const Application&>
+    struct DeserialBehavior<MultiComponent<C>, Entity, DeserialMemory&>
     {
-        static void deserialize(MultiComponent<C>& data, MetaNode deserializer, DeserializationContext& context, Entity e, World& world, const Application& app)
+        static void deserialize(MultiComponent<C>& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialMemory)
         {
             std::size_t compCount = deserializer.getAttribute<std::size_t>("cc", 0u);
-            data.init(compCount, world.getUniverse());
+            data.init(compCount, e.getWorld().getUniverse());
             std::size_t i = 0;
             forEachSubnode(deserializer, [&] (MetaNode sub)
             {
-                DeserialBehavior<C, Entity, World&, const Application&>::deserialize(data.getComponent(i), sub, context, e, world, app);
+                DeserialBehavior<C, Entity, DeserialMemory&>::deserialize(data.getComponent(i), sub, context, e, deserialMemory);
                 ++i;
             }, "c");
         }

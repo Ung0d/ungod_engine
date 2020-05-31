@@ -1,9 +1,9 @@
 trigger = ungod.newStateBehavior("trigger")
 
 function trigger.onInit(static, instance)
-  instance.entity:add():SemanticsRigidbody()
-  collider = ungod.makeRotatedRect(Vec2f.new(0,0), Vec2f.new(10,10), 0)
-  instance.world:rigidbodySem():addCollider(instance.entity, collider)
+  instance.entity:add():semanticsRigidbody()
+  local collider = ungod.makeRotatedRect(Vec2f.new(0,0), Vec2f.new(10,10), 0)
+  instance.entity:semanticsRigidbody():addCollider(collider)
 end
 
 function trigger.onCollisionEnter(static, instance, otherEntity)

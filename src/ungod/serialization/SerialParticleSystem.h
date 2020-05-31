@@ -478,15 +478,15 @@ namespace ungod
     };
 
     template <>
-    struct SerialBehavior<UniversalEmitter, ParticleFunctorMaster*>
+    struct SerialBehavior<UniversalEmitter, const ParticleFunctorMaster*>
     {
-        static void serialize(const UniversalEmitter& data, MetaNode serializer, SerializationContext& context, ParticleFunctorMaster* master);
+        static void serialize(const UniversalEmitter& data, MetaNode serializer, SerializationContext& context, const ParticleFunctorMaster* master);
     };
 
     template <>
-    struct DeserialBehavior<UniversalEmitter, ParticleFunctorMaster*>
+    struct DeserialBehavior<UniversalEmitter, const ParticleFunctorMaster*>
     {
-        static void deserialize(UniversalEmitter& data, MetaNode deserializer, DeserializationContext& context, ParticleFunctorMaster* master);
+        static void deserialize(UniversalEmitter& data, MetaNode deserializer, DeserializationContext& context, const ParticleFunctorMaster* master);
     };
 
 
@@ -511,7 +511,7 @@ namespace ungod
 
     /** \brief A method that must be called for the deserial context in question when running adeserial-session
     * where particle-systems are (or may be) involved. */
-    void prepareParticleSystemDeserial(DeserializationContext& context, ParticleFunctorMaster* master);
+    void prepareParticleSystemDeserial(DeserializationContext& context, const ParticleFunctorMaster* master);
 }
 
 #endif // SERIAL_COMPONENTS_H

@@ -38,7 +38,7 @@ namespace ungod
     * Custom events for the parent entity are also forwarded to the children. */
     class ParentComponent : public Serializable<ParentComponent>
     {
-    friend class ParentChildManager;
+    friend class ParentChildHandler;
     public:
         /** \brief Returns the number of children. */
         unsigned getNumberOfChildren() const;
@@ -52,7 +52,7 @@ namespace ungod
     * \brief A component for child entities. Is automatically attached, when added to a parent. */
     class ChildComponent : public Serializable<ChildComponent>
     {
-    friend class ParentChildManager;
+    friend class ParentChildHandler;
     public:
         const sf::Vector2f& getPosition() const;
 
@@ -64,10 +64,12 @@ namespace ungod
     };
 
     /** \brief A manager structure that handles all operations on ParentChildComponents. */
-    class ParentChildManager
+    class ParentChildHandler
     {
     public:
-        ParentChildManager(World& world);
+        ParentChildHandler();
+
+        void init(World& world);
 
         /** \brief Adds a child entity to the parent. Adds a ChildComponent to the child entity
         * if it has none. Adds a ParentComponent to the parent entity if it has none.
@@ -81,7 +83,7 @@ namespace ungod
         void setChildScale(Entity child, const sf::Vector2f& scale);
 
     private:
-        World& mWorld;
+        World* mWorld;
 
     private:
         void updateAllChildPositions(Entity e);

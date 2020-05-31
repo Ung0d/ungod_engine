@@ -24,29 +24,25 @@
 */
 
 #include "ungod/serialization/SerialWater.h"
-#include "ungod/content/Water.h"
+#include "ungod/content/water/Water.h"
 #include "ungod/base/World.h"
 
 namespace ungod
 {
-    void SerialBehavior<Water, const sf::RenderTarget&>::serialize(const Water& data, MetaNode serializer, SerializationContext& context, const sf::RenderTarget& target)
+    void SerialBehavior<Water>::serialize(const Water& data, MetaNode serializer, SerializationContext& context)
     {
-        context.serializeObject("grd", data.mGround, serializer);
-
         context.serializeProperty("df", data.mDistortionFactor, serializer);
         context.serializeProperty("ff", data.mFlowFactor, serializer);
         context.serializeProperty("ro", data.mReflectionOpacity, serializer);
 
-        context.serializeProperty("dtex", data.mDistortionTexID, serializer);
+        context.serializeProperty("dtex", data.mDistortionTextureFile, serializer);
         context.serializeProperty("vert", data.mVertexShaderID, serializer);
         context.serializeProperty("frag", data.mFragmentShaderID, serializer);
     }
 
-    void DeserialBehavior<Water, const sf::RenderTarget&>::deserialize(Water& data, MetaNode deserializer, DeserializationContext& context, const sf::RenderTarget& target)
+    void DeserialBehavior<Water>::deserialize(Water& data, MetaNode deserializer, DeserializationContext& context)
     {
-        auto attr = context.first(context.deserializeObject(data.mGround), "grd", deserializer);
-
-        attr = context.next(context.deserializeProperty([&data] (float v) { data.setDistortionFactor(v); }, Water::DEFAULT_DISTORTION ), "df", deserializer, attr);
+        auto attr = context.first(context.deserializeProperty([&data] (float v) { data.setDistortionFactor(v); }, Water::DEFAULT_DISTORTION ), "df", deserializer);
         attr = context.next(context.deserializeProperty([&data] (float v) { data.setFlowFactor(v); }, Water::DEFAULT_FLOW ), "ff", deserializer, attr);
         attr = context.next(context.deserializeProperty([&data] (float v) { data.setReflectionOpacity(v); }, Water::DEFAULT_REFLECTION_OPACITY ), "ro", deserializer, attr);
 
@@ -56,6 +52,6 @@ namespace ungod
         attr = context.next(context.deserializeProperty(vert), "vert", deserializer, attr);
         attr = context.next(context.deserializeProperty(frag), "frag", deserializer, attr);
 
-        data.loadShaders(distex, frag, vert, target);
+        data.init(distex, frag, vert);
     }
 }

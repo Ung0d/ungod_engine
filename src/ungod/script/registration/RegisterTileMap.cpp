@@ -24,66 +24,99 @@
 */
 
 #include "ungod/script/registration/RegisterTileMap.h"
-#include "ungod/content/TileMap.h"
-#include "ungod/content/FloodFill.h"
+#include "ungod/content/tilemap/TileMap.h"
+#include "ungod/content/tilemap/FloodFill.h"
+#include "ungod/content/tilemap/TileMapHandler.h"
 #include "ungod/application/Application.h"
-#include "ungod/visual/TileMapRenderer.h"
 #include "ungod/base/World.h"
 
 namespace ungod
 {
     namespace scriptRegistration
     {
-        void registerTileMap(ScriptStateBase& state, Application& app)
+		float TileMapHandlerFrontEnd::getTileWidth() const
+		{
+			return mEntity.get<TileMapComponent>().getTileMap().getTileWidth();
+		}
+
+		float TileMapHandlerFrontEnd::getTileHeight() const
+		{
+			return mEntity.get<TileMapComponent>().getTileMap().getTileHeight();
+		}
+
+		unsigned TileMapHandlerFrontEnd::getMapWidth() const
+		{
+			return mEntity.get<TileMapComponent>().getTileMap().getMapSizeX();
+		}
+
+		unsigned TileMapHandlerFrontEnd::getMapHeight() const
+		{
+			return mEntity.get<TileMapComponent>().getTileMap().getMapSizeY();
+		}
+
+		int TileMapHandlerFrontEnd::getTileID(const sf::Vector2f& pos) const
+		{
+			sf::Vector2f posLocal = mEntity.get<TransformComponent>().getTransform().getInverse().transformPoint(pos);
+			return mEntity.get<TileMapComponent>().getTileMap().getTileID(posLocal);
+		}
+
+		void TileMapHandlerFrontEnd::setTiles(script::Environment tiles, unsigned mapX, unsigned mapY)
+		{
+			TileData data;
+			data.ids = std::make_shared<std::vector<int>>();
+			env2vec<int>(tiles, *data.ids);
+			mHandler.setTiles(mEntity, data, mapX, mapY);
+		}
+
+		void TileMapHandlerFrontEnd::setZeroTiles(unsigned mapX, unsigned mapY)
+		{
+			TileData data;
+			data.ids = std::make_shared<std::vector<int>>();
+			data.ids->resize(mapX * mapY, 0);
+			mHandler.setTiles(mEntity, data, mapX, mapY);
+		}
+
+		void TileMapHandlerFrontEnd::setTile(int id, unsigned x, unsigned y)
+		{
+			mHandler.setTile(mEntity, id, x, y);
+		}
+
+		void TileMapHandlerFrontEnd::setTileDims(unsigned tileWidth, unsigned tileHeight, script::Environment keymap)
+		{
+			mHandler.setTileDims(mEntity, tileWidth, tileHeight, env2vec<std::string>(keymap));
+		}
+
+		void TileMapHandlerFrontEnd::addKey(const std::string& key)
+		{
+			mHandler.addKey(mEntity, key);
+		}
+
+		void TileMapHandlerFrontEnd::floodFill(unsigned ix, unsigned iy, script::Environment replacementIDs)
+		{
+			mHandler.floodFillTileMap(mEntity, ix, iy, env2vec<int>(replacementIDs));
+		}
+
+		void TileMapHandlerFrontEnd::setPosition(const sf::Vector2f& position)
+		{
+			mHandler.setTilemapPosition(mEntity, position);
+		}
+
+
+        void registerTileMap(ScriptStateBase& state)
         {
-			script::Usertype<Tile> tileType = state.registerUsertype<Tile>("Tile");
-			tileType["getTileID"] = &Tile::getTileID;
-			tileType["isActive"] = &Tile::isActive;
-
-			script::Usertype<TileMap> tilemapType = state.registerUsertype<TileMap>("TileMap");
-			tilemapType["reserveTileCount"] = &TileMap::reserveTileCount;
-			tilemapType["loadTiles"] = [](TileMap& ground, const std::string& tileID, const std::string& metaID, unsigned cTileWidth, unsigned cTileHeight, script::Environment keymap)
-				{
-					ground.loadTiles(tileID, metaID, cTileWidth, cTileHeight, env2vec<std::string>(keymap));
-				};
-			tilemapType["getTileWidth"] = &TileMap::getTileWidth;
-			tilemapType["getTileHeight"] = &TileMap::getTileHeight;
-			tilemapType["getMapSizeX"] = &TileMap::getMapSizeX;
-			tilemapType["getMapSizeY"] = &TileMap::getMapSizeY;
-			tilemapType["getTiledata"] = [] (TileMap& ground, const sf::Vector2f& pos) { return ground.getTiledata(pos); };
-
-			script::Usertype<TileMapRenderer> tmRendererType = state.registerUsertype<TileMapRenderer>("TileMapRenderer");
-			tmRendererType["reserveTileCount"] = [](TileMapRenderer& vm, Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY) { vm.reserveTileCount(e, num, mapSizeX, mapSizeY); };
-			tmRendererType["addTile"] = [](TileMapRenderer& vm, Entity e, int id, bool active) { vm.addTile(e, id, active); };
-			tmRendererType["setTiles"] = sol::overload([](TileMapRenderer& vm, Entity e, script::Environment tiles, script::Environment active, unsigned mapX, unsigned mapY)
-					{ vm.setTiles(e, env2vec<int>(tiles), env2vec<bool>(active), mapX, mapY); },
-					[](TileMapRenderer& vm, Entity e, script::Environment tiles, unsigned mapX, unsigned mapY)
-					{ vm.setTiles(e, env2vec<int>(tiles), mapX, mapY); });
-			tmRendererType["loadTiles"] = [](TileMapRenderer& vm, Entity e, const std::string& tileID, const std::string& metaID, unsigned cTileWidth, unsigned cTileHeight, script::Environment keymap)
-			{ vm.loadTiles(e, tileID, metaID, cTileWidth, cTileHeight, env2vec<std::string>(keymap)); };
-
-			tmRendererType["reserveWaterTileCount"] = [](TileMapRenderer& vm, Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY) { vm.reserveWaterTileCount(e, num, mapSizeX, mapSizeY); };
-			tmRendererType["addWaterTile"] = [](TileMapRenderer& vm, Entity e, int id, bool active) { vm.addWaterTile(e, id, active); };
-			tmRendererType["setWaterTiles"] = sol::overload([](TileMapRenderer& vm, Entity e, script::Environment tiles, script::Environment active, unsigned mapX, unsigned mapY)
-				{ vm.setWaterTiles(e, env2vec<int>(tiles), env2vec<bool>(active), mapX, mapY); },
-				[](TileMapRenderer& vm, Entity e, script::Environment tiles, unsigned mapX, unsigned mapY)
-				{ vm.setWaterTiles(e, env2vec<int>(tiles), mapX, mapY); });
-			tmRendererType["loadWaterTiles"] = [](TileMapRenderer& vm, Entity e, const std::string& tileID, const std::string& metaID, unsigned cTileWidth, unsigned cTileHeight, script::Environment keymap)
-				{ vm.loadWaterTiles(e, tileID, metaID, cTileWidth, cTileHeight, env2vec<std::string>(keymap)); };
-			tmRendererType["loadWaterShaders"] = [&app](TileMapRenderer& vm, Entity e, const std::string& distortionMap, const std::string& fragmentShader, const std::string& vertexShader)
-				{ vm.loadWaterShaders(e, distortionMap, fragmentShader, vertexShader, app.getWindow()); };
-			tmRendererType["setWaterReflections"] = [](TileMapRenderer& vm, Entity e, bool flag) { vm.setWaterReflections(e, flag); };
-			tmRendererType["setWaterShaders"] = [](TileMapRenderer& vm, Entity e, bool flag) { vm.setWaterShaders(e, flag); };
-			tmRendererType["setWaterDistortionFactor"] = [](TileMapRenderer& vm, Entity e, float dist) { vm.setWaterDistortionFactor(e, dist); };
-			tmRendererType["setWaterFlowFactor"] = [](TileMapRenderer& vm, Entity e, float flow) { vm.setWaterFlowFactor(e, flow); };
-			tmRendererType["setWaterReflectionOpacity"] = [] (TileMapRenderer& vm, Entity e, float op) { vm.setWaterReflectionOpacity(e, op); };
-
-			script::Usertype<TileMapComponent> tmCompType = state.registerUsertype<TileMapComponent>("TileMapComponent"); 
-			tmCompType["getTileMap"] = & TileMapComponent::getTileMap;
-			script::Usertype<WaterComponent> wCompType = state.registerUsertype<WaterComponent>("WaterComponent"); 
-			wCompType["getWater"] = & WaterComponent::getWater;
-
-            state.registerFunction("floodFill", &floodFill);
+			script::Usertype<TileMapHandlerFrontEnd> tmHandlerType = state.registerUsertype<TileMapHandlerFrontEnd>("TileMapHandlerFrontEnd");
+			tmHandlerType["getTileWidth"] = &TileMapHandlerFrontEnd::getTileWidth;
+			tmHandlerType["getTileHeight"] = &TileMapHandlerFrontEnd::getTileHeight;
+			tmHandlerType["getMapSizeX"] = &TileMapHandlerFrontEnd::getMapWidth;
+			tmHandlerType["getMapSizeY"] = &TileMapHandlerFrontEnd::getMapHeight;
+			tmHandlerType["getTileID"] = &TileMapHandlerFrontEnd::getTileID;
+			tmHandlerType["setTiles"] = &TileMapHandlerFrontEnd::setTiles;
+			tmHandlerType["setZeroTiles"] = &TileMapHandlerFrontEnd::setZeroTiles;
+			tmHandlerType["setTile"] = &TileMapHandlerFrontEnd::setTile;
+			tmHandlerType["addKey"] = &TileMapHandlerFrontEnd::addKey;
+			tmHandlerType["setTileDims"] = &TileMapHandlerFrontEnd::setTileDims;
+			tmHandlerType["floodfill"] = &TileMapHandlerFrontEnd::floodFill;
+			tmHandlerType["setPosition"] = &TileMapHandlerFrontEnd::setPosition;
         }
     }
 }

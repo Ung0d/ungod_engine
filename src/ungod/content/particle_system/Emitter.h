@@ -40,15 +40,15 @@ namespace ungod
     class ParticleFunctorMaster;
 
     /** \brief Data for the DirectionalForce affector. */
-    class UniversalEmitter : public BaseFunctorData<ParticleFunctorMaster*>
+    class UniversalEmitter : public BaseFunctorData<const ParticleFunctorMaster*>
     {
-     friend struct SerialBehavior<UniversalEmitter, ParticleFunctorMaster*>;
-    friend struct DeserialBehavior<UniversalEmitter, ParticleFunctorMaster*>;
+     friend struct SerialBehavior<UniversalEmitter, const ParticleFunctorMaster*>;
+    friend struct DeserialBehavior<UniversalEmitter, const ParticleFunctorMaster*>;
     public:
         UniversalEmitter() : mMaster(nullptr) {}
 
         /** \brief Initializes the emitter. */
-        void init(ParticleFunctorMaster* master);
+        void init(const ParticleFunctorMaster* master);
 
         /** \brief Sets a new distribution for the emitter position. */
         template<typename DATA, typename ... PARAM>
@@ -118,22 +118,22 @@ namespace ungod
 
          const FunctorHandle& getLifetimeDist() const { return mLifetimeInit; }
 
-         ParticleFunctorMaster* getMaster() { return mMaster; }
+         const ParticleFunctorMaster* getMaster() { return mMaster; }
 
     private:
         FunctorHandle mPosInit;
         FunctorHandle mVelInit;
         FunctorHandle mSpawnInterval;
         FunctorHandle mLifetimeInit;
-        ParticleFunctorMaster* mMaster;
+        const ParticleFunctorMaster* mMaster;
 
     private:
         FUNCTOR_DATA(UniversalEmitter)
 
     public:
-        virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, ParticleFunctorMaster*&& master) const override
+        virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, const ParticleFunctorMaster*&& master) const override
         {
-            deferredSerialize<UniversalEmitter, ParticleFunctorMaster*>(*this, serializer, context, std::move(master));
+            deferredSerialize<UniversalEmitter, const ParticleFunctorMaster*>(*this, serializer, context, std::move(master));
         }
         virtual std::string getSerialIdentifier() const override
         {

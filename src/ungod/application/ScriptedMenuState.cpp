@@ -24,12 +24,6 @@
 */
 
 #include "ungod/application/ScriptedMenuState.h"
-#include "ungod/script/registration/RegisterUtility.h"
-#include "ungod/script/registration/RegisterGui.h"
-#include "ungod/script/registration/RegisterInput.h"
-#include "ungod/script/registration/RegisterAudio.h"
-#include "ungod/script/registration/RegisterMenuState.h"
-#include "ungod/script/registration/RegisterApplication.h"
 #include "ungod/application/Application.h"
 #include "ungod/script/CustomEvent.h"
 #include "ungod/visual/RenderLayer.h"
@@ -42,26 +36,23 @@ namespace ungod
             State(app, id),
             mScriptCallbacks( app.getScriptState(), app.getGlobalScriptEnv(), { std::begin(MENU_CALLBACK_IDENTIFIERS), std::end(MENU_CALLBACK_IDENTIFIERS) } ),
             mGui(app.getWindow()),
+            mSoundHandler(),
             mCamera(app.getWindow())
         {
-            //register functionality
-            scriptRegistration::registerUtility(mScriptCallbacks);
-            scriptRegistration::registerGui(mScriptCallbacks);
-            scriptRegistration::registerInput(mScriptCallbacks);
-            scriptRegistration::registerAudio(mScriptCallbacks);
-            scriptRegistration::registerMenuState(mScriptCallbacks);
-            scriptRegistration::registerApplication(mScriptCallbacks, app);
             //set up the script behavior
             mScriptCallbacks.loadScript(scriptID);
-            //set up signal callbacks
-            mInputHandler.onPressed([this] (const std::string& binding) { mScriptCallbacks.execute(ON_BUTTON_PRESSED, binding, this); });
-            mInputHandler.onDown([this] (const std::string& binding) { mScriptCallbacks.execute(ON_BUTTON_DOWN, binding, this); });
-            mInputHandler.onReleased([this] (const std::string& binding) { mScriptCallbacks.execute(ON_BUTTON_RELEASED, binding, this); });
 
             mTargetSizeChangedLink = app.onTargetSizeChanged([this, &app](const sf::Vector2u& ts)
             {
                     mGui.setView(sf::View{ sf::FloatRect{0.0f, 0.0f, float(ts.x), float(ts.y)} });
             });
+
+            mScriptStateChangedLink = mApp.onScriptStateChanged([this]()
+                {
+                    mScriptCallbacks.reload(mApp.getScriptState(), mApp.getGlobalScriptEnv());
+                });
+
+            mSoundHandler.init(mApp.getSoundProfileManager(), &mListener);
         }
 
 
@@ -69,14 +60,12 @@ namespace ungod
         {
             mCamera.handleEvent(curEvent);
             mGui.handleEvent(curEvent);
-            mInputHandler.handleEvent(curEvent);
         }
 
 
         void ScriptedMenuState::update(const float delta)
         {
-            mInputHandler.update();
-            mAudioManager.update(delta);
+            mSoundHandler.update(delta);
             if (mIntervalTimer.getElapsedTime().asMilliseconds() >= UPDATE_INTERVAL)
             {
                 mIntervalTimer.restart();
@@ -112,6 +101,7 @@ namespace ungod
 
         ScriptedMenuState::~ScriptedMenuState()
         {
+            mTargetSizeChangedLink.disconnect();
             mTargetSizeChangedLink.disconnect();
         }
 }

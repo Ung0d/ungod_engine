@@ -27,7 +27,9 @@
 
 namespace ungod
 {
-    void ParticleSystemManager::update(const std::list<Entity>& entities, float delta)
+    const ParticleFunctorMaster ParticleSystemHandler::sParticleFunctorMaster;
+
+    void ParticleSystemHandler::update(const std::list<Entity>& entities, float delta)
     {
         if (mAABBUpdate.getElapsedTime().asMilliseconds() >= mRectUpdateTimer)
         {
@@ -50,44 +52,44 @@ namespace ungod
 
     }
 
-    void ParticleSystemManager::setSystem(Entity e, const ParticleSystem& p) const
+    void ParticleSystemHandler::setSystem(Entity e, const ParticleSystem& p) const
     {
         e.modify<ParticleSystemComponent>().mParticleSystem = p;
     }
 
-    void ParticleSystemManager::onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback)
+    void ParticleSystemHandler::onContentsChanged(const std::function<void(Entity, const sf::FloatRect&)>& callback)
     {
         mContentsChangedSignal.connect(callback);
     }
 
-    void ParticleSystemManager::onEmitterChanged(const std::function<void(Entity, const std::string&, const PSData&)>& callback)
+    void ParticleSystemHandler::onEmitterChanged(const std::function<void(Entity, const std::string&, const PSData&)>& callback)
     {
         mEmitterChangedSignal.connect(callback);
     }
 
-    void ParticleSystemManager::onTexrectInitChanged(const std::function<void(Entity, const std::string&, const PSData&)>& callback)
+    void ParticleSystemHandler::onTexrectInitChanged(const std::function<void(Entity, const std::string&, const PSData&)>& callback)
     {
         mTexRectInitChangedSignal.connect(callback);
     }
 
-    void ParticleSystemManager::onAffectorsChanged(const std::function<void(Entity, const std::string&, const PSData&)>& callback)
+    void ParticleSystemHandler::onAffectorsChanged(const std::function<void(Entity, const std::string&, const PSData&)>& callback)
     {
         mAffectorChangedSignal.connect(callback);
     }
 
-    void ParticleSystemManager::handleParticleSystemAdded(Entity e)
+    void ParticleSystemHandler::handleParticleSystemAdded(Entity e)
     {
         if (!e.modify<ParticleSystemComponent>().mParticleSystem)
-            e.modify<ParticleSystemComponent>().mParticleSystem.emplace( mParticleFunctorMaster );
+            e.modify<ParticleSystemComponent>().mParticleSystem.emplace( sParticleFunctorMaster );
     }
 
-    void ParticleSystemManager::setRectUpdateTimer(int rectupd)
+    void ParticleSystemHandler::setRectUpdateTimer(int rectupd)
     {
         mRectUpdateTimer = rectupd;
         mAABBUpdate.restart();
     }
 
-    sf::Vector2f ParticleSystemManager::getLowerBound(Entity e) const
+    sf::Vector2f ParticleSystemHandler::getLowerBound(Entity e) const
     {
         if (e.has<ParticleSystemComponent>())
         {
@@ -100,7 +102,7 @@ namespace ungod
         }
     }
 
-    sf::Vector2f ParticleSystemManager::getUpperBound(Entity e) const
+    sf::Vector2f ParticleSystemHandler::getUpperBound(Entity e) const
     {
         if (e.has<ParticleSystemComponent>())
         {
@@ -113,37 +115,37 @@ namespace ungod
         }
     }
 
-    std::string ParticleSystemManager::getEmitterKey(Entity e) const
+    std::string ParticleSystemHandler::getEmitterKey(Entity e) const
     {
         return e.get<ParticleSystemComponent>().mParticleSystem->getEmitterKey();
     }
 
-    std::string ParticleSystemManager::getPositionDistKey(Entity e) const
+    std::string ParticleSystemHandler::getPositionDistKey(Entity e) const
     {
         return e.get<ParticleSystemComponent>().mParticleSystem->getEmitter<UniversalEmitter>().getPositionDistKey();
     }
 
-    std::string ParticleSystemManager::getVelocityDistKey(Entity e) const
+    std::string ParticleSystemHandler::getVelocityDistKey(Entity e) const
     {
         return e.get<ParticleSystemComponent>().mParticleSystem->getEmitter<UniversalEmitter>().getVelocityDistKey();
     }
 
-    std::string ParticleSystemManager::getSpawnIntervalKey(Entity e) const
+    std::string ParticleSystemHandler::getSpawnIntervalKey(Entity e) const
     {
         return e.get<ParticleSystemComponent>().mParticleSystem->getEmitter<UniversalEmitter>().getSpawnIntervalKey();
     }
 
-    std::string ParticleSystemManager::getLifetimeDistKey(Entity e) const
+    std::string ParticleSystemHandler::getLifetimeDistKey(Entity e) const
     {
         return e.get<ParticleSystemComponent>().mParticleSystem->getEmitter<UniversalEmitter>().getLifetimeDistKey();
     }
 
-    std::string ParticleSystemManager::getAffectorKey(Entity e, std::size_t i) const
+    std::string ParticleSystemHandler::getAffectorKey(Entity e, std::size_t i) const
     {
         return e.get<ParticleSystemComponent>().mParticleSystem->getAffectorKey(i);
     }
 
-    std::string ParticleSystemManager::getTexrectInitializerKey(Entity e) const
+    std::string ParticleSystemHandler::getTexrectInitializerKey(Entity e) const
     {
         return e.get<ParticleSystemComponent>().mParticleSystem->getTexrectInitializerKey();
     }

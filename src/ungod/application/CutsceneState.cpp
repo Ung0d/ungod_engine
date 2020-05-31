@@ -24,7 +24,6 @@
 */
 
 #include "ungod/application/CutsceneState.h"
-#include "ungod/script/Registration.h"
 #include "ungod/application/Application.h"
 
 namespace ungod
@@ -53,10 +52,6 @@ namespace ungod
         void CutsceneState::runScript(const std::string& gameScriptID)
         {
             mGameScriptID = gameScriptID;
-
-            //register functionality
-            scriptRegistration::registerCutscene(mScriptCallbacks);
-            scriptRegistration::registerCutsceneState(mScriptCallbacks);
 
             //set up the script behavior
             mScriptCallbacks.loadScript(gameScriptID);

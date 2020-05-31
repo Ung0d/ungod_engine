@@ -43,16 +43,6 @@ namespace ungod
             Entity entity;
         };
 
-        struct Get
-        {
-            Get(Entity e) : entity(e) {}
-
-            template<typename C>
-            const C& get() const { return entity.get<C>(); }
-
-            Entity entity;
-        };
-
         struct Add
         {
             Add(Entity e) : entity(e) {}
@@ -84,7 +74,6 @@ namespace ungod
         };
 
 		Has hasser(Entity e);
-		Get getter(Entity e);
 		Add adder(Entity e);
 		Rem remmer(Entity e);
 

@@ -41,6 +41,8 @@ namespace ungod
     class World;
     class InstantiationBase;
 
+    using EntityData = dom::EntityData<>;
+
     /**
     * \brief An entity in the "world" of every ungod-application. Very lightweight.
     * Is based on an dom::entity with a Transform and a Visual component per default.
@@ -58,8 +60,7 @@ namespace ungod
     class Entity : public Serializable<Entity>
     {
     friend class World;
-     friend struct SerialBehavior< Entity, const World&, const Application& >;
-     friend struct DeserialBehavior< Entity, World&, const Application& >;
+    friend struct SerialBehavior< Entity >;
 
     public:
         /** \brief Default constructs a invalid entity. */
@@ -103,14 +104,14 @@ namespace ungod
         void add(dom::ComponentInstantiator<C> ci) const;
 
         /**
-        * \brief Gets a const reference to the requested component. Assumes that the component exists.
+        * \brief Gets a const reference to the requested component. 
         * Throws an "No-Component-Found"-error if has<C>() is false when this method is called. O(1).
         */
         template<typename C>
         const C& get() const;
 
         /**
-        * \brief Gets a const reference to the requested component. Assumes that the component exists.
+        * \brief Gets a const reference to the requested component. 
         * Throws an "No-Component-Found"-error if has<C>() is false when this method is called. O(1).
         */
         template<typename C>
@@ -132,8 +133,13 @@ namespace ungod
         template<typename MULTI, typename ... PARAM>
         void initMulti(std::size_t num, PARAM&&... param) const;
 
-        /** \brief Returns the unique id of the entity. */
+        /** \brief Returns the id of the entity. This id is unique locally for the world graph node this entity was created at. It alone can not be
+        * used to compare entities from different nodes. */
         EntityID getID() const;
+
+        /** \brief Returns a low level ptr to the underlying entity data. This ptr can be used as a unique identifier of the entity even when
+        * comparing entities from different nodes. */
+        const EntityData* getData() const;
 
         /** \brief Instantiates a component with parameters. */
         template<typename C, typename ... PARAM>
@@ -144,14 +150,6 @@ namespace ungod
 
         /** \brief Accesses the dom-side entity handle. (dom is the underlying ECS-lib) */
         dom::EntityHandle<> getHandle() const { return mHandle; }
-
-		/** \brief Returns the global (world independent) position of the entity. Undefined
-		* if no transform component is assigned. */
-		sf::Vector2f getGlobalPosition() const;
-
-		/** \brief Returns the global (world independent) center position of the entity. Undefined
-		* if no transform component is assigned. */
-		sf::Vector2f getGlobalCenterPosition() const;
 
     private:
         dom::EntityHandle<> mHandle;
@@ -170,7 +168,7 @@ namespace ungod
 
 
     /** \brief Base class for all EntityInstantiations for polymorphic storage. */
-    class InstantiationBase : public PolymorphicSerializable<InstantiationBase, Entity, const World&, const Application&>
+    class InstantiationBase : public PolymorphicSerializable<InstantiationBase, Entity>
     {
     friend class Entity;
     friend class World;
@@ -237,9 +235,9 @@ namespace ungod
         static const std::bitset< dom::DEFAULT_COMPONENT_COUNT > sOptionalsLookupTable;
 
     public:
-        virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, Entity&& e, const World& world, const Application& app) const override
+        virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, Entity&& e) const override
         {
-            deferredSerialize<EntityInstantiation< BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >, Entity, const World&, const Application&>(*this, serializer, context, Entity(e), world, app);
+            deferredSerialize<EntityInstantiation< BaseComponents<BASE...>, OptionalComponents<OPTIONAL...> >, Entity>(*this, serializer, context, Entity(e));
         }
 
         virtual std::string getSerialIdentifier() const override
@@ -282,7 +280,7 @@ namespace std
       std::size_t operator () (const ungod::Entity& e) const
       {
         //return std::hash<EntityID>(e.getID());   // gcc
-        return std::hash<EntityID>()(e.getID());   // msvc
+        return std::hash<const ungod::EntityData*>()(e.getData());   // msvc
       }
     };
 
@@ -291,7 +289,7 @@ namespace std
       std::size_t operator () (const ungod::Entity& e) const
       {
         //return std::hash<EntityID>(e.getID());   // gcc
-		  return std::hash<EntityID>()(e.getID());   // msvc
+		  return std::hash<const ungod::EntityData*>()(e.getData());   // msvc
       }
     };
 }

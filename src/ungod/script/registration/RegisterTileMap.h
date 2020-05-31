@@ -27,15 +27,39 @@
 #define REGISTER_TILE_MAP_H
 
 #include "ungod/script/Behavior.h"
+#include <SFML/System/Vector2.hpp>
 
 namespace ungod
 {
     class Application;
+    class Entity;
+    class TileMapHandler;
 
     namespace scriptRegistration
     {
+        class TileMapHandlerFrontEnd
+        {
+        public:
+            TileMapHandlerFrontEnd(Entity& e, TileMapHandler& h) : mEntity(e), mHandler(h) {}
+            float getTileWidth() const;
+            float getTileHeight() const;
+            unsigned getMapWidth() const;
+            unsigned getMapHeight() const;
+            int getTileID(const sf::Vector2f& pos) const;
+            void setTiles(script::Environment tiles, unsigned mapX, unsigned mapY);
+            void setZeroTiles(unsigned mapX, unsigned mapY);
+            void setTile(int id, unsigned x, unsigned y);
+            void setTileDims(unsigned tileWidth, unsigned tileHeight, script::Environment keymap);
+            void addKey(const std::string& key);
+            void floodFill(unsigned ix, unsigned iy, script::Environment replacementIDs);
+            void setPosition(const sf::Vector2f& position);
+        private:
+            Entity& mEntity;
+            TileMapHandler& mHandler;
+        };
+
         /** \brief Registers ground functionality for scripts. */
-        void registerTileMap(ScriptStateBase& state, Application& app);
+        void registerTileMap(ScriptStateBase& state);
     }
 }
 

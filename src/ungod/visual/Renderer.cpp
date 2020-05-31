@@ -27,29 +27,37 @@
 #include "ungod/base/World.h"
 #include "ungod/physics/Physics.h"
 #include "ungod/content/particle_system/ParticleSystem.h"
+#include "ungod/visual/Visual.h"
+#include "ungod/application/Application.h"
 
 namespace ungod
 {
-    Renderer::Renderer(World& world, VisualsManager& visualsmanager) :
-        mWorld(&world), mVisualsManager(&visualsmanager), mFirstNonePlane(0) {}
-
-
-    void Renderer::renewRenderlist(sf::RenderTarget& target, quad::PullResult<Entity>& pull) const
+    Renderer::Renderer(Application& app) : mShowWater(false)
     {
+        mShowWater = mWaterTex.create(app.getWindow().getSize().x, app.getWindow().getSize().y);
+        app.onTargetSizeChanged([this, &app](const sf::Vector2u& targetsize)
+            {
+                mShowWater = mWaterTex.create(app.getWindow().getSize().x, app.getWindow().getSize().y);
+            });
+    }
+
+    void Renderer::renewRenderlist(const quad::QuadTree<Entity>& entities, quad::PullResult<Entity>& pull, const sf::RenderTarget& target, sf::RenderStates states) const
+    {
+        pull.getList().clear();
+        sf::Vector2f localCamTopLeft = target.mapPixelToCoords(sf::Vector2i{ 0,0 });
+        localCamTopLeft = states.transform.getInverse().transformPoint(localCamTopLeft);
         //first step: retrieve the entities that may collide with the window
-        sf::Vector2f windowPosition = target.mapPixelToCoords(sf::Vector2i(0,0), target.getView());
-		windowPosition = mWorld->getContainer()->mapToLocalPosition(windowPosition);
         sf::Vector2f windowSize = target.getView().getSize();
-        mWorld->getQuadTree().retrieve(pull, {windowPosition.x, windowPosition.y, windowSize.x, windowSize.y} );
+        entities.retrieve(pull, { localCamTopLeft.x, localCamTopLeft.y, windowSize.x, windowSize.y} );
 
         //second step: sort out the entities, that are not on the screen
-        auto removalCondition = [windowPosition, windowSize](Entity entity)
+        auto removalCondition = [localCamTopLeft, windowSize](Entity entity)
         {
              const TransformComponent& t = entity.get<TransformComponent>();
-             return !(t.getPosition().x <= windowPosition.x + windowSize.x &&
-                      t.getPosition().x + t.getSize().x >= windowPosition.x &&
-                      t.getPosition().y <= windowPosition.y + windowSize.y &&
-                      t.getPosition().y + t.getSize().y >= windowPosition.y);
+             return !(t.getPosition().x <= localCamTopLeft.x + windowSize.x &&
+                      t.getPosition().x + t.getSize().x >= localCamTopLeft.x &&
+                      t.getPosition().y <= localCamTopLeft.y + windowSize.y &&
+                      t.getPosition().y + t.getSize().y >= localCamTopLeft.y);
         };
         pull.getList().erase(std::remove_if( pull.getList().begin(),
                                                pull.getList().end(),
@@ -90,19 +98,16 @@ namespace ungod
      if (flip)
         states.transform.scale(1.0f, -1.0f);
       states.transform.translate(0.0f, offsety);
-      states.texture = vis.getTexture();
-
-      if (e.has<WaterComponent>())
-      {
-          e.modify<WaterComponent>().mWater.render(target, states, e.getWorld());
-      }
-      if (e.has<TileMapComponent>())
-      {
-          e.modify<TileMapComponent>().mTileMap.render(target, states);
-      }
+      states.texture = &vis.getTexture();
 
       if (vis.isVisible() && vis.isLoaded())
       {
+          if (e.has<TileMapComponent>())
+              if (e.has<WaterComponent>())
+                  e.get<WaterComponent>().mWater.render(target, mWaterTex, e.get<TileMapComponent>().mTileMap, &vis.getTexture(), states, e.getWorld());
+              else
+                  e.get<TileMapComponent>().mTileMap.render(target, &vis.getTexture(), states);
+
           if (e.has<VertexArrayComponent>())
           {
              e.get<VertexArrayComponent>().mVertices.render(target, states);
@@ -121,13 +126,13 @@ namespace ungod
           }
           if (e.has<ParticleSystemComponent>())
           {
-              e.modify<ParticleSystemComponent>().mParticleSystem->render(vis.getTexture(), target, states);
+              e.modify<ParticleSystemComponent>().mParticleSystem->render(&vis.getTexture(), target, states);
           }
       }
     }
 
 
-    void Renderer::renderBounds(const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states)
+    void Renderer::renderBounds(const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states) const
     {
       sf::Vertex line[2];
       line[0].position = transf.getLeftAnchor();
@@ -147,7 +152,7 @@ namespace ungod
     }
 
 
-    void Renderer::renderTextureRects(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states)
+    void Renderer::renderTextureRects(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states) const
     {
       sf::Color spriteCol = sf::Color::Red;
       sf::Color vertexCol = sf::Color::Yellow;
@@ -194,7 +199,7 @@ namespace ungod
     }
 
 
-    void Renderer::renderParticleSystemBounds(Entity e, const TransformComponent& transf, const ParticleSystemComponent& ps, sf::RenderTarget& target, sf::RenderStates states)
+    void Renderer::renderParticleSystemBounds(Entity e, const TransformComponent& transf, const ParticleSystemComponent& ps, sf::RenderTarget& target, sf::RenderStates states) const
     {
           sf::Color col = sf::Color::Blue;
           states.transform *= transf.getTransform();  //apply the transform of the entity
@@ -208,7 +213,7 @@ namespace ungod
     }
 
 
-    void Renderer::renderAudioEmitter(Entity e, const TransformComponent& transf, MusicEmitterComponent& emitter, sf::RenderTarget& target, sf::RenderStates states)
+    void Renderer::renderAudioEmitter(Entity e, const TransformComponent& transf, MusicEmitterComponent& emitter, sf::RenderTarget& target, sf::RenderStates states) const
     {
         states.transform *= transf.getTransform();  //apply the transform of the entity
         sf::RectangleShape rect( {50, 50} );
@@ -220,7 +225,7 @@ namespace ungod
     }
 
 
-    void Renderer::renderLightDebug(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states)
+    void Renderer::renderLightDebug(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states) const
     {
         states.transform *= transf.getTransform();  //apply the transform of the entity
 
@@ -266,36 +271,34 @@ namespace ungod
     }
 
 
-    void Renderer::render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const
+    void Renderer::render(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states, VisualsHandler& visualsHandler)
     {
-		sf::Vector2f camCenter = target.mapPixelToCoords(sf::Vector2i(target.getSize().x / 2, target.getSize().y / 2));
-		camCenter = mWorld->getContainer()->mapToLocalPosition(camCenter);
+        sf::Vector2f localCamCenter = target.mapPixelToCoords(sf::Vector2i{ (int)target.getSize().x / 2, (int)target.getSize().y / 2 });
+        localCamCenter = states.transform.getInverse().transformPoint(localCamCenter);
         //iterate over all entities with both Transform and Visuals-component
         dom::Utility<Entity>::iterate<TransformComponent, VisualsComponent>(pull.getList(),
-          [this, &target, &states, camCenter] (Entity e, TransformComponent& transf, VisualsComponent& vis)
+          [this, &target, &states, localCamCenter, &visualsHandler] (Entity e, TransformComponent& transf, VisualsComponent& vis)
           {
             if (vis.isHiddenForCamera())
             {
-                if (transf.getBounds().contains(camCenter))
+                if (transf.getBounds().contains(localCamCenter))
                 {
                     sf::FloatRect innerRect = transf.getBounds();
                     innerRect.left += transf.getSize().x*INNER_RECT_PERCENTAGE;
                     innerRect.top += transf.getSize().y*INNER_RECT_PERCENTAGE;
                     innerRect.width -= 2*transf.getSize().x*INNER_RECT_PERCENTAGE;
                     innerRect.height -= 2*transf.getSize().y*INNER_RECT_PERCENTAGE;
-                    if (innerRect.contains(camCenter))
+                    if (innerRect.contains(localCamCenter))
                     {
-                    mVisualsManager->componentOpacitySet(e, 0.0f);
+                        visualsHandler.componentOpacitySet(e, 0.0f);
                     }
                     else
                     {
-                        sf::Vector2f centerDist = transf.getCenterPosition() - camCenter;
+                        sf::Vector2f centerDist = transf.getCenterPosition() - localCamCenter;
                         float dx = std::abs(centerDist.x) - transf.getSize().x*(1.0f-2*INNER_RECT_PERCENTAGE)*0.5f;
                         float dy = std::abs(centerDist.y) - transf.getSize().y*(1.0f-2*INNER_RECT_PERCENTAGE)*0.5f;
                         float reducedOpac = std::max( dx/(transf.getSize().x*INNER_RECT_PERCENTAGE), dy/(transf.getSize().y*INNER_RECT_PERCENTAGE) );
-                        ungod::Logger::info(reducedOpac);
-                        ungod::Logger::endl();
-                        mVisualsManager->componentOpacitySet(e, reducedOpac);
+                        visualsHandler.componentOpacitySet(e, reducedOpac);
                     }
                 }
             }
@@ -304,7 +307,7 @@ namespace ungod
 
             if (vis.isHiddenForCamera())
             {
-                mVisualsManager->componentOpacitySet(e, vis.getOpacity());
+                visualsHandler.componentOpacitySet(e, vis.getOpacity());
             }
           });
 
@@ -323,7 +326,7 @@ namespace ungod
     void Renderer::renderBounds(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const
     {
         dom::Utility<Entity>::iterate<TransformComponent>(pull.getList(),
-          [&target, &states] (Entity e, TransformComponent& transf)
+          [this, &target, &states] (Entity e, TransformComponent& transf)
           {
               renderBounds(transf, target, states);
           });
@@ -332,7 +335,7 @@ namespace ungod
     void Renderer::renderTextureRects(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const
     {
         dom::Utility<Entity>::iterate<TransformComponent, VisualsComponent>(pull.getList(),
-          [&target, &states] (Entity e, TransformComponent& transf, VisualsComponent& vis)
+          [this, &target, &states] (Entity e, TransformComponent& transf, VisualsComponent& vis)
           {
               renderTextureRects(e, transf, target, states);
           });
@@ -341,7 +344,7 @@ namespace ungod
     void Renderer::renderParticleSystemBounds(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const
     {
         dom::Utility<Entity>::iterate<TransformComponent, VisualsComponent, ParticleSystemComponent>(pull.getList(),
-          [&target, &states] (Entity e, TransformComponent& transf, VisualsComponent& vis, ParticleSystemComponent& ps)
+            [this, &target, &states] (Entity e, TransformComponent& transf, VisualsComponent& vis, ParticleSystemComponent& ps)
           {
               renderParticleSystemBounds(e, transf, ps, target, states);
           });
@@ -351,7 +354,7 @@ namespace ungod
     void Renderer::renderAudioEmitters(const quad::PullResult<Entity>& pull, sf::RenderTarget& target, sf::RenderStates states) const
     {
         dom::Utility<Entity>::iterate<TransformComponent, MusicEmitterComponent>(pull.getList(),
-          [&target, &states] (Entity e, TransformComponent& transf, MusicEmitterComponent& emitter)
+          [this, &target, &states] (Entity e, TransformComponent& transf, MusicEmitterComponent& emitter)
           {
               renderAudioEmitter(e, transf, emitter, target, states);
           });
@@ -362,28 +365,28 @@ namespace ungod
     {
         //single light emitter
         dom::Utility<Entity>::iterate<TransformComponent>(pull.getList(),
-          [&target, &states] (Entity e, TransformComponent& transf)
+          [this, &target, &states] (Entity e, TransformComponent& transf)
           {
               renderLightDebug(e, transf, target, states);
           });
     }
 
 
-    void Renderer::update(const std::list<Entity>& entities, float delta)
+    void Renderer::update(const std::list<Entity>& entities, float delta, VisualsHandler& vh) 
     {
         dom::Utility<Entity>::iterate< VisualsComponent >(entities,
-          [delta, this] (Entity e, VisualsComponent& visuals)
+          [delta, this, &vh] (Entity e, VisualsComponent& visuals)
           {
               //handle animations
                 if (e.has<AnimationComponent>())
                 {
-                    updateAnimation(e, e.modify<AnimationComponent>(), delta);
+                    updateAnimation(e, e.modify<AnimationComponent>(), delta, vh);
                 }
                 else if(e.has<MultiAnimationComponent>())
                 {
                     for (std::size_t i = 0; i < e.modify<MultiAnimationComponent>().getComponentCount(); ++i)
                     {
-                        updateAnimation(e, e.modify<MultiAnimationComponent>().getComponent(i), delta);
+                        updateAnimation(e, e.modify<MultiAnimationComponent>().getComponent(i), delta, vh);
                     }
                 }
 
@@ -393,36 +396,36 @@ namespace ungod
                  VisualAffectorComponent& affector = e.modify<VisualAffectorComponent>();
                  if (affector.isActive())
                  {
-                    affector.mCallback(e, delta, *mVisualsManager, visuals);
+                    affector.mCallback(e, delta, vh, visuals);
                  }
              }
           });
 
         dom::Utility<Entity>::iterate< VisualsComponent, MultiVisualAffectorComponent >(entities,
-          [delta, this] (Entity e, VisualsComponent& visuals, MultiVisualAffectorComponent& affector)
+          [delta, this, &vh] (Entity e, VisualsComponent& visuals, MultiVisualAffectorComponent& affector)
           {
                 for (std::size_t i = 0; i < affector.getComponentCount(); ++i)
                 {
                      if (affector.getComponent(i).isActive())
                      {
-                        affector.getComponent(i).mCallback(e, delta, *mVisualsManager, visuals);
+                        affector.getComponent(i).mCallback(e, delta, vh, visuals);
                      }
                 }
           });
     }
 
 
-    void Renderer::updateAnimation(Entity e, AnimationComponent& animation, float delta)
+    void Renderer::updateAnimation(Entity e, AnimationComponent& animation, float delta, VisualsHandler& vh) 
     {
         if (!animation.mVertices)
             return;
         bool runningBefore = animation.mAnimation.isRunning();
         if (animation.mAnimation.update(delta, animation.mVertices))
         {
-            mVisualsManager->mContentsChangedSignal(e, animation.getAnimation().getBounds());
-            mVisualsManager->mAnimationFrameSignal(e, animation.getAnimation().getKey(), animation.mAnimation.getCurrentIndex());
+            vh.mContentsChangedSignal(e, animation.getAnimation().getBounds());
+            vh.mAnimationFrameSignal(e, animation.getAnimation().getKey(), animation.mAnimation.getCurrentIndex());
         }
         if (runningBefore && !animation.mAnimation.isRunning())
-            mVisualsManager->mAnimationStopSignal(e, animation.getAnimation().getKey());
+            vh.mAnimationStopSignal(e, animation.getAnimation().getKey());
     }
 }

@@ -49,20 +49,20 @@ namespace ungod
 
             state.registerFunction("quitApplication", [&app] () { app.quitApplication(); });
             state.registerFunction("buildVersion", [&app] () { return app.getBuildVersion(); });
-            state.registerFunction("addGameState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<ScriptedGameState>(id, scriptfile); });
-            state.registerFunction("addMenuState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<ScriptedMenuState>(id, scriptfile); });
-            state.registerFunction("addCutsceneState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<CutsceneState>(id, scriptfile); });
-            state.registerFunction("addInactiveGameState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<ScriptedGameState>(id, scriptfile); });
-            state.registerFunction("addInactiveMenuState", [&app] (StateID id, const std::string& scriptfile) { return app.getStateManager().addState<ScriptedMenuState>(id, scriptfile); });
+            state.registerFunction("addGameState", [&app] (StateID id, const std::string& scriptfile) { app.getStateManager().addState<ScriptedGameState>(id, scriptfile); });
+            state.registerFunction("addMenuState", [&app] (StateID id, const std::string& scriptfile) { app.getStateManager().addState<ScriptedMenuState>(id, scriptfile); });
+            state.registerFunction("addCutsceneState", [&app] (StateID id, const std::string& scriptfile) { app.getStateManager().addState<CutsceneState>(id, scriptfile); });
+            state.registerFunction("addInactiveGameState", [&app] (StateID id, const std::string& scriptfile) { app.getStateManager().addState<ScriptedGameState>(id, scriptfile); });
+            state.registerFunction("addInactiveMenuState", [&app] (StateID id, const std::string& scriptfile) { app.getStateManager().addState<ScriptedMenuState>(id, scriptfile); });
             state.registerFunction("moveStateToForeground", [&app] (StateID id) { return app.getStateManager().moveToForeground(id); });
             state.registerFunction("moveStateToBackground", [&app] (StateID id) { return app.getStateManager().moveToBackground(id); });
             state.registerFunction("getState", [&app] (StateID id) { return app.getStateManager().getState(id); } );
             state.registerFunction("getGameState", [&app] (StateID id) { return app.getStateManager().getState<ScriptedGameState>(id); } );
             state.registerFunction("getMenuState", [&app] (StateID id) { return app.getStateManager().getState<ScriptedMenuState>(id); } );
             state.registerFunction("hasState", [&app] (StateID id) { return app.getStateManager().hasState(id); } );
-            state.registerFunction("log", [] (const std::string& txt) { Logger::info(txt); Logger::endl(); });
-            state.registerFunction("logWarning", [] (const std::string& txt) { Logger::warning(txt); Logger::endl(); });
-            state.registerFunction("logError", [] (const std::string& txt) { Logger::error(txt); Logger::endl(); });
+            state.registerFunction("log", [] (const std::string& txt) { Logger::info(txt); });
+            state.registerFunction("logWarning", [] (const std::string& txt) { Logger::warning(txt); });
+            state.registerFunction("logError", [] (const std::string& txt) { Logger::error(txt); });
 
             state.registerFunction("setFloatConfig", [&app] (const std::string& item, float x) { app.getConfig().set<float>(item, x); });
             state.registerFunction("setIntConfig", [&app] (const std::string& item, int x) { app.getConfig().set<int>(item, x); });
@@ -79,15 +79,19 @@ namespace ungod
             state.registerFunction("isFullscreen", [&app]() { return app.isFullscreen(); });
             state.registerFunction("isVsyncEnabled", [&app]() { return app.vsyncEnabled(); });
 
-            state.registerFunction("world2Screen", sol::overload([&app](const sf::Vector2f& pos, const ScriptedGameState& state)
-                                   { return app.getWindow().mapCoordsToPixel(pos, state.getCamera().getView()); },
-                                   [&app](const sf::Vector2f& pos, const World& world)
-                                   { return app.getWindow().mapCoordsToPixel(world.getContainer()->mapToGlobalPosition(pos), world.getState()->getCamera().getView()); }));
+            state.registerFunction("getMusicManager", [&app]() -> MusicManager& { return app.getMusicManager(); });
+            state.registerFunction("getSoundProfileManager", [&app]() -> SoundProfileManager&{ return app.getSoundProfileManager(); });
+            state.registerFunction("getInputManager", [&app]() -> InputManager& { return app.getInputManager(); });
 
-            state.registerFunction("screen2World", sol::overload([&app](const sf::Vector2i& pos, const ScriptedGameState& state)
-                                   { return app.getWindow().mapPixelToCoords(pos, state.getCamera().getView()); },
-                                   [&app](const sf::Vector2i& pos, const World& world)
-                                   { return world.getContainer()->mapToLocalPosition(app.getWindow().mapPixelToCoords(pos, world.getState()->getCamera().getView())); }));
+            state.registerFunction("world2Screen", sol::overload([&app](const sf::Vector2f& pos, const ScriptedGameState& state)
+                                   { return app.getWindow().mapCoordsToPixel(pos, state.getWorldGraph().getCamera().getView()); },
+                                   [&app](const sf::Vector2f& pos, const World& world)
+                                   { return app.getWindow().mapCoordsToPixel(world.getNode().mapToGlobalPosition(pos), world.getGraph().getCamera().getView()); }));
+
+            state.registerFunction("screen2Global", [&app](const sf::Vector2i& pos, const ScriptedGameState& state)
+                                    { return app.getWindow().mapPixelToCoords(pos, state.getWorldGraph().getCamera().getView()); });
+            state.registerFunction("screen2World", [&app](const sf::Vector2i& pos, const World& world)
+                                   { return world.getNode().mapToLocalPosition(app.getWindow().mapPixelToCoords(pos, world.getGraph().getCamera().getView())); });
 
             state.registerFunction("emit", sol::overload(
                 [&app](const std::string& type, script::Environment data) { return app.emitCustomEvent(type, data); },

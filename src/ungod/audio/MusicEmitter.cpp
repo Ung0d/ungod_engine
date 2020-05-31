@@ -33,10 +33,21 @@ namespace ungod
 {
     MusicEmitterComponent::MusicEmitterComponent() : mDistanceCap(DEFAULT_DISTANCE_CAP), mVolume(1.0f), mActive(true), mBound(false) {}
 
+    MusicEmitterComponent::MusicEmitterComponent(const MusicEmitterComponent& other) : 
+        mDistanceCap(other.mDistanceCap), mVolume(other.mVolume), mActive(other.mActive), mBound(other.mBound)
+    {
+        if (other.mMusicData.loaded)
+        {
+            mMusicData.filepath = other.mMusicData.filepath;
+            mMusicData.loaded = other.mMusicData.loaded;
+            mMusicData.music.openFromFile(mMusicData.filepath);
+            mMusicData.music.setLoop(true);
+        }
+    }
 
     std::string MusicEmitterComponent::getFilePath() const
     {
-        return mMusic.getFilePath();
+        return mMusicData.filepath;
     }
 
 
@@ -58,7 +69,8 @@ namespace ungod
     }
 
 
-    MusicEmitterMixer::MusicEmitterMixer() : mMaxDistanceCap(DEFAULT_MAX_DISTANCE_CAP)
+    MusicEmitterMixer::MusicEmitterMixer() : 
+        mMaxDistanceCap(DEFAULT_MAX_DISTANCE_CAP), mMuteSound(false)
     {
         for (unsigned i = 0; i < MUSIC_PLAY_CAP; i++)
         {
@@ -66,11 +78,22 @@ namespace ungod
         }
     }
 
+
+    void MusicEmitterMixer::init(const AudioListener* listener)
+    {
+        mListener = listener;
+    }
+
+
     void MusicEmitterMixer::loadMusic(Entity e, const std::string& fileID)
     {
-        e.modify<MusicEmitterComponent>().mMusic.load(fileID);
-        if (e.modify<MusicEmitterComponent>().mMusic.isLoaded())
-            e.modify<MusicEmitterComponent>().mMusic.get()->setLoop(true);
+        auto& data = e.modify<MusicEmitterComponent>().mMusicData;
+        data.loaded = data.music.openFromFile(fileID);
+        if (data.loaded)
+        {
+            data.filepath = fileID;
+            data.music.setLoop(true);
+        }
     }
 
     void MusicEmitterMixer::setDistanceCap(Entity e, float cap)
@@ -85,9 +108,9 @@ namespace ungod
         {
             for (unsigned i = 0; i < MUSIC_PLAY_CAP; i++)
             {
-                if (mCurrentlyPlaying[i].first && mCurrentlyPlaying[i].first->mMusic.isLoaded())
+                if (mCurrentlyPlaying[i].first && mCurrentlyPlaying[i].first->mMusicData.loaded)
                 {
-                    mCurrentlyPlaying[i].first->mMusic.get()->stop();
+                    mCurrentlyPlaying[i].first->mMusicData.music.stop();
                     mCurrentlyPlaying[i].first = nullptr;
                     mCurrentlyPlaying[i].second = nullptr;
                 }
@@ -108,9 +131,9 @@ namespace ungod
             if (!mCurrentlyPlaying[i].first)
                 continue;
 
-            if (mCurrentlyPlaying[i].first->mMusic.isLoaded())
+            if (mCurrentlyPlaying[i].first->mMusicData.loaded)
             {
-                mCurrentlyPlaying[i].first->mMusic.get()->stop();
+                mCurrentlyPlaying[i].first->mMusicData.music.stop();
             }
             mCurrentlyPlaying[i].first->mBound = false;
             mCurrentlyPlaying[i].first = nullptr;
@@ -118,18 +141,27 @@ namespace ungod
         }
     }
 
-    void MusicEmitterMixer::update(float delta, AudioListener* listener, quad::QuadTree<Entity>* quadtree)
+    void MusicEmitterMixer::setMuteSound(bool mute)
     {
+        mMuteSound = mute;
+        muteAll();
+    }
+
+    void MusicEmitterMixer::update(float delta, quad::QuadTree<Entity>& quadtree)
+    {
+        if (mMuteSound)
+            return;
+
         //check if new emitters are in range
         quad::PullResult<Entity> result;
 
-        sf::Vector2f listenerWorldPos = listener->getWorldPosition();
-        quadtree->retrieve(result, { listenerWorldPos.x-mMaxDistanceCap*0.5f, listenerWorldPos.y-mMaxDistanceCap*0.5f, mMaxDistanceCap, mMaxDistanceCap });
+        sf::Vector2f listenerWorldPos = mListener->getWorldPosition();
+        quadtree.retrieve(result, { listenerWorldPos.x-mMaxDistanceCap*0.5f, listenerWorldPos.y-mMaxDistanceCap*0.5f, mMaxDistanceCap, mMaxDistanceCap });
 
         dom::Utility<Entity>::iterate<TransformComponent, MusicEmitterComponent>(result.getList(),
-              [this, listenerWorldPos, listener] (Entity e, TransformComponent& transf, MusicEmitterComponent& emitter)
+              [this, listenerWorldPos] (Entity e, TransformComponent& transf, MusicEmitterComponent& emitter)
               {
-                  if (emitter.mActive && !emitter.mBound && emitter.mMusic.isLoaded())
+                  if (emitter.mActive && !emitter.mBound && emitter.mMusicData.loaded)
                   {
                       float dist = distance(transf.getCenterPosition(), listenerWorldPos);
                       if (dist < emitter.mDistanceCap)
@@ -158,8 +190,8 @@ namespace ungod
                             {
                                 if (mCurrentlyPlaying[indexToUse].first)
                                 {
-                                    if (mCurrentlyPlaying[indexToUse].first->mMusic.isLoaded())
-                                        mCurrentlyPlaying[indexToUse].first->mMusic.get()->stop();
+                                    if (mCurrentlyPlaying[indexToUse].first->mMusicData.loaded)
+                                        mCurrentlyPlaying[indexToUse].first->mMusicData.music.stop();
                                     mCurrentlyPlaying[indexToUse].first->mBound = false;
                                     mCurrentlyPlaying[indexToUse].first = nullptr;
                                     mCurrentlyPlaying[indexToUse].second = nullptr;
@@ -167,9 +199,9 @@ namespace ungod
                                 mCurrentlyPlaying[indexToUse].first = &emitter;
                                 mCurrentlyPlaying[indexToUse].second = &transf;
                                 mCurrentlyPlaying[indexToUse].first->mBound = true;
-                                float scaling = listener->getScaling(mCurrentlyPlaying[indexToUse].second->getCenterPosition() , mCurrentlyPlaying[indexToUse].first->mDistanceCap);
-                                mCurrentlyPlaying[indexToUse].first->mMusic.get()->setVolume( 100.0f * mCurrentlyPlaying[indexToUse].first->mVolume * scaling );
-                                mCurrentlyPlaying[indexToUse].first->mMusic.get()->play();
+                                float scaling = mListener->getScaling(mCurrentlyPlaying[indexToUse].second->getCenterPosition() , mCurrentlyPlaying[indexToUse].first->mDistanceCap);
+                                mCurrentlyPlaying[indexToUse].first->mMusicData.music.setVolume( 100.0f * mCurrentlyPlaying[indexToUse].first->mVolume * scaling );
+                                mCurrentlyPlaying[indexToUse].first->mMusicData.music.play();
                             }
                       }
                   }
@@ -182,18 +214,18 @@ namespace ungod
             if (!mCurrentlyPlaying[i].first)
                 continue;
 
-            if ( distance(mCurrentlyPlaying[i].second->getCenterPosition(), listener->getWorldPosition()) > mCurrentlyPlaying[i].first->mDistanceCap )
+            if ( distance(mCurrentlyPlaying[i].second->getCenterPosition(), mListener->getWorldPosition()) > mCurrentlyPlaying[i].first->mDistanceCap )
             {
-                if (mCurrentlyPlaying[i].first->mMusic.isLoaded())
-                    mCurrentlyPlaying[i].first->mMusic.get()->stop();
+                if (mCurrentlyPlaying[i].first->mMusicData.loaded)
+                    mCurrentlyPlaying[i].first->mMusicData.music.stop();
                 mCurrentlyPlaying[i].first->mBound = false;
                 mCurrentlyPlaying[i].first = nullptr;
                 mCurrentlyPlaying[i].second = nullptr;
             }
-            else if (mCurrentlyPlaying[i].first->mMusic.isLoaded())
+            else if (mCurrentlyPlaying[i].first->mMusicData.loaded)
             {
-                float scaling = listener->getScaling(mCurrentlyPlaying[i].second->getCenterPosition() , mCurrentlyPlaying[i].first->mDistanceCap);
-                mCurrentlyPlaying[i].first->mMusic.get()->setVolume( 100.0f * mCurrentlyPlaying[i].first->mVolume * scaling );
+                float scaling = mListener->getScaling(mCurrentlyPlaying[i].second->getCenterPosition() , mCurrentlyPlaying[i].first->mDistanceCap);
+                mCurrentlyPlaying[i].first->mMusicData.music.setVolume( 100.0f * mCurrentlyPlaying[i].first->mVolume * scaling );
             }
         }
     }

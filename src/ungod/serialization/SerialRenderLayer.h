@@ -28,13 +28,15 @@
 
 #include "ungod/serialization/Serializable.h"
 #include <SFML/Graphics.hpp>
+#include <queue>
 
 namespace ungod
 {
     class RenderLayer;
     class RenderLayerContainer;
     class ScriptedGameState;
-
+    class Entity;
+    struct DeserialMemory;
 
     template <>
     struct SerialIdentifier<RenderLayer>
@@ -43,15 +45,15 @@ namespace ungod
     };
 
     template <>
-    struct SerialBehavior<RenderLayer, const sf::RenderTarget&>
+    struct SerialBehavior<RenderLayer>
     {
-        static void serialize(const RenderLayer& data, MetaNode serializer, SerializationContext& context, const sf::RenderTarget& target);
+        static void serialize(const RenderLayer& data, MetaNode serializer, SerializationContext& context);
     };
 
     template <>
-    struct DeserialBehavior<RenderLayer, const sf::RenderTarget&>
+    struct DeserialBehavior<RenderLayer, DeserialMemory&>
     {
-        static void deserialize(RenderLayer& data, MetaNode deserializer, DeserializationContext& context, const sf::RenderTarget& target);
+        static void deserialize(RenderLayer& data, MetaNode deserializer, DeserializationContext& context, DeserialMemory& deserialMemory);
     };
 
 
@@ -62,15 +64,15 @@ namespace ungod
     };
 
     template <>
-    struct SerialBehavior<RenderLayerContainer, const sf::RenderTarget&>
+    struct SerialBehavior<RenderLayerContainer>
     {
-        static void serialize(const RenderLayerContainer& data, MetaNode serializer, SerializationContext& context, const sf::RenderTarget& target);
+        static void serialize(const RenderLayerContainer& data, MetaNode serializer, SerializationContext& context);
     };
 
     template <>
-    struct DeserialBehavior<RenderLayerContainer, const sf::RenderTarget&, ScriptedGameState&>
+    struct DeserialBehavior<RenderLayerContainer, DeserialMemory&>
     {
-        static void deserialize(RenderLayerContainer& data, MetaNode deserializer, DeserializationContext& context, const sf::RenderTarget& target, ScriptedGameState& gamestate);
+        static void deserialize(RenderLayerContainer& data, MetaNode deserializer, DeserializationContext& context, DeserialMemory& deserialMemory);
     };
 }
 

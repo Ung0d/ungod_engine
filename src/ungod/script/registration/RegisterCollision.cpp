@@ -43,13 +43,6 @@ namespace ungod
             rrcaType["getPoint"] = [](PointSetConstAggregator& psca, unsigned i)
             {return sf::Vector2f{ psca.getPointX(i), psca.getPointY(i) }; };
 
-
-            script::Usertype<Collider> colliderType = state.registerUsertype<Collider>("Collider", sol::constructors<Collider(), Collider(const Collider&)>());
-            colliderType["getType"] = &Collider::getType;
-            colliderType["asRectangle"] = [](Collider& c) {return RotatedRectConstAggregator(c); };
-            colliderType["asPolygon"] = [](Collider& c) {return PointSetConstAggregator(c); };
-            colliderType["asEdgeChain"] = [](Collider& c) {return PointSetConstAggregator(c); };
-
             state.registerFunction("makeRotatedRect", [](const sf::Vector2f& upleft, const sf::Vector2f& downRight, float rotation)
                 { return makeRotatedRect(upleft, downRight, rotation); });
             state.registerFunction("makeConvexPolygon", [] (script::Environment points)

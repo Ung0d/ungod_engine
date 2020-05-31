@@ -55,62 +55,69 @@ namespace ungod
 
     MusicPlayerSingle::MusicPlayerSingle(const std::string& fileID) : MusicPlayerBase()
     {
-        mMusic.load(fileID);
-        if (mMusic.isLoaded())
-            mMusic.get()->setLoop(true);
+        mData.loaded = mData.music.openFromFile(fileID);
+        if (mData.loaded)
+        {
+            mData.filepath = fileID;
+            mData.music.setLoop(true);
+        }
     }
 
     bool MusicPlayerSingle::isLoaded() const
     {
-        return mMusic.isLoaded();
+        return mData.loaded;
     }
 
     void MusicPlayerSingle::play()
     {
-        mMusic.get()->play();
+        mData.music.play();
     }
 
     void MusicPlayerSingle::pause()
     {
-        mMusic.get()->pause();
+        mData.music.pause();
     }
 
     void MusicPlayerSingle::stop()
     {
-        mMusic.get()->stop();
+        mData.music.stop();
     }
 
     void MusicPlayerSingle::setVolume(float volume)
     {
-        mMusic.get()->setVolume(volume);
+        mData.music.setVolume(volume);
     }
 
     float MusicPlayerSingle::getVolume() const
     {
-        return mMusic.get()->getVolume();
+        return mData.music.getVolume();
     }
 
     Playlist::Playlist(const std::vector< std::string >& fileIDs, bool random, float intervalMin, float intervalMax) :
         MusicPlayerBase(), mIntervalMin(intervalMin), mIntervalMax(intervalMax), mRandom(random), mSilence(true), mStopped(true), mTimer(0.0f)
     {
-        mMusic.resize(fileIDs.size());
+        mData.resize(fileIDs.size());
         for (unsigned i = 0; i < fileIDs.size(); ++i)
         {
-            mMusic[i].load(fileIDs[i]);
-            if (mMusic[i].isLoaded())
-                mMusic[i].get()->setLoop(false);
+            mData[i] = std::make_unique<MusicData>();
+            mData[i]->loaded = mData[i]->music.openFromFile(fileIDs[i]);
+            if (mData[i]->loaded)
+            {
+                mData[i]->filepath = fileIDs[i];
+                mData[i]->music.setLoop(false);
+            }
         }
         if (random)
-            mCurrentlyPlaying = (std::size_t)NumberGenerator::getRandBetw(0, (unsigned)mMusic.size()-1);
+            mCurrentlyPlaying = (std::size_t)NumberGenerator::getRandBetw(0, (unsigned)mData.size()-1);
         else
-            mCurrentlyPlaying = mMusic.size()-1;
+            mCurrentlyPlaying = mData.size()-1;
     }
 
     bool Playlist::isLoaded() const
     {
-        for (const auto& music : mMusic)
+        for (const auto& data : mData)
         {
-            if (!music.isLoaded())
+            if (!data->loaded)
                 return false;
         }
         return true;
@@ -120,38 +127,38 @@ namespace ungod
     {
         mSilence = false;
         mStopped = false;
-        mMusic[mCurrentlyPlaying].get()->play();
+        mData[mCurrentlyPlaying]->music.play();
     }
 
     void Playlist::pause()
     {
-        mMusic[mCurrentlyPlaying].get()->pause();
+        mData[mCurrentlyPlaying]->music.pause();
     }
 
     void Playlist::stop()
     {
         mStopped = true;
-        mMusic[mCurrentlyPlaying].get()->stop();
+        mData[mCurrentlyPlaying]->music.stop();
     }
 
     void Playlist::setVolume(float volume)
     {
-        for (const auto& music : mMusic)
+        for (auto& data : mData)
         {
-            music.get()->setVolume(volume);
+            data->music.setVolume(volume);
         }
     }
 
     float Playlist::getVolume() const
     {
-        return mMusic[0].get()->getVolume();
+        return mData[0]->music.getVolume();
     }
 
     void Playlist::update(float delta)
     {
         MusicPlayerBase::update(delta);
 
-        if (mStopped || mMusic[mCurrentlyPlaying].get()->getStatus() == sf::SoundSource::Status::Paused)
+        if (mStopped || mData[mCurrentlyPlaying]->music.getStatus() == sf::SoundSource::Status::Paused)
             return;
 
         if (mSilence)
@@ -161,12 +168,12 @@ namespace ungod
                 mSilence = false;
                 if (mRandom)
                 {
-                    mCurrentlyPlaying = NumberGenerator::getRandBetw(0, (unsigned)mMusic.size()-1);
+                    mCurrentlyPlaying = NumberGenerator::getRandBetw(0, (unsigned)mData.size()-1);
                 }
                 else
                 {
                     mCurrentlyPlaying ++;
-                    if (mCurrentlyPlaying == mMusic.size())
+                    if (mCurrentlyPlaying == mData.size())
                         mCurrentlyPlaying = 0;
                 }
                 play();
@@ -176,11 +183,129 @@ namespace ungod
         }
         else
         {
-            if (mMusic[mCurrentlyPlaying].get()->getStatus() == sf::SoundSource::Status::Stopped)
+            if (mData[mCurrentlyPlaying]->music.getStatus() == sf::SoundSource::Status::Stopped)
             {
                 mSilence = true;
                 mTimer = NumberGenerator::getFloatRandBetw(mIntervalMin, mIntervalMax);
             }
+        }
+    }
+
+
+
+
+    MusicManager::MusicManager() : mMuteMusic(false), mIDCounter(0) {}
+
+    int MusicManager::loadMusic(const std::string& fileID)
+    {
+        mMusic.emplace(mIDCounter, std::unique_ptr<MusicPlayerBase>(new MusicPlayerSingle(fileID)));
+        mMusicVolumes.emplace(mIDCounter, 1.0f);
+        return mIDCounter++;
+    }
+
+    int MusicManager::loadPlaylist(const std::vector<std::string>& fileIDs, bool randomPlay, float intervalMin, float intervalMax)
+    {
+        mMusic.emplace(mIDCounter, std::unique_ptr<MusicPlayerBase>(new Playlist(fileIDs, randomPlay, intervalMin, intervalMax)));
+        mMusicVolumes.emplace(mIDCounter, 1.0f);
+        return mIDCounter++;
+    }
+
+    void MusicManager::playMusic(int id)
+    {
+        if (mMuteMusic)
+            return;
+
+        MusicPlayerBase* music = assertID(id);
+        if (!music) return;
+
+        music->setVolume(100.0f * mMusicVolumes[id]);
+        music->play();
+    }
+
+    void MusicManager::pauseMusic(int id)
+    {
+        MusicPlayerBase* music = assertID(id);
+        if (!music) return;
+        music->pause();
+    }
+
+    void MusicManager::stopMusic(int id)
+    {
+        MusicPlayerBase* music = assertID(id);
+        if (!music) return;
+        music->stop();
+    }
+
+    void MusicManager::fadeoutMusic(float milliseconds, int id)
+    {
+        MusicPlayerBase* music = assertID(id);
+        if (!music) return;
+        music->mFadingActive = true;
+        music->mFadingDirection = true;
+        music->mMilliseconds = milliseconds;
+    }
+
+    void MusicManager::fadeinMusic(float milliseconds, int id)
+    {
+        MusicPlayerBase* music = assertID(id);
+        if (!music) return;
+        music->mFadingActive = true;
+        music->mFadingDirection = false;
+        music->mMilliseconds = milliseconds;
+    }
+
+    void MusicManager::setMusicVolume(float volume, int id)
+    {
+        MusicPlayerBase* music = assertID(id);
+        if (!music) return;
+        mMusicVolumes[id] = volume;
+        music->setVolume(100.0f * volume);
+    }
+
+    void MusicManager::unloadMusic(int id)
+    {
+        mMusic.erase(id);
+        mMusicVolumes.erase(id);
+    }
+
+    void MusicManager::update(float delta)
+    {
+        for (auto& music : mMusic)
+            if (music.second->isLoaded())
+                music.second->update(delta);
+    }
+
+    void MusicManager::setMuteMusic(bool mute)
+    {
+        mMuteMusic = mute;
+        if (mute)
+            for (const auto& music : mMusic)
+                music.second->stop();
+    }
+
+    MusicPlayerBase* MusicManager::assertID(int id)
+    {
+        auto res = mMusic.find(id);
+        if (res == mMusic.end())
+        {
+            ungod::Logger::warning("Can not find a music track with the given id.");
+            return nullptr;
+        }
+
+        if (!res->second->isLoaded())
+        {
+            ungod::Logger::warning("Music was not successfully loaded.");
+            return nullptr;
+        }
+        return res->second.get();
+    }
+
+    MusicManager::~MusicManager()
+    {
+        for (auto& music : mMusic)
+        {
+            if (music.second->isLoaded())
+                music.second->stop();
         }
     }
 }

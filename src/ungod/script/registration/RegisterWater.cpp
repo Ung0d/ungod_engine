@@ -24,51 +24,52 @@
 */
 
 #include "ungod/script/registration/RegisterWater.h"
-#include "ungod/content/Water.h"
-#include "ungod/application/Application.h"
+#include "ungod/content/water/WaterHandler.h"
 
 namespace ungod
 {
     namespace scriptRegistration
     {
-        void registerWater(ScriptStateBase& state, Application& app)
+        void WaterHandlerFrontEnd::initWater(const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader)
         {
-			script::Usertype<Water> waterType = state.registerUsertype<Water>("Water");
-			waterType["setTiles"] = sol::overload(
-								[](Water& water, script::Environment tiles, std::size_t mapX, std::size_t mapY)
-								{
-									water.getTileMap().setTiles(env2vec<int>(tiles), mapX, mapY);
-								},
-								[](Water& water, script::Environment tiles, script::Environment active, std::size_t mapX, std::size_t mapY)
-								{
-									water.getTileMap().setTiles(env2vec<int>(tiles), env2vec<bool>(active), mapX, mapY);
-								});
-			waterType["reserveTileCount"] = [](Water& water, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY)
-								{
-									water.getTileMap().reserveTileCount(num, mapSizeX, mapSizeY);
-								};
-			waterType["addTile"] =	[](Water& water, int id, bool active)
-								{
-									water.getTileMap().addTile(id, active);
-								};
-			waterType["loadTiles"] = [](Water& water,
-				const std::string& texFilepath, const std::string& metaFilepath,
-				std::size_t tileWidth, std::size_t tileHeight,
-				script::Environment keymap)
-			{
-				water.loadTiles(texFilepath, metaFilepath, tileWidth, tileHeight, env2vec<std::string>(keymap));
-			};
-			waterType["loadShaders"] = [&app](Water& water,
-				const std::string& distortionMap,
-				const std::string& fragmentShader, const std::string& vertexShader)
-			{
-				water.loadShaders(distortionMap, fragmentShader, vertexShader, app.getWindow());
-			};
-			waterType["setShaders"] = &Water::setShaders;
-			waterType["setReflections"] = &Water::setReflections;
-			waterType["setDistortionFactor"] = &Water::setDistortionFactor;
-			waterType["setFlowFactor"] = & Water::setFlowFactor;
-			waterType["setReflectionOpacity"] = &Water::setReflectionOpacity;
+            mHandler.initWater(mEntity, distortionTex, fragmentShader, vertexShader);
+        }
+
+        void WaterHandlerFrontEnd::setWaterReflections(bool set)
+        {
+            mHandler.setWaterReflections(mEntity, set);
+        }
+
+        void WaterHandlerFrontEnd::setWaterShaders(bool set)
+        {
+            mHandler.setWaterShaders(mEntity, set);
+        }
+
+        void WaterHandlerFrontEnd::setWaterDistortionFactor(float distortion)
+        {
+            mHandler.setWaterDistortionFactor(mEntity, distortion);
+        }
+
+        void WaterHandlerFrontEnd::setWaterFlowFactor(float flow)
+        {
+            mHandler.setWaterFlowFactor(mEntity, flow);
+        }
+
+        void WaterHandlerFrontEnd::setWaterReflectionOpacity(float opac)
+        {
+            mHandler.setWaterReflectionOpacity(mEntity, opac);
+        }
+
+
+        void registerWater(ScriptStateBase& state)
+        {
+            script::Usertype<WaterHandlerFrontEnd> waterHandlerType = state.registerUsertype<WaterHandlerFrontEnd>("WaterHandlerFrontEnd");
+            waterHandlerType["initWater"] = &WaterHandlerFrontEnd::initWater;
+            waterHandlerType["setWaterReflections"] = &WaterHandlerFrontEnd::setWaterReflections;
+            waterHandlerType["setWaterShaders"] = &WaterHandlerFrontEnd::setWaterShaders;
+            waterHandlerType["setWaterDistortionFactor"] = &WaterHandlerFrontEnd::setWaterDistortionFactor;
+            waterHandlerType["setWaterFlowFactor"] = &WaterHandlerFrontEnd::setWaterFlowFactor;
+            waterHandlerType["setWaterReflectionOpacity"] = &WaterHandlerFrontEnd::setWaterReflectionOpacity;
         }
     }
 }

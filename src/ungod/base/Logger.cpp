@@ -35,31 +35,19 @@ namespace ungod
     void Logger::login()
     {
         lFile.open("log.txt");
-
-        log("____________________________________________________", "", Priority_Level::PRIORITY_HEADER);
-        endl();
-        log("Ungod-Engine log.", "", Priority_Level::PRIORITY_HEADER);
-        endl();
-        log("____________________________________________________", "", Priority_Level::PRIORITY_HEADER);
-        endl();
+        log("", Priority_Level::PRIORITY_HEADER, "____________________________________________________ \n Ungod-Engine log. \n ____________________________________________________");
     }
 
     void Logger::logout()
     {
-        log("____________________________________________________", "", Priority_Level::PRIORITY_HEADER);
-        endl();
-        log("Log closed.", "", Priority_Level::PRIORITY_HEADER);
-        endl();
-        log("____________________________________________________", "", Priority_Level::PRIORITY_HEADER);
-        endl();
-
+        log("", Priority_Level::PRIORITY_HEADER, "____________________________________________________ \n Log closed. \n ____________________________________________________");
         lFile.close();
     }
 
     bool Logger::assertion(bool expr, const std::string& message)
     {
         if (!expr)
-            log(message, "Assertion failed", Priority_Level::PRIORITY_ERROR);
+            log("Assertion failed:", Priority_Level::PRIORITY_ERROR, message);
         return expr;
     }
 
@@ -71,12 +59,5 @@ namespace ungod
     void Logger::toggleLogfileOutput()
     {
         lEnableLogfileOutput = !lEnableLogfileOutput;
-    }
-
-    void Logger::endl()
-    {
-        std::cout << std::endl;
-        lFile << std::endl;
-        lEmptyLine = true;
     }
 }

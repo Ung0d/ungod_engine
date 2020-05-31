@@ -29,57 +29,37 @@
 
 namespace ungod
 {
-    ImageQuality Image::quality = IMAGE_QUALITY_NORMAL;
+    Image::Image(const std::string& filePath, const LoadPolicy policy, bool smooth, bool repeated) : Asset<sf::Texture, bool, bool>(filePath, policy, std::move(smooth), std::move(repeated)) {}
 
-    Image::Image(const std::string& filePath, const LoadPolicy policy) : Asset<sf::Texture>(filePath, policy) {}
+    Image::Image() : Asset<sf::Texture, bool, bool>() {}
 
-    Image::Image() : Asset<sf::Texture>() {}
-
-    bool LoadBehavior<sf::Texture>::loadFromFile(const std::string& filepath, sf::Texture& data)
+    void Image::load(const std::string filePath, const LoadPolicy policy, bool smooth, bool repeated)
     {
-        //sf::Context context;
-        bool success=false;
-        if (Image::quality == IMAGE_QUALITY_NORMAL)
-        {
-            success = data.loadFromFile(filepath);
-        }
-        else
-        {
-            boost::filesystem::path normalPath(filepath);
-            boost::filesystem::path lowPath = normalPath.parent_path() / boost::filesystem::path(normalPath.stem().string() + "_low" + normalPath.extension().string());
-            if ( boost::filesystem::exists(lowPath) )
-                success = data.loadFromFile(lowPath.string());
-            else
-                success = data.loadFromFile(filepath);  //give the normal version a try
-        }
+        Asset<sf::Texture, bool, bool>::load(filePath, policy, std::move(smooth), std::move(repeated));
+    }
+
+    bool LoadBehavior<sf::Texture, bool, bool>::loadFromFile(const std::string& filepath, sf::Texture& data, bool smooth, bool repeated)
+    {
+        bool success = data.loadFromFile(filepath);
+        data.setSmooth(smooth);
+        data.setRepeated(repeated);
         return success;
     }
 
 
+    BigImage::BigImage(const std::string& filePath, const LoadPolicy policy, bool smooth) : Asset<sf::BigTexture, bool>(filePath, policy, std::move(smooth)) {}
 
+    BigImage::BigImage() : Asset<sf::BigTexture, bool>() {}
 
-    BigImage::BigImage(const std::string& filePath, const LoadPolicy policy) : Asset<sf::BigTexture>(filePath, policy) {}
-
-    BigImage::BigImage() : Asset<sf::BigTexture>() {}
-
-    bool LoadBehavior<sf::BigTexture>::loadFromFile(const std::string& filepath, sf::BigTexture& data)
+    void BigImage::load(const std::string filePath, const LoadPolicy policy, bool smooth)
     {
-        //sf::Context context;
-        bool success;
-        if (Image::quality == IMAGE_QUALITY_NORMAL)
-        {
-            success = data.loadFromFile(filepath);
-        }
-        else
-        {
-            boost::filesystem::path normalPath(filepath);
-            boost::filesystem::path lowPath = normalPath.parent_path() / boost::filesystem::path(normalPath.stem().string() + "_low" + normalPath.extension().string());
-            if ( boost::filesystem::exists(lowPath) )
-                success = data.loadFromFile(lowPath.string());
-            else
-                success = data.loadFromFile(filepath);  //give the normal version a try
-        }
-        //glFlush();
+        Asset<sf::BigTexture, bool>::load(filePath, policy, std::move(smooth));
+    }
+
+    bool LoadBehavior<sf::BigTexture, bool>::loadFromFile(const std::string& filepath, sf::BigTexture& data, bool smooth)
+    {
+        bool success = data.loadFromFile(filepath);
+        data.setSmooth(smooth);
         return success;
     }
 }

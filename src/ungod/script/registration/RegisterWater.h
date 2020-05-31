@@ -31,11 +31,29 @@
 namespace ungod
 {
     class Application;
+    class Entity;
+    class WaterHandler;
 
     namespace scriptRegistration
     {
+        class WaterHandlerFrontEnd
+        {
+        public:
+            WaterHandlerFrontEnd(Entity& e, WaterHandler& h) : mEntity(e), mHandler(h) {}
+            void initWater(const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader);
+            void setWaterReflections(bool set);
+            void setWaterShaders(bool set);
+            void setWaterDistortionFactor(float distortion);
+            void setWaterFlowFactor(float flow);
+            void setWaterReflectionOpacity(float opac);
+        private:
+            Entity& mEntity;
+            WaterHandler& mHandler;
+        };
+
+
         /** \brief Registers application functionality for scripts. */
-        void registerWater(ScriptStateBase& state, Application& app);
+        void registerWater(ScriptStateBase& state);
     }
 }
 

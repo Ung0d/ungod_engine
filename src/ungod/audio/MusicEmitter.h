@@ -40,6 +40,7 @@ namespace ungod
     class TransformComponent;
     class World;
     class Application;
+    struct DeserialMemory;
 
     //TODO give music emitters a priority value that can be used to determine which are played and which not if the cap is exceeded
 
@@ -47,14 +48,16 @@ namespace ungod
     class MusicEmitterComponent : public Serializable<MusicEmitterComponent>
     {
     friend class MusicEmitterMixer;
-    friend struct SerialBehavior<MusicEmitterComponent, Entity, const World&, const Application&>;
-    friend struct DeserialBehavior<MusicEmitterComponent, Entity, World&, const Application&>;
+    friend struct SerialBehavior<MusicEmitterComponent, Entity>;
+    friend struct DeserialBehavior<MusicEmitterComponent, Entity, DeserialMemory&>;
 
     public:
 
         static constexpr float DEFAULT_DISTANCE_CAP = 500.0f;
 
         MusicEmitterComponent();
+
+        MusicEmitterComponent(const MusicEmitterComponent&);
 
         /** \brief Returns the filepath of the music file or "" if unloaded. **/
         std::string getFilePath() const;
@@ -69,7 +72,7 @@ namespace ungod
         bool isActive() const;
 
     private:
-        Music mMusic;
+        MusicData mMusicData;
         float mDistanceCap;
         float mVolume;
         bool mActive;
@@ -86,6 +89,8 @@ namespace ungod
 
         MusicEmitterMixer();
 
+        void init(const AudioListener* listener);
+
         /** \brief Loads the music for the music emitter. */
         void loadMusic(Entity e, const std::string& fileID);
 
@@ -101,12 +106,17 @@ namespace ungod
         /** \brief Mutes all currently active tracks. */
         void muteAll();
 
+        /** \brief Mutes all sounds. Stops all sounds currently playing. */
+        void setMuteSound(bool mute = true);
+
         /** \brief updates the music volumes and may starts new emitters */
-        void update(float delta, AudioListener* listener, quad::QuadTree<Entity>* quadtree);
+        void update(float delta, quad::QuadTree<Entity>& quadtree);
 
     private:
         std::array<std::pair<MusicEmitterComponent*, TransformComponent*>, MUSIC_PLAY_CAP> mCurrentlyPlaying;
         float mMaxDistanceCap;
+        const AudioListener* mListener;
+        bool mMuteSound;
     };
 }
 

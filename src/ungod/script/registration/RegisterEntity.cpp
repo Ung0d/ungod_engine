@@ -23,7 +23,7 @@
 *    source distribution.
 */
 
-#include "ungod/script/registration/RegisterEntity.h"
+#include "ungod/script/Registration.h"
 #include "ungod/physics/CollisionContexts.h"
 #include "ungod/base/World.h"
 
@@ -32,7 +32,6 @@ namespace ungod
 	namespace scriptRegistration
 	{
 		Has hasser(Entity e) { return Has(e); }
-		Get getter(Entity e) { return Get(e); }
 		Add adder(Entity e) { return Add(e); }
 		Rem remmer(Entity e) { return Rem(e); }
 
@@ -42,134 +41,124 @@ namespace ungod
 			entityType["valid"] = &Entity::valid;
 			entityType["isSolid"] = &Entity::isSolid;
 			entityType["isStatic"] = &Entity::isStatic;
-			entityType["getID"] = &Entity::getID;
+			entityType["getWorld"] = &Entity::getWorld;
 			entityType["has"] = hasser;
-			entityType["get"] = getter;
 			entityType["add"] = adder;
 			entityType["remove"] = remmer;
+			entityType["transform"] = [](Entity& e) { return TransformHandlerFrontEnd{ e, e.getWorld().getTransformHandler() }; };
+			entityType["behavior"] = [](Entity& e) { return EntityBehaviorHandlerFrontEnd{ e, e.getWorld().getBehaviorHandler() }; };
+			entityType["sound"] = [](Entity& e) { return SoundHandlerFrontEnd{ e, e.getWorld().getSoundHandler() }; };
+			entityType["music"] = [](Entity& e) { return MusicEmitterFrontEnd{ e, e.getWorld().getMusicEmitterMixer() }; };
+			entityType["semanticsRigidbody"] = [](Entity& e) { return RigidbodyHandlerFrontEnd<SEMANTICS_COLLISION_CONTEXT>{ e, e.getWorld().getSemanticsRigidbodyHandler() }; };
+			entityType["movementRigidbody"] = [](Entity& e) { return RigidbodyHandlerFrontEnd<MOVEMENT_COLLISION_CONTEXT>{ e, e.getWorld().getMovementRigidbodyHandler() }; };
+			entityType["movement"] = [](Entity& e) { return MovementHandlerFrontEnd{ e, e.getWorld().getMovementHandler() }; };
+			entityType["steering"] = [](Entity& e) { return SteeringHandlerFrontEnd<script::Environment>{ e, e.getWorld().getSteeringHandler() }; };
+			entityType["path"] = [](Entity& e) { return PathPlannerFrontEnd{ e, e.getWorld().getPathPlanner() }; };
+			entityType["light"] = [](Entity& e) { return LightHandlerFrontEnd{ e, e.getWorld().getLightHandler() }; };
+			entityType["visuals"] = [](Entity& e) { return VisualHandlerFrontEnd{ e, e.getWorld().getVisualsHandler() }; };
+			entityType["tilemap"] = [](Entity& e) { return TileMapHandlerFrontEnd{ e, e.getWorld().getTileMapHandler() }; };
+			entityType["water"] = [](Entity& e) { return WaterHandlerFrontEnd{ e, e.getWorld().getWaterHandler() }; };
+			entityType["particleSystem"] = [](Entity& e) { return ParticleSystemHandlerFrontEnd{ e, e.getWorld().getParticleSystemHandler() }; };
 
 			script::Usertype<Has> hasType = state.registerUsertype<Has>("Has");
-			hasType["Transform"] = &Has::has<TransformComponent>;
-			hasType["Behavior"] = &Has::has<EntityBehaviorComponent>;
-			hasType["SoundEmitter"] = &Has::has<SoundEmitterComponent>;
-			hasType["MovementRigidbody"] = &Has::has<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
-			hasType["SemanticsRigidbody"] = &Has::has<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
-			hasType["MultiMovementRigidbody"] = &Has::has<MultiRigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
-			hasType["MultiSemanticsRigidbody"] = &Has::has<MultiRigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
-			hasType["Movement"] = &Has::has<MovementComponent>;
-			hasType["Steering"] = &Has::has<SteeringComponent<script::Environment>>;
-			hasType["PathFinder"] = &Has::has<PathFinderComponent>;
-			hasType["ShadowEmitter"] = &Has::has<ShadowEmitterComponent>;
-			hasType["LightEmitter"] = &Has::has<LightEmitterComponent>;
-			hasType["Visuals"] = &Has::has<VisualsComponent>;
-			hasType["Sprite"] = &Has::has<SpriteComponent>;
-			hasType["VertexArray"] = &Has::has<VertexArrayComponent>;
-			hasType["SpriteMetadata"] = &Has::has<SpriteMetadataComponent>;
-			hasType["Animation"] = &Has::has<AnimationComponent>;
-			hasType["BigSprite"] = &Has::has<BigSpriteComponent>;
-			hasType["MultiShadowEmitter"] = &Has::has<MultiShadowEmitter>;
-			hasType["MultiLightEmitter"] = &Has::has<MultiLightEmitter>;
-			hasType["MultiSprite"] = &Has::has<MultiSpriteComponent>;
-			hasType["MultiAnimation"] = &Has::has<MultiAnimationComponent>;
-			hasType["TileMap"] = &Has::has<TileMapComponent>;
-			hasType["Water"] = &Has::has<WaterComponent>;
-			hasType["ParticleSystem"] = &Has::has<ParticleSystemComponent>;
-
-
-			script::Usertype<Get> getType = state.registerUsertype<Get>("Get");
-			getType["Transform"] = &Get::get<TransformComponent>;
-			getType["Behavior"] = &Get::get<EntityBehaviorComponent>;
-			getType["SoundEmitter"] = &Get::get<SoundEmitterComponent>;
-			getType["MovementRigidbody"] = &Get::get<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
-			getType["SemanticsRigidbody"] = &Get::get<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
-			getType["MultiMovementRigidbody"] = &Get::get<MultiRigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
-			getType["MultiSemanticsRigidbody"] = &Get::get<MultiRigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
-			getType["Movement"] = &Get::get<MovementComponent>;
-			getType["Steering"] = &Get::get<SteeringComponent<script::Environment>>;
-			getType["PathFinder"] = &Get::get<PathFinderComponent>;
-			getType["ShadowEmitter"] = &Get::get<ShadowEmitterComponent>;
-			getType["LightEmitter"] = &Get::get<LightEmitterComponent>;
-			getType["Visuals"] = &Get::get<VisualsComponent>;
-			getType["Sprite"] = &Get::get<SpriteComponent>;
-			getType["VertexArray"] = &Get::get<VertexArrayComponent>;
-			getType["SpriteMetadata"] = &Get::get<SpriteMetadataComponent>;
-			getType["Animation"] = &Get::get<AnimationComponent>;
-			getType["BigSprite"] = &Get::get<BigSpriteComponent>;
-			getType["MultiShadowEmitter"] = &Get::get<MultiShadowEmitter>;
-			getType["MultiLightEmitter"] = &Get::get<MultiLightEmitter>;
-			getType["MultiSprite"] = &Get::get<MultiSpriteComponent>;
-			getType["MultiAnimation"] = &Get::get<MultiAnimationComponent>;
-			getType["TileMap"] = &Get::get<TileMapComponent>;
-			getType["Water"] = &Get::get<WaterComponent>;
-			getType["ParticleSystem"] = &Get::get<ParticleSystemComponent>;
-
+			hasType["transform"] = &Has::has<TransformComponent>;
+			hasType["behavior"] = &Has::has<EntityBehaviorComponent>;
+			hasType["updateTimer"] = &Has::has<EntityUpdateTimer>;
+			hasType["sound"] = &Has::has<SoundEmitterComponent>;
+			hasType["music"] = &Has::has<MusicEmitterComponent>;
+			hasType["movementRigidbody"] = &Has::has<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
+			hasType["semanticsRigidbody"] = &Has::has<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
+			hasType["multiMovementRigidbody"] = &Has::has<MultiRigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
+			hasType["multiSemanticsRigidbody"] = &Has::has<MultiRigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
+			hasType["movement"] = &Has::has<MovementComponent>;
+			hasType["steering"] = &Has::has<SteeringComponent<script::Environment>>;
+			hasType["path"] = &Has::has<PathFinderComponent>;
+			hasType["shadows"] = &Has::has<ShadowEmitterComponent>;
+			hasType["light"] = &Has::has<LightEmitterComponent>;
+			hasType["lightAffector"] = &Has::has<LightAffectorComponent>;
+			hasType["multiShadows"] = &Has::has<MultiShadowEmitter>;
+			hasType["multiLight"] = &Has::has<MultiLightEmitter>;
+			hasType["multiLightAffector"] = &Has::has<MultiLightAffector>;
+			hasType["visuals"] = &Has::has<VisualsComponent>;
+			hasType["sprite"] = &Has::has<SpriteComponent>;
+			hasType["vertexArray"] = &Has::has<VertexArrayComponent>;
+			hasType["spriteMetadata"] = &Has::has<SpriteMetadataComponent>;
+			hasType["animation"] = &Has::has<AnimationComponent>;
+			hasType["bigSprite"] = &Has::has<BigSpriteComponent>;
+			hasType["multiSprite"] = &Has::has<MultiSpriteComponent>;
+			hasType["multiAnimation"] = &Has::has<MultiAnimationComponent>;
+			hasType["multiVisualAffetor"] = &Has::has<MultiVisualAffectorComponent>;
+			hasType["tilemap"] = &Has::has<TileMapComponent>;
+			hasType["water"] = &Has::has<WaterComponent>;
+			hasType["particleSystem"] = &Has::has<ParticleSystemComponent>;
 
 			script::Usertype<Add> addType = state.registerUsertype<Add>("Add");
-			addType["Transform"] = &Add::add<TransformComponent>;
-			addType["Behavior"] = &Add::add<EntityBehaviorComponent>;
-			addType["UpdateTimer"] = sol::overload(&Add::add<EntityUpdateTimer>,
+			addType["transform"] = &Add::add<TransformComponent>;
+			addType["behavior"] = &Add::add<EntityBehaviorComponent>;
+			addType["updateTimer"] = sol::overload(&Add::add<EntityUpdateTimer>,
 				[](Add& e, float interval) { e.addWithInstantiator<EntityUpdateTimer>(e.entity.instantiate<EntityUpdateTimer>(interval)); });
-			addType["SoundEmitter"] = sol::overload(&Add::add<SoundEmitterComponent>,
+			addType["sound"] = sol::overload(&Add::add<SoundEmitterComponent>,
 				[](Add& e, ProfileHandle h) { e.addWithInstantiator<SoundEmitterComponent>(e.entity.instantiate<SoundEmitterComponent>(h)); });
-			addType["MovementRigidbody"] = [](Add& e) { e.add<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>(); };
-			addType["SemanticsRigidbody"] = &Add::add<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
-			addType["MultiMovementRigidbody"] = &Add::addMulti<MultiRigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
-			addType["MultiSemanticsRigidbody"] = &Add::addMulti<MultiRigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
-			addType["Movement"] = &Add::add<MovementComponent>;
-			addType["Steering"] = &Add::add<SteeringComponent<script::Environment>>;
-			addType["PathFinder"] = &Add::add<PathFinderComponent>;
-			addType["ShadowEmitter"] = &Add::add<ShadowEmitterComponent>;
-			addType["LightEmitter"] = &Add::add<LightEmitterComponent>;
-			addType["LightAffector"] = &Add::add<LightAffectorComponent>;
-			addType["Visuals"] = &Add::add<VisualsComponent>;
-			addType["Sprite"] = &Add::add<SpriteComponent>;
-			addType["VertexArray"] = &Add::add<VertexArrayComponent>;
-			addType["VisualAffector"] = &Add::add<VisualAffectorComponent>;
-			addType["SpriteMetadata"] = &Add::add<SpriteMetadataComponent>;
-			addType["Animation"] = &Add::add<AnimationComponent>;
-			addType["BigSprite"] = &Add::add<BigSpriteComponent>;
-			addType["TileMap"] = &Add::add<TileMapComponent>;
-			addType["Water"] = &Add::add<WaterComponent>;
-			addType["ParticleSystem"] = &Add::add<ParticleSystemComponent>;
-			addType["MultiShadowEmitter"] = &Add::addMulti<MultiShadowEmitter>;
-			addType["MultiLightEmitter"] = &Add::addMulti<MultiLightEmitter>;
-			addType["MultiLightAffector"] = &Add::addMulti<MultiLightAffector>;
-			addType["MultiSprite"] = &Add::addMulti<MultiSpriteComponent>;
-			addType["MultiAnimation"] = &Add::addMulti<MultiAnimationComponent>;
-			addType["MultiVisualAffetor"] = &Add::addMulti<MultiVisualAffectorComponent>;
-
+			addType["music"] = &Add::add<MusicEmitterComponent>;
+			addType["movementRigidbody"] = [](Add& e) { e.add<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>(); };
+			addType["semanticsRigidbody"] = &Add::add<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
+			addType["multiMovementRigidbody"] = &Add::addMulti<MultiRigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
+			addType["multiSemanticsRigidbody"] = &Add::addMulti<MultiRigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
+			addType["movement"] = &Add::add<MovementComponent>;
+			addType["steering"] = &Add::add<SteeringComponent<script::Environment>>;
+			addType["path"] = &Add::add<PathFinderComponent>;
+			addType["shadows"] = &Add::add<ShadowEmitterComponent>;
+			addType["light"] = &Add::add<LightEmitterComponent>;
+			addType["lightAffector"] = &Add::add<LightAffectorComponent>;
+			addType["multiShadowEmitter"] = &Add::addMulti<MultiShadowEmitter>;
+			addType["multiLightEmitter"] = &Add::addMulti<MultiLightEmitter>;
+			addType["multiLightAffector"] = &Add::addMulti<MultiLightAffector>;
+			addType["visuals"] = &Add::add<VisualsComponent>;
+			addType["sprite"] = &Add::add<SpriteComponent>;
+			addType["vertexArray"] = &Add::add<VertexArrayComponent>;
+			addType["visualAffector"] = &Add::add<VisualAffectorComponent>;
+			addType["spriteMetadata"] = &Add::add<SpriteMetadataComponent>;
+			addType["animation"] = &Add::add<AnimationComponent>;
+			addType["bigSprite"] = &Add::add<BigSpriteComponent>;
+			addType["multiSprite"] = &Add::addMulti<MultiSpriteComponent>;
+			addType["multiAnimation"] = &Add::addMulti<MultiAnimationComponent>;
+			addType["multiVisualAffetor"] = &Add::addMulti<MultiVisualAffectorComponent>;
+			addType["tilemap"] = &Add::add<TileMapComponent>;
+			addType["water"] = &Add::add<WaterComponent>;
+			addType["particleSystem"] = &Add::add<ParticleSystemComponent>;
 
 			script::Usertype<Rem> remType = state.registerUsertype<Rem>("Remove");
-			remType["Transform"] = &Rem::rem<TransformComponent>;
-			remType["Behavior"] = &Rem::rem<EntityBehaviorComponent>;
-			remType["UpdateTimer"] = &Rem::rem<EntityUpdateTimer>;
-			remType["SoundEmitter"] = &Rem::rem<SoundEmitterComponent>;
-			remType["MovementRigidbody"] = &Rem::rem<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
-			remType["SemanticsRigidbody"] = &Rem::rem<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
-			remType["MultiMovementRigidbody"] = &Rem::rem<MultiRigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
-			remType["MultiSemanticsRigidbody"] = &Rem::rem<MultiRigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
-			remType["Movement"] = &Rem::rem<MovementComponent>;
-			remType["Steering"] = &Rem::rem<SteeringComponent<script::Environment>>;
-			remType["PathFinder"] = &Rem::rem<PathFinderComponent>;
-			remType["ShadowEmitter"] = &Rem::rem<ShadowEmitterComponent>;
-			remType["LightEmitter"] = &Rem::rem<LightEmitterComponent>;
-			remType["LightAffector"] = &Rem::rem<LightAffectorComponent>;
-			remType["Visuals"] = &Rem::rem<VisualsComponent>;
-			remType["Sprite"] = &Rem::rem<SpriteComponent>;
-			remType["VertexArray"] = &Rem::rem<VertexArrayComponent>;
-			remType["VisualAffector"] = &Rem::rem<VisualAffectorComponent>;
-			remType["SpriteMetadata"] = &Rem::rem<SpriteMetadataComponent>;
-			remType["Animation"] = &Rem::rem<AnimationComponent>;
-			remType["BigSprite"] = &Rem::rem<BigSpriteComponent>;
-			remType["MultiShadowEmitter"] = &Rem::rem<MultiShadowEmitter>;
-			remType["MultiLightEmitter"] = &Rem::rem<MultiLightEmitter>;
-			remType["MultiLightAffector"] = &Rem::rem<MultiLightAffector>;
-			remType["MultiSprite"] = &Rem::rem<MultiSpriteComponent>;
-			remType["MultiAnimation"] = &Rem::rem<MultiAnimationComponent>;
-			remType["MultiVisualAffetor"] = &Rem::rem<MultiVisualAffectorComponent>;
-			remType["TileMap"] = &Rem::rem<TileMapComponent>;
-			remType["Water"] = &Rem::rem<WaterComponent>;
-			remType["ParticleSystem"] = &Rem::rem<ParticleSystemComponent>;
+			remType["transform"] = &Rem::rem<TransformComponent>;
+			remType["behavior"] = &Rem::rem<EntityBehaviorComponent>;
+			remType["updateTimer"] = &Rem::rem<EntityUpdateTimer>;
+			remType["sound"] = &Rem::rem<SoundEmitterComponent>;
+			remType["music"] = &Rem::rem<MusicEmitterComponent>;
+			remType["movementRigidbody"] = &Rem::rem<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
+			remType["semanticsRigidbody"] = &Rem::rem<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
+			remType["multiMovementRigidbody"] = &Rem::rem<MultiRigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>;
+			remType["multiSemanticsRigidbody"] = &Rem::rem<MultiRigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>;
+			remType["movement"] = &Rem::rem<MovementComponent>;
+			remType["steering"] = &Rem::rem<SteeringComponent<script::Environment>>;
+			remType["path"] = &Rem::rem<PathFinderComponent>;
+			remType["shadows"] = &Rem::rem<ShadowEmitterComponent>;
+			remType["light"] = &Rem::rem<LightEmitterComponent>;
+			remType["lightAffector"] = &Rem::rem<LightAffectorComponent>;
+			remType["multiShadowEmitter"] = &Rem::rem<MultiShadowEmitter>;
+			remType["multiLightEmitter"] = &Rem::rem<MultiLightEmitter>;
+			remType["multiLightAffector"] = &Rem::rem<MultiLightAffector>;
+			remType["visuals"] = &Rem::rem<VisualsComponent>;
+			remType["sprite"] = &Rem::rem<SpriteComponent>;
+			remType["vertexArray"] = &Rem::rem<VertexArrayComponent>;
+			remType["visualAffector"] = &Rem::rem<VisualAffectorComponent>;
+			remType["spriteMetadata"] = &Rem::rem<SpriteMetadataComponent>;
+			remType["animation"] = &Rem::rem<AnimationComponent>;
+			remType["bigSprite"] = &Rem::rem<BigSpriteComponent>;
+			remType["multiSprite"] = &Rem::rem<MultiSpriteComponent>;
+			remType["multiAnimation"] = &Rem::rem<MultiAnimationComponent>;
+			remType["multiVisualAffetor"] = &Rem::rem<MultiVisualAffectorComponent>;
+			remType["tilemap"] = &Rem::rem<TileMapComponent>;
+			remType["water"] = &Rem::rem<WaterComponent>;
+			remType["particleSystem"] = &Rem::rem<ParticleSystemComponent>;
 		}
 	}
 }

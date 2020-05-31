@@ -270,24 +270,12 @@ namespace ungod
             }
             else
             {
-                Logger::warning("Pointer cycle detected!");
-                Logger::endl();
-                Logger::warning("Skipping deserialization of this object.");
-                Logger::endl();
+                Logger::warning("Pointer cycle detected! Skipping deserialization of this object.");
             }
         }
         else
         {
-            Logger::warning("Invalid ref detected during fetch.");
-            Logger::endl();
-            Logger::warning("Did you miss the instantiate call for type ");
-            Logger::warning(split.first);
-            Logger::warning("?");
-            Logger::endl();
-            Logger::warning("Is the save-file corrupted?");
-            Logger::endl();
-            Logger::warning("Skipping deserialization of this object.");
-            Logger::endl();
+            Logger::warning("Invalid ref detected during fetch. Did you miss the instantiate call for type", split.first, "? Is the save-file corrupted?");
         }
         return nullptr;
     }
@@ -321,14 +309,7 @@ namespace ungod
                   }
                   else
                   {
-                    Logger::warning("Requesting ");
-                    Logger::warning(strhash);
-                    Logger::warning(" but no valid factory is assigned.");
-                    Logger::endl();
-                    Logger::warning("Did you miss the instantiate call?");
-                    Logger::endl();
-                    Logger::warning("Skipping deserialization of this object.");
-                    Logger::endl();
+                    Logger::warning("Requesting", strhash, "but no valid factory is assigned. \n Did you miss the instantiate call?");
                   }
               }, strhash );
             if (ptr)
@@ -363,16 +344,7 @@ namespace ungod
             }
             else
             {
-                Logger::warning("Invalid ref detected during weak fetch.");
-                Logger::endl();
-                Logger::warning("Did you miss the instantiate call for type ");
-                Logger::warning(split.first);
-                Logger::warning("?");
-                Logger::endl();
-                Logger::warning("Is the save-file corrupted?");
-                Logger::endl();
-                Logger::warning("Skipping deserialization of this object.");
-                Logger::endl();
+                Logger::warning("Invalid ref detected during weak fetch. Did you miss the instantiate call for type ", split.first, "? Is the save-file corrupted?");
                 return;
             }
         }

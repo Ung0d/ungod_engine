@@ -87,10 +87,7 @@ namespace ungod
     }
 
 
-    TransformManager::TransformManager(quad::QuadTree<Entity>& quadtree) : mQuadTree(quadtree) {}
-
-
-    void TransformManager::setPosition(Entity e, const sf::Vector2f& position)
+    void TransformHandler::setPosition(Entity e, const sf::Vector2f& position)
     {
         e.modify<TransformComponent>().mTransform.setPosition(position);
         //emit signal
@@ -100,12 +97,12 @@ namespace ungod
     }
 
 
-    void TransformManager::setScale(Entity e, float scale)
+    void TransformHandler::setScale(Entity e, float scale)
     {
         setScale(e, {scale, scale});
     }
 
-    void TransformManager::setScale(Entity e, const sf::Vector2f& scale)
+    void TransformHandler::setScale(Entity e, const sf::Vector2f& scale)
     {
         e.modify<TransformComponent>().mTransform.setScale(scale);
         //emit signal
@@ -116,7 +113,7 @@ namespace ungod
     }
 
 
-    void TransformManager::move(Entity e, const sf::Vector2f& vec)
+    void TransformHandler::move(Entity e, const sf::Vector2f& vec)
     {
         e.modify<TransformComponent>().mTransform.move(vec);
         //emit signal
@@ -126,49 +123,49 @@ namespace ungod
     }
 
 
-    void TransformManager::setBaseLineOffsets(Entity e, const sf::Vector2f& baselineoffsets)
+    void TransformHandler::setBaseLineOffsets(Entity e, const sf::Vector2f& baselineoffsets)
     {
         e.modify<TransformComponent>().mBaseLineOffsets = baselineoffsets;
     }
 
 
-    void TransformManager::onSizeChanged(const std::function<void(Entity, const sf::Vector2f&)>& callback)
+    void TransformHandler::onSizeChanged(const std::function<void(Entity, const sf::Vector2f&)>& callback)
     {
         mSizeChangedSignal.connect(callback);
     }
 
 
-    void TransformManager::onPositionChanged(const std::function<void(Entity, const sf::Vector2f&)>& callback)
+    void TransformHandler::onPositionChanged(const std::function<void(Entity, const sf::Vector2f&)>& callback)
     {
         mPositionChangedSignal.connect(callback);
     }
 
 
-    void TransformManager::onScaleChanged(const std::function<void(Entity, const sf::Vector2f&)>& callback)
+    void TransformHandler::onScaleChanged(const std::function<void(Entity, const sf::Vector2f&)>& callback)
     {
         mScaleChangedSignal.connect(callback);
     }
 
 
-    void TransformManager::onMoveContents(const std::function<void(Entity, const sf::Vector2f&)>& callback)
+    void TransformHandler::onMoveContents(const std::function<void(Entity, const sf::Vector2f&)>& callback)
     {
         mMoveContentsSignal.connect(callback);
     }
 
 
-    void TransformManager::onLowerBoundRequest(const std::function<sf::Vector2f(Entity)>& callback)
+    void TransformHandler::onLowerBoundRequest(const std::function<sf::Vector2f(Entity)>& callback)
     {
         mLowerBoundRequest.connect(callback);
     }
 
 
-    void TransformManager::onUpperBoundRequest(const std::function<sf::Vector2f(Entity)>& callback)
+    void TransformHandler::onUpperBoundRequest(const std::function<sf::Vector2f(Entity)>& callback)
     {
         mUpperBoundRequest.connect(callback);
     }
 
 
-    void TransformManager::handleContentsChanged(Entity e, const sf::FloatRect& rect)
+    void TransformHandler::handleContentsChanged(Entity e, const sf::FloatRect& rect)
     {
         TransformComponent& transf = e.modify<TransformComponent>();
 
@@ -223,7 +220,7 @@ namespace ungod
         }
     }
 
-    void TransformManager::handleContentsRemoved(Entity e)
+    void TransformHandler::handleContentsRemoved(Entity e)
     {
         TransformComponent& transf = e.modify<TransformComponent>();
 

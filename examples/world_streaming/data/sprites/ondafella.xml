@@ -1,0 +1,238 @@
+<meta>
+    <idle type="animation" global_width="128" global_height="192" loop="0" one_time_only="0" global_duration="160">
+        <idle0000 pos_x="258" pos_y="579" width="128" height="192"/>
+        <idle0001 pos_x="129" pos_y="772" width="128" height="192"/>
+        <idle0002 pos_x="516" pos_y="386" width="128" height="192"/>
+        <idle0003 pos_x="387" pos_y="579" width="128" height="192"/>
+    </idle>
+    <idle_wielded type="animation" global_width="128" global_height="192" loop="0" one_time_only="0" global_duration="160">
+        <idle_wielded0000 pos_x="258" pos_y="772"/>
+        <idle_wielded0001 pos_x="645" pos_y="386"/>
+        <idle_wielded0002 pos_x="516" pos_y="579"/>
+        <idle_wielded0003 pos_x="387" pos_y="772"/>
+    </idle_wielded>
+    <right type="animation" global_width="128" global_height="192" loop="0" one_time_only="0" global_duration="85">
+        <ondafella_right0000 pos_x="1548" pos_y="193"/>
+        <ondafella_right0001 pos_x="1032" pos_y="772"/>
+        <ondafella_right0002 pos_x="1419" pos_y="386"/>
+        <ondafella_right0003 pos_x="1806" pos_y="0"/>
+        <ondafella_right0004 pos_x="1290" pos_y="579"/>
+        <ondafella_right0005 pos_x="1677" pos_y="193"/>
+        <ondafella_right0006 pos_x="1161" pos_y="772"/>
+        <ondafella_right0007 pos_x="1548" pos_y="386"/>
+        <ondafella_right0008 pos_x="1419" pos_y="579"/>
+        <ondafella_right0009 pos_x="1806" pos_y="193"/>
+    </right>
+    <left type="animation" global_width="128" global_height="192" loop="0" one_time_only="0" global_duration="85">
+        <ondafella_left0000 pos_x="903" pos_y="579"/>
+        <ondafella_left0001 pos_x="1290" pos_y="193"/>
+        <ondafella_left0002 pos_x="1161" pos_y="386"/>
+        <ondafella_left0003 pos_x="1548" pos_y="0"/>
+        <ondafella_left0004 pos_x="1032" pos_y="579"/>
+        <ondafella_left0005 pos_x="1419" pos_y="193"/>
+        <ondafella_left0006 pos_x="903" pos_y="772"/>
+        <ondafella_left0007 pos_x="1290" pos_y="386"/>
+        <ondafella_left0008 pos_x="1677" pos_y="0"/>
+        <ondafella_left0009 pos_x="1161" pos_y="579"/>
+    </left>
+    <down type="animation" global_width="128" global_height="192" loop="0" one_time_only="0" global_duration="85">
+        <ondafella_forward0000 pos_x="903" pos_y="193"/>
+        <ondafella_forward0001 pos_x="1161" pos_y="0"/>
+        <ondafella_forward0002 pos_x="1032" pos_y="193"/>
+        <ondafella_forward0003 pos_x="903" pos_y="386"/>
+        <ondafella_forward0004 pos_x="1290" pos_y="0"/>
+        <ondafella_forward0005 pos_x="1161" pos_y="193"/>
+        <ondafella_forward0006 pos_x="1032" pos_y="386"/>
+        <ondafella_forward0007 pos_x="1419" pos_y="0"/>
+    </down>
+    <up type="animation" global_width="128" global_height="192" loop="0" one_time_only="0" global_duration="85">
+        <ondafella_backw0000 pos_x="774" pos_y="386"/>
+        <ondafella_backw0001 pos_x="645" pos_y="579"/>
+        <ondafella_backw0002 pos_x="516" pos_y="772"/>
+        <ondafella_backw0003 pos_x="774" pos_y="579"/>
+        <ondafella_backw0004 pos_x="645" pos_y="772"/>
+        <ondafella_backw0005 pos_x="774" pos_y="772"/>
+        <ondafella_backw0006 pos_x="903" pos_y="0"/>
+        <ondafella_backw0007 pos_x="1032" pos_y="0"/>
+    </up>
+    <dash_right type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="100">
+        <dash_right0001 pos_x="516" pos_y="193"/>
+        <dash_right0002 pos_x="774" pos_y="0"/>
+        <dash_right0003 pos_x="645" pos_y="193"/>
+        <dash_right0004 pos_x="774" pos_y="193"/>
+        <dash_right0005 pos_x="0" pos_y="386"/>
+    </dash_right>
+    <dash_left type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="100">
+        <dash_left0001 pos_x="258" pos_y="193"/>
+        <dash_left0002 pos_x="387" pos_y="0"/>
+        <dash_left0003 pos_x="516" pos_y="0" width="128" height="192"/>
+        <dash_left0004 pos_x="387" pos_y="193" width="128" height="192"/>
+        <dash_left0005 pos_x="645" pos_y="0" width="128" height="192"/>
+    </dash_left>
+    <dash_down type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="100">
+        <dash_fwd0001 pos_x="0" pos_y="0" width="128" height="192"/>
+        <dash_fwd0002 pos_x="129" pos_y="0" width="128" height="192"/>
+        <dash_fwd0003 pos_x="258" pos_y="0"/>
+        <dash_fwd0004 pos_x="0" pos_y="193"/>
+        <dash_fwd0005 pos_x="129" pos_y="193"/>
+    </dash_down>
+    <dash_up type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="100">
+        <dash_up0001 pos_x="129" pos_y="386"/>
+        <dash_up0002 pos_x="0" pos_y="579"/>
+        <dash_up0003 pos_x="258" pos_y="386"/>
+        <dash_up0004 pos_x="129" pos_y="579"/>
+        <dash_up0005 pos_x="0" pos_y="772"/>
+        <dash_up0006 pos_x="387" pos_y="386"/>
+    </dash_up>
+    <slash_down type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="80">
+        <slash_fwd0000 pos_x="1290" pos_y="772"/>
+        <slash_fwd0001 pos_x="1677" pos_y="386"/>
+        <slash_fwd0002 pos_x="1548" pos_y="579"/>
+        <slash_fwd0003 pos_x="1419" pos_y="772"/>
+        <slash_fwd0004 pos_x="1806" pos_y="386"/>
+        <slash_fwd0005 pos_x="1677" pos_y="579"/>
+        <slash_fwd0006 pos_x="1548" pos_y="772"/>
+        <slash_fwd0006 pos_x="1548" pos_y="772"/>
+    </slash_down>
+    <slash_down_backhand type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="80">
+        <slash_fwd0000 pos_x="1290" pos_y="772" duration="30"/>
+        <slash_fwd0006 pos_x="1548" pos_y="772" duration="30"/>
+        <slash_fwd0006 pos_x="1548" pos_y="772" duration="30"/>
+        <slash_fwd0005 pos_x="1677" pos_y="579"/>
+        <slash_fwd0004 pos_x="1806" pos_y="386"/>
+        <slash_fwd0003 pos_x="1419" pos_y="772"/>
+        <slash_fwd0002 pos_x="1548" pos_y="579"/>
+        <slash_fwd0001 pos_x="1677" pos_y="386"/>
+    </slash_down_backhand>
+    <slash_up type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="80">
+        <slash_backw0000 pos_x="129" pos_y="1158"/>
+        <slash_backw0001 pos_x="0" pos_y="1351"/>
+        <slash_backw0002 pos_x="387" pos_y="965"/>
+        <slash_backw0003 pos_x="258" pos_y="1158"/>
+        <slash_backw0004 pos_x="129" pos_y="1351"/>
+        <slash_backw0005 pos_x="516" pos_y="965"/>
+        <slash_backw0006 pos_x="0" pos_y="1544"/>
+        <slash_backw0006 pos_x="0" pos_y="1544"/>
+    </slash_up>
+    <slash_up_backhand type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="80">
+        <slash_backw0000 pos_x="129" pos_y="1158" duration="30"/>
+        <slash_backw0006 pos_x="0" pos_y="1544" duration="30"/>
+        <slash_backw0006 pos_x="0" pos_y="1544" duration="30"/>
+        <slash_backw0005 pos_x="516" pos_y="965"/>
+        <slash_backw0004 pos_x="129" pos_y="1351"/>
+        <slash_backw0003 pos_x="258" pos_y="1158"/>
+        <slash_backw0002 pos_x="387" pos_y="965"/>
+        <slash_backw0001 pos_x="0" pos_y="1351"/>
+    </slash_up_backhand>
+    <slash_right type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="80">
+        <slash_right0000 pos_x="387" pos_y="1158"/>
+        <slash_right0001 pos_x="258" pos_y="1351"/>
+        <slash_right0002 pos_x="645" pos_y="965"/>
+        <slash_right0003 pos_x="129" pos_y="1544"/>
+        <slash_right0004 pos_x="516" pos_y="1158"/>
+        <slash_right0005 pos_x="0" pos_y="1737"/>
+        <slash_right0006 pos_x="387" pos_y="1351"/>
+        <slash_right0006 pos_x="387" pos_y="1351"/>
+    </slash_right>
+    <slash_right_backhand type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="80">
+        <slash_right0000 pos_x="387" pos_y="1158" duration="30"/>
+        <slash_right0006 pos_x="387" pos_y="1351" duration="30"/>
+        <slash_right0006 pos_x="387" pos_y="1351" duration="30"/>
+        <slash_right0005 pos_x="0" pos_y="1737"/>
+        <slash_right0004 pos_x="516" pos_y="1158"/>
+        <slash_right0003 pos_x="129" pos_y="1544"/>
+        <slash_right0002 pos_x="645" pos_y="965"/>
+        <slash_right0001 pos_x="258" pos_y="1351"/>
+    </slash_right_backhand>
+    <slash_left type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="80">
+        <ondafella_slash_left0000 pos_x="1806" pos_y="579"/>
+        <ondafella_slash_left0001 pos_x="1677" pos_y="772"/>
+        <ondafella_slash_left0002 pos_x="1806" pos_y="772"/>
+        <ondafella_slash_left0003 pos_x="0" pos_y="965"/>
+        <ondafella_slash_left0004 pos_x="129" pos_y="965"/>
+        <ondafella_slash_left0005 pos_x="0" pos_y="1158"/>
+        <ondafella_slash_left0006 pos_x="258" pos_y="965"/>
+        <ondafella_slash_left0006 pos_x="258" pos_y="965"/>
+    </slash_left>
+    <slash_left_backhand type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="80">
+        <ondafella_slash_left0000 pos_x="1806" pos_y="579" duration="30"/>
+        <ondafella_slash_left0006 pos_x="258" pos_y="965" duration="30"/>
+        <ondafella_slash_left0006 pos_x="258" pos_y="965" duration="30"/>
+        <ondafella_slash_left0005 pos_x="0" pos_y="1158"/>
+        <ondafella_slash_left0004 pos_x="129" pos_y="965"/>
+        <ondafella_slash_left0003 pos_x="0" pos_y="965"/>
+        <ondafella_slash_left0002 pos_x="1806" pos_y="772"/>
+        <ondafella_slash_left0001 pos_x="1677" pos_y="772"/>
+    </slash_left_backhand>
+    <spell_down type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="120">
+        <spell_fwd0001 pos_x="645" pos_y="1351"/>
+        <spell_fwd0002 pos_x="1032" pos_y="965"/>
+        <spell_fwd0003 pos_x="516" pos_y="1544"/>
+        <spell_fwd0004 pos_x="903" pos_y="1158"/>
+        <spell_fwd0005 pos_x="387" pos_y="1737"/>
+        <spell_fwd0006 pos_x="774" pos_y="1351"/>
+        <spell_fwd0007 pos_x="1161" pos_y="965"/>
+        <spell_fwd0008 pos_x="645" pos_y="1544"/>
+    </spell_down>
+    <spell_up type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="120">
+        <spell_up0000 pos_x="774" pos_y="965"/>
+        <spell_up0001 pos_x="258" pos_y="1544"/>
+        <spell_up0002 pos_x="645" pos_y="1158"/>
+        <spell_up0003 pos_x="129" pos_y="1737"/>
+        <spell_up0004 pos_x="516" pos_y="1351"/>
+        <spell_up0005 pos_x="903" pos_y="965"/>
+        <spell_up0006 pos_x="387" pos_y="1544"/>
+        <spell_up0007 pos_x="774" pos_y="1158"/>
+        <spell_up0008 pos_x="258" pos_y="1737"/>
+    </spell_up>
+    <spell_right type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="120">
+        <spell_right0000 pos_x="903" pos_y="1544"/>
+        <spell_right0001 pos_x="1290" pos_y="1158"/>
+        <spell_right0002 pos_x="774" pos_y="1737"/>
+        <spell_right0003 pos_x="1161" pos_y="1351"/>
+        <spell_right0004 pos_x="1548" pos_y="965"/>
+        <spell_right0005 pos_x="1032" pos_y="1544"/>
+        <spell_right0006 pos_x="1419" pos_y="1158"/>
+        <spell_right0007 pos_x="903" pos_y="1737"/>
+        <spell_right0008 pos_x="1290" pos_y="1351"/>
+    </spell_right>
+    <spell_left type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="120">
+        <spell_left0000 pos_x="1032" pos_y="1158"/>
+        <spell_left0001 pos_x="516" pos_y="1737"/>
+        <spell_left0002 pos_x="903" pos_y="1351"/>
+        <spell_left0003 pos_x="1290" pos_y="965"/>
+        <spell_left0004 pos_x="774" pos_y="1544"/>
+        <spell_left0005 pos_x="1161" pos_y="1158"/>
+        <spell_left0006 pos_x="645" pos_y="1737"/>
+        <spell_left0007 pos_x="1032" pos_y="1351"/>
+        <spell_left0008 pos_x="1419" pos_y="965"/>
+    </spell_left>
+    <weapon_draw type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="65">
+        <weapon_draw0001 pos_x="1677" pos_y="965"/>
+        <weapon_draw0002 pos_x="1161" pos_y="1544"/>
+        <weapon_draw0003 pos_x="1548" pos_y="1158"/>
+        <weapon_draw0004 pos_x="1032" pos_y="1737"/>
+        <weapon_draw0005 pos_x="1419" pos_y="1351"/>
+        <weapon_draw0006 pos_x="1806" pos_y="965"/>
+        <weapon_draw0007 pos_x="1290" pos_y="1544"/>
+        <weapon_draw0008 pos_x="1677" pos_y="1158" duration="100"/>
+        <weapon_draw0009 pos_x="1161" pos_y="1737" duration="80"/>
+        <weapon_draw0010 pos_x="1548" pos_y="1351" duration="80"/>
+        <weapon_draw0011 pos_x="1419" pos_y="1544"/>
+        <weapon_draw0012 pos_x="1806" pos_y="1158"/>
+    </weapon_draw>
+    <weapon_stow type="animation" global_width="128" global_height="192" loop="0" one_time_only="1" global_duration="65">
+        <weapon_draw0012 pos_x="1806" pos_y="1158"/>
+        <weapon_draw0011 pos_x="1419" pos_y="1544"/>
+        <weapon_draw0010 pos_x="1548" pos_y="1351" duration="80"/>
+        <weapon_draw0009 pos_x="1161" pos_y="1737" duration="80"/>
+        <weapon_draw0008 pos_x="1677" pos_y="1158" duration="100"/>
+        <weapon_draw0007 pos_x="1290" pos_y="1544"/>
+        <weapon_draw0006 pos_x="1806" pos_y="965"/>
+        <weapon_draw0005 pos_x="1419" pos_y="1351"/>
+        <weapon_draw0004 pos_x="1032" pos_y="1737"/>
+        <weapon_draw0003 pos_x="1548" pos_y="1158"/>
+        <weapon_draw0002 pos_x="1161" pos_y="1544"/>
+        <weapon_draw0001 pos_x="1677" pos_y="965"/>
+    </weapon_stow>
+</meta>

@@ -40,10 +40,10 @@ namespace ungod
     */
     class ParticleSystemComponent : public Serializable<ParticleSystemComponent>
     {
-        friend class ParticleSystemManager;
+        friend class ParticleSystemHandler;
         friend class Renderer;
-         friend struct SerialBehavior<ParticleSystemComponent, Entity, const World&, const Application&>;
-        friend struct DeserialBehavior<ParticleSystemComponent, Entity, World&, const Application&>;
+         friend struct SerialBehavior<ParticleSystemComponent, Entity>;
+        friend struct DeserialBehavior<ParticleSystemComponent, Entity, DeserialMemory&>;
 
     public:
         ParticleSystemComponent() = default;
@@ -57,10 +57,10 @@ namespace ungod
     using PSData = detail::FunctorDataDeepBase;
 
     /** \brief A manager class that updates and renders entities with particle systems. */
-    class ParticleSystemManager
+    class ParticleSystemHandler
     {
     public:
-        ParticleSystemManager() : mRectUpdateTimer(200) {}
+        ParticleSystemHandler() : mRectUpdateTimer(200) {}
 
         void update(const std::list<Entity>& entities, float delta);
 
@@ -179,7 +179,7 @@ namespace ungod
         * the appropriate data. */
         void onAffectorsChanged(const std::function<void(Entity, const std::string&, const PSData&)>& callback);
 
-        ParticleFunctorMaster& getFunctorMaster() { return mParticleFunctorMaster; }
+        const ParticleFunctorMaster& getFunctorMaster() { return sParticleFunctorMaster; }
 
         /** \brief Returns the key of the attached emitter. */
         std::string getEmitterKey(Entity e) const;
@@ -213,7 +213,7 @@ namespace ungod
         void handleParticleSystemAdded(Entity e);
 
     private:
-        ParticleFunctorMaster mParticleFunctorMaster;
+        static const ParticleFunctorMaster sParticleFunctorMaster;
         sf::Clock mAABBUpdate;
         int mRectUpdateTimer;
         owls::Signal< Entity, const sf::FloatRect& > mContentsChangedSignal;
@@ -225,7 +225,7 @@ namespace ungod
 
 
     template<typename EMITTER, typename ESTIMATOR, typename ... PARAM>
-    inline void ParticleSystemManager::setEmitter(Entity e, const std::string& emitterkey, const std::string& estimatorkey, PARAM&& ... param)
+    inline void ParticleSystemHandler::setEmitter(Entity e, const std::string& emitterkey, const std::string& estimatorkey, PARAM&& ... param)
     {
         ParticleSystemComponent& psc = e.modify<ParticleSystemComponent>();
         psc.mParticleSystem->setEmitter<EMITTER, ESTIMATOR, PARAM...>(emitterkey, estimatorkey, std::forward<PARAM>(param)...);
@@ -234,7 +234,7 @@ namespace ungod
 
 
     template<typename EMITTER>
-    detail::ScopedInitializer<EMITTER> ParticleSystemManager::getEmitter(Entity e)
+    detail::ScopedInitializer<EMITTER> ParticleSystemHandler::getEmitter(Entity e)
     {
         ParticleSystemComponent& psc = e.modify<ParticleSystemComponent>();
         return detail::ScopedInitializer<EMITTER>{ psc.mParticleSystem->getEmitter<EMITTER>(),
@@ -245,14 +245,14 @@ namespace ungod
 
 
     template<typename EMITTER>
-    const EMITTER& ParticleSystemManager::getEmitter(Entity e) const
+    const EMITTER& ParticleSystemHandler::getEmitter(Entity e) const
     {
         return e.modify<ParticleSystemComponent>().mParticleSystem->getEmitter<EMITTER>();
     }
 
 
     template<typename DATA, typename ... PARAM>
-    inline void ParticleSystemManager::setPositionDist(Entity e, const std::string& key, PARAM&& ... param)
+    inline void ParticleSystemHandler::setPositionDist(Entity e, const std::string& key, PARAM&& ... param)
     {
         ParticleSystemComponent& psc = e.modify<ParticleSystemComponent>();
         psc.mParticleSystem->getEmitter<UniversalEmitter>().setPositionDist<DATA>(key, std::forward<PARAM>(param)...);
@@ -261,7 +261,7 @@ namespace ungod
 
 
     template<typename DATA>
-    detail::ScopedInitializer<DATA> ParticleSystemManager::getPositionDist(Entity e)
+    detail::ScopedInitializer<DATA> ParticleSystemHandler::getPositionDist(Entity e)
     {
         return detail::ScopedInitializer<DATA>{ e.modify<ParticleSystemComponent>().mParticleSystem->getEmitter<UniversalEmitter>().getPositionDist<DATA>(),
                                         [this, e] () { mEmitterChangedSignal(e,
@@ -271,14 +271,14 @@ namespace ungod
 
 
     template<typename DATA>
-    const DATA& ParticleSystemManager::getPositionDist(Entity e) const
+    const DATA& ParticleSystemHandler::getPositionDist(Entity e) const
     {
         return e.modify<ParticleSystemComponent>().mParticleSystem->getEmitter<UniversalEmitter>().getPositionDist<DATA>();
     }
 
 
     template<typename DATA, typename ... PARAM>
-    inline void ParticleSystemManager::setVelocityDist(Entity e, const std::string& key, PARAM&& ... param)
+    inline void ParticleSystemHandler::setVelocityDist(Entity e, const std::string& key, PARAM&& ... param)
     {
         ParticleSystemComponent& psc = e.modify<ParticleSystemComponent>();
         psc.mParticleSystem->getEmitter<UniversalEmitter>().setVelocityDist<DATA>(key, std::forward<PARAM>(param)...);
@@ -287,7 +287,7 @@ namespace ungod
 
 
     template<typename DATA>
-    detail::ScopedInitializer<DATA> ParticleSystemManager::getVelocityDist(Entity e)
+    detail::ScopedInitializer<DATA> ParticleSystemHandler::getVelocityDist(Entity e)
     {
         return detail::ScopedInitializer<DATA>{ e.modify<ParticleSystemComponent>().mParticleSystem->getEmitter<UniversalEmitter>().getVelocityDist<DATA>(),
                                         [this, e] () { mEmitterChangedSignal(e,
@@ -297,14 +297,14 @@ namespace ungod
 
 
     template<typename DATA>
-    const DATA& ParticleSystemManager::getVelocityDist(Entity e) const
+    const DATA& ParticleSystemHandler::getVelocityDist(Entity e) const
     {
         return e.modify<ParticleSystemComponent>().mParticleSystem->getEmitter<UniversalEmitter>().getVelocityDist<DATA>();
     }
 
 
     template<typename DATA, typename ... PARAM>
-    inline void ParticleSystemManager::setSpawnInterval(Entity e, const std::string& key, PARAM&& ... param)
+    inline void ParticleSystemHandler::setSpawnInterval(Entity e, const std::string& key, PARAM&& ... param)
     {
         ParticleSystemComponent& psc = e.modify<ParticleSystemComponent>();
         psc.mParticleSystem->getEmitter<UniversalEmitter>().setSpawnInterval<DATA>(key, std::forward<PARAM>(param)...);
@@ -313,7 +313,7 @@ namespace ungod
 
 
     template<typename DATA>
-    detail::ScopedInitializer<DATA> ParticleSystemManager::getSpawnInterval(Entity e)
+    detail::ScopedInitializer<DATA> ParticleSystemHandler::getSpawnInterval(Entity e)
     {
         return detail::ScopedInitializer<DATA>{ e.modify<ParticleSystemComponent>().mParticleSystem->getEmitter<UniversalEmitter>().getSpawnInterval<DATA>(),
                                         [this, e] () { mEmitterChangedSignal(e,
@@ -323,14 +323,14 @@ namespace ungod
 
 
     template<typename DATA>
-    const DATA& ParticleSystemManager::getSpawnInterval(Entity e) const
+    const DATA& ParticleSystemHandler::getSpawnInterval(Entity e) const
     {
         return e.modify<ParticleSystemComponent>().mParticleSystem->getEmitter<UniversalEmitter>().getSpawnInterval<DATA>();
     }
 
 
     template<typename DATA, typename ... PARAM>
-    inline void ParticleSystemManager::setLifetimeDist(Entity e, const std::string& key, PARAM&& ... param)
+    inline void ParticleSystemHandler::setLifetimeDist(Entity e, const std::string& key, PARAM&& ... param)
     {
         ParticleSystemComponent& psc = e.modify<ParticleSystemComponent>();
         psc.mParticleSystem->getEmitter<UniversalEmitter>().setLifetimeDist<DATA>(key, std::forward<PARAM>(param)...);
@@ -339,7 +339,7 @@ namespace ungod
 
 
     template<typename DATA>
-    detail::ScopedInitializer<DATA> ParticleSystemManager::getLifetimeDist(Entity e)
+    detail::ScopedInitializer<DATA> ParticleSystemHandler::getLifetimeDist(Entity e)
     {
         return detail::ScopedInitializer<DATA>{ e.modify<ParticleSystemComponent>().mParticleSystem->getEmitter<UniversalEmitter>().getLifetimeDist<DATA>(),
                                         [this, e] () { mEmitterChangedSignal(e,
@@ -349,14 +349,14 @@ namespace ungod
 
 
     template<typename DATA>
-    const DATA& ParticleSystemManager::getLifetimeDist(Entity e) const
+    const DATA& ParticleSystemHandler::getLifetimeDist(Entity e) const
     {
         return e.modify<ParticleSystemComponent>().mParticleSystem->getEmitter<UniversalEmitter>().getLifetimeDist<DATA>();
     }
 
 
     template<typename DATA, typename ... PARAM>
-    inline void ParticleSystemManager::addAffector(Entity e, const std::string& key, PARAM&& ... param)
+    inline void ParticleSystemHandler::addAffector(Entity e, const std::string& key, PARAM&& ... param)
     {
         ParticleSystemComponent& psc = e.modify<ParticleSystemComponent>();
         psc.mParticleSystem->addAffector<DATA, PARAM...>(key, std::forward<PARAM>(param)...);
@@ -365,7 +365,7 @@ namespace ungod
 
 
     template<typename DATA>
-    detail::ScopedInitializer<DATA> ParticleSystemManager::getAffector(Entity e, std::size_t i)
+    detail::ScopedInitializer<DATA> ParticleSystemHandler::getAffector(Entity e, std::size_t i)
     {
         return detail::ScopedInitializer<DATA>{ e.modify<ParticleSystemComponent>().mParticleSystem->getAffector<DATA>(i),
                                         [this, e, i] () { mAffectorChangedSignal(e,
@@ -375,14 +375,14 @@ namespace ungod
 
 
     template<typename DATA>
-    const DATA& ParticleSystemManager::getAffector(Entity e, std::size_t i) const
+    const DATA& ParticleSystemHandler::getAffector(Entity e, std::size_t i) const
     {
         return e.modify<ParticleSystemComponent>().mParticleSystem->getAffector<DATA>(i);
     }
 
 
     template<typename DATA, typename ... PARAM>
-    inline void ParticleSystemManager::setTexrectInitializer(Entity e, const std::string& key, PARAM&& ... param)
+    inline void ParticleSystemHandler::setTexrectInitializer(Entity e, const std::string& key, PARAM&& ... param)
     {
         ParticleSystemComponent& psc = e.modify<ParticleSystemComponent>();
         psc.mParticleSystem->setTexrectInitializer<DATA, PARAM...>(key, std::forward<PARAM>(param)...);
@@ -391,7 +391,7 @@ namespace ungod
 
 
     template<typename DATA>
-    detail::ScopedInitializer<DATA> ParticleSystemManager::getTexrectInitializer(Entity e)
+    detail::ScopedInitializer<DATA> ParticleSystemHandler::getTexrectInitializer(Entity e)
     {
         return detail::ScopedInitializer<DATA>{ e.modify<ParticleSystemComponent>().mParticleSystem->getTexrectInitializer<DATA>(),
                                         [this, e] () { mTexRectInitChangedSignal(e,
@@ -401,27 +401,27 @@ namespace ungod
 
 
     template<typename DATA>
-    const DATA& ParticleSystemManager::getTexrectInitializer(Entity e) const
+    const DATA& ParticleSystemHandler::getTexrectInitializer(Entity e) const
     {
         return e.modify<ParticleSystemComponent>().mParticleSystem->getTexrectInitializer<DATA>();
     }
 
-    inline void ParticleSystemManager::clearAffectors(Entity e)
+    inline void ParticleSystemHandler::clearAffectors(Entity e)
     {
         e.modify<ParticleSystemComponent>().mParticleSystem->clearAffectors();
     }
 
-    inline void ParticleSystemManager::setMaxForce(Entity e, float maxforce)
+    inline void ParticleSystemHandler::setMaxForce(Entity e, float maxforce)
     {
         e.modify<ParticleSystemComponent>().mParticleSystem->setMaxForce(maxforce);
     }
 
-    inline void ParticleSystemManager::setMaxVelocity(Entity e, float maxvel)
+    inline void ParticleSystemHandler::setMaxVelocity(Entity e, float maxvel)
     {
         e.modify<ParticleSystemComponent>().mParticleSystem->setMaxVelocity(maxvel);
     }
 
-    inline void ParticleSystemManager::setParticleSpeed(Entity e, float speed)
+    inline void ParticleSystemHandler::setParticleSpeed(Entity e, float speed)
     {
         e.modify<ParticleSystemComponent>().mParticleSystem->setParticleSpeed(speed);
     }

@@ -53,6 +53,11 @@ namespace ungod
         return mIter->first;
     }
 
+    bool ProfileHandle::valid() const
+    {
+        return mIter != nullptr;
+    }
+
 
     SoundEmitterComponent::SoundEmitterComponent() : mProfile(), mDistanceCap(DEFAULT_DISTANCE_CAP) {}
 
@@ -67,168 +72,60 @@ namespace ungod
 
 
 
-    AudioManager::AudioManager() : mMuteMusic(false), mMuteSound(false), mMusicEmitterMixer()
+    SoundProfileManager::SoundProfileManager() : mMuteSound(false)
     {
         mVolumeSettings.resize(1, 1.0f);
-        mListener = std::unique_ptr<AudioListener>( new GlobalListener() );
     }
 
-
-    AudioManager::AudioManager(ScriptedGameState* master, const World& world) : mMuteMusic(false), mMuteSound(false), mMusicEmitterMixer()
-    {
-        mVolumeSettings.resize(1, 1.0f);
-		mListener = std::unique_ptr<AudioListener>( new CameraListener(master->getCamera(), world) );
-    }
-
-
-    void AudioManager::initMusic(std::size_t num)
-    {
-        mMusic.reserve(num);
-        for (std::size_t i = 0; i < num; ++i)
-            mMusic.emplace_back();
-        mMusicVolumes.resize(num, 1.0f);
-    }
-
-    void AudioManager::loadMusic(const std::string& fileID, std::size_t index)
-    {
-        mMusic[index] = std::unique_ptr<MusicPlayerBase>( new MusicPlayerSingle(fileID) );
-    }
-
-    void AudioManager::loadPlaylist(const std::vector<std::string>& fileIDs, std::size_t index, bool randomPlay, float intervalMin, float intervalMax)
-    {
-        if (fileIDs.size() == 0)
-        {
-            ungod::Logger::warning("Tried to load a music playlist with empty file list.");
-            ungod::Logger::endl();
-            return;
-        }
-        mMusic[index] = std::unique_ptr<MusicPlayerBase>( new Playlist(fileIDs, randomPlay, intervalMin, intervalMax) );
-    }
-
-    void AudioManager::playMusic(std::size_t index)
-    {
-        if (mMuteMusic)
-            return;
-
-        if(!mMusic[index]->isLoaded())
-        {
-            ungod::Logger::warning("Tried to play music that was not successfully loaded.");
-            ungod::Logger::endl();
-            return;
-        }
-        mMusic[index]->setVolume(100.0f * mMusicVolumes[index]);
-        mMusic[index]->play();
-    }
-
-    void AudioManager::pauseMusic(std::size_t index)
-    {
-        if(!mMusic[index]->isLoaded())
-        {
-            ungod::Logger::warning("Tried to pause music that was not successfully loaded.");
-            ungod::Logger::endl();
-            return;
-        }
-        mMusic[index]->pause();
-    }
-
-    void AudioManager::stopMusic(std::size_t index)
-    {
-        if(!mMusic[index]->isLoaded())
-        {
-            ungod::Logger::warning("Tried to stop music that was not successfully loaded.");
-            ungod::Logger::endl();
-            return;
-        }
-        mMusic[index]->stop();
-    }
-
-    void AudioManager::fadeoutMusic(float milliseconds, std::size_t index)
-    {
-        mMusic[index]->mFadingActive = true;
-        mMusic[index]->mFadingDirection = true;
-        mMusic[index]->mMilliseconds = milliseconds;
-    }
-
-    void AudioManager::fadeinMusic(float milliseconds, std::size_t index)
-    {
-        mMusic[index]->mFadingActive = true;
-        mMusic[index]->mFadingDirection = false;
-        mMusic[index]->mMilliseconds = milliseconds;
-    }
-
-    void AudioManager::setMusicVolume(float volume, std::size_t index)
-    {
-        mMusicVolumes[index] = volume;
-        mMusic[index]->setVolume(100.0f * mMusicVolumes[index]);
-    }
-
-    ProfileHandle AudioManager::initSoundProfile(const std::string& key)
+    ProfileHandle SoundProfileManager::initSoundProfile(const std::string& key)
     {
         return &(*(mSoundProfiles.emplace(key, SoundProfile()).first));
     }
 
-    ProfileHandle AudioManager::getSoundProfile(const std::string& key)
+    ProfileHandle SoundProfileManager::getSoundProfile(const std::string& key) 
     {
-        return &(*(mSoundProfiles.find(key)));
+        auto res = mSoundProfiles.find(key);
+        if (res != mSoundProfiles.end())
+            return &(*(res));
+        else
+        {
+            Logger::warning("Can not find a sound profile named", key);
+            return {};
+        }
     }
 
-    void AudioManager::connectProfile(Entity e, const std::string& profileKey)
-    {
-        auto profile = mSoundProfiles.find(profileKey);
-        if (profile != mSoundProfiles.end())
-            connectProfile(e, &(*(profile)));
-    }
-
-    void AudioManager::connectProfile(SoundEmitterComponent& emitter, const std::string& profileKey)
-    {
-        auto profile = mSoundProfiles.find(profileKey);
-        if (profile != mSoundProfiles.end())
-            connectProfile(emitter, &(*(profile)));
-    }
-
-    void AudioManager::connectProfile(Entity e, ProfileHandle profile)
-    {
-        SoundEmitterComponent& sound = e.modify<SoundEmitterComponent>();
-        connectProfile(sound, profile);
-    }
-
-    void AudioManager::connectProfile(SoundEmitterComponent& emitter, ProfileHandle profile)
-    {
-        emitter.mProfile = profile;
-    }
-
-    void AudioManager::initSounds(const std::string& key, std::size_t num)
+    void SoundProfileManager::initSounds(const std::string& key, std::size_t num)
     {
         auto profile = mSoundProfiles.find(key);
         if (profile != mSoundProfiles.end())
             initSounds(&(*(profile)), num);
     }
 
-    void AudioManager::initSounds(ProfileHandle profile, std::size_t num)
+    void SoundProfileManager::initSounds(ProfileHandle profile, std::size_t num)
     {
         profile.mIter->second.initSounds(num);
     }
 
-    void AudioManager::loadSound( const std::string& key, const std::string& path, std::size_t index)
+    void SoundProfileManager::loadSound( const std::string& key, const std::string& path, std::size_t index)
     {
         auto profile = mSoundProfiles.find(key);
         if (profile != mSoundProfiles.end())
             loadSound(&(*(profile)), path, index);
     }
 
-    void AudioManager::loadSound( ProfileHandle profile, const std::string& path, std::size_t index)
+    void SoundProfileManager::loadSound( ProfileHandle profile, const std::string& path, std::size_t index)
     {
         profile.mIter->second.mSounds[index]->sound.load(path);
     }
 
-    void AudioManager::expireSounds( const std::string& key)
+    void SoundProfileManager::expireSounds( const std::string& key)
     {
         auto profile = mSoundProfiles.find(key);
         if (profile != mSoundProfiles.end())
             expireSounds(&(*(profile)));
     }
 
-    void AudioManager::expireSounds( ProfileHandle profile)
+    void SoundProfileManager::expireSounds( ProfileHandle profile)
     {
         profile.mIter->second.mExpired = true;
         for (auto iter = profile.mIter->second.mSounds.begin(); iter != profile.mIter->second.mSounds.end();)
@@ -240,7 +137,95 @@ namespace ungod
         }
     }
 
-    void AudioManager::playSound(Entity e, std::size_t index, std::size_t volumeSetting, float pitch)
+    std::string SoundProfileManager::getLoadPath( const std::string& key, std::size_t index)
+    {
+        auto profile = mSoundProfiles.find(key);
+        if (profile != mSoundProfiles.end())
+            return getLoadPath(&(*(profile)), index);
+        else
+            return "";
+    }
+
+    std::string SoundProfileManager::getLoadPath( ProfileHandle profile, std::size_t index)
+    {
+        return profile.mIter->second.mSounds[index]->sound.getFilePath();
+    }
+
+    void SoundProfileManager::initVolumeSettings(std::size_t num)
+    {
+        mVolumeSettings.resize(num, 1.0f);
+    }
+
+    void SoundProfileManager::setVolume(std::size_t index, float volume)
+    {
+        mVolumeSettings[index] = volume;
+    }
+
+    float SoundProfileManager::getVolume(std::size_t index)
+    {
+        return mVolumeSettings[index];
+    }
+
+
+    void SoundProfileManager::setMuteSound(bool mute)
+    {
+        mMuteSound = mute;
+        if (mute)
+            for (std::size_t i = 0; i < SOUND_PLAY_CAP; ++i)
+                mSoundslots[i].mPlaying = false;
+    }
+
+    SoundSlot* SoundProfileManager::getFreeSlot() 
+    {
+        if (mMuteSound)
+            return nullptr;
+        for (std::size_t i = 0; i < SOUND_PLAY_CAP; i++)
+            if (!mSoundslots[i].mProfile.mIter)
+                return &mSoundslots[i];
+        return nullptr;
+    }
+
+    SoundProfileManager::~SoundProfileManager()
+    {
+        for (std::size_t i = 0; i < SOUND_PLAY_CAP; ++i)
+            mSoundslots[i].mSound.stop();
+    }
+
+
+
+
+    void SoundHandler::init(SoundProfileManager& soundprofilemngr, const AudioListener* listener)
+    {
+        mSoundProfileMngr = &soundprofilemngr;
+        mListener = listener;
+    }
+
+    void SoundHandler::connectProfile(Entity e, const std::string& profileKey)
+    {
+        auto profile = mSoundProfileMngr->getSoundProfile(profileKey);
+        if (profile.valid())
+            connectProfile(e, profile);
+    }
+
+    void SoundHandler::connectProfile(SoundEmitterComponent& emitter, const std::string& profileKey)
+    {
+        auto profile = mSoundProfileMngr->getSoundProfile(profileKey);
+        if (profile.valid())
+            connectProfile(emitter, profile);
+    }
+
+    void SoundHandler::connectProfile(Entity e, ProfileHandle profile)
+    {
+        SoundEmitterComponent& sound = e.modify<SoundEmitterComponent>();
+        connectProfile(sound, profile);
+    }
+
+    void SoundHandler::connectProfile(SoundEmitterComponent& emitter, ProfileHandle profile)
+    {
+        emitter.mProfile = profile;
+    }
+
+    void SoundHandler::playSound(Entity e, std::size_t index, std::size_t volumeSetting, float pitch)
     {
         SoundEmitterComponent& sound = e.modify<SoundEmitterComponent>();
         float scaling = 1.0f;
@@ -251,151 +236,68 @@ namespace ungod
         playSound(sound.mProfile, index, scaling, volumeSetting, pitch);
     }
 
-    void AudioManager::playSound(const std::string& key, std::size_t index, float scaling, std::size_t volumeSetting, float pitch)
+    void SoundHandler::playSound(const std::string& key, std::size_t index, float scaling, std::size_t volumeSetting, float pitch)
     {
-        auto profile = mSoundProfiles.find(key);
-        if (profile != mSoundProfiles.end())
-            playSound(&(*(profile)), index, scaling, volumeSetting, pitch);
+        auto profile = mSoundProfileMngr->getSoundProfile(key);
+        if (profile.valid())
+            playSound(profile, index, scaling, volumeSetting, pitch);
     }
 
-    void AudioManager::playSound(ProfileHandle profile, std::size_t index, float scaling, std::size_t volumeSetting, float pitch)
+    void SoundHandler::playSound(ProfileHandle profile, std::size_t index, float scaling, std::size_t volumeSetting, float pitch)
     {
-        if (mMuteSound)
+        SoundSlot* free = mSoundProfileMngr->getFreeSlot();
+
+        if (!free)
             return;
 
-        //find free slot
-        std::size_t free = SOUND_PLAY_CAP;
-        for (std::size_t i = 0; i < SOUND_PLAY_CAP; i++)
-        {
-            if (!mSoundslots[i].mProfile.mIter)
-            {
-                free = i;
-                break;
-            }
-        }
+        profile.mIter->second.mSounds[index]->linkageCounter++;
 
-        if(free == SOUND_PLAY_CAP)
-            return;
+        free->mProfile = profile;
+        free->mIndex = index;
+        free->mSound.setBuffer(free->mProfile.mIter->second.mSounds[index]->sound.get());
 
-        profile.mIter->second.mSounds[index]->linkageCounter ++;
+        free->mSound.setVolume(100.0f * mSoundProfileMngr->getVolume(volumeSetting) * scaling);
+        free->mSound.setPitch(pitch);
 
-        mSoundslots[free].mProfile = profile;
-        mSoundslots[free].mIndex = index;
-        mSoundslots[free].mSound.setBuffer(*(mSoundslots[free].mProfile.mIter->second.mSounds[index]->sound.get()));
-
-        mSoundslots[free].mSound.setVolume( 100.0f * mVolumeSettings[volumeSetting] * scaling );
-        mSoundslots[free].mSound.setPitch(pitch);
-
-        mSoundslots[free].mPlaying = true;
-        mSoundslots[free].mPlayTimer = (float)mSoundslots[free].mSound.getBuffer()->getDuration().asMilliseconds();
-        mSoundslots[free].mSound.play();
+        free->mPlaying = true;
+        free->mPlayTimer = (float)free->mSound.getBuffer()->getDuration().asMilliseconds();
+        free->mSound.play();
 
         mSoundBegin(profile.mIter->first, index);
+
+        mOccupied.emplace_back(free);
     }
 
-    std::string AudioManager::getLoadPath( const std::string& key, std::size_t index)
+    void SoundHandler::update(float delta)
     {
-        auto profile = mSoundProfiles.find(key);
-        if (profile != mSoundProfiles.end())
-            return getLoadPath(&(*(profile)), index);
-        else
-            return "";
-    }
-
-    std::string AudioManager::getLoadPath( ProfileHandle profile, std::size_t index)
-    {
-        return profile.mIter->second.mSounds[index]->sound.getFilePath();
-    }
-
-    void AudioManager::initVolumeSettings(std::size_t num)
-    {
-        mVolumeSettings.resize(num, 1.0f);
-    }
-
-    void AudioManager::setVolume(std::size_t index, float volume)
-    {
-        mVolumeSettings[index] = volume;
-    }
-
-    void AudioManager::setMuteMusic(bool mute)
-    {
-        mMuteMusic = mute;
-        if (mute)
+        for (auto* slot : mOccupied)
         {
-            for (const auto& music : mMusic)
+            if (!slot->mPlaying && slot->mProfile.mIter)
             {
-                music->stop();
-            }
-        }
-    }
-
-    void AudioManager::setMuteSound(bool mute)
-    {
-        mMuteSound = mute;
-        if (mute)
-        {
-            for (std::size_t i = 0; i < SOUND_PLAY_CAP; ++i)
-            {
-                mSoundslots[i].mPlaying = false;
-            }
-
-            mMusicEmitterMixer.muteAll();
-        }
-    }
-
-    void AudioManager::update(float delta, quad::QuadTree<Entity>* quadtree)
-    {
-        for (std::size_t i = 0; i < SOUND_PLAY_CAP; ++i)
-        {
-            if (!mSoundslots[i].mPlaying && mSoundslots[i].mProfile.mIter)
-            {
-                mSoundslots[i].mProfile.mIter->second.mSounds[mSoundslots[i].mIndex]->linkageCounter--;
-                if (mSoundslots[i].mProfile.mIter->second.mExpired && mSoundslots[i].mProfile.mIter->second.mSounds[mSoundslots[i].mIndex]->linkageCounter == 0)
-                    mSoundslots[i].mProfile.mIter->second.mSounds.erase( mSoundslots[i].mProfile.mIter->second.mSounds.begin() + mSoundslots[i].mIndex );
-                mSoundEnd(mSoundslots[i].mProfile.mIter->first, mSoundslots[i].mIndex);
-                mSoundslots[i].mProfile = {nullptr};
-                mSoundslots[i].mIndex = 0;
+                slot->mProfile.mIter->second.mSounds[slot->mIndex]->linkageCounter--;
+                if (slot->mProfile.mIter->second.mExpired && slot->mProfile.mIter->second.mSounds[slot->mIndex]->linkageCounter == 0)
+                    slot->mProfile.mIter->second.mSounds.erase(slot->mProfile.mIter->second.mSounds.begin() + slot->mIndex);
+                mSoundEnd(slot->mProfile.mIter->first, slot->mIndex);
+                slot->mProfile = { nullptr };
+                slot->mIndex = 0;
             }
             else
             {
-                if(mSoundslots[i].mPlayTimer > 0)
-                    mSoundslots[i].mPlayTimer -= delta;
+                if (slot->mPlayTimer > 0)
+                    slot->mPlayTimer -= delta;
                 else
-                    mSoundslots[i].mPlaying = false;
+                    slot->mPlaying = false;
             }
         }
-
-        for (auto& music : mMusic)
-        {
-            if (music->isLoaded())
-                music->update(delta);
-        }
-
-        if (quadtree && !mMuteSound)
-            mMusicEmitterMixer.update(delta, static_cast<AudioListener*>(mListener.get()), quadtree);
     }
 
-
-    void AudioManager::onSoundBegin( const std::function<void(std::string, std::size_t)>& callback )
+    void SoundHandler::onSoundBegin(const std::function<void(std::string, std::size_t)>& callback)
     {
         mSoundBegin.connect(callback);
     }
 
-    void AudioManager::onSoundEnd( const std::function<void(std::string, std::size_t)>& callback )
+    void SoundHandler::onSoundEnd(const std::function<void(std::string, std::size_t)>& callback)
     {
         mSoundEnd.connect(callback);
-    }
-
-    AudioManager::~AudioManager()
-    {
-        for (auto& music : mMusic)
-        {
-            if (music->isLoaded())
-                music->stop();
-        }
-        for (std::size_t i = 0; i < SOUND_PLAY_CAP; ++i)
-        {
-            mSoundslots[i].mSound.stop();
-        }
     }
 }

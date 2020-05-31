@@ -11,6 +11,16 @@ function wife_global.onUpdate(static, wife, delta)
   end
 end
 
+function wife_global.onSerialize(static, wife, context)
+  context:serializeString("name", wife)
+  context:serializeEntity("husband", wife)
+end
+
+function wife_global.onDeserialize(static, wife, context)
+  context:deserializeString("name", wife)
+  context:deserializeEntity("husband", wife)
+end
+
 function wife_global.onCustomEvent(static, wife, event)
   if event.type == "hiHoneyAmHome" then
     if event.data.sender == wife.husband then

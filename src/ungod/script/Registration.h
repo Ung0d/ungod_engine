@@ -27,6 +27,7 @@
 #define REGISTRATION_H
 
 #include "ungod/script/registration/RegisterWorld.h"
+#include "ungod/script/registration/RegisterWorldGraph.h"
 #include "ungod/script/registration/RegisterEntity.h"
 #include "ungod/script/registration/RegistrationDetail.h"
 #include "ungod/script/registration/RegisterAsset.h"
@@ -50,5 +51,7 @@
 #include "ungod/script/registration/RegisterParticleSystem.h"
 #include "ungod/script/registration/RegisterCutscene.h"
 #include "ungod/script/registration/RegisterCutsceneState.h"
+#include "ungod/script/registration/RegisterBehavior.h"
+#include "ungod/script/registration/RegisterParentChild.h"
 
 #endif // REGISTRATION_H

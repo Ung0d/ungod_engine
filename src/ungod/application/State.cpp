@@ -28,7 +28,7 @@
 namespace ungod
 {
     State::State(Application& cUapp, StateID id) :
-                mApp(&cUapp),
+                mApp(cUapp),
                 mInitialized(false),
                 mExpired(false),
                 mTransparent(true),
@@ -61,7 +61,7 @@ namespace ungod
             switch(curEvent.key.code)
             {
             case sf::Keyboard::Escape:
-               mApp->quitApplication();
+               mApp.quitApplication();
                break;
             default:
                 break;
@@ -107,11 +107,6 @@ namespace ungod
     void State::setTranscendency(bool transcendent)
     {
         mTranscendent = transcendent;
-    }
-
-    State::~State()
-    {
-        closeState();
     }
 
 
@@ -274,5 +269,11 @@ namespace ungod
         if (res != mHash.end())
             return res->second.get();
         return nullptr;
+    }
+
+    StateManager::~StateManager()
+    {
+        for (const auto& p : mHash)
+            p.second->closeState();
     }
 }

@@ -30,15 +30,19 @@
 
 namespace ungod
 {
-    void SerialBehavior<World, const sf::RenderTarget&>::serialize(const World& data, MetaNode serializer, SerializationContext& context, const sf::RenderTarget& target)
+    void SerialBehavior<World>::serialize(const World& data, MetaNode serializer, SerializationContext& context)
     {
-        SerialBehavior<RenderLayer, const sf::RenderTarget&>::serialize(data, serializer, context, target);
+        SerialBehavior<RenderLayer>::serialize(data, serializer, context);
 
         quad::Bounds bounds = data.mQuadTree.getBoundary();
-        context.serializeProperty("ambient_light_r", data.getLightSystem().getAmbientColor().r, serializer);
-        context.serializeProperty("ambient_light_g", data.getLightSystem().getAmbientColor().g, serializer);
-        context.serializeProperty("ambient_light_b", data.getLightSystem().getAmbientColor().b, serializer);
-        context.serializeProperty("ambient_light_a", data.getLightSystem().getAmbientColor().a, serializer);
+        if (data.getLightHandler().getAmbientColor().r != 255)
+            context.serializeProperty("ambient_light_r", data.getLightHandler().getAmbientColor().r, serializer);
+        if (data.getLightHandler().getAmbientColor().r != 255)
+            context.serializeProperty("ambient_light_g", data.getLightHandler().getAmbientColor().g, serializer);
+        if (data.getLightHandler().getAmbientColor().r != 255)
+            context.serializeProperty("ambient_light_b", data.getLightHandler().getAmbientColor().b, serializer);
+        if (data.getLightHandler().getAmbientColor().r != 255)
+            context.serializeProperty("ambient_light_a", data.getLightHandler().getAmbientColor().a, serializer);
 
         quad::PullResult<Entity> contentPull;
         data.mQuadTree.getContent(contentPull);
@@ -53,7 +57,7 @@ namespace ungod
         }
 
         for (const auto& v : sorted)
-            context.serializeObjectContainer(v.first, v.first, v.second, serializer, data, static_cast<const Application&>(*data.mMaster->getApp()));
+            context.serializeObjectContainer(v.first, v.first, v.second, serializer);
 
         MetaNode nameMapNode = context.appendSubnode(serializer, "name_map");
         for (const auto& nameEntityPair : data.mEntityNames)
@@ -63,20 +67,20 @@ namespace ungod
         }
     }
 
-    void DeserialBehavior<World, const sf::RenderTarget&>::deserialize(World& data, MetaNode deserializer, DeserializationContext& context, const sf::RenderTarget& target)
+    void DeserialBehavior<World, DeserialMemory&>::deserialize(World& data, MetaNode deserializer, DeserializationContext& context, DeserialMemory& deserialMemory)
     {
-        DeserialBehavior<RenderLayer, const sf::RenderTarget&>::deserialize(data, deserializer, context, target);
+        DeserialBehavior<RenderLayer, DeserialMemory&>::deserialize(data, deserializer, context, deserialMemory);
 
         initDeserial(context, data);
 
         //get the most basic parameters of the worlds
         auto result = deserializer.getAttributes<uint8_t, uint8_t, uint8_t, uint8_t>
                             ( {"ambient_light_r", 255}, {"ambient_light_g", 255}, {"ambient_light_b", 255}, {"ambient_light_a", 255} );
-        data.getLightSystem().setAmbientColor(sf::Color{ std::get<0>(result), std::get<1>(result), std::get<2>(result), std::get<3>(result) });
+        data.getLightHandler().setAmbientColor(sf::Color{ std::get<0>(result), std::get<1>(result), std::get<2>(result), std::get<3>(result) });
 
         //retrieve all entities and add them to the quadtree
         for (const auto& instantiation : data.mDeserialMap)
-            instantiation.second(context, deserializer);
+            instantiation.second(context, deserializer, deserialMemory);
 
 
         //hacky solution, todo?
@@ -87,7 +91,7 @@ namespace ungod
         //If for some reason (e.g. because of a broken file) an entity can be deserialized in the name map,
         //but this entitiy is not deserialized along with the instantiations above, then the assigner will be
         //invalid indeed, however, it will never be called and dies with the context object
-        //therefore, this code is safe IF AND ONLY IF THE ASSUMPTION IS FULFILLED
+        //therefore, this code is safe 
         MetaNode nameMapNode = deserializer.firstNode("name_map");
         if (!nameMapNode)
             return;

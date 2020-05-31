@@ -35,17 +35,14 @@ namespace ungod
     {
         void registerInput(ScriptStateBase& state)
         {
-            state.registerEnum<InputHandler::InputType>("InputType",
-                                     {{"MouseInput", InputHandler::InputType::MOUSE_INPUT},
-                                     {"KeyboardInput", InputHandler::InputType::KEYBOARD_INPUT}});
-
-            state.registerUsertype<InputHandler>("InputHandler",
-                                                       "loadBindings", &InputHandler::loadBindings,
-                                                       "addBinding", &InputHandler::addBinding,
-                                                       "clearBindings", &InputHandler::clearBindings);
+            state.registerEnum<InputManager::InputType>("InputType",
+                                     {{"MouseInput", InputManager::InputType::MOUSE_INPUT},
+                                     {"KeyboardInput", InputManager::InputType::KEYBOARD_INPUT}});
 
             state.registerUsertype<InputManager>("InputManager",
-                                                       sol::base_classes, sol::bases<InputHandler>());
+                                                       "loadBindings", &InputManager::loadBindings,
+                                                       "addBinding", &InputManager::addBinding,
+                                                       "clearBindings", &InputManager::clearBindings);
 
             state.registerEnum<sf::Mouse::Button>("MouseButtons",
                                      {{"Left", sf::Mouse::Button::Left},

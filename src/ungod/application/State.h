@@ -93,11 +93,11 @@ namespace ungod
         /** \brief Closes the state if it was initialized before. */
         void closeState();
 
-        /** \brief Returns the application that runs this state, if set. */
-        Application* getApp() const { return mApp; }
+        /** \brief Returns the application that runs this state. */
+        Application& getApp() const { return mApp; }
 
     protected:
-        Application* mApp;
+        Application& mApp;
         bool mInitialized;
         bool mExpired;
         ContextSettings mSettings;
@@ -120,7 +120,7 @@ namespace ungod
         virtual void close() {}
 
     public:
-        virtual ~State();
+        virtual ~State() {}
     };
 
     using StateStack = std::vector< State* >;
@@ -182,7 +182,9 @@ namespace ungod
         State* getForegroundState() const;
 
         /** \brief Returns the id of the state from the foreground of the state stack. */
-        StateID getForegroundStateID() const;
+        StateID getForegroundStateID() const; 
+        
+        ~StateManager();
 
     private:
         Application* mApp;

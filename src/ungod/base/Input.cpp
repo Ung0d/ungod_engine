@@ -30,7 +30,7 @@
 
 namespace ungod
 {
-    void InputHandler::handleEvent(const sf::Event& event)
+    void InputManager::handleEvent(const sf::Event& event)
     {
         for (auto& b : mBindings)
         {
@@ -76,14 +76,14 @@ namespace ungod
     }
 
 
-    void InputHandler::update()
+    void InputManager::update()
     {
         for (auto& b : mBindings)
             if (b.down) mDownSignal(b.key);
     }
 
 
-    void InputHandler::loadBindings(MetaNode node)
+    void InputManager::loadBindings(MetaNode node)
     {
         forEachAttribute(node, [this] (MetaAttribute attr)
          {
@@ -95,20 +95,20 @@ namespace ungod
     }
 
 
-    void InputHandler::clearBindings()
+    void InputManager::clearBindings()
     {
         mBindings.clear();
     }
 
 
-    void InputHandler::addBinding(const std::string& key, InputType input, int code)
+    void InputManager::addBinding(const std::string& key, InputType input, int code)
     {
         if (canBind(input, code))
             mBindings.emplace_back( key, input, code );
     }
 
 
-    std::pair<int, int> InputHandler::tieStringDesc(const std::string& desc)
+    std::pair<int, int> InputManager::tieStringDesc(const std::string& desc)
     {
         std::vector<std::string> tiedBind(ungod::convertToVector(desc));
         try
@@ -120,7 +120,6 @@ namespace ungod
         catch(const std::invalid_argument&)
         {
             Logger::info("Invalid argument occured during key-binding-validation. Cant perform action.");
-            Logger::endl();
                 return {-1,-1};
         }
         catch(const std::out_of_range&)
@@ -129,7 +128,7 @@ namespace ungod
         }
     }
 
-    std::string InputHandler::bindingAsString(std::pair<int, int> binding)
+    std::string InputManager::bindingAsString(std::pair<int, int> binding)
     {
         switch(binding.first)
         {
@@ -276,7 +275,7 @@ namespace ungod
         return "";
     }
 
-    bool InputHandler::canBind(const InputType inputType, int keyValue)
+    bool InputManager::canBind(const InputType inputType, int keyValue)
     {
         switch(inputType)
         {
@@ -366,131 +365,20 @@ namespace ungod
     }
 
 
-    void InputHandler::onPressed(const std::function<void(const std::string&)>& callback)
+    owls::SignalLink<void, std::string> InputManager::onPressed(const std::function<void(const std::string&)>& callback)
     {
-        mPressedSignal.connect(callback);
+        return mPressedSignal.connect(callback);
     }
 
 
-    void InputHandler::onDown(const std::function<void(const std::string&)>& callback)
+    owls::SignalLink<void, std::string> InputManager::onDown(const std::function<void(const std::string&)>& callback)
     {
-        mDownSignal.connect(callback);
+        return mDownSignal.connect(callback);
     }
 
 
-    void InputHandler::onReleased(const std::function<void(const std::string&)>& callback)
+    owls::SignalLink<void, std::string> InputManager::onReleased(const std::function<void(const std::string&)>& callback)
     {
-        mReleasedSignal.connect(callback);
-    }
-
-
-    void Doublebuffer::processMousePos(int x, int y, const sf::RenderTarget& target, quad::QuadTree<Entity>& quadtree, RenderLayer const* renderlayer, owls::Signal<Entity>& enter, owls::Signal<Entity>& exit)
-    {
-        //compute the global position of the mouse
-        sf::Vector2f mouseWorldPos = target.mapPixelToCoords( {x, y}, renderlayer->getContainer()->getCamera().getView() );
-        //translate to the world local position
-        mouseWorldPos = renderlayer->getContainer()->mapToLocalPosition(mouseWorldPos);
-        //pull entities that likely collide with that position
-        quad::PullResult<Entity> pull;
-        quadtree.retrieve(pull, { mouseWorldPos.x, mouseWorldPos.y, 0.0f, 0.0f });
-
-        dom::Utility<Entity>::iterate<TransformComponent>(pull.getList(),
-        [this, mouseWorldPos] (Entity e, TransformComponent& transf)
-        {
-            if (transf.getBounds().contains( mouseWorldPos ))
-            {
-                entities[swapper].insert(e);
-            }
-        });
-
-        //for each entity that is hovered this frame
-        for (const auto& e : entities[swapper])
-        {
-            //check whether it was not hovered last frame
-             auto result = entities[!swapper].find(e);
-             if (result == entities[!swapper].end())
-             {
-                 enter(e);
-             }
-        }
-
-        //for each entity that is hovered last frame
-        for (const auto& e : entities[!swapper])
-        {
-            if (!e)
-                continue;
-            //check whether it was not hovered this frame
-             auto result = entities[swapper].find(e);
-             if (result == entities[swapper].end())
-             {
-                 exit(e);
-             }
-        }
-
-        //swap buffers
-        swapper = !swapper;
-        entities[swapper].clear();
-    }
-
-    void Doublebuffer::clearBuffers()
-    {
-        entities[swapper].clear();
-        entities[!swapper].clear();
-    }
-
-
-    void InputManager::handleEvent(const sf::Event& event, const sf::RenderTarget& target)
-    {
-        InputHandler::handleEvent(event);
-        processMouse(event, target);
-    }
-
-
-    void InputManager::processMouse(const sf::Event& event, const sf::RenderTarget& target)
-    {
-        switch (event.type)
-        {
-            case sf::Event::MouseMoved:
-            {
-                mHoveredEntities.processMousePos(event.mouseMove.x, event.mouseMove.y, target, mQuadtree, mRenderLayer, mMouseEnterSignal, mMouseExitSignal);
-                break;
-            }
-            case sf::Event::MouseButtonPressed:
-            {
-                mClickedEntities.processMousePos(event.mouseButton.x, event.mouseButton.y, target, mQuadtree, mRenderLayer, mMouseClickedSignal, mMouseReleasedSignal);
-                break;
-            }
-            case sf::Event::MouseButtonReleased:
-            {
-                mClickedEntities.clearBuffers();
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-
-    void InputManager::onMouseEnter(const std::function<void(Entity)>& callback)
-    {
-        mMouseEnterSignal.connect(callback);
-    }
-
-
-    void InputManager::onMouseClick(const std::function<void(Entity)>& callback)
-    {
-        mMouseClickedSignal.connect(callback);
-    }
-
-
-    void InputManager::onMouseExit(const std::function<void(Entity)>& callback)
-    {
-        mMouseExitSignal.connect(callback);
-    }
-
-
-    void InputManager::onMouseReleased(const std::function<void(Entity)>& callback)
-    {
-        mMouseReleasedSignal.connect(callback);
+        return mReleasedSignal.connect(callback);
     }
 }

@@ -37,7 +37,6 @@ namespace ungod
 			cutsceneType["play"] = & Cutscene::play;
 			cutsceneType["isPlaying"] = & Cutscene::isPlaying;
 			cutsceneType["getSceneIndex"] = & Cutscene::getSceneIndex;
-			cutsceneType["getAudioManager"] = [](Cutscene& cs) -> AudioManager& { return cs.getAudioManager(); };
 			cutsceneType["loadFont"] = & Cutscene::loadFont;
 			cutsceneType["setSceneFading"] = & Cutscene::setSceneFading;
 

@@ -24,137 +24,141 @@
 */
 
 #include "ungod/base/World.h"
-#include "ungod/audio/VolumeSettings.h"
 #include "ungod/serialization/CollisionSerial.h"
 #include "ungod/serialization/SerialMultiComponent.h"
 #include "ungod/serialization/SerialComponents.h"
 #include "ungod/application/Application.h"
 #include "ungod/application/ScriptedGameState.h"
+#include "ungod/content/EntityTypes.h"
 
 namespace ungod
 {
-    World::World(ScriptedGameState* master) :
-        mMaster(master),
-        mBehaviorManager(),
+    World::World(WorldGraphNode& node) :
+        mNode(node),
+        mMaster(nullptr),
         mQuadTree(),
-        mVisualsManager(),
-        mRenderer(*this, mVisualsManager),
-        mTransformManager(mQuadTree),
-        mMovementCollisionManager(mQuadTree),
-        mSemanticsCollisionManager(mQuadTree),
-        mMovementManager(mQuadTree, mTransformManager),
-        mSteeringManager(),
+        mEntityBehaviorHandler(),
+        mTransformHandler(mQuadTree),
+        mInputEventHandler(mQuadTree, node),
+        mMovementHandler(mQuadTree, mTransformHandler),
+        mSteeringHandler(),
         mPathPlanner(),
-        mInputManager(mQuadTree, this),
-        mAudioManager(master, *this),
-        mLightSystem(),
-        mTileMapRenderer(*master->getApp(), *this),
-        mParentChildManager(*this),
+        mVisualsHandler(),
+        mMovementCollisionHandler(mQuadTree),
+        mSemanticsCollisionHandler(mQuadTree),
+        mMovementRigidbodyHandler(),
+        mSemanticsRigidbodyHandler(),
+        mListener(),
+        mMusicEmitterMixer(),
+        mSoundHandler(),
+        mLightHandler(),
+        mTileMapHandler(),
+        mWaterHandler(),
+        mParentChildHandler(),
         mRenderLight(true)
     {
-    }
+        //register instantiations for deserialization
+        registerTypes(*this);
 
-    World::World(const script::SharedState& cState, script::Environment cMain, ScriptedGameState* master) :
-        mMaster(master),
-        mBehaviorManager(cState, cMain),
-        mQuadTree(),
-        mVisualsManager(),
-        mRenderer(*this, mVisualsManager),
-        mTransformManager(mQuadTree),
-        mMovementCollisionManager(mQuadTree),
-        mSemanticsCollisionManager(mQuadTree),
-        mMovementManager(mQuadTree, mTransformManager),
-        mSteeringManager(),
-        mPathPlanner(),
-        mInputManager(mQuadTree, this),
-        mAudioManager(master, *this),
-        mLightSystem(),
-        mTileMapRenderer(*master->getApp(), *this),
-        mParentChildManager(*this),
-        mRenderLight(true)
-    {
-    }
-
-    void World::instantiate(Application& app,
-                            const std::string& unshadowVertex,
-                            const std::string& unshadowFragment,
-                            const std::string& lightVertex,
-                            const std::string& lightFragment,
-                            const std::string& penumbraTex)
-    {
         //connect signals
-        mVisualsManager.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
-                                          {
-                                                mTransformManager.handleContentsChanged(e, rect);
-                                          });
-        mMovementRigidbodyManager.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
-                                          {
-                                                mTransformManager.handleContentsChanged(e, rect);
-                                          });
-		mSemanticsRigidbodyManager.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
-											{
-												mTransformManager.handleContentsChanged(e, rect);
-											});
-        mMovementRigidbodyManager.onContentRemoved( [this] (Entity e)
-                                          {
-                                                mTransformManager.handleContentsRemoved(e);
-                                          });
-		mSemanticsRigidbodyManager.onContentRemoved([this](Entity e)
-											{
-												mTransformManager.handleContentsRemoved(e);
-											});
-        mLightSystem.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
-                                          {
-                                                mTransformManager.handleContentsChanged(e, rect);
-                                          });
-        mParticleSystemManager.onContentsChanged( [this] (Entity e, const sf::FloatRect& rect)
-                                          {
-                                                mTransformManager.handleContentsChanged(e, rect);
-                                          });
-        mMovementCollisionManager.onCollision( [this] (Entity e, Entity other, const sf::Vector2f& vec, const Collider& c1, const Collider& c2)
-                                          {
-                                                mMovementManager.handleCollision(e, other, vec, c1, c2);
-                                          });
-		mTileMapRenderer.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
-			{
-				mTransformManager.handleContentsChanged(e, rect);
-			});
-        mTransformManager.onMoveContents( [this] (Entity e, const sf::Vector2f& vec)
-                                          {
-                                                mLightSystem.moveLights(e, vec);
-                                                mLightSystem.moveLightColliders(e, vec);
-												mMovementRigidbodyManager.moveColliders(e, vec);
-												mSemanticsRigidbodyManager.moveColliders(e, vec);
-                                                mVisualsManager.moveVisuals(e, vec);
-												mTileMapRenderer.moveMaps(e, vec);
-                                          });
+        mVisualsHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+            {
+                mTransformHandler.handleContentsChanged(e, rect);
+            });
+        mMovementRigidbodyHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+            {
+                mTransformHandler.handleContentsChanged(e, rect);
+            });
+        mSemanticsRigidbodyHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+            {
+                mTransformHandler.handleContentsChanged(e, rect);
+            });
+        mMovementRigidbodyHandler.onContentRemoved([this](Entity e)
+            {
+                mTransformHandler.handleContentsRemoved(e);
+            });
+        mSemanticsRigidbodyHandler.onContentRemoved([this](Entity e)
+            {
+                mTransformHandler.handleContentsRemoved(e);
+            });
+        mLightHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+            {
+                mTransformHandler.handleContentsChanged(e, rect);
+            });
+        mParticleSystemHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+            {
+                mTransformHandler.handleContentsChanged(e, rect);
+            });
+        mMovementCollisionHandler.onCollision([this](Entity e, Entity other, const sf::Vector2f& vec, const Collider& c1, const Collider& c2)
+            {
+                if (!e.isStatic())
+                    mMovementHandler.handleCollision(e, other, vec, c1, c2);
+            });
+        mTileMapHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
+            {
+                mTransformHandler.handleContentsChanged(e, rect);
+            });
+        mTransformHandler.onMoveContents([this](Entity e, const sf::Vector2f& vec)
+            {
+                mLightHandler.moveLights(e, vec);
+                mLightHandler.moveLightColliders(e, vec);
+                mMovementRigidbodyHandler.moveColliders(e, vec);
+                mSemanticsRigidbodyHandler.moveColliders(e, vec);
+                mVisualsHandler.moveVisuals(e, vec);
+                mTileMapHandler.moveTilemap(e, vec);
+            });
 
 
-        onComponentAdded<ParticleSystemComponent>( [this] (Entity e) { mParticleSystemManager.handleParticleSystemAdded(e); });
+        onComponentAdded<ParticleSystemComponent>([this](Entity e) { mParticleSystemHandler.handleParticleSystemAdded(e); });
 
 
         //connect lower bounds methods
-        mTransformManager.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mVisualsManager.getLowerBound(e); });
-        mTransformManager.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mLightSystem.getLowerBound(e); });
-        mTransformManager.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mMovementRigidbodyManager.getLowerBound(e); });
-		mTransformManager.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyManager.getLowerBound(e); });
-        mTransformManager.onLowerBoundRequest( [this] (Entity e) -> sf::Vector2f { return mParticleSystemManager.getLowerBound(e); });
+        mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mVisualsHandler.getLowerBound(e); });
+        mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mLightHandler.getLowerBound(e); });
+        mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mMovementRigidbodyHandler.getLowerBound(e); });
+        mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyHandler.getLowerBound(e); });
+        mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mParticleSystemHandler.getLowerBound(e); });
+        //mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mTileMapHandler.getLowerBound(e); });
 
         //connect upper bounds methods
-        mTransformManager.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mVisualsManager.getUpperBound(e); });
-        mTransformManager.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mLightSystem.getUpperBound(e); });
-        mTransformManager.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mMovementRigidbodyManager.getUpperBound(e); });
-		mTransformManager.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyManager.getUpperBound(e); });
-        mTransformManager.onUpperBoundRequest( [this] (Entity e) -> sf::Vector2f { return mParticleSystemManager.getUpperBound(e); });
+        mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mVisualsHandler.getUpperBound(e); });
+        mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mLightHandler.getUpperBound(e); });
+        mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mMovementRigidbodyHandler.getUpperBound(e); });
+        mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyHandler.getUpperBound(e); });
+        mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mParticleSystemHandler.getUpperBound(e); });
+        //mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mTileMapHandler.getUpperBound(e); });
+    }
 
-        //init audio
-        mAudioManager.initVolumeSettings(VolumeSettings::NUM);
 
-        //init light
-        mLightSystem.init(app, &mQuadTree, app.getWindow().getSize(), unshadowVertex, unshadowFragment, lightVertex, lightFragment, penumbraTex);
+    void World::init(ScriptedGameState& master, const DeserialMemory* deserialMemory)
+    {
+        mMaster = &master;
+        mEntityBehaviorHandler.init(*this);
+        mSteeringHandler.init(master.getSteeringManager());
+        mLightHandler.init(master.getLightManager());
+        mListener = std::unique_ptr<AudioListener>(new CameraListener(master.getWorldGraph().getCamera(), *this));
+        mMusicEmitterMixer.init(mListener.get());
+        mSoundHandler.init(master.getApp().getSoundProfileManager(), mListener.get());
+        mTileMapHandler.init(*this);
+        mWaterHandler.init(*this);
+        mParentChildHandler.init(*this);
 
-        //init script behavior
-        mBehaviorManager.init(*this, app);
+        if (deserialMemory)
+        {
+            for (const auto& entry : deserialMemory->scriptEntities) //assign scripts first!
+            {
+                mEntityBehaviorHandler.assignBehavior(entry.entity, entry.script);
+                mEntityDeserializedSignal(entry.entity, entry.node, entry.context);
+            }
+            /*for (const auto& entity : deserialMemory->all) //signals may invoke script calls!
+            {
+                mEntityCreationSignal(entity);
+            } */
+            for (const auto& entry : deserialMemory->scriptEntities) 
+            {
+                mEntityBehaviorHandler.initBehavior(entry.entity);
+            }
+        }
     }
 
 	sf::Vector2f World::getSize() const
@@ -165,7 +169,8 @@ namespace ungod
 
 	void World::setSize(const sf::Vector2f& layersize) 
 	{
-		mQuadTree.setBoundary({ 0.0f,0.0f,layersize.x,layersize.y });
+        if (getSize() != layersize)
+		    mQuadTree.setBoundary({ 0.0f,0.0f,layersize.x,layersize.y });
 	}
 
     void World::update(float delta, const sf::Vector2f& areaPosition, const sf::Vector2f& areaSize)
@@ -176,7 +181,7 @@ namespace ungod
         mInUpdateRange.getList().clear();
         mQuadTree.retrieve(mInUpdateRange, {areaPosition.x, areaPosition.y, areaSize.x, areaSize.y} );
 
-        //second step: sort out the entities, that are not on the screen
+        //second step: sort out the entities, that are not in the update area
         auto removalCondition = [areaPosition, areaSize](Entity entity)
         {
              const TransformComponent& t = entity.get<TransformComponent>();
@@ -190,33 +195,36 @@ namespace ungod
                                                mInUpdateRange.getList().end(),
                                                removalCondition), mInUpdateRange.getList().end());
 
-        mInputManager.update();
-        mRenderer.update(mInUpdateRange.getList(), delta);
-        mLightSystem.update(mInUpdateRange.getList(), delta);
-        mMovementManager.update(mInUpdateRange.getList(), delta);
-        mSteeringManager.update(mInUpdateRange.getList(), delta, mMovementManager);
-        mPathPlanner.update(mInUpdateRange.getList(), delta, mMovementManager);
-        mMovementCollisionManager.checkCollisions(mInUpdateRange.getList());
-        mSemanticsCollisionManager.checkCollisions(mInUpdateRange.getList());
-        mAudioManager.update(delta, &mQuadTree);
-        mBehaviorManager.update(mInUpdateRange.getList(), delta);
-        mParticleSystemManager.update(mInUpdateRange.getList(), delta);
+        mEntityBehaviorHandler.update(mInUpdateRange.getList(), delta);
+        mMovementHandler.update(mInUpdateRange.getList(), delta);
+        mSteeringHandler.update(mInUpdateRange.getList(), delta, mMovementHandler);
+        mPathPlanner.update(mInUpdateRange.getList(), delta, mMovementHandler);
+        mMovementCollisionHandler.checkCollisions(mInUpdateRange.getList());
+        mSemanticsCollisionHandler.checkCollisions(mInUpdateRange.getList());
+        mMusicEmitterMixer.update(delta, mQuadTree);
+        mSoundHandler.update(delta);
+        mLightHandler.update(mInUpdateRange.getList(), delta);
+        mParticleSystemHandler.update(mInUpdateRange.getList(), delta);
+        mTileMapHandler.update(mInUpdateRange.getList(), *this);
+        mWaterHandler.update(mInUpdateRange.getList());
+        mMusicEmitterMixer.update(delta, mQuadTree);
+
+        mMaster->getRenderer().update(mInUpdateRange.getList(), delta, mVisualsHandler);
     }
 
     void World::handleInput(const sf::Event& event, const sf::RenderTarget& target)
     {
-        mInputManager.handleEvent(event, target);
+        mInputEventHandler.handleEvent(event, target, getGraph().getCamera());
     }
 
     bool World::render(sf::RenderTarget& target, sf::RenderStates states)
     {
-        mRenderedEntities.getList().clear();
-        mRenderer.renewRenderlist(target, mRenderedEntities);
+        mMaster->getRenderer().renewRenderlist(mQuadTree, mRenderedEntities, target, states);
 
-        mRenderer.render(mRenderedEntities, target, states);
+        mMaster->getRenderer().render(mRenderedEntities, target, states, mVisualsHandler);
 
         if (mRenderLight)
-            mLightSystem.render(mRenderedEntities, target, states);
+            mLightHandler.render(mRenderedEntities, mQuadTree, target, states);
 
         return true; //todo meaningful return value
     }
@@ -224,18 +232,18 @@ namespace ungod
     bool World::renderDebug(sf::RenderTarget& target, sf::RenderStates states, bool bounds, bool texrects, bool colliders, bool audioemitters, bool lights) const
     {
         if (bounds)
-            mRenderer.renderBounds(mRenderedEntities, target, states);
+            mMaster->getRenderer().renderBounds(mRenderedEntities, target, states);
         if (texrects)
-            mRenderer.renderTextureRects(mRenderedEntities, target, states);
+            mMaster->getRenderer().renderTextureRects(mRenderedEntities, target, states);
         if (colliders)
         {
-            mRenderer.renderColliders<MOVEMENT_COLLISION_CONTEXT>(mRenderedEntities, target, states, sf::Color::Cyan);
-            mRenderer.renderColliders<SEMANTICS_COLLISION_CONTEXT>(mRenderedEntities, target, states, sf::Color::Yellow);
+            mMaster->getRenderer().renderColliders<MOVEMENT_COLLISION_CONTEXT>(mRenderedEntities, target, states, sf::Color::Cyan);
+            mMaster->getRenderer().renderColliders<SEMANTICS_COLLISION_CONTEXT>(mRenderedEntities, target, states, sf::Color::Yellow);
         }
         if (audioemitters)
-            mRenderer.renderAudioEmitters(mRenderedEntities, target, states);
+            mMaster->getRenderer().renderAudioEmitters(mRenderedEntities, target, states);
         if (lights)
-            mRenderer.renderLightRanges(mRenderedEntities, target, states);
+            mMaster->getRenderer().renderLightRanges(mRenderedEntities, target, states);
 
         return true;
     }
@@ -255,6 +263,12 @@ namespace ungod
         mEntitiesToDestroy.push_front(e);
     }
 
+    void World::remove(Entity e)
+    {
+        if (e.has<TransformComponent>())
+            mQuadTree.removeFromItsNode(e);
+    }
+
     void World::destroyNamed(Entity e)
     {
         destroy(e);
@@ -268,113 +282,38 @@ namespace ungod
         return cpy;
     }
 
-	Entity World::makeForeignCopy(Entity e)
+	Entity World::accomodateForeign(Entity e)
 	{
-		Entity fcpy = e.getInstantiation()->makeForeignCopy(e.mHandle, *this);
-		mEntityCreationSignal(fcpy);
-		return fcpy;
+        if (&e.getWorld() != this)
+        {
+            Entity fcpy = e.getInstantiation()->makeForeignCopy(e.mHandle, *this);
+            if (fcpy.has<EntityBehaviorComponent>())
+            {
+                const auto& eb = fcpy.get<EntityBehaviorComponent>();
+                if (eb.hasValidEnvironment())
+                {
+                    eb.getEnvironment()["entity"] = fcpy;
+                    mEntityBehaviorHandler.initBehavior(fcpy);
+                }
+            }
+            mTransformHandler.setPosition(fcpy,
+                getNode().mapToLocalPosition(
+                    e.getWorld().getNode().mapToGlobalPosition(e.get<TransformComponent>().getPosition())));
+            e.getWorld().destroy(e);
+            return fcpy;
+        }
+        else
+        {
+            Logger::error("Attempt to foreign copy an entity to it's home world.");
+            return {};
+        }
 	}
 
 	void moveFromOtherWorld(Entity e);
 
     void World::handleCustomEvent(const CustomEvent& event)
     {
-        mBehaviorManager.handleCustomEvent(event);
-    }
-
-    dom::Universe<>& World::getUniverse()
-    {
-        return *this;
-    }
-
-    quad::QuadTree<Entity>& World::getQuadTree()
-    {
-        return mQuadTree;
-    }
-
-    TransformManager& World::getTransformManager()
-    {
-        return mTransformManager;
-    }
-
-    MovementManager& World::getMovementManager()
-    {
-        return mMovementManager;
-    }
-
-    SteeringManager<script::Environment>& World::getSteeringManager()
-    {
-        return mSteeringManager;
-    }
-
-    PathPlanner& World::getPathPlanner()
-    {
-        return mPathPlanner;
-    }
-
-    VisualsManager& World::getVisualsManager()
-    {
-        return mVisualsManager;
-    }
-
-    InputManager& World::getInputManager()
-    {
-        return mInputManager;
-    }
-
-    AudioManager& World::getAudioManager()
-    {
-        return mAudioManager;
-    }
-
-    Renderer& World::getRenderer()
-    {
-        return mRenderer;
-    }
-
-    LightSystem& World::getLightSystem()
-    {
-        return mLightSystem;
-    }
-
-    const LightSystem& World::getLightSystem() const
-    {
-        return mLightSystem;
-    }
-
-    InitializerManager& World::getInitializerManager()
-    {
-        return mInitializerManager;
-    }
-
-    EntityBehaviorManager& World::getBehaviorManager()
-    {
-        return mBehaviorManager;
-    }
-
-    TileMapRenderer& World::getTileMapRenderer()
-    {
-        return mTileMapRenderer;
-    }
-
-    ParticleSystemManager& World::getParticleSystemManager()
-    {
-        return mParticleSystemManager;
-    }
-
-    ParentChildManager& World::getParentChildManager()
-    {
-        return mParentChildManager;
-    }
-
-    owls::SignalLink<void, Entity> World::onEntityCreation(const std::function<void(Entity)>& callback)
-    {
-        return mEntityCreationSignal.connect(callback);
-    }
-
-    owls::SignalLink<void, Entity> World::onEntityDestruction(const std::function<void(Entity)>& callback)
-    {
-        return mEntityDestructionSignal.connect(callback);
+        mEntityBehaviorHandler.handleCustomEvent(event);
     }
 
     owls::SignalLink<void, Entity, MetaNode, SerializationContext&> World::onEntitySerialized(const std::function<void(Entity, MetaNode, SerializationContext&)>& callback)
@@ -385,6 +324,16 @@ namespace ungod
     owls::SignalLink<void, Entity, MetaNode, DeserializationContext&> World::onEntityDeserialized(const std::function<void(Entity, MetaNode, DeserializationContext&)>& callback)
     {
         return mEntityDeserializedSignal.connect(callback);
+    }
+
+    owls::SignalLink<void, Entity> World::onEntityCreation(const std::function<void(Entity)>& callback)
+    {
+        return mEntityCreationSignal.connect(callback);
+    }
+
+    owls::SignalLink<void, Entity> World::onEntityDestruction(const std::function<void(Entity)>& callback)
+    {
+        return mEntityDestructionSignal.connect(callback);
     }
 
     const quad::PullResult<Entity>& World::getEntitiesInUpdateRange() const
@@ -410,19 +359,13 @@ namespace ungod
         mEntitySerializedSignal(e, serializer, context);
     }
 
-    void World::notifyDeserialized(Entity e, MetaNode serializer, DeserializationContext& context)
-    {
-        mEntityDeserializedSignal(e, serializer, context);
-    }
-
 
     void World::tagWithName(Entity e, const std::string& name)
     {
         mEntityNames.insert( NameBimap::value_type{name, e} );
-        Logger::info(e.getID());
+        /*Logger::info(e.getID());
         Logger::info(" INSERT ");
         Logger::info(name);
-        Logger::endl();
 
         for (const auto& nameEntityPair : mEntityNames)
         {
@@ -437,7 +380,7 @@ namespace ungod
             Logger::info(" MAPBN ");
             Logger::info(pair.first);
             Logger::endl();
-        }
+        }*/
     }
 
 
@@ -481,22 +424,19 @@ namespace ungod
 		for (const auto& e : fullpull.getList())
 			if (e)
 				destroy(e);
-		destroyQueued();
+        destroyQueued();
 	}
 
-	void World::destroyQueued()
-	{
-		for (auto& e : mEntitiesToDestroy)
-		{
-			if (!e) continue;
-			if (e.has<TransformComponent>())
-			{
-				mQuadTree.removeFromItsNode(e);
-			}
+    void World::destroyQueued()
+    {
+        for (auto& e : mEntitiesToDestroy)
+        {
+            if (!e) continue;
+            remove(e);
             mEntityDestructionSignal(e);
-			e.getInstantiation()->cleanup(e);
-			e.mHandle.destroy();
-		}
-		mEntitiesToDestroy.clear();
-	}
+            e.getInstantiation()->cleanup(e);
+            e.mHandle.destroy();
+        }
+        mEntitiesToDestroy.clear();
+    }
 }

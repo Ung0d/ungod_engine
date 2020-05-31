@@ -33,16 +33,35 @@ namespace ungod
         void registerWorldGraph(ScriptStateBase& state)
         {
 			script::Usertype<WorldGraphNode> worldGraphNodeType = state.registerUsertype<WorldGraphNode>("WorldGraphNode");
-			worldGraphNodeType["addWorld"] = static_cast<World * (WorldGraphNode::*)()>(&WorldGraphNode::addWorld);
+			worldGraphNodeType["addWorld"] = [](WorldGraphNode& node) { return node.addWorld(); };
 			worldGraphNodeType["getWorld"] = &WorldGraphNode::getWorld;
 			worldGraphNodeType["setSize"] = &WorldGraphNode::setSize;
 			worldGraphNodeType["setPosition"] = &WorldGraphNode::setPosition;
+			worldGraphNodeType["getBounds"] = &WorldGraphNode::getBounds;
+			worldGraphNodeType["getPosition"] = &WorldGraphNode::getPosition;
+			worldGraphNodeType["moveLayerDown"] = &WorldGraphNode::moveLayerDown;
+			worldGraphNodeType["moveLayerUp"] = &WorldGraphNode::moveLayerUp;
+			worldGraphNodeType["isLoaded"] = &WorldGraphNode::isLoaded;
+			worldGraphNodeType["getNumWorld"] = &WorldGraphNode::getNumWorld;
+			worldGraphNodeType["wait"] = &WorldGraphNode::wait;
+			worldGraphNodeType["save"] = &WorldGraphNode::save;
+			worldGraphNodeType["getIdentifier"] = &WorldGraphNode::getIdentifier;
+			worldGraphNodeType["mapToGlobalPosition"] = &WorldGraphNode::mapToGlobalPosition;
+			worldGraphNodeType["mapToLocalPosition"] = &WorldGraphNode::mapToLocalPosition;
 
 			script::Usertype<WorldGraph> worldGraphType = state.registerUsertype<WorldGraph>("WorldGraph");
 			worldGraphType["createNode"] = &WorldGraph::createNode;
 			worldGraphType["activateNode"] = &WorldGraph::activateNode;
 			worldGraphType["getActiveNode"] = &WorldGraph::getActiveNode;
 			worldGraphType["getNodeByIdentifier"] = [](WorldGraph& wg, const std::string& id) { return wg.getNode(id); };
+			worldGraphType["getNodeByPosition"] = [](WorldGraph& wg, const sf::Vector2f& p) { return wg.getNode(p); };
+			worldGraphType["connect"] = &WorldGraph::connect;
+			worldGraphType["disconnect"] = &WorldGraph::disconnect;
+			worldGraphType["setDistance"] = &WorldGraph::setDistance;
+			worldGraphType["getDistance"] = &WorldGraph::getDistance;
+			worldGraphType["getNumberOfNodes"] = &WorldGraph::getNumberOfNodes;
+			worldGraphType["updateReferencePosition"] = [](WorldGraph& wg, const sf::Vector2f& pos) { wg.updateReferencePosition(pos); };
+			worldGraphType["getCamera"] = [](WorldGraph& wg) -> Camera& { return wg.getCamera(); };
         }
     }
 }

@@ -29,175 +29,22 @@
 #include "ungod/serialization/DeserialInit.h"
 #include "ungod/serialization/SerialGraph.h"
 #include "ungod/serialization/SerialRenderLayer.h"
+#include "ungod/physics/Movement.h"
 
 
 namespace ungod
 {
-    WorldGraphNode::WorldGraphNode(WorldGraph& wg, unsigned index, ScriptedGameState& gamestate, const std::string& identifier, const std::string& datafile)
-        : mWorldGraph(wg), mIndex(index), mIsLoaded(false), mGamestate(gamestate), mLayers(mGamestate.getCamera()), mIdentifier(identifier), mDataFile(datafile) {}
+     WorldGraph::WorldGraph(const ScriptedGameState& state, unsigned distance) : mActive(-1), mDistance(distance), mCamera(state.getApp().getWindow())
+     {
+     }
 
-    void WorldGraphNode::load()
-    {
-        DeserializationContext context;
-        initContext(context);
-        if (!context.read(mDataFile))
-            return;
-        context.deserializeRootObject(mLayers, static_cast<const sf::RenderTarget&>(mGamestate.getApp()->getWindow()), mGamestate);
-        mIsLoaded = true;
-
-		Logger::info("Node loaded: ");
-		Logger::info(getIdentifier());
-		Logger::endl();
-    }
-
-    void WorldGraphNode::unload()
-    {
-        mLayers.clearEverything();
-        mIsLoaded = false;
-
-		Logger::info("Node unloaded: ");
-		Logger::info(getIdentifier());
-		Logger::endl();
-    }
-
-	void WorldGraphNode::save()
-	{
-		SerializationContext context;
-		context.serializeRootObject(mLayers, static_cast<const sf::RenderTarget&>(mGamestate.getApp()->getWindow()));
-		context.save(mDataFile);
-	}
-
-	sf::FloatRect WorldGraphNode::getBounds() const
-	{
-		return {mLayers.getPosition().x, mLayers.getPosition().y , mLayers.getSize().x , mLayers.getSize().y };
-	}
-
-    World* WorldGraphNode::addWorld(unsigned i)
-    {
-        return static_cast<World*>(mLayers.registerLayer(mGamestate.makeWorld(), i));
-    }
-
-    World* WorldGraphNode::addWorld()
-    {
-        return addWorld((unsigned)mLayers.getVector().size());
-    }
-
-    World* WorldGraphNode::getWorld(unsigned i) const
-    {
-        if (i < mLayers.getVector().size())
-            return static_cast<World*>(mLayers.getVector()[i].first.get());
-        else
-            return nullptr;
-    }
-
-    bool WorldGraphNode::render(sf::RenderTarget& target, sf::RenderStates states) const
-    {
-        return mLayers.render(target, states);
-    }
-
-    bool WorldGraphNode::renderDebug(sf::RenderTarget& target, sf::RenderStates states,
-                     bool bounds, bool texrects, bool colliders, bool audioemitters, bool lightemitters) const
-    {
-        return mLayers.renderDebug(target, states, bounds, texrects, colliders, audioemitters, lightemitters);
-    }
-
-    void WorldGraphNode::update(float delta)
-    {
-        mLayers.update(delta);
-    }
-
-    void WorldGraphNode::handleInput(const sf::Event& event, const sf::RenderTarget& target)
-    {
-        mLayers.handleInput(event, mGamestate.getApp()->getWindow());
-    }
-
-    void WorldGraphNode::handleCustomEvent(const CustomEvent& event)
-    {
-        mLayers.handleCustomEvent(event);
-    }
-
-	void WorldGraphNode::setPosition(const sf::Vector2f& pos)
-	{
-		mLayers.setPosition(pos);
-		mWorldGraph.notifyBoundsChanged(this);
-	}
-
-	void WorldGraphNode::move(const sf::Vector2f& offset)
-	{
-		mLayers.setPosition(mLayers.getPosition() + offset);
-		mWorldGraph.notifyBoundsChanged(this);
-	}
-
-	void WorldGraphNode::setSize(const sf::Vector2f& size)
-	{
-		mLayers.setSize(size);
-		mWorldGraph.notifyBoundsChanged(this);
-	}
-
-
-	void WorldGraphNode::moveLayerUp(unsigned i)
-	{
-		mLayers.moveLayerUp(i);
-	}
-
-	void WorldGraphNode::moveLayerDown(unsigned i)
-	{
-		mLayers.moveLayerDown(i);
-	}
-
-	void WorldGraphNode::setActive(unsigned i, bool active)
-	{
-		mLayers.setActive(i, active);
-	}
-
-    void SerialBehavior<WorldGraphNode>::serialize(const WorldGraphNode& data, MetaNode serializer, SerializationContext& context)
-    {
-        context.serializeProperty("id", data.mIdentifier, serializer);
-        context.serializeProperty("file", data.mDataFile, serializer);
-		context.serializeProperty("x", data.mLayers.getPosition().x, serializer);
-		context.serializeProperty("y", data.mLayers.getPosition().y, serializer);
-		context.serializeProperty("w", data.mLayers.getSize().x, serializer);
-		context.serializeProperty("h", data.mLayers.getSize().y, serializer);
-
-    }
-
-    void DeserialBehavior<WorldGraphNode>::deserialize(WorldGraphNode& data, MetaNode deserializer, DeserializationContext& context)
-    {
-        //world graph nodes are deserialized in sleeping state
-        auto result = deserializer.getAttributes<std::string, std::string, float, float, float, float>(
-			{"id", ""}, {"file", ""}, { "x", 0.0f }, { "y", 0.0f }, { "w", 0.0f }, { "h", 0.0f });
-        data.mIdentifier = std::get<0>(result);
-        data.mDataFile = std::get<1>(result);
-		data.setPosition({ std::get<2>(result) , std::get<3>(result) });
-		data.setSize({ std::get<4>(result) , std::get<5>(result) });
-    }
-}
-
-namespace quad
-{
-    Vector2f ElementTraits<ungod::WorldGraphNode*>::getPosition(ungod::WorldGraphNode const* w)
-    {
-        return Vector2f(w->getBounds().left, w->getBounds().top);
-    }
-
-    Vector2f ElementTraits<ungod::WorldGraphNode*>::getSize(ungod::WorldGraphNode const* w)
-    {
-        return Vector2f(w->getBounds().width, w->getBounds().height);
-    }
-
-	uint64_t ElementTraits<ungod::WorldGraphNode*>::getID(ungod::WorldGraphNode const* e)
-    {
-		return e->getIndex();
-    }
-}
-
-
-namespace ungod
-{
-     bool WorldGraph::updateReferencePosition(const sf::Vector2f& pos)
+     bool WorldGraph::updateReferencePosition(const sf::Vector2f& pos, bool ignoreIdentity)
      {
         mReferencePosition = pos;
         WorldGraphNode* node = getNode(pos);
+        WorldGraphNode* oldActive = nullptr;
+        if (mActive != -1)
+            oldActive = mNodes[mActive].get();
 
         //we assume that the new node can have any distance to the last node; they do not have to be neighbors
         //Idea: find every node with distance <= mDistance from the current node (all active)-> set A
@@ -207,7 +54,7 @@ namespace ungod
         std::set<unsigned> neighborhoodnew;
         if (node)
         {
-            if (mActive != -1 && node->getIndex() == (unsigned)mActive)
+            if (mActive != -1 && node->getIndex() == (unsigned)mActive && ignoreIdentity)
                 return false; //nothing to do
             mActive = node->getIndex();
             graph::BFS bfs{mAdjacencies};
@@ -236,40 +83,112 @@ namespace ungod
 
         mCurrentNeighborhood = neighborhoodnew;
 
-		mReferencePositionChanged(pos);
+        if (node)
+        {
+            if (oldActive)
+            {
+                //adjust cameras coordinate system relative to the active node
+                sf::Vector2f diff = oldActive->getPosition() - node->getPosition();
+                mCamera.lookAt(mCamera.getCenter() + diff);
+                //emit signal
+                mActiveNodeChanged(*this, *oldActive, *node);
+            }
+            else
+            {
+                mCamera.lookAt(mCamera.getCenter() - node->getPosition());
+            }
 
-		Logger::info("New active node: ");
-		Logger::info(node->getIdentifier());
-		Logger::endl();
+            Logger::info("New active node:", node->getIdentifier());
+        }
 
         return true;
      }
 
-    bool WorldGraph::render(sf::RenderTarget& target, sf::RenderStates states) const
+    bool WorldGraph::render(sf::RenderTarget& target, sf::RenderStates states) 
     {
+        if (mActive == -1)
+            return false;
         bool done = true;
-        for (const auto& i : mCurrentNeighborhood)
-            done = done && mNodes[i]->render(target, states);
+        std::list<RankedLayer> sortedLayers = getSortedLayers();
+        for (const auto& p : sortedLayers)
+        {
+            sf::RenderStates statesIn = states;
+            statesIn.transform.translate(p.node->getPosition() - mNodes[mActive]->getPosition());
+            mCamera.renderBegin(p.layer->getRenderDepth());
+            done = done && p.layer->render(target, statesIn);
+            mCamera.renderEnd();
+        }
         return done;
     }
 
     bool WorldGraph::renderDebug(sf::RenderTarget& target, sf::RenderStates states,
-                     bool bounds, bool texrects, bool colliders, bool audioemitters, bool lightemitters) const
+                     bool bounds, bool texrects, bool colliders, bool audioemitters, bool lightemitters) 
     {
+        if (mActive == -1)
+            return false;
         bool done = true;
-        for (const auto& i : mCurrentNeighborhood)
-            done = done && mNodes[i]->renderDebug(target, states, bounds, texrects, colliders, audioemitters, lightemitters);
+        std::list<RankedLayer> sortedLayers = getSortedLayers();
+        for (const auto& p : sortedLayers)
+        {
+            sf::RenderStates statesIn = states;
+            statesIn.transform.translate(p.node->getPosition() - mNodes[mActive]->getPosition());
+            mCamera.renderBegin(p.layer->getRenderDepth());
+            done = done && p.layer->renderDebug(target, statesIn, bounds, texrects, colliders, audioemitters, lightemitters);
+            mCamera.renderEnd();
+        }
         return done;
+    }
+
+    std::list<WorldGraph::RankedLayer> WorldGraph::getSortedLayers() const
+    {
+        //collect a list of all active layers, their nodes and a rank
+        //the rank of a node is equal to the number of layers below with same render depth
+        std::list<RankedLayer> layers;
+        for (const auto& i : mCurrentNeighborhood)
+        {
+            int rank = 0;
+            float prevDepth = std::numeric_limits<float>::min();
+            for (auto& layer : mNodes[i]->getLayers().getVector())
+            {
+                if (layer.first->getRenderDepth() == prevDepth)
+                    rank++;
+                else
+                {
+                    rank = 0;
+                    prevDepth = layer.first->getRenderDepth();
+                }
+                if (layer.second)
+                    layers.emplace_back(layer.first.get(), mNodes[i].get(), rank);
+            }
+        }
+        //sorting criterion
+        auto depthSorting = [](const RankedLayer& l, const RankedLayer& r)
+        {
+            if (l.layer->getRenderDepth() == r.layer->getRenderDepth())
+            {
+                if (l.rank == r.rank)
+                    return l.node->getIndex() < r.node->getIndex();
+                else
+                    return l.rank < r.rank;
+            }
+            else
+                return l.layer->getRenderDepth() < r.layer->getRenderDepth();
+        };
+        layers.sort(depthSorting);
+        return layers;
     }
 
     void WorldGraph::update(float delta)
     {
+        mCamera.update(delta);
         for (const auto& i : mCurrentNeighborhood)
             mNodes[i]->update(delta);
+        checkOutOfBounds();
     }
 
     void WorldGraph::handleInput(const sf::Event& event, const sf::RenderTarget& target)
     {
+        mCamera.handleEvent(event);
         for (const auto& i : mCurrentNeighborhood)
             mNodes[i]->handleInput(event, target);
     }
@@ -311,16 +230,10 @@ namespace ungod
             auto b = node->getBounds();
             sf::Vector2f actPos{ b.left + b.width / 2, b.top + b.height / 2 };
             if (!updateReferencePosition(actPos))
-            {
                 ungod::Logger::error("Can not activate node " + identifier + ". Does it have zero sizes?");
-                ungod::Logger::endl();
-            }
         }
         else
-        {
             ungod::Logger::error("Tried to activate a world graph node that does not exist: " + identifier);
-            ungod::Logger::endl();
-        }
     }
 
     WorldGraphNode* WorldGraph::getActiveNode()
@@ -334,25 +247,33 @@ namespace ungod
     void WorldGraph::connect(WorldGraphNode& n1, WorldGraphNode& n2)
     {
         mAdjacencies.addEdge(n1.getIndex(), n2.getIndex());
+        updateReferencePosition(mReferencePosition, false);
     }
 
     void WorldGraph::disconnect(WorldGraphNode& n1, WorldGraphNode& n2)
     {
         mAdjacencies.removeEdge(n1.getIndex(), n2.getIndex());
+        updateReferencePosition(mReferencePosition, false);
     }
 
     WorldGraphNode& WorldGraph::createNode(ScriptedGameState& gamestate, const std::string& identifier, const std::string& datafile)
     {
         mNodes.emplace_back(std::make_unique<WorldGraphNode>(*this, (unsigned)mNodes.size(), gamestate, identifier, datafile));
+        mAdjacencies.setVertexCount((unsigned)mAdjacencies.getVertexCount() + 1);
         notifyBoundsChanged(mNodes.back().get());
-        mAdjacencies.setVertexCount((unsigned)mAdjacencies.getVertexCount()+1);
         return *mNodes.back();
+    }
+
+    void WorldGraph::setDistance(unsigned distance) 
+    { 
+        mDistance = distance;
+        updateReferencePosition(mReferencePosition, false);
     }
 
     void WorldGraph::save(const ScriptedGameState& gamestate) const
     {
-		for (const auto& i : mCurrentNeighborhood)
-			mNodes[i]->save();
+        for (const auto& i : mCurrentNeighborhood)
+            mNodes[i]->save();
     }
 
     void WorldGraph::notifyBoundsChanged(WorldGraphNode* node)
@@ -399,30 +320,96 @@ namespace ungod
         if (left != qtBounds.position.x || top != qtBounds.position.y || width != qtBounds.size.x || height != qtBounds.size.y)
             mWorldQT.setBoundary({left, top, width, height});
 		mWorldQT.insert(node);
+
+        updateReferencePosition(mReferencePosition);
+    }
+
+    void WorldGraph::checkOutOfBounds()
+    {
+        for (const auto& i : mCurrentNeighborhood)
+        {
+            //check for out of bounds cases in each active world
+            //if an entity gets out of the bounds of the node, it is currently attached to
+            //and inside the bounds of another node, we move the entity to the new node
+            //and set a blocking timer, that prevents ooB checks for that entity for the next few seconds.
+            //if an entity gets ooB but is not inside another active node, it remains in the current node
+            //as long as there is no new node encountered
+            //only entities with movement components can be transfered
+            for (unsigned j = 0; j < mNodes[i]->getNumWorld(); j++)
+            {
+                //we can efficiently retrieve all candidates for oob cases by accessing the root node container of the quadtree
+                const auto& oobCandidates = mNodes[i]->getWorld(j)->getQuadTree().getContainer();
+                for (auto e : oobCandidates)
+                {
+                    if (!e.has<MovementComponent>())
+                        continue;
+
+                    if (!mNodes[i]->getWorld(j)->getQuadTree().isInsideBounds(e))
+                    {
+                        //find a new node for the entity
+                        quad::PullResult<WorldGraphNode*> result;
+                        sf::Vector2f entityGlobal = e.getWorld().getNode().mapToGlobalPosition(e.get<TransformComponent>().getPosition());
+                        entityGlobal += e.getWorld().getGraph().getActiveNode()->getPosition();
+                        mWorldQT.retrieve(result, 
+                            { entityGlobal.x, entityGlobal.y, e.get<TransformComponent>().getSize().x, e.get<TransformComponent>().getSize().y });
+                        WorldGraphNode* newNode = nullptr;
+                        for (auto* node : result.getList())
+                        {
+                            if (node != mNodes[i].get() &&
+                                node->getBounds().intersects({ entityGlobal.x, entityGlobal.y,
+                              e.get<TransformComponent>().getSize().x, e.get<TransformComponent>().getSize().y }))
+                            {
+                                newNode = node;
+                                break;
+                            }
+                        }
+                        if (newNode)
+                            mEntityChangedNode(e, *this, *mNodes[i], *newNode);
+                    }
+                }
+            }
+        }
+    }
+
+
+    void WorldGraph::unloadAll()
+    {
+        for (const auto& i : mCurrentNeighborhood)
+            mNodes[i]->unload();
+        mCurrentNeighborhood.clear();
+        mActive = -1;
     }
 
 
 
     void SerialBehavior<WorldGraph>::serialize(const WorldGraph& data, MetaNode serializer, SerializationContext& context)
     {
-        context.serializeObjectContainer<WorldGraphNode>("nodes", [&data] (std::size_t i) -> const WorldGraphNode& { return *data.mNodes[i]; }, data.mNodes.size(), serializer);
         context.serializeObject("graph", data.mAdjacencies, serializer);
+        context.serializeObject("cam", data.mCamera, serializer);
+        context.serializeProperty("refX", data.mReferencePosition.x, serializer);
+        context.serializeProperty("refY", data.mReferencePosition.y, serializer);
+        context.serializeObjectContainer<WorldGraphNode>("nodes", [&data](std::size_t i) -> const WorldGraphNode& { return *data.mNodes[i]; }, data.mNodes.size(), serializer);
     }
 
 
     void DeserialBehavior<WorldGraph, ScriptedGameState&>::deserialize(WorldGraph& data, MetaNode deserializer, DeserializationContext& context, ScriptedGameState& gamestate)
     {
-        MetaAttribute attr = context.first(context.deserializeObjectContainer<WorldGraphNode>(
-                        [&data, &gamestate](std::size_t num)
-                        {
-                            data.mNodes.reserve(num);
-                            for (unsigned i = 0; i < num; i++)
-                                data.mNodes.emplace_back(std::make_unique<WorldGraphNode>(data, i, gamestate));
-                        },
-                        [&data](std::size_t i) ->WorldGraphNode& {return *data.mNodes[i];}),
-                            "nodes", deserializer);
-		for (const auto& n : data.mNodes)
-			data.notifyBoundsChanged(n.get());
-        attr = context.next(context.deserializeObject(data.mAdjacencies), "graph", deserializer, attr);
+        MetaAttribute attr = context.first(context.deserializeObject(data.mAdjacencies), "graph", deserializer);
+        attr = context.next(context.deserializeObject(data.mCamera, static_cast<sf::RenderTarget&>(gamestate.getApp().getWindow())), "cam", deserializer, attr);
+        sf::Vector2f ref;
+        attr = context.next(context.deserializeProperty(ref.x, 0.0f), "refX", deserializer, attr);
+        attr = context.next(context.deserializeProperty(ref.y, 0.0f), "refY", deserializer, attr);
+        data.updateReferencePosition(ref);
+        attr = context.next(context.deserializeObjectContainer<WorldGraphNode>(
+            [&data, &gamestate](std::size_t num)
+            {
+                data.mNodes.reserve(num);
+                for (unsigned i = 0; i < num; i++)
+                    data.mNodes.emplace_back(std::make_unique<WorldGraphNode>(data, i, gamestate));
+            },
+            [&data](std::size_t i) ->WorldGraphNode& {return *data.mNodes[i]; }),
+            "nodes", deserializer, attr);
+        for (const auto& n : data.mNodes)
+            data.notifyBoundsChanged(n.get());
     }
 }

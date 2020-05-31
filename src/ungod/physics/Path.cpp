@@ -171,7 +171,7 @@ namespace ungod
 
     }
 
-    void PathPlanner::update(const std::list<Entity>& entities, float delta, MovementManager& mvm)
+    void PathPlanner::update(const std::list<Entity>& entities, float delta, MovementHandler& mvm)
     {
         dom::Utility<Entity>::iterate< PathFinderComponent, MovementComponent, TransformComponent >(entities,
           [delta, &mvm, this] (Entity e, PathFinderComponent& pathfinder, MovementComponent& mv, TransformComponent& transf)

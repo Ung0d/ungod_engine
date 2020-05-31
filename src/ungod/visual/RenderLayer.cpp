@@ -25,6 +25,8 @@
 
 #include "ungod/visual/RenderLayer.h"
 #include "ungod/visual/Camera.h"
+#include "ungod/serialization/DeserialMemory.h"
+#include <algorithm>
 
 namespace ungod
 {
@@ -58,40 +60,7 @@ namespace ungod
         return mName;
     }
 
-    bool RenderLayerContainer::render(sf::RenderTarget& target, sf::RenderStates states) const
-    {
-        sf::Vector2f layerWorldPos{ mBounds.left, mBounds.top };
-		states.transform.translate(layerWorldPos);
-        bool check = true;
-        for (const auto& layer : mRenderLayers)
-        {
-            if (layer.second)
-            {
-                mCamera.renderBegin(layer.first.get());
-				check = check && layer.first->render(target, states);
-                mCamera.renderEnd();
-            }
-        }
-        return check;
-    }
-
-    bool RenderLayerContainer::renderDebug(sf::RenderTarget& target, sf::RenderStates states, bool bounds, bool texrects, bool colliders, bool audioemitters, bool lights) const
-    {
-		states.transform.translate({ mBounds.left, mBounds.top });
-        bool check = true;
-        for (const auto& layer : mRenderLayers)
-        {
-            if (layer.second)
-            {
-				mCamera.renderBegin(layer.first.get());
-                check = check && layer.first->renderDebug(target, states, bounds, texrects, colliders, audioemitters, lights);
-                mCamera.renderEnd();
-            }
-        }
-        return check;
-    }
-
-    void RenderLayerContainer::update(float delta)
+    void RenderLayerContainer::update(float delta, const sf::Vector2f& areaPosition, const sf::Vector2f& areaSize)
     {
         while (!mToMove.empty())
         {
@@ -110,14 +79,8 @@ namespace ungod
         }
 
         for (const auto& layer : mRenderLayers)
-        {
             if (layer.second)
-            {
-                sf::View camview = mCamera.getView();
-				sf::Vector2f viewpos = mapToLocalPosition(sf::Vector2f{ camview.getCenter().x - camview.getSize().x / 2,camview.getCenter().y - camview.getSize().y / 2 });
-				layer.first->update(delta, viewpos*layer.first->getRenderDepth(), camview.getSize());
-            }
-        }
+				layer.first->update(delta, areaPosition* layer.first->getRenderDepth(), areaSize);
     }
 
 
@@ -140,20 +103,26 @@ namespace ungod
         }
     }
 
-    RenderLayer* RenderLayerContainer::registerLayer(RenderLayerPtr&& layer, std::size_t i)
+    RenderLayer* RenderLayerContainer::registerLayer(const RenderLayerPtr& layer, std::size_t i)
     {
         RenderLayer* rl = layer.get();
 		rl->setSize(getSize());
 		rl->mContainer = this;
         if (i < mRenderLayers.size())
         {
-            mRenderLayers.emplace(mRenderLayers.begin() + i, std::move(layer), true);
+            mRenderLayers.emplace(mRenderLayers.begin() + i, layer, true);
         }
         else
         {
-            mRenderLayers.emplace_back(std::move(layer), true);
+            mRenderLayers.emplace_back(layer, true);
         }
         return rl;
+    }
+
+    void RenderLayerContainer::removeLayer(RenderLayer* layer)
+    {
+        auto pred = [layer](const std::pair<RenderLayerPtr, bool>& p) { return p.first.get() == layer;  };
+        mRenderLayers.erase(std::remove_if(mRenderLayers.begin(), mRenderLayers.end(), pred), mRenderLayers.end());
     }
 
     void RenderLayerContainer::moveLayerUp(std::size_t i)
@@ -192,27 +161,10 @@ namespace ungod
             mToMove.pop();
     }
 
-	void RenderLayerContainer::setPosition(const sf::Vector2f& position)
-	{
-		mBounds.left = position.x;
-		mBounds.top = position.y;
-	}
-
-	void RenderLayerContainer::setSize(const sf::Vector2f& size)
-	{
-		mBounds.width = size.x;
-		mBounds.height = size.y;
-		for (const auto& layer : mRenderLayers)
-			layer.first->setSize(size);
-	}
-
-	sf::Vector2f RenderLayerContainer::mapToGlobalPosition(const sf::Vector2f& position) const
-	{
-		return { position.x + mBounds.left, position.y + mBounds.top };
-	}
-
-	sf::Vector2f RenderLayerContainer::mapToLocalPosition(const sf::Vector2f& position) const
-	{
-		return { position.x - mBounds.left, position.y - mBounds.top };
-	}
+    void RenderLayerContainer::setSize(const sf::Vector2f& size)
+    {
+        mSize = size;
+        for (const auto& layer : mRenderLayers)
+            layer.first->setSize(mSize);
+    }
 }

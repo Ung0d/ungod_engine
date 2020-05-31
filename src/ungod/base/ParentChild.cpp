@@ -47,29 +47,33 @@ namespace ungod
 
 
 
-    ParentChildManager::ParentChildManager(World& world) : mWorld(world)
+    ParentChildHandler::ParentChildHandler() : mWorld(nullptr) {}
+
+    void ParentChildHandler::init(World& world)
     {
+        mWorld = &world;
+
         //set child positions to child_local + parent_global
-        world.getTransformManager().onPositionChanged([this] (Entity e, const sf::Vector2f& pos)
-          {
-              if (e.has<ParentComponent>())
-              {
-                updateAllChildPositions(e);
-              }
-          });
+        world.getTransformHandler().onPositionChanged([this](Entity e, const sf::Vector2f& pos)
+            {
+                if (e.has<ParentComponent>())
+                {
+                    updateAllChildPositions(e);
+                }
+            });
 
         //set child scales to child_local * parent_global
-        world.getTransformManager().onScaleChanged([this] (Entity e, const sf::Vector2f& scale)
-          {
-              if (e.has<ParentComponent>())
-              {
-                updateAllChildScales(e);
-              }
-          });
+        world.getTransformHandler().onScaleChanged([this](Entity e, const sf::Vector2f& scale)
+            {
+                if (e.has<ParentComponent>())
+                {
+                    updateAllChildScales(e);
+                }
+            });
     }
 
 
-    void ParentChildManager::addChild(Entity parent, Entity child)
+    void ParentChildHandler::addChild(Entity parent, Entity child)
     {
         if (!child.has<ChildComponent>())
             child.add<ChildComponent>();
@@ -84,7 +88,7 @@ namespace ungod
     }
 
 
-    void ParentChildManager::setChildPosition(Entity child, const sf::Vector2f& position)
+    void ParentChildHandler::setChildPosition(Entity child, const sf::Vector2f& position)
     {
         ChildComponent& cc = child.modify<ChildComponent>();
         cc.mChildTransform.setPosition(position);
@@ -92,7 +96,7 @@ namespace ungod
     }
 
 
-    void ParentChildManager::setChildScale(Entity child, const sf::Vector2f& scale)
+    void ParentChildHandler::setChildScale(Entity child, const sf::Vector2f& scale)
     {
         ChildComponent& cc = child.modify<ChildComponent>();
         cc.mChildTransform.setScale(scale);
@@ -100,7 +104,7 @@ namespace ungod
     }
 
 
-    void ParentChildManager::updateAllChildPositions(Entity e)
+    void ParentChildHandler::updateAllChildPositions(Entity e)
     {
         const ParentComponent& pc = e.get<ParentComponent>();
         for (const auto& child : pc.mChildren)
@@ -108,7 +112,7 @@ namespace ungod
     }
 
 
-    void ParentChildManager::updateAllChildScales(Entity e)
+    void ParentChildHandler::updateAllChildScales(Entity e)
     {
         const ParentComponent& pc = e.get<ParentComponent>();
         for (const auto& child : pc.mChildren)
@@ -116,18 +120,18 @@ namespace ungod
     }
 
 
-    void ParentChildManager::updateChildPosition(Entity e, Entity child)
+    void ParentChildHandler::updateChildPosition(Entity e, Entity child)
     {
         const TransformComponent& tc = e.get<TransformComponent>();
         const ChildComponent& cc = child.get<ChildComponent>();
-        mWorld.getTransformManager().setPosition(child, cc.getPosition() + tc.getPosition());
+        mWorld->getTransformHandler().setPosition(child, cc.getPosition() + tc.getPosition());
     }
 
 
-    void ParentChildManager::updateChildScale(Entity e, Entity child)
+    void ParentChildHandler::updateChildScale(Entity e, Entity child)
     {
         const TransformComponent& tc = e.get<TransformComponent>();
         const ChildComponent& cc = child.get<ChildComponent>();
-        mWorld.getTransformManager().setScale(child, {cc.getScale().x * tc.getScale().x, cc.getScale().y * tc.getScale().y});
+        mWorld->getTransformHandler().setScale(child, {cc.getScale().x * tc.getScale().x, cc.getScale().y * tc.getScale().y});
     }
 }
