@@ -116,14 +116,11 @@ namespace ungod
         /** \brief Applies a user defined function to the tilemap that is allowed to change its bounds. Is used e.g. for deserial. */
         void tilemapCallback(Entity e, TileMapComponent& tmc, const std::function<void(TileMap&)>& callback);
 
-        ~TileMapHandler();
-
     private:
 		owls::Signal<Entity, const sf::FloatRect&> mContentsChangedSignal;
-        owls::SignalLink<void, const sf::Vector2u&> mTargetSizeLink;
 
     private:
-        void targetSizeChanged(const World& world, const sf::Vector2u& targetsize);
+        void viewSizeChanged(const World& world, const sf::Vector2f& viewsize);
     };
 }
 

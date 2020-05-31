@@ -60,36 +60,6 @@ namespace ungod
         return mName;
     }
 
-    bool RenderLayerContainer::render(sf::RenderTarget& target, Camera& camera, sf::RenderStates states) const
-    {
-        bool check = true;
-        for (const auto& layer : mRenderLayers)
-        {
-            if (layer.second)
-            {
-                camera.renderBegin(layer.first->getRenderDepth());
-				check = check && layer.first->render(target, states);
-                camera.renderEnd();
-            }
-        }
-        return check;
-    }
-
-    bool RenderLayerContainer::renderDebug(sf::RenderTarget& target, Camera& camera, sf::RenderStates states, bool bounds, bool texrects, bool colliders, bool audioemitters, bool lights) const
-    {
-        bool check = true;
-        for (const auto& layer : mRenderLayers)
-        {
-            if (layer.second)
-            {
-                camera.renderBegin(layer.first->getRenderDepth());
-                check = check && layer.first->renderDebug(target, states, bounds, texrects, colliders, audioemitters, lights);
-                camera.renderEnd();
-            }
-        }
-        return check;
-    }
-
     void RenderLayerContainer::update(float delta, const sf::Vector2f& areaPosition, const sf::Vector2f& areaSize)
     {
         while (!mToMove.empty())

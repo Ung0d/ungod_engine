@@ -122,11 +122,6 @@ namespace ungod
         RenderLayerContainer() = default;
         RenderLayerContainer(const RenderLayerContainer&) = delete;
 
-        bool render(sf::RenderTarget& target, Camera& camera, sf::RenderStates states) const;
-
-        bool renderDebug(sf::RenderTarget& target, Camera& camera, sf::RenderStates states,
-                         bool bounds = true, bool texrects = true, bool colliders = true, bool audioemitters = true, bool lights = true) const;
-
         void update(float delta, const sf::Vector2f& areaPosition, const sf::Vector2f& areaSize);
 
         void handleInput(const sf::Event& event, const sf::RenderTarget& target);

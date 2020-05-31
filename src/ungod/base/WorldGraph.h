@@ -54,11 +54,11 @@ namespace ungod
         bool updateReferencePosition(const sf::Vector2f& pos, bool ignoreIdentity = true);
 
         /** \brief Render the world scene. */
-        bool render(sf::RenderTarget& target, sf::RenderStates states) const;
+        bool render(sf::RenderTarget& target, sf::RenderStates states);
 
         /** \brief Render debug information. */
         bool renderDebug(sf::RenderTarget& target, sf::RenderStates states,
-                         bool bounds = true, bool texrects = true, bool colliders = true, bool audioemitters = true, bool lightemitters = true) const;
+                         bool bounds = true, bool texrects = true, bool colliders = true, bool audioemitters = true, bool lightemitters = true);
 
         /** \brief Updates the world scene for the given amount of delta time. */
         void update(float delta);
@@ -147,6 +147,17 @@ namespace ungod
 		owls::Signal<WorldGraph&, WorldGraphNode&, WorldGraphNode&> mActiveNodeChanged;
         owls::Signal<Entity, WorldGraph&, WorldGraphNode&, WorldGraphNode&> mEntityChangedNode;
         constexpr static float NODE_TRANSITION_TIMER_S = 10.0f;
+
+    private:
+        struct RankedLayer
+        {
+            RankedLayer(RenderLayer* l, WorldGraphNode* n, int r) :
+                layer(l), node(n), rank(r) {}
+            RenderLayer* layer;
+            WorldGraphNode* node;
+            int rank;
+        };
+        std::list<RankedLayer> getSortedLayers() const;
     };
 
 

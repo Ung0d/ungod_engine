@@ -75,13 +75,6 @@ namespace ungod
         /** \brief Returns the number of worlds. */
         unsigned getNumWorld() const { return (unsigned)getLayers().getVector().size(); }
 
-        /** \brief Render the world scene. */
-        bool render(sf::RenderTarget& target, sf::RenderStates states) const;
-
-        /** \brief Render debug information. */
-        bool renderDebug(sf::RenderTarget& target, sf::RenderStates states,
-                         bool bounds = true, bool texrects = true, bool colliders = true, bool audioemitters = true, bool lightemitters = true) const;
-
         /** \brief Updates the world scene for the given amount of delta time. */
         void update(float delta);
 

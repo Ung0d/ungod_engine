@@ -29,8 +29,7 @@ end
 
 function playerGlobal.onInit(static, player)
   player.entity:visuals():bindSpriteToAnimation()
-  player.entity:visuals():setAnimationState("idle")
-
+  --player.entity:visuals():setAnimationState("idle")
 end
 
 
@@ -60,6 +59,21 @@ function playerGlobal.onButtonReleased(static, player, binding)
 end
 
 
+function playerGlobal.onDirectionChanged(static, player, old, current)
+    if current == ungod.Direction.idle then
+        player.entity:visuals():setAnimationState("idle")
+    elseif current == ungod.Direction.left then
+        player.entity:visuals():setAnimationState("left")
+    elseif current == ungod.Direction.right then
+        player.entity:visuals():setAnimationState("right")
+    elseif current == ungod.Direction.up then
+        player.entity:visuals():setAnimationState("up")
+    elseif current == ungod.Direction.down then
+        player.entity:visuals():setAnimationState("down")
+    end
+end
+
+
 function playerGlobal.onEnteredNewNode(static, player, worldGraph, oldNode, newNode)
 
   if player.transferTimer == nil or player.transferTimer:elapsedSeconds() > 2 then
@@ -76,8 +90,8 @@ function playerGlobal.onEnteredNewNode(static, player, worldGraph, oldNode, newN
 
     --copy the entity to the new node
     --note that after calling, player.entity will point to the newly created entity
-    local playerCpy = newNode:getWorld(0):accomodateForeign(player.entity)
-    newNode:getWorld(0):add(playerCpy)
+    local playerCpy = newNode:getWorld(1):accomodateForeign(player.entity)
+    newNode:getWorld(1):add(playerCpy)
     global.player = playerCpy
     worldGraph:getCamera():lockToEntity(playerCpy)
 

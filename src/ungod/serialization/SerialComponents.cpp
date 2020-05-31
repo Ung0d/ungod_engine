@@ -476,7 +476,11 @@ namespace ungod
     void DeserialBehavior<TileMapComponent, Entity, DeserialMemory&>::deserialize(TileMapComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
         data.mTileMap.setMetaMap(e.get<SpriteMetadataComponent>().getMetaMap());
-        context.first(context.deserializeObject(data.mTileMap), "tilemap", deserializer);
+        auto deserial = [&](TileMap& tm) mutable
+        {
+            context.first(context.deserializeObject(tm), "tilemap", deserializer);
+        };
+        e.getWorld().getTileMapHandler().tilemapCallback(e, data, deserial);
     }
 
 

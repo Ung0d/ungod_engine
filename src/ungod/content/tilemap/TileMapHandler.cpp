@@ -42,26 +42,22 @@ namespace ungod
 
     void TileMapHandler::init(World& world)
     {
-        targetSizeChanged(world, world.getState()->getApp().getWindow().getSize());
+        viewSizeChanged(world, world.getGraph().getCamera().getView().getSize());
         world.onComponentAdded<TileMapComponent>([&world](Entity e) 
             {
-                e.modify<TileMapComponent>().mTileMap.setWindowSize(world.getState()->getApp().getWindow().getSize());
-            });
-        mTargetSizeLink.disconnect();
-        mTargetSizeLink = world.getState()->getApp().onTargetSizeChanged([&world, this](const sf::Vector2u& targetsize)
-            {
-                targetSizeChanged(world, targetsize);
+                e.modify<TileMapComponent>().mTileMap.setViewSize(world.getGraph().getCamera().getView().getSize());
             });
     }
 
     void TileMapHandler::update(const std::list<Entity>& entities, const World& world)
     {
+        viewSizeChanged(world, world.getGraph().getCamera().getView().getSize());
         dom::Utility<Entity>::iterate<TransformComponent, TileMapComponent>(entities,
             [&world](Entity e, TransformComponent& transf, TileMapComponent& tmc)
             {
                 auto windowPos = world.getState()->getApp().getWindow().mapPixelToCoords(sf::Vector2i{ 0, 0 }, world.getGraph().getCamera().getView());
-                windowPos = world.getNode().mapToLocalPosition(windowPos);
-                windowPos = transf.getTransform().transformPoint(windowPos);
+                windowPos = world.getNode().mapToLocalPosition(windowPos - world.getGraph().getActiveNode()->getPosition());
+                //windowPos = transf.getTransform().transformPoint(windowPos);
                 tmc.mTileMap.update(windowPos);
             });
     }
@@ -125,17 +121,12 @@ namespace ungod
         mContentsChangedSignal(e, tmc.mTileMap.getBounds());
     }
 
-    void TileMapHandler::targetSizeChanged(const World& world, const sf::Vector2u& targetsize)
+    void TileMapHandler::viewSizeChanged(const World& world, const sf::Vector2f& viewsize)
     {
-        world.getUniverse().iterateOverComponents<TileMapComponent>([targetsize](TileMapComponent& tm)
+        world.getUniverse().iterateOverComponents<TileMapComponent>([viewsize](TileMapComponent& tm)
             {
-                tm.mTileMap.setWindowSize(targetsize);
+                tm.mTileMap.setViewSize(viewsize);
             });
-    }
-
-    TileMapHandler::~TileMapHandler()
-    {
-        mTargetSizeLink.disconnect();
     }
 }
 

@@ -218,7 +218,7 @@ namespace ungod
         return worldpos;
     }
 
-    void TileMap::setWindowSize(const sf::Vector2u& targetsize)
+    void TileMap::setViewSize(const sf::Vector2f& targetsize)
     {
         mHorizontalSize = (unsigned)ceil(targetsize.x / (getScale().x*mTileWidth) ) + 1;
         mVerticalSize = (unsigned)ceil(targetsize.y / (getScale().y*mTileHeight) ) + 1;

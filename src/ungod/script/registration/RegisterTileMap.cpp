@@ -68,6 +68,14 @@ namespace ungod
 			mHandler.setTiles(mEntity, data, mapX, mapY);
 		}
 
+		void TileMapHandlerFrontEnd::setZeroTiles(unsigned mapX, unsigned mapY)
+		{
+			TileData data;
+			data.ids = std::make_shared<std::vector<int>>();
+			data.ids->resize(mapX * mapY, 0);
+			mHandler.setTiles(mEntity, data, mapX, mapY);
+		}
+
 		void TileMapHandlerFrontEnd::setTile(int id, unsigned x, unsigned y)
 		{
 			mHandler.setTile(mEntity, id, x, y);
@@ -103,6 +111,7 @@ namespace ungod
 			tmHandlerType["getMapSizeY"] = &TileMapHandlerFrontEnd::getMapHeight;
 			tmHandlerType["getTileID"] = &TileMapHandlerFrontEnd::getTileID;
 			tmHandlerType["setTiles"] = &TileMapHandlerFrontEnd::setTiles;
+			tmHandlerType["setZeroTiles"] = &TileMapHandlerFrontEnd::setZeroTiles;
 			tmHandlerType["setTile"] = &TileMapHandlerFrontEnd::setTile;
 			tmHandlerType["addKey"] = &TileMapHandlerFrontEnd::addKey;
 			tmHandlerType["setTileDims"] = &TileMapHandlerFrontEnd::setTileDims;

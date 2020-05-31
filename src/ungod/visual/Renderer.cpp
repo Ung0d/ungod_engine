@@ -100,14 +100,14 @@ namespace ungod
       states.transform.translate(0.0f, offsety);
       states.texture = &vis.getTexture();
 
-      if (e.has<TileMapComponent>())
-          if (e.has<WaterComponent>())
-              e.get<WaterComponent>().mWater.render(target, mWaterTex, e.get<TileMapComponent>().mTileMap, &vis.getTexture(), states, e.getWorld());
-          else
-              e.get<TileMapComponent>().mTileMap.render(target, &vis.getTexture(), states);
-
       if (vis.isVisible() && vis.isLoaded())
       {
+          if (e.has<TileMapComponent>())
+              if (e.has<WaterComponent>())
+                  e.get<WaterComponent>().mWater.render(target, mWaterTex, e.get<TileMapComponent>().mTileMap, &vis.getTexture(), states, e.getWorld());
+              else
+                  e.get<TileMapComponent>().mTileMap.render(target, &vis.getTexture(), states);
+
           if (e.has<VertexArrayComponent>())
           {
              e.get<VertexArrayComponent>().mVertices.render(target, states);

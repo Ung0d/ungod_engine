@@ -112,7 +112,7 @@ namespace ungod
         sf::Vector2f getTilePosition(unsigned x, unsigned y) const;
 
         /** \brief Set the size of the visible part of the tilemap. */
-        void setWindowSize(const sf::Vector2u& targetsize);
+        void setViewSize(const sf::Vector2f& targetsize);
 
         const std::vector<std::string>& getKeyMap() const { return mKeymap; }
 

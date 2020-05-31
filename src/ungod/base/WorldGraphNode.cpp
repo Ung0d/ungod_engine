@@ -103,23 +103,13 @@ namespace ungod
             return nullptr;
     }
 
-    bool WorldGraphNode::render(sf::RenderTarget& target, sf::RenderStates states) const
-    {
-        return mLayers.render(target, mWorldGraph.getCamera(), states);
-    }
-
-    bool WorldGraphNode::renderDebug(sf::RenderTarget& target, sf::RenderStates states,
-                     bool bounds, bool texrects, bool colliders, bool audioemitters, bool lightemitters) const
-    {
-        return mLayers.renderDebug(target, mWorldGraph.getCamera(), states, bounds, texrects, colliders, audioemitters, lightemitters);
-    }
-
     void WorldGraphNode::update(float delta)
     {
         if (mLoadingInProcess)
             mLoadingInProcess = !tryInit();
         sf::View camview = mWorldGraph.getCamera().getView();
-        sf::Vector2f viewpos = mapToLocalPosition(sf::Vector2f{ camview.getCenter().x - camview.getSize().x / 2,camview.getCenter().y - camview.getSize().y / 2 });
+        sf::Vector2f campos{ camview.getCenter().x - camview.getSize().x / 2,camview.getCenter().y - camview.getSize().y / 2 };
+        sf::Vector2f viewpos = mapToLocalPosition(campos - mWorldGraph.getActiveNode()->getPosition());
         mLayers.update(delta, viewpos, camview.getSize());
     }
 

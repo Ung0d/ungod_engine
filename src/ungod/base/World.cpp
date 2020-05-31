@@ -117,6 +117,7 @@ namespace ungod
         mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mMovementRigidbodyHandler.getLowerBound(e); });
         mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyHandler.getLowerBound(e); });
         mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mParticleSystemHandler.getLowerBound(e); });
+        //mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mTileMapHandler.getLowerBound(e); });
 
         //connect upper bounds methods
         mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mVisualsHandler.getUpperBound(e); });
@@ -124,6 +125,7 @@ namespace ungod
         mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mMovementRigidbodyHandler.getUpperBound(e); });
         mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mSemanticsRigidbodyHandler.getUpperBound(e); });
         mTransformHandler.onUpperBoundRequest([this](Entity e) -> sf::Vector2f { return mParticleSystemHandler.getUpperBound(e); });
+        //mTransformHandler.onLowerBoundRequest([this](Entity e) -> sf::Vector2f { return mTileMapHandler.getUpperBound(e); });
     }
 
 
@@ -178,7 +180,7 @@ namespace ungod
         mInUpdateRange.getList().clear();
         mQuadTree.retrieve(mInUpdateRange, {areaPosition.x, areaPosition.y, areaSize.x, areaSize.y} );
 
-        //second step: sort out the entities, that are not on the screen
+        //second step: sort out the entities, that are not in the update area
         auto removalCondition = [areaPosition, areaSize](Entity entity)
         {
              const TransformComponent& t = entity.get<TransformComponent>();

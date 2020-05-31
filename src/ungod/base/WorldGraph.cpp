@@ -104,33 +104,78 @@ namespace ungod
         return true;
      }
 
-    bool WorldGraph::render(sf::RenderTarget& target, sf::RenderStates states) const
+    bool WorldGraph::render(sf::RenderTarget& target, sf::RenderStates states) 
     {
         if (mActive == -1)
             return false;
         bool done = true;
-        for (const auto& i : mCurrentNeighborhood)
+        std::list<RankedLayer> sortedLayers = getSortedLayers();
+        for (const auto& p : sortedLayers)
         {
-            sf::RenderStates states2 = states;
-            states2.transform.translate(mNodes[i]->getPosition() - mNodes[mActive]->getPosition());
-            done = done && mNodes[i]->render(target, states2);
+            sf::RenderStates statesIn = states;
+            statesIn.transform.translate(p.node->getPosition() - mNodes[mActive]->getPosition());
+            mCamera.renderBegin(p.layer->getRenderDepth());
+            done = done && p.layer->render(target, statesIn);
+            mCamera.renderEnd();
         }
         return done;
     }
 
     bool WorldGraph::renderDebug(sf::RenderTarget& target, sf::RenderStates states,
-                     bool bounds, bool texrects, bool colliders, bool audioemitters, bool lightemitters) const
+                     bool bounds, bool texrects, bool colliders, bool audioemitters, bool lightemitters) 
     {
         if (mActive == -1)
             return false;
         bool done = true;
-        for (const auto& i : mCurrentNeighborhood)
+        std::list<RankedLayer> sortedLayers = getSortedLayers();
+        for (const auto& p : sortedLayers)
         {
-            sf::RenderStates states2 = states;
-            states2.transform.translate(mNodes[i]->getPosition() - mNodes[mActive]->getPosition());
-            done = done && mNodes[i]->renderDebug(target, states2, bounds, texrects, colliders, audioemitters, lightemitters);
+            sf::RenderStates statesIn = states;
+            statesIn.transform.translate(p.node->getPosition() - mNodes[mActive]->getPosition());
+            mCamera.renderBegin(p.layer->getRenderDepth());
+            done = done && p.layer->renderDebug(target, statesIn, bounds, texrects, colliders, audioemitters, lightemitters);
+            mCamera.renderEnd();
         }
         return done;
+    }
+
+    std::list<WorldGraph::RankedLayer> WorldGraph::getSortedLayers() const
+    {
+        //collect a list of all active layers, their nodes and a rank
+        //the rank of a node is equal to the number of layers below with same render depth
+        std::list<RankedLayer> layers;
+        for (const auto& i : mCurrentNeighborhood)
+        {
+            int rank = 0;
+            float prevDepth = std::numeric_limits<float>::min();
+            for (auto& layer : mNodes[i]->getLayers().getVector())
+            {
+                if (layer.first->getRenderDepth() == prevDepth)
+                    rank++;
+                else
+                {
+                    rank = 0;
+                    prevDepth = layer.first->getRenderDepth();
+                }
+                if (layer.second)
+                    layers.emplace_back(layer.first.get(), mNodes[i].get(), rank);
+            }
+        }
+        //sorting criterion
+        auto depthSorting = [](const RankedLayer& l, const RankedLayer& r)
+        {
+            if (l.layer->getRenderDepth() == r.layer->getRenderDepth())
+            {
+                if (l.rank == r.rank)
+                    return l.node->getIndex() < r.node->getIndex();
+                else
+                    return l.rank < r.rank;
+            }
+            else
+                return l.layer->getRenderDepth() < r.layer->getRenderDepth();
+        };
+        layers.sort(depthSorting);
+        return layers;
     }
 
     void WorldGraph::update(float delta)

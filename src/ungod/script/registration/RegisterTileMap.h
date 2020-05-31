@@ -47,6 +47,7 @@ namespace ungod
             unsigned getMapHeight() const;
             int getTileID(const sf::Vector2f& pos) const;
             void setTiles(script::Environment tiles, unsigned mapX, unsigned mapY);
+            void setZeroTiles(unsigned mapX, unsigned mapY);
             void setTile(int id, unsigned x, unsigned y);
             void setTileDims(unsigned tileWidth, unsigned tileHeight, script::Environment keymap);
             void addKey(const std::string& key);
