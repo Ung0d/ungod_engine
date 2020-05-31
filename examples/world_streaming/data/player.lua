@@ -24,6 +24,8 @@ function playerGlobal.onCreation(static, player)
   player.maxVel = 1.6
   player.entity:movement():setBaseSpeed(player.baseSpeed)
   player.entity:movement():setMaximumVelocity(player.maxVel)
+
+  player.entity:add():movementRigidbody()
 end
 
 
@@ -71,6 +73,12 @@ function playerGlobal.onDirectionChanged(static, player, old, current)
     elseif current == ungod.Direction.down then
         player.entity:visuals():setAnimationState("down")
     end
+    player.entity:movementRigidbody():clearCollider()
+    local upleft = Vec2f.new(player.entity:transform():getSize().x/2-30,
+                              player.entity:transform():getSize().y-60)
+    local downright = Vec2f.new(player.entity:transform():getSize().x/2+30,
+                                player.entity:transform():getSize().y)
+    player.entity:movementRigidbody():addRotatedRect(upleft, downright, 0)
 end
 
 

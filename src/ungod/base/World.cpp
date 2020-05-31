@@ -91,7 +91,8 @@ namespace ungod
             });
         mMovementCollisionHandler.onCollision([this](Entity e, Entity other, const sf::Vector2f& vec, const Collider& c1, const Collider& c2)
             {
-                mMovementHandler.handleCollision(e, other, vec, c1, c2);
+                if (!e.isStatic())
+                    mMovementHandler.handleCollision(e, other, vec, c1, c2);
             });
         mTileMapHandler.onContentsChanged([this](Entity e, const sf::FloatRect& rect)
             {

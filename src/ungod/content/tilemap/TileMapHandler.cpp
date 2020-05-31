@@ -56,7 +56,7 @@ namespace ungod
             [&world](Entity e, TransformComponent& transf, TileMapComponent& tmc)
             {
                 auto windowPos = world.getState()->getApp().getWindow().mapPixelToCoords(sf::Vector2i{ 0, 0 }, world.getGraph().getCamera().getView());
-                windowPos = world.getNode().mapToLocalPosition(windowPos - world.getGraph().getActiveNode()->getPosition());
+                windowPos = world.getNode().mapToLocalPosition(windowPos);
                 //windowPos = transf.getTransform().transformPoint(windowPos);
                 tmc.mTileMap.update(windowPos);
             });

@@ -1,7 +1,7 @@
 
 local DIM = 3
 local CHUNK_SIZE = 2560
-local ENTITIES_PER_CHUNK = 12
+local ENTITIES_PER_CHUNK = 20
 
 global = {}
 
@@ -35,7 +35,7 @@ function gamestate.onInit(static, state)
       ungod.error("Can not get the initial world node.")
     end
 
-    --state:toggleDebugmode(true)
+    state:toggleDebugmode(true)
 
     state:worldGraph():getCamera():setZoom(1)
 
@@ -86,6 +86,10 @@ function genWorld(state)
         local treeID = ungod.randInt(1,7)
         e:visuals():setSpriteTextureRect("tree_"..treeID)
         e:transform():setPosition(Vec2f.new(CHUNK_SIZE*ungod.randFloat(0,1), CHUNK_SIZE*ungod.randFloat(0,1)))
+        e:add():movementRigidbody()
+        local upleft = Vec2f.new(e:transform():getSize().x/2-30,e:transform():getSize().y-60)
+        local downright = Vec2f.new(e:transform():getSize().x/2+30,e:transform():getSize().y)
+        e:movementRigidbody():addRotatedRect(upleft, downright, 0)
         world:add(e)
       end
 

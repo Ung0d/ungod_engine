@@ -109,7 +109,7 @@ namespace ungod
             mLoadingInProcess = !tryInit();
         sf::View camview = mWorldGraph.getCamera().getView();
         sf::Vector2f campos{ camview.getCenter().x - camview.getSize().x / 2,camview.getCenter().y - camview.getSize().y / 2 };
-        sf::Vector2f viewpos = mapToLocalPosition(campos - mWorldGraph.getActiveNode()->getPosition());
+        sf::Vector2f viewpos = mapToLocalPosition(campos);
         mLayers.update(delta, viewpos, camview.getSize());
     }
 
