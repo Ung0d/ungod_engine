@@ -46,7 +46,7 @@ namespace uedit
 
     void LayerPropertiesWindow::onAmbientColourPick(wxColourPickerEvent& event)
     {
-        mWorld->getLightSystem().setAmbientColor( convertColor(event.GetColour()) );
+        mWorld->getLightHandler().setAmbientColor( convertColor(event.GetColour()) );
     }
 
     void LayerPropertiesWindow::onLightCheck(wxCommandEvent& event)

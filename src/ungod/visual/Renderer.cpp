@@ -185,7 +185,7 @@ namespace ungod
       if (e.has<VertexArrayComponent>())
       {
           const VertexArray& vertices = e.get<VertexArrayComponent>().getVertices();
-          for (std::size_t i = 0; i < vertices.textureRectCount(); ++i)
+          for (int i = 0; i < vertices.textureRectCount(); ++i)
           {
               sf::ConvexShape shape(4);
               for (int j = 0; j < 4; ++j)

@@ -296,7 +296,8 @@ namespace uedit
  			break;
  		case SHOW:
             mCanvas->lookAt(
-					mEntities[clickevt->GetIndex()].getGlobalCenterPosition()
+                mEntities[clickevt->GetIndex()].getWorld().getNode().mapToGlobalPosition(
+					mEntities[clickevt->GetIndex()].get<ungod::TransformComponent>().getCenterPosition())
 						* mEntities[clickevt->GetIndex()].getWorld().getRenderDepth());
  			break;
  		case RENAME:

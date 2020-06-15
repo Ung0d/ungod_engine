@@ -1,11 +1,16 @@
 #ifndef WORLD_ACTION_WRAPPER_H
 #define WORLD_ACTION_WRAPPER_H
 
-#include <unordered_map>
 #include "ungod/base/World.h"
-#include "ungod/content/FloodFill.h"
+#include "ungod/content/tilemap/FloodFill.h"
 #include "ungod/utility/ScopedAccessor.h"
-#include "ungod/content/TilemapBrush.h"
+#include "ungod/content/tilemap/TilemapBrush.h"
+#include "Command/Command.h"
+#include "TransformActions.h"
+#include "VisualsActions.h"
+#include "CollisionActions.h"
+#include "TilemapActions.h"
+#include "WaterActions.h"
 
 namespace uedit
 {
@@ -13,157 +18,38 @@ namespace uedit
 
     /**\brief A class that wraps a ungod::world object and keeps track of all modifying operations on it in the
     * EditorFrames action manager. */
-    class WorldActionWrapper
+    class ActionManager
     {
     public:
         WorldActionWrapper(EditorFrame* eframe);
 
         EditorFrame* getEditorFrame() { return mEFrame; }
 
-        void setEntityPosition(ungod::Entity e, const sf::Vector2f& pos);
-        void setEntityScale(ungod::Entity e, const sf::Vector2f& scale);
-        void setEntityBaseLineOffset(ungod::Entity e, const sf::Vector2f& offset);
-
-        void startEntityMoveSession(ungod::Entity e);
-        void moveEntity(ungod::Entity e, const sf::Vector2f& mv);
-        void endEntityMoveSession(ungod::Entity e);
-
-        void setEntityHideForCamera(ungod::Entity e, bool hideForCamera);
-        void loadTexture(ungod::Entity e, const std::string& file);
-        void loadMetadata(ungod::Entity e, const std::string& file);
-        void setSpriteTextureRect(ungod::Entity e, const std::string& key);
-        void setMultiSpriteTextureRect(ungod::Entity e, const std::string& key, std::size_t i);
-        void setSpritePosition(ungod::Entity e, const sf::Vector2f& pos);
-        void setMultiSpritePosition(ungod::Entity e, const sf::Vector2f& pos, std::size_t i);
-        void setVertexarrayPosition(ungod::Entity e, const sf::Vector2f& pos, std::size_t i);
-        void setSpriteScale(ungod::Entity e, const sf::Vector2f& scale);
-        void setSpriteRotation(ungod::Entity e, float rota);
-        void setMultiSpriteScale(ungod::Entity e, const sf::Vector2f& scale, std::size_t i);
-        void setMultiSpriteRotation(ungod::Entity e, float rota, std::size_t i);
-        void setVertexRectCount(ungod::Entity e, std::size_t numrect);
-        void setVertexArrayRect(ungod::Entity e, std::size_t i, const std::string& key);
-        void setVertexArrayRectColor(ungod::Entity e, std::size_t i, const sf::Color& color);
-        void flipVertexX(ungod::Entity e, unsigned i);
-        void flipVertexY(ungod::Entity e, unsigned i);
-
-
-
-        template <std::size_t CONTEXT = 0>
-        void addCollider(ungod::Entity e, const ungod::Collider& c)
+        template<typename ... T>
+        void action(const std::function<void(T...)>& execute, const std::function<void(T...)>& undo, T... t)
         {
-            addCollider(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), c);
+            mEFrame->notifyProjectChanged();
+            mActionManager.execute(execute, undo, std::forward<T>(t)...);
         }
-        template <std::size_t CONTEXT = 0>
-        void addCollider(ungod::Entity e, std::size_t index, const ungod::Collider& c)
+
+        void undo()
         {
-            addCollider(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), c);
+            mActionManager.undo();
         }
-        template <std::size_t CONTEXT = 0>
-        void addCollider(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, const ungod::Collider& c);
 
-
-        template <std::size_t CONTEXT = 0>
-        void setRectDownRight(ungod::Entity e, const sf::Vector2f& downright)
+        void redo()
         {
-            setRectDownRight(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), downright);
+            mActionManager.redo();
         }
-        template <std::size_t CONTEXT = 0>
-        void setRectDownRight(ungod::Entity e, std::size_t index, const sf::Vector2f& downright)
-        {
-            setRectDownRight(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), downright);
-        }
-        template <std::size_t CONTEXT = 0>
-        void setRectDownRight(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, const sf::Vector2f& downright);
 
-
-
-        template <std::size_t CONTEXT = 0>
-        void setRectUpLeft(ungod::Entity e, const sf::Vector2f& upleft)
-        {
-            setRectUpLeft(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), upleft);
-        }
-        template <std::size_t CONTEXT = 0>
-        void setRectUpLeft(ungod::Entity e, std::size_t index, const sf::Vector2f& upleft)
-        {
-            setRectUpLeft(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), upleft);
-        }
-        template <std::size_t CONTEXT = 0>
-        void setRectUpLeft(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, const sf::Vector2f& upleft);
-
-
-
-        template <std::size_t CONTEXT = 0>
-        void rotateRect(ungod::Entity e, float rotation)
-        {
-            rotateRect(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), rotation);
-        }
-        template <std::size_t CONTEXT = 0>
-        void rotateRect(ungod::Entity e, std::size_t index, float rotation)
-        {
-            rotateRect(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), rotation);
-        }
-        template <std::size_t CONTEXT = 0>
-        void rotateRect(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, float rotation);
-
-
-
-        template <std::size_t CONTEXT = 0>
-        void setRectRotation(ungod::Entity e, float rotation)
-        {
-            setRectRotation(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), rotation);
-        }
-        template <std::size_t CONTEXT = 0>
-        void setRectRotation(ungod::Entity e, std::size_t index, float rotation)
-        {
-            setRectRotation(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), rotation);
-        }
-        template <std::size_t CONTEXT = 0>
-        void setRectRotation(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, float rotation);
-
-
-
-        template <std::size_t CONTEXT = 0>
-        void setColliderPoint(ungod::Entity e, const sf::Vector2f& p, unsigned i)
-        {
-            setColliderPoint(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), p, i);
-        }
-        template <std::size_t CONTEXT = 0>
-        void setColliderPoint(ungod::Entity e, std::size_t index, const sf::Vector2f& p, unsigned i)
-        {
-            setColliderPoint(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), p, i);
-        }
-        template <std::size_t CONTEXT = 0>
-        void setColliderPoint(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, const sf::Vector2f& p, unsigned i);
-
-
-
-        template <std::size_t CONTEXT = 0>
-        void addColliderPoint(ungod::Entity e, const sf::Vector2f& p)
-        {
-            addColliderPoint(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), p);
-        }
-        template <std::size_t CONTEXT = 0>
-        void addColliderPoint(ungod::Entity e, std::size_t index, const sf::Vector2f& p)
-        {
-            addColliderPoint(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), p);
-        }
-        template <std::size_t CONTEXT = 0>
-        void addColliderPoint(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, const sf::Vector2f& p);
-
-
-
-        template <std::size_t CONTEXT = 0>
-        void moveCollider(ungod::Entity e, const sf::Vector2f& vec)
-        {
-            moveCollider(e, e.modify<ungod::RigidbodyComponent<CONTEXT>>(), vec);
-        }
-        template <std::size_t CONTEXT = 0>
-        void moveCollider(ungod::Entity e, std::size_t index, const sf::Vector2f& vec)
-        {
-            moveCollider(e, e.modify<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(index), vec);
-        }
-        template <std::size_t CONTEXT = 0>
-        void moveCollider(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& rb, const sf::Vector2f& vec);
+    private:
+        command::ActionManager mActionManager;
+        TransformActions mTransformActions;
+        VisualsActions mVisualsActions;
+        CollisionActions<ungod::SEMANTICS_COLLISION_CONTEXT> mSemanticsCollisionActions;
+        CollisionActions<ungod::MOVEMENT_COLLISION_CONTEXT> mMovementCollisionActions;
+        TilemapActions mTilemapActions;
+        WaterActions mWaterActions;
 
 
 
@@ -176,26 +62,6 @@ namespace uedit
         //call this to permanently delete removed entities
         //after calling this, redoing a removeEntity operation is undefined bahavior
         void deleteEntities();
-
-        void reserveTileCount(ungod::Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY);
-        void setTileData(ungod::Entity e, const sf::Vector2f& position, int id);
-        void setTileData(ungod::Entity e, const sf::Vector2f& position, int id, bool active);
-        void setTileActive(ungod::Entity e, const sf::Vector2f& position, bool active);
-        void loadTiles(ungod::Entity e, const std::string& tileID, const std::string& metaID,
-                       unsigned cTileWidth, unsigned cTileHeight,
-                       const std::vector<std::string>& keymap = {});
-        void addKey(ungod::Entity e, const std::string& key);
-
-        void reserveWaterTileCount(ungod::Entity e, std::size_t num, const unsigned mapSizeX, const unsigned mapSizeY);
-        void setWaterTileData(ungod::Entity e, const sf::Vector2f& position, int id, bool active);
-        void setWaterTileData(ungod::Entity e, const sf::Vector2f& position, int id);
-        void setWaterTileActive(ungod::Entity e, const sf::Vector2f& position, bool active);
-        void loadWaterTiles(ungod::Entity e, const std::string& tileID, const std::string& metaID,
-                       unsigned cTileWidth, unsigned cTileHeight,
-                       const std::vector<std::string>& keymap = {});
-        void loadWaterShaders(ungod::Entity e, const std::string& distortionMap,
-                      const std::string& fragmentShader, const std::string& vertexShader);
-        void addWaterKey(ungod::Entity e, const std::string& key);
 
 
 
@@ -278,9 +144,6 @@ namespace uedit
         { setAffectorCallback(e, e.modify<ungod::MultiLightAffector>().getComponent(affectorIndex), e.modify<ungod::MultiLightEmitter>().getComponent(lightIndex), callback); }
         void setAffectorCallback(ungod::Entity e, ungod::LightAffectorComponent& affector, ungod::LightEmitterComponent& emitter, const std::function<void(float, ungod::LightEmitterComponent&)>& callback);
 
-        void floodFill(ungod::Entity e, std::size_t ix, std::size_t iy, const std::vector<int>& replacementIDs, bool activate);
-        void floodFillWater(ungod::Entity e, std::size_t ix, std::size_t iy, const std::vector<int>& replacementIDs, bool activate);
-
         template<typename EMITTER_DATA, typename ESTIMATOR_DATA, typename ... PARAM>
         void setEmitter(ungod::Entity e, const std::string& emitterkey, const std::string& estimatorkey, PARAM&& ... param);
 
@@ -325,9 +188,10 @@ namespace uedit
         void eraseTile(ungod::TilemapBrush& brush, const sf::Vector2f& worldpos, int erasingID);
     private:
         EditorFrame* mEFrame;
-        std::unordered_map<ungod::Entity, sf::Vector2f> mEntityMovements;
         std::vector<ungod::Entity> mRemovedEntities;
     };
 }
+
+#include "CollisionActions.inl"
 
 #endif // WORLD_ACTION_WRAPPER_H

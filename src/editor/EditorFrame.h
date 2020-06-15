@@ -3,7 +3,6 @@
 
 #include "Canvas.h"
 #include "WorldActionWrapper.h"
-#include "Command/Command.h"
 #include "SheetPreview.h"
 #include "ScriptManager.h"
 #include "WorldCreateDialog.h"
@@ -48,18 +47,6 @@ namespace uedit
         LayerDisplay* getLayerDisplay() { return mLayerDisplay; }
         EditorCanvas* getCanvas() { return mCanvas; }
 
-        /** \brief Performs a modifing action. Tracks undo and updates not-saved flag. */
-        template<typename ... T>
-        void action(const std::function<void(T...)>& execute, const std::function<void(T...)>& undo, T... t)
-        {
-            if (mContentSaved)
-            {
-                mContentSaved = false;
-                SetTitle(_("Ungod Editor*"));
-            }
-            mActionManager.execute(execute, undo, std::forward<T>(t)...);
-        }
-
         void clearEntityDesigner(EntityDesigner* ed);
 
         ungod::World* getSelectedWorld();
@@ -74,13 +61,11 @@ namespace uedit
 
         void registerWorld(ungod::World* world);
 
+        void notifyProjectChanged();
+
 		~EditorFrame();
 
     private:
-        //central
-        command::ActionManager mActionManager;
-
-        //widgets
         bool mContentSaved;  ///< indicates whether unsaved changes are currently made
         wxPanel* mParent;
         EditorCanvas* mCanvas;

@@ -3,8 +3,8 @@
 
 #include "ungod/application/Application.h"
 #include "ungod/application/ScriptedGameState.h"
-#include "ungod/content/TileMap.h"
-#include "ungod/content/Water.h"
+#include "ungod/content/tilemap/TileMap.h"
+#include "ungod/content/water/Water.h"
 #include "ungod/base/World.h"
 #include "ungod/visual/Camera.h"
 #include "ungod/content/EntityTypes.h"

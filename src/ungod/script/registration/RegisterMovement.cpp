@@ -243,7 +243,7 @@ namespace ungod
                                             mvh.pursuit(e,
                                                 detail::unpackParameter<Entity>(parameters, "target"),
                                                 detail::unpackParameter<float>(parameters, "speed"),
-                                                detail::unpackParameter<float>(parameters, "arrivalRadius"),
+                                                detail::unpackParameter<unsigned>(parameters, "arrivalRadius"),
                                                 detail::unpackParameter<float>(parameters, "damp"));
                                         };
                                     });

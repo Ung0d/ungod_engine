@@ -11,6 +11,8 @@
 
 namespace uedit
 {
+    class EditorCanvas;
+
     /** \brief A preview area that is able to draw an entity in its appearence in the world and has several toggleable states
     * for the deifferent types of editing. */
     class EntityPreview : public RenderArea
@@ -25,7 +27,8 @@ namespace uedit
     template<std::size_t CONTEXT>
     friend class CollidersEditState;
     public:
-        EntityPreview(ungod::Entity e,
+        EntityPreview(const EditorCanvas& canvas, 
+                        ungod::Entity e,
                       WorldActionWrapper& waw,
                       wxWindow* parent = nullptr,
                           wxWindowID id = -1,
@@ -57,12 +60,14 @@ namespace uedit
 
         ungod::Entity getEntity() { return mEntity; }
         WorldActionWrapper& getWorldAction() { return mWorldAction; }
+        const EditorCanvas& getCanvas() const { return mCanvas; }
 
     private:
         ungod::Entity mEntity;
         WorldActionWrapper& mWorldAction;
         std::unique_ptr<EditState> mState;
         CameraController mCamContrl;
+        const EditorCanvas& mCanvas;
     };
 }
 

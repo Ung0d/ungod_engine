@@ -2,7 +2,7 @@
 #define UEDIT_COLLIDERS_EDIT_STATE_H
 
 #include "ungod/base/Transform.h"
-#include "ungod/physics/CollisionManager.h"
+#include "ungod/physics/CollisionHandler.h"
 #include "EntityEditState.h"
 #include "EntityPreview.h"
 #include "PointDragger.h"
@@ -141,12 +141,12 @@ namespace uedit
 
         mColliderPointDraggers.setupPointDraggers(mPreview.getEntity());
         if constexpr (CONTEXT == ungod::MOVEMENT_COLLISION_CONTEXT)
-            mLink = mPreview.getEntity().getWorld().getMovementRigidbodyManager().onContentsChanged([this](ungod::Entity e, const sf::FloatRect&)
+            mLink = mPreview.getEntity().getWorld().getMovementRigidbodyHandler().onContentsChanged([this](ungod::Entity e, const sf::FloatRect&)
                 {
                     mColliderPointDraggers.notifyChange(mPreview.getEntity());
                 });
         else if constexpr (CONTEXT == ungod::SEMANTICS_COLLISION_CONTEXT)
-            mLink = mPreview.getEntity().getWorld().getSemanticsRigidbodyManager().onContentsChanged([this](ungod::Entity e, const sf::FloatRect&)
+            mLink = mPreview.getEntity().getWorld().getSemanticsRigidbodyHandler().onContentsChanged([this](ungod::Entity e, const sf::FloatRect&)
                 {
                     mColliderPointDraggers.notifyChange(mPreview.getEntity());
                 });
@@ -282,21 +282,21 @@ namespace uedit
         if (!preview.mEntity.has<ungod::TransformComponent>())
             return;
 
-        ungod::Renderer::renderBounds(preview.mEntity.get<ungod::TransformComponent>(), window, states);
+        preview.getCanvas().getEditorState()->getRenderer().renderBounds(preview.mEntity.get<ungod::TransformComponent>(), window, states);
         if (preview.mEntity.has<ungod::RigidbodyComponent<CONTEXT>>())
-            ungod::Renderer::renderCollider<CONTEXT>(preview.mEntity.get<ungod::TransformComponent>(), 
+            preview.getCanvas().getEditorState()->getRenderer().renderCollider<CONTEXT>(preview.mEntity.get<ungod::TransformComponent>(),
                                                     preview.mEntity.get<ungod::RigidbodyComponent<CONTEXT>>(), window, states, sf::Color::Blue);
         if (preview.mEntity.has<ungod::MultiRigidbodyComponent<CONTEXT>>())
             for (unsigned i = 0; i < preview.mEntity.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponentCount(); i++)
-                ungod::Renderer::renderCollider<CONTEXT>(preview.mEntity.get<ungod::TransformComponent>(),
+                preview.getCanvas().getEditorState()->getRenderer().renderCollider<CONTEXT>(preview.mEntity.get<ungod::TransformComponent>(),
                     preview.mEntity.get < ungod::MultiRigidbodyComponent<CONTEXT >> ().getComponent(i), window, states, sf::Color::Blue);
 
         if (mSingleSelected)
-            ungod::Renderer::renderCollider<CONTEXT>(preview.mEntity.get<ungod::TransformComponent>(),
+            preview.getCanvas().getEditorState()->getRenderer().renderCollider<CONTEXT>(preview.mEntity.get<ungod::TransformComponent>(),
                 preview.mEntity.get<ungod::RigidbodyComponent<CONTEXT>>(), window, states, sf::Color::Red, sf::Color(255, 0, 0, 70));
 
         for (const auto& i : mSelectedMultiColliders)
-            ungod::Renderer::renderCollider<CONTEXT>(preview.mEntity.get<ungod::TransformComponent>(),
+            preview.getCanvas().getEditorState()->getRenderer().renderCollider<CONTEXT>(preview.mEntity.get<ungod::TransformComponent>(),
                 preview.mEntity.get < ungod::MultiRigidbodyComponent<CONTEXT >>().getComponent(i), window, states, sf::Color::Red, sf::Color(255, 0, 0, 70));
 
         states.transform *= preview.mEntity.get<ungod::TransformComponent>().getTransform();

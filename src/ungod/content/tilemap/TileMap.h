@@ -105,8 +105,8 @@ namespace ungod
         /** \brief Maps a position to tiledata. */
         int getTileID(unsigned x, unsigned y) const;
 
-        /** \brief Maps a position to the corresponding tile-indices. Returns {0,0} if the position is not inside the tilemap. */
-        sf::Vector2u getTileIndices(const sf::Vector2f& position) const;
+        /** \brief Maps a position to the corresponding tile-indices. Returns {-1,-1} if the position is not inside the tilemap. */
+        sf::Vector2i getTileIndices(const sf::Vector2f& position) const;
 
         /** \brief Returns the position of the given tiles. Returns {0,0} if the tile does not exists. */
         sf::Vector2f getTilePosition(unsigned x, unsigned y) const;
@@ -117,6 +117,8 @@ namespace ungod
         const std::vector<std::string>& getKeyMap() const { return mKeymap; }
 
         sf::FloatRect getBounds() const;
+
+        const TileData& getTileData() const { return mTiles; }
     };
 }
 

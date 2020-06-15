@@ -70,7 +70,7 @@ namespace uedit
             wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
             wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
 
-            mEntityPreview = new EntityPreview(mEntity, mWorldAction, panel, -1, wxDefaultPosition, wxSize(DEFAULT_SIZE.x - mTabs->GetSize().x, DEFAULT_SIZE.y));
+            mEntityPreview = new EntityPreview(mCanvas, mEntity, mWorldAction, panel, -1, wxDefaultPosition, wxSize(DEFAULT_SIZE.x - mTabs->GetSize().x, DEFAULT_SIZE.y));
 
             hbox->Add(mEntityPreview,1, wxEXPAND);
             vbox->Add(hbox,1, wxEXPAND);

@@ -50,7 +50,7 @@ namespace uedit
 
     void ParticleEditState::render(EntityPreview& preview, sf::RenderWindow& window, sf::RenderStates states)
     {
-        ungod::Renderer::renderBounds(preview.mEntity.get<ungod::TransformComponent>(), window, states);
+        preview.mCanvas.getEditorState()->getRenderer().renderBounds(preview.mEntity.get<ungod::TransformComponent>(), window, states);
 
         states.transform *= preview.mEntity.get<ungod::TransformComponent>().getTransform();
 

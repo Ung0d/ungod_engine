@@ -76,7 +76,7 @@ namespace uedit
 
         std::string file = std::string{event.GetString().mb_str()};
         //load the script
-        ungod::ScriptErrorCode err = mWorldAction.getEditorFrame()->getSelectedWorld()->getBehaviorManager().loadBehaviorScript(file);
+        ungod::ScriptErrorCode err = mWorldAction.getEditorFrame()->getCanvas()->getEditorState()->getEntityBehaviorManager().loadBehaviorScript(file);
         evaluateScriptExecution(err, file);
 
         //display the text
@@ -132,7 +132,8 @@ namespace uedit
             case SCRIPT_RUN:
             {
                 onScriptSave(event);
-                std::vector<std::pair<std::string, ungod::ScriptErrorCode>> err = mWorldAction.getEditorFrame()->getSelectedWorld()->getBehaviorManager().reload(mApp);
+                std::vector<std::pair<std::string, ungod::ScriptErrorCode>> err = 
+                        mWorldAction.getEditorFrame()->getCanvas()->getEditorState()->getEntityBehaviorManager().reload(mApp.getScriptState(), mApp.getGlobalScriptEnv());
                 for (const auto& e : err)
                 {
                     evaluateScriptExecution(e.second, e.first);
