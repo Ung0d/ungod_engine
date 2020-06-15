@@ -205,9 +205,14 @@ namespace ungod
         return mTiles.ids->at(estimatedPos);
     }
 
-    sf::Vector2u TileMap::getTileIndices(const sf::Vector2f& position) const
+    sf::Vector2i TileMap::getTileIndices(const sf::Vector2f& position) const
     {
-        return {(unsigned)(std::floor((position.x - getPosition().x) / getTileWidth())), (unsigned)(std::floor((position.y - getPosition().y) / getTileHeight()))};
+        sf::Vector2i indices{ (int)(std::floor((position.x - getPosition().x) / getTileWidth())), (int)(std::floor((position.y - getPosition().y) / getTileHeight())) };
+        indices.x = std::max(indices.x, -1);
+        indices.y = std::max(indices.y, -1);
+        indices.x = std::min(indices.x, (int)mMapSizeX-1);
+        indices.y = std::min(indices.y, (int)mMapSizeY-1);
+        return indices;
     }
 
     sf::Vector2f TileMap::getTilePosition(unsigned x, unsigned y) const

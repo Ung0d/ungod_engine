@@ -1,6 +1,7 @@
 #include "LightEditState.h"
 #include "EntityPreview.h"
 #include "EntityLightWindow.h"
+#include "Canvas.h"
 
 namespace uedit
 {
@@ -9,7 +10,7 @@ namespace uedit
         mPointSet(false), mLightSelected(false), mColliderSelected(false), mEntityLightWindow(lightWindow), mShadowEmitterDraggers(preview.getWorldAction())
     {
         mShadowEmitterDraggers.setupPointDraggers(mPreview.getEntity());
-        mLink = mPreview.getEntity().getWorld().getLightSystem().onContentsChanged([this](ungod::Entity e, const sf::FloatRect&)
+        mLink = mPreview.getEntity().getWorld().getLightHandler().onContentsChanged([this](ungod::Entity e, const sf::FloatRect&)
             {
                 mShadowEmitterDraggers.notifyChange(mPreview.getEntity());
             });
@@ -247,8 +248,8 @@ namespace uedit
 
     void LightEditState::render(EntityPreview& preview, sf::RenderWindow& window, sf::RenderStates states)
     {
-        ungod::Renderer::renderBounds(preview.mEntity.get<ungod::TransformComponent>(), window, states);
-        ungod::Renderer::renderLightDebug(preview.mEntity, preview.mEntity.get<ungod::TransformComponent>(), window, states);
+        preview.getCanvas().getEditorState()->getRenderer().renderBounds(preview.mEntity.get<ungod::TransformComponent>(), window, states);
+        preview.getCanvas().getEditorState()->getRenderer().renderLightDebug(preview.mEntity, preview.mEntity.get<ungod::TransformComponent>(), window, states);
 
         if (!preview.mEntity.has<ungod::TransformComponent>())
             return;

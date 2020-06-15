@@ -2,9 +2,9 @@
 #define UEDIT_TILEMAP_EDIT_STATE_H
 
 #include <unordered_set>
-#include "ungod/content/TileMap.h"
-#include "ungod/content/Water.h"
-#include "ungod/content/TilemapBrush.h"
+#include "ungod/content/tilemap/TileMap.h"
+#include "ungod/content/water/Water.h"
+#include "ungod/content/tilemap/TilemapBrush.h"
 #include "EntityEditState.h"
 #include <optional>
 
@@ -13,12 +13,11 @@ namespace uedit
     class TileMapEditBase : public EditState
     {
     public:
-        TileMapEditBase(EntityPreview& preview, bool water = false);
+        TileMapEditBase(EntityPreview& preview);
 
         virtual void render(EntityPreview& preview, sf::RenderWindow& window, sf::RenderStates states) override;
 
     protected:
-        bool mWater;
         EntityPreview& mPreview;
         sf::VertexArray mVertices;
     };
@@ -27,7 +26,7 @@ namespace uedit
     class TileMapEditState : public TileMapEditBase
     {
     public:
-        TileMapEditState(EntityPreview& preview, bool water = false);
+        TileMapEditState(EntityPreview& preview);
 
 
         virtual void handleInput(EntityPreview& preview, const sf::Event& event) override;
@@ -35,7 +34,7 @@ namespace uedit
 
     private:
         bool mMouseDown;
-        ungod::Tile const* mLastTile;
+        sf::Vector2u mLastTileIndices;
         std::optional<ungod::TilemapBrush> mTMBrush;
     };
 

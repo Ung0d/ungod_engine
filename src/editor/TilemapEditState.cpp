@@ -4,7 +4,7 @@
 
 namespace uedit
 {
-    TileMapEditBase::TileMapEditBase(EntityPreview& preview, bool water) : mWater(water), mPreview(preview)
+    TileMapEditBase::TileMapEditBase(EntityPreview& preview) : mPreview(preview)
     {
         mVertices.setPrimitiveType(sf::Lines);
     }
@@ -12,11 +12,7 @@ namespace uedit
 
     void TileMapEditBase::render(EntityPreview& preview, sf::RenderWindow& window, sf::RenderStates states)
     {
-        ungod::TileMap const* tm;
-        if (mWater)
-            tm = &mPreview.mEntity.modify<ungod::WaterComponent>().getWater().getTileMap();
-        else
-            tm = &mPreview.mEntity.modify<ungod::TileMapComponent>().getTileMap();
+        ungod::TileMap const* tm = &mPreview.mEntity.modify<ungod::TileMapComponent>().getTileMap();
 
 		if (!preview.mEntity.has<ungod::TransformComponent>())
 			return;
@@ -24,34 +20,31 @@ namespace uedit
 		states.transform *= preview.mEntity.get<ungod::TransformComponent>().getTransform();
 
         //build a grid and render it
-        if (tm->getImage().isLoaded() && tm->getImage().get()->getSize().x > 0)
+        float horizontalSize = ceil( mPreview.mCamera.getView().getSize().x / (tm->getScale().x*tm->getTileWidth()) ) + 1;
+        float verticalSize = ceil( mPreview.mCamera.getView().getSize().y / (tm->getScale().y*tm->getTileHeight()) ) + 1;
+        mVertices.resize(horizontalSize*verticalSize*4);
+
+        sf::Vector2f windowPosition = window.mapPixelToCoords(sf::Vector2i(0,0), mPreview.mCamera.getView());
+        windowPosition = states.transform.getInverse().transformPoint(windowPosition);
+
+        unsigned metaX = std::max(0, (int)floor((windowPosition.x - tm->getPosition().x) / tm->getTileWidth()));
+        unsigned metaY = std::max(0, (int)floor((windowPosition.y - tm->getPosition().y) / tm->getTileHeight()));
+
+        for (unsigned x = metaX; x < metaX + horizontalSize && x < tm->getMapSizeX(); x++)
+            for (unsigned y = metaY; y < metaY + verticalSize && y < tm->getMapSizeY(); y++)
         {
-            float horizontalSize = ceil( mPreview.mCamera.getView().getSize().x / (tm->getScale().x*tm->getTileWidth()) ) + 1;
-            float verticalSize = ceil( mPreview.mCamera.getView().getSize().y / (tm->getScale().y*tm->getTileHeight()) ) + 1;
-            mVertices.resize(horizontalSize*verticalSize*4);
+            sf::Vertex* vert = &mVertices[(y - metaY + (x - metaX) * verticalSize) * 4];
 
-            sf::Vector2f windowPosition = window.mapPixelToCoords(sf::Vector2i(0,0), mPreview.mCamera.getView());
-            windowPosition = states.transform.getInverse().transformPoint(windowPosition);
+            // define the 4 corners
+            vert[0].position = sf::Vector2f(x * tm->getTileWidth(), y * tm->getTileHeight());
+            vert[1].position = sf::Vector2f((x + 1) * tm->getTileWidth(), y * tm->getTileHeight());
+            vert[2].position = sf::Vector2f(x * tm->getTileWidth(), y * tm->getTileHeight());
+            vert[3].position = sf::Vector2f(x * tm->getTileWidth(), (y + 1) * tm->getTileHeight());
 
-            unsigned metaX = std::max(0, (int)floor((windowPosition.x - tm->getPosition().x) / tm->getTileWidth()));
-            unsigned metaY = std::max(0, (int)floor((windowPosition.y - tm->getPosition().y) / tm->getTileHeight()));
-
-            for (unsigned x = metaX; x < metaX + horizontalSize && x < tm->getMapSizeX(); x++)
-                for (unsigned y = metaY; y < metaY + verticalSize && y < tm->getMapSizeY(); y++)
-            {
-                sf::Vertex* vert = &mVertices[(y - metaY + (x - metaX) * verticalSize) * 4];
-
-                // define the 4 corners
-                vert[0].position = sf::Vector2f(x * tm->getTileWidth(), y * tm->getTileHeight());
-                vert[1].position = sf::Vector2f((x + 1) * tm->getTileWidth(), y * tm->getTileHeight());
-                vert[2].position = sf::Vector2f(x * tm->getTileWidth(), y * tm->getTileHeight());
-                vert[3].position = sf::Vector2f(x * tm->getTileWidth(), (y + 1) * tm->getTileHeight());
-
-                vert[0].color = sf::Color::Green;
-                vert[1].color = sf::Color::Green;
-                vert[2].color = sf::Color::Green;
-                vert[3].color = sf::Color::Green;
-            }
+            vert[0].color = sf::Color::Green;
+            vert[1].color = sf::Color::Green;
+            vert[2].color = sf::Color::Green;
+            vert[3].color = sf::Color::Green;
         }
 
         states.transform *= tm->getTransform();
@@ -59,18 +52,20 @@ namespace uedit
     }
 
 
-    TileMapEditState::TileMapEditState(EntityPreview& preview, bool water) : TileMapEditBase(preview, water), mMouseDown(false), mLastTile(nullptr)
+    TileMapEditState::TileMapEditState(EntityPreview& preview) : TileMapEditBase(preview), mMouseDown(false), mLastTileIndices(-1,-1)
     {
     }
 
 
     void TileMapEditState::handleInput(EntityPreview& preview, const sf::Event& event)
     {
-        ungod::TileMap const* tm;
-        if (mWater)
-            tm = &mPreview.mEntity.modify<ungod::WaterComponent>().getWater().getTileMap();
-        else
-            tm = &mPreview.mEntity.modify<ungod::TileMapComponent>().getTileMap();
+        ungod::TileMap const* tm = &mPreview.mEntity.modify<ungod::TileMapComponent>().getTileMap();
+
+        if (!mPreview.mEntity.has<ungod::VisualsComponent>())
+            return;
+        auto& v = &mPreview.mEntity.modify<ungod::VisualsComponent>();
+        if (!v->isLoaded())
+            return;
 
         switch (event.type)
         {
@@ -79,17 +74,16 @@ namespace uedit
             if (event.mouseButton.button == sf::Mouse::Left)
             {
                 mMouseDown = true;
-                mLastTile = nullptr;
             }
             else if (event.mouseButton.button == sf::Mouse::Right)
             {
                 sf::Vector2f worldpos = mPreview.mWindow.mapPixelToCoords(sf::Mouse::getPosition(mPreview.getWindow()), mPreview.mCamera.getView() );
                 worldpos = mPreview.mEntity.modify<ungod::TransformComponent>().getTransform().getInverse().transformPoint(worldpos);
-                ungod::Tile const* tile = tm->getTiledata(worldpos);
-                if (tile && tile->isActive())
+                sf::Vector2i indices = tm->getTileIndices(worldpos);
+                if (indices.x > -1)
                 {
-                    std::string key = tm->getKeyMap()[tile->getTileID()];
-                    mPreview.mWorldAction.getEditorFrame()->getSheetPreview()->selectSheetKey(tm->getImage().getFilePath(), key + " (object)");
+                    std::string key = tm->getKeyMap()[tm->getTileID(indices.x, indices.y)];
+                    mPreview.mWorldAction.getEditorFrame()->getSheetPreview()->selectSheetKey(v.getFilePath(), key + " (object)");
                 }
             }
             break;
@@ -108,24 +102,20 @@ namespace uedit
 
     void TileMapEditState::update(EntityPreview& preview, float delta)
     {
-        ungod::TileMap const* tm;
-        if (mWater)
-            tm = &mPreview.mEntity.modify<ungod::WaterComponent>().getWater().getTileMap();
-        else
-            tm = &mPreview.mEntity.modify<ungod::TileMapComponent>().getTileMap();
+        ungod::TileMap const* tm = &mPreview.mEntity.modify<ungod::TileMapComponent>().getTileMap();
 
         if (mMouseDown)
         {
             sf::Vector2f worldpos = mPreview.mWindow.mapPixelToCoords( sf::Mouse::getPosition(mPreview.mWindow), mPreview.mCamera.getView() );
             worldpos = mPreview.mEntity.modify<ungod::TransformComponent>().getTransform().getInverse().transformPoint(worldpos);
-            ungod::Tile const* tile = tm->getTiledata(worldpos);
+            sf::Vector2i tileIndices = tm->getTileIndices(worldpos);
             std::string key = mPreview.mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentKey();
             std::string type = mPreview.mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentType();
-            if (tile && key != "")
+            if (key != "")
             {
-                if (!mLastTile || mLastTile != tile)
+                if (!mLastTileIndices.x == -1 || mLastTileIndices != tileIndices)
                 {
-                    mLastTile = tile;
+                    mLastTileIndices = tileIndices;
                     if (type == "object")
                     {
                         //retrieve the id for the key or add it to the keylist and create a new id
@@ -141,25 +131,13 @@ namespace uedit
 
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) //remove key
                         {
-                            if (mWater)
-                                mPreview.mWorldAction.setWaterTileData(mPreview.mEntity, worldpos, !tile->isActive());
-                            else
-                                mPreview.mWorldAction.setTileActive(mPreview.mEntity, worldpos, !tile->isActive());
+                            mPreview.mWorldAction.setTile(mPreview.mEntity, worldpos, -1);
                         }
                         else //add key
                         {
-                            if (mWater)
-                            {
-                                if (tileID == (int)tm->getKeyMap().size())
-                                    mPreview.mWorldAction.addWaterKey(mPreview.mEntity, key);
-                                mPreview.mWorldAction.setWaterTileData(mPreview.mEntity, worldpos, tileID);
-                            }
-                            else
-                            {
-                                if (tileID == (int)tm->getKeyMap().size())
-                                    mPreview.mWorldAction.addKey(mPreview.mEntity, key);
-                                mPreview.mWorldAction.setTileData(mPreview.mEntity, worldpos, tileID);
-                            }
+                            if (tileID == (int)tm->getKeyMap().size())
+                                mPreview.mWorldAction.addKey(mPreview.mEntity, key);
+                            mPreview.mWorldAction.setTile(mPreview.mEntity, worldpos, tileID);
                         }
                     }
                     else if (type == "brush")
@@ -185,16 +163,10 @@ namespace uedit
                                 {
                                     if (std::find(tm->getKeyMap().begin(), tm->getKeyMap().end(), k) == tm->getKeyMap().end())
                                     {
-                                        if (mWater)
-                                            mPreview.mWorldAction.addWaterKey(mPreview.mEntity, k);
-                                        else
-                                            mPreview.mWorldAction.addKey(mPreview.mEntity, k);
+                                        mPreview.mWorldAction.addKey(mPreview.mEntity, k);
                                     }
                                 }
-                                if (mWater)
-                                    mTMBrush = mPreview.mWorldAction.getEditorFrame()->getSelectedWorld()->getTileMapRenderer().makeWaterBrush(mPreview.mEntity, key);
-                                else
-                                    mTMBrush = mPreview.mWorldAction.getEditorFrame()->getSelectedWorld()->getTileMapRenderer().makeTilemapBrush(mPreview.mEntity, key);
+                                mTMBrush = mPreview.mWorldAction.getEditorFrame()->getSelectedWorld()->getTileMapRenderer().makeTilemapBrush(mPreview.mEntity, key);
                             }
                             mPreview.mWorldAction.paintTile(*mTMBrush, worldpos, !sf::Keyboard::isKeyPressed(sf::Keyboard::LControl));
                         //}
@@ -212,11 +184,7 @@ namespace uedit
 
     void TileMapFloodFillState::handleInput(EntityPreview& preview, const sf::Event& event)
     {
-        ungod::TileMap const* tm;
-        if (mWater)
-            tm = &mPreview.mEntity.modify<ungod::WaterComponent>().getWater().getTileMap();
-        else
-            tm = &mPreview.mEntity.modify<ungod::TileMapComponent>().getTileMap();
+        ungod::TileMap const* tm = &mPreview.mEntity.modify<ungod::TileMapComponent>().getTileMap();
 
         switch (event.type)
         {
@@ -247,18 +215,9 @@ namespace uedit
 
                         auto ti = tm->getTileIndices(worldpos);
 
-                        if (mWater)
-                        {
-                            if (tileID == (int)tm->getKeyMap().size())
-                                mPreview.mWorldAction.addWaterKey(mPreview.mEntity, key);
-                            mPreview.mWorldAction.floodFillWater(mPreview.mEntity, ti.x, ti.y, {tileID}, true);
-                        }
-                        else
-                        {
-                            if (tileID == (int)tm->getKeyMap().size())
-                                mPreview.mWorldAction.addKey(mPreview.mEntity, key);
-                            mPreview.mWorldAction.floodFill(mPreview.mEntity, ti.x, ti.y, {tileID}, true);
-                        }
+                        if (tileID == (int)tm->getKeyMap().size())
+                            mPreview.mWorldAction.addKey(mPreview.mEntity, key);
+                        mPreview.mWorldAction.floodFill(mPreview.mEntity, ti.x, ti.y, {tileID});
                     }
                 }
             }

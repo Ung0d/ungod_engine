@@ -136,7 +136,7 @@ namespace ungod
     template <>
     struct SerialID<Entity>
     {
-        inline static std::uintptr_t get(const Entity& t);
+        static std::uintptr_t get(const Entity& t);
     };
 }
 

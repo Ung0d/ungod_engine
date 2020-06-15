@@ -90,7 +90,7 @@ namespace uedit
             return;
 
         //draw the renderboy centered, scale down if its size exceed the bounds of the preview area
-        states.texture = mSelectedImage->get();
+        states.texture = &mSelectedImage->get();
         mRenderbody.render(window, states);
     }
 
@@ -239,7 +239,7 @@ namespace uedit
     void SheetPreview::updateKeysListbox(std::size_t sheetID)
     {
         mSheetKeys->Clear();
-        for (const auto& p : mMetas[sheetID].get()->metamap)
+        for (const auto& p : mMetas[sheetID].get().metamap)
         {
             std::string identifier = p.first;
             identifier.append(" (");

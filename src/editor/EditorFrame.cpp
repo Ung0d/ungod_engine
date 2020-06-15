@@ -95,7 +95,7 @@ namespace uedit
         mParent = new wxPanel(this, wxID_ANY);
         mEditorTabs = new wxNotebook(mParent, wxID_ANY);
         mCanvas = new EditorCanvas(this, mParent, wxID_ANY);
-		mCanvas->getEditorState()->getWorldGraph().onReferencePositionChanged([this](sf::Vector2f pos)
+		mCanvas->getEditorState()->getWorldGraph().onActiveNodeChanged([this](ungod::WorldGraph& wg, ungod::WorldGraphNode& oldNode, ungod::WorldGraphNode& newNode)
 			{
 				mLayerDisplay->setup();
 			});
@@ -236,56 +236,65 @@ namespace uedit
 
     void EditorFrame::registerWorld(ungod::World* world)
     {
-        world->getVisualsManager().onContentsChanged([this, world] (ungod::Entity e, const sf::FloatRect& rect)
+        world->getVisualsHandler().onContentsChanged([this, world] (ungod::Entity e, const sf::FloatRect& rect)
         {
             for (auto d : mActiveDesigners)
                d->onEntityContentsChanged(e, *world);
         });
-        world->getLightSystem().onContentsChanged([this, world] (ungod::Entity e, const sf::FloatRect& rect)
+        world->getLightHandler().onContentsChanged([this, world] (ungod::Entity e, const sf::FloatRect& rect)
         {
             for (auto d : mActiveDesigners)
                d->onEntityContentsChanged(e, *world);
         });
-        world->getSemanticsRigidbodyManager().onContentsChanged([this, world] (ungod::Entity e, const sf::FloatRect& rect)
+        world->getSemanticsRigidbodyHandler().onContentsChanged([this, world] (ungod::Entity e, const sf::FloatRect& rect)
         {
             for (auto d : mActiveDesigners)
                d->onColliderChanged(e, *world);
         });
-        world->getMovementRigidbodyManager().onContentsChanged([this, world](ungod::Entity e, const sf::FloatRect& rect)
+        world->getMovementRigidbodyHandler().onContentsChanged([this, world](ungod::Entity e, const sf::FloatRect& rect)
         {
             for (auto d : mActiveDesigners)
                 d->onColliderChanged(e, *world);
         });
-        world->getSemanticsRigidbodyManager().onContentRemoved([this, world] (ungod::Entity e)
+        world->getSemanticsRigidbodyHandler().onContentRemoved([this, world] (ungod::Entity e)
         {
             for (auto d : mActiveDesigners)
                d->onColliderChanged(e, *world);
         });
-        world->getTransformManager().onPositionChanged([this, world] (ungod::Entity e, const sf::Vector2f& pos)
+        world->getTransformHandler().onPositionChanged([this, world] (ungod::Entity e, const sf::Vector2f& pos)
         {
             for (auto d : mActiveDesigners)
                d->onEntityPositionChanged(e, *world, pos);
         });
-        world->getTransformManager().onSizeChanged([this, world] (ungod::Entity e, const sf::Vector2f& s)
+        world->getTransformHandler().onSizeChanged([this, world] (ungod::Entity e, const sf::Vector2f& s)
         {
             for (auto d : mActiveDesigners)
                d->onEntitySizeChanged(e, *world, s);
         });
-        world->getParticleSystemManager().onEmitterChanged([this, world] (ungod::Entity e, const std::string& key, const ungod::PSData& data)
+        world->getParticleSystemHandler().onEmitterChanged([this, world] (ungod::Entity e, const std::string& key, const ungod::PSData& data)
         {
             for (auto d : mActiveDesigners)
                d->onParticleEmitterChanged(e, *world, key, data);
         });
-        world->getParticleSystemManager().onTexrectInitChanged([this, world] (ungod::Entity e, const std::string& key, const ungod::PSData& data)
+        world->getParticleSystemHandler().onTexrectInitChanged([this, world] (ungod::Entity e, const std::string& key, const ungod::PSData& data)
         {
             for (auto d : mActiveDesigners)
                d->onTexrectInitChanged(e, *world, key, data);
         });
-        world->getParticleSystemManager().onAffectorsChanged([this, world] (ungod::Entity e, const std::string& key, const ungod::PSData& data)
+        world->getParticleSystemHandler().onAffectorsChanged([this, world] (ungod::Entity e, const std::string& key, const ungod::PSData& data)
         {
             for (auto d : mActiveDesigners)
                d->onAffectorsChanged(e, *world, key, data);
         });
+    }
+
+    void EditorFrame::notifyProjectChanged()
+    {
+        if (mContentSaved)
+        {
+            mContentSaved = false;
+            SetTitle(_("Ungod Editor*"));
+        }
     }
 
     void EditorFrame::saveProject()
@@ -359,11 +368,11 @@ namespace uedit
         if (e.has<ungod::TransformComponent>())
         {
             sf::Vector2f centerpos = mCanvas->getWindow().mapPixelToCoords(
-                    {(int)mCanvas->getWindow().getSize().x/2, (int)mCanvas->getWindow().getSize().y/2}, mCanvas->getEditorState()->getCamera().getView() );
+                    {(int)mCanvas->getWindow().getSize().x/2, (int)mCanvas->getWindow().getSize().y/2}, mCanvas->getEditorState()->getWorldGraph().getCamera().getView() );
             centerpos.x *=  e.getWorld().getRenderDepth();
             centerpos.y *=  e.getWorld().getRenderDepth();
-			centerpos = e.getWorld().getContainer()->mapToLocalPosition(centerpos);
-            e.getWorld().getTransformManager().setPosition(e, centerpos);
+			centerpos = e.getWorld().getNode().mapToLocalPosition(centerpos);
+            e.getWorld().getTransformHandler().setPosition(e, centerpos);
             e.getWorld().getQuadTree().insert(e);
         }
         openEntityDesigner(e);
@@ -372,14 +381,14 @@ namespace uedit
     void EditorFrame::addEntities(std::vector<ungod::Entity> entities, const sf::Vector2f& relativeTo)
     {
         sf::Vector2f centerpos = mCanvas->getWindow().mapPixelToCoords(
-                {(int)mCanvas->getWindow().getSize().x/2, (int)mCanvas->getWindow().getSize().y/2}, mCanvas->getEditorState()->getCamera().getView() );
+                {(int)mCanvas->getWindow().getSize().x/2, (int)mCanvas->getWindow().getSize().y/2}, mCanvas->getEditorState()->getWorldGraph().getCamera().getView() );
         sf::Vector2f offset = centerpos - relativeTo;
 
         for (auto& e : entities)
         {
             if (e.has<ungod::TransformComponent>())
             {
-                e.getWorld().getTransformManager().move(e, offset);
+                e.getWorld().getTransformHandler().move(e, offset);
                 e.getWorld().getQuadTree().insert(e);
             }
         }

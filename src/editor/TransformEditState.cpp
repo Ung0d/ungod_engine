@@ -1,5 +1,6 @@
 #include "TransformEditState.h"
 #include "EntityPreview.h"
+#include "Canvas.h"
 
 namespace uedit
 {
@@ -14,6 +15,6 @@ namespace uedit
 
     void TransformEditState::render(EntityPreview& preview, sf::RenderWindow& window, sf::RenderStates states)
     {
-        ungod::Renderer::renderBounds(preview.mEntity.get<ungod::TransformComponent>(), window, states);
+        preview.getCanvas().getEditorState()->getRenderer().renderBounds(preview.mEntity.get<ungod::TransformComponent>(), window, states);
     }
 }

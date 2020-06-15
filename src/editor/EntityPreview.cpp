@@ -1,20 +1,23 @@
 #include "EntityPreview.h"
 #include "EditorFrame.h"
+#include "Canvas.h"
 #include <algorithm>
 
 namespace uedit
 {
-    EntityPreview::EntityPreview(ungod::Entity e,
-                      WorldActionWrapper& waw,
-                                 wxWindow* parent,
-                      wxWindowID id,
-                      const wxPoint& cPosition,
-                      const wxSize& cSize,
-                      long cStyle) :
+    EntityPreview::EntityPreview(const EditorCanvas& canvas, 
+                                  ungod::Entity e,
+                                  WorldActionWrapper& waw,
+                                   wxWindow* parent,
+                                  wxWindowID id,
+                                  const wxPoint& cPosition,
+                                  const wxSize& cSize,
+                                  long cStyle) :
                           RenderArea(parent, id, cPosition, cSize, cStyle),
                           mEntity(e),
                           mWorldAction(waw),
-                          mCamContrl(mCamera)
+                          mCamContrl(mCamera),
+                          mCanvas(canvas)
     {
         toggleDefault();
         resetView();
@@ -38,7 +41,7 @@ namespace uedit
         {
             window.setSize(sf::Vector2u((unsigned)GetSize().x, (unsigned)GetSize().y));
             if (mEntity.has<ungod::VisualsComponent>())
-                ungod::Renderer::renderEntity(mEntity, mEntity.modify<ungod::TransformComponent>(), mEntity.modify<ungod::VisualsComponent>(), window, states);
+                mCanvas.getEditorState()->getRenderer().renderEntity(mEntity, mEntity.modify<ungod::TransformComponent>(), mEntity.modify<ungod::VisualsComponent>(), window, states);
         }
 
         mState->render(*this, window, states);

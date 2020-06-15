@@ -26,11 +26,11 @@ namespace uedit
         vbox->Add(resetViewBut,1,wxCENTER);
 
         auto* brushbut = new wxButton(this, -1, "brush");
-        brushbut->Bind(wxEVT_BUTTON, [this] (wxCommandEvent & event) { mDesigner->getEntityPreview()->toggle<TileMapEditState>(false); });
+        brushbut->Bind(wxEVT_BUTTON, [this] (wxCommandEvent & event) { mDesigner->getEntityPreview()->toggle<TileMapEditState>(); });
         vbox->Add(brushbut,1,wxCENTER);
 
         auto* floodfillbut = new wxButton(this, -1, "flood fill");
-        floodfillbut->Bind(wxEVT_BUTTON, [this] (wxCommandEvent & event) { mDesigner->getEntityPreview()->toggle<TileMapFloodFillState>(false); });
+        floodfillbut->Bind(wxEVT_BUTTON, [this] (wxCommandEvent & event) { mDesigner->getEntityPreview()->toggle<TileMapFloodFillState>(); });
         vbox->Add(floodfillbut,1,wxCENTER);
 
         SetSizer(vbox);
@@ -98,9 +98,6 @@ namespace uedit
         WaterDialog dia(this, -1);
         if (dia.ShowModal() == wxID_OK)
         {
-            mWorldAction.loadWaterTiles(mEntity, std::string{dia.getSheetID().mbc_str()}, std::string{dia.getMetaID().mbc_str()},
-                                   dia.getTileWidth(), dia.getTileHeight());
-            mWorldAction.reserveWaterTileCount(mEntity, dia.getMapWidth()*dia.getMapHeight(), dia.getMapWidth(), dia.getMapHeight());
             mWorldAction.loadWaterShaders(mEntity, std::string{dia.getDistortionMapID().mbc_str()},
                                                    std::string{dia.getFragmentShaderID().mbc_str()},
                                                    std::string{dia.getVertexShaderID().mbc_str()});

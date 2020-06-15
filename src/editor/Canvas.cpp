@@ -8,11 +8,11 @@ namespace uedit
         mUpdateFlag(true),
         mRenderFlag(true),
         mDebugRendering(false),
-        mCamContrl(getCamera())
+        mCamContrl(getWorldGraph().getCamera())
     {
-		getWorldGraph().onReferencePositionChanged([this](sf::Vector2f pos)
+		getWorldGraph().onActiveNodeChanged([this](ungod::WorldGraph& wg, ungod::WorldGraphNode& oldNode, ungod::WorldGraphNode& newNode)
 			{
-				getCamera().lookAt(pos);
+                wg.getCamera().lookAt(newNode.mapToGlobalPosition({0.0f, 0.0f}));
 			});
     }
 
@@ -120,7 +120,7 @@ namespace uedit
                 {
                     if (e.has<ungod::TransformComponent>())
                     {
-                        sf::Vector2f mouseMove = mEditorState->getCamera().getZoom() * sf::Vector2f{(float)(curEvent.mouseMove.x - mMouseLastPos.x), (float)(curEvent.mouseMove.y - mMouseLastPos.y)};
+                        sf::Vector2f mouseMove = mEditorState->getWorldGraph().getCamera().getZoom() * sf::Vector2f{(float)(curEvent.mouseMove.x - mMouseLastPos.x), (float)(curEvent.mouseMove.y - mMouseLastPos.y)};
                         mEFrame->getWorldActionWrapper().moveEntity(e, mouseMove);
                     }
                 }
@@ -163,7 +163,7 @@ namespace uedit
                         mCopyTimeCenter = mEFrame->getCanvas()->getWindow().mapPixelToCoords(
                             {(int)mEFrame->getCanvas()->getWindow().getSize().x/2,
                              (int)mEFrame->getCanvas()->getWindow().getSize().y/2},
-                              mEFrame->getCanvas()->getEditorState()->getCamera().getView() );
+                              mEFrame->getCanvas()->getEditorState()->getWorldGraph().getCamera().getView() );
                         mCopiedEntities = mSelectedEntities;
                     }
                     break;
@@ -272,7 +272,7 @@ namespace uedit
 
         for (const auto& e : mSelectedEntities)
         {
-            mEditorState->getCamera().renderBegin(&e.getWorld());
+            mEditorState->getWorldGraph().getCamera().renderBegin(e.getWorld().getRenderDepth());
             sf::RenderStates local = nodeStates;
             sf::RectangleShape rect;
             if (e.has<ungod::TransformComponent>())
@@ -286,17 +286,17 @@ namespace uedit
 				rect.setOutlineColor(sf::Color::Red);
 				target.draw(rect, local);
             }
-            mEditorState->getCamera().renderEnd();
+            mEditorState->getWorldGraph().getCamera().renderEnd();
         }
 
         //render layer bounds
         quad::PullResult<ungod::WorldGraphNode*> pull;
-        sf::Vector2f windowTop = target.mapPixelToCoords({}, mEditorState->getCamera().getView());
-        sf::Vector2f windowBot = target.mapPixelToCoords(static_cast<sf::Vector2i>(target.getSize()), mEditorState->getCamera().getView());
+        sf::Vector2f windowTop = target.mapPixelToCoords({}, mEditorState->getWorldGraph().getCamera().getView());
+        sf::Vector2f windowBot = target.mapPixelToCoords(static_cast<sf::Vector2i>(target.getSize()), mEditorState->getWorldGraph().getCamera().getView());
         mEditorState->getWorldGraph().getQuadTree().retrieve(pull, {windowTop.x, windowTop.y, windowBot.x - windowTop.x, windowBot.y - windowTop.y});
         for (auto* n : pull.getList())
         {
-            mEditorState->getCamera().renderBegin();
+            mEditorState->getWorldGraph().getCamera().renderBegin();
             auto nbounds = n->getBounds();
             if (sf::FloatRect{windowTop, windowBot - windowTop}.intersects(nbounds))
             {
@@ -308,7 +308,7 @@ namespace uedit
                 rect.setOutlineThickness(10.0f);
                 target.draw(rect, states);
             }
-            mEditorState->getCamera().renderEnd();
+            mEditorState->getWorldGraph().getCamera().renderEnd();
         }
     }
 
@@ -349,8 +349,10 @@ namespace uedit
         {
             bool anyClicked = false;
             //retrieve entities near mouse position
-            sf::Vector2f mouseWorldPos = mApp->getWindow().mapPixelToCoords( {event.mouseButton.x, event.mouseButton.y}, mEditorState->getCamera().getView(mEFrame->getSelectedWorld()));
-			mouseWorldPos = mEFrame->getSelectedWorld()->getContainer()->mapToLocalPosition(mouseWorldPos);
+            sf::Vector2f mouseWorldPos = mApp.getWindow().mapPixelToCoords( 
+                                    {event.mouseButton.x, event.mouseButton.y}, 
+                                    mEditorState->getWorldGraph().getCamera().getView(mEFrame->getSelectedWorld()->getRenderDepth()));
+			mouseWorldPos = mEFrame->getSelectedWorld()->getNode().mapToLocalPosition(mouseWorldPos);
 			quad::PullResult<ungod::Entity> pull;
             mEFrame->getSelectedWorld()->getQuadTree().retrieve(pull, { mouseWorldPos.x, mouseWorldPos.y, 0.0f, 0.0f });
             for (const auto& e : pull.getList())
@@ -383,11 +385,11 @@ namespace uedit
 	{
 		mClickChecker.onClick([this](const sf::Vector2i& pos)
 			{
-				sf::Vector2f mouseWorldPos = mApp->getWindow().mapPixelToCoords(pos, mCamera.getView())/SCALE;
+				sf::Vector2f mouseWorldPos = mApp.getWindow().mapPixelToCoords(pos, mCamera.getView())/SCALE;
 				mEditorState.getWorldGraph().updateReferencePosition(mouseWorldPos);
-				mEditorState.getCamera().lookAt(mouseWorldPos);
+				mEditorState.getWorldGraph().getCamera().lookAt(mouseWorldPos);
 				closeState();
-				mApp->getStateManager().moveToForeground(EDITOR_STATE);
+				mApp.getStateManager().moveToForeground(EDITOR_STATE);
 			});
 	}
 
@@ -399,8 +401,8 @@ namespace uedit
 
 		if (event.type == sf::Event::MouseButtonPressed)
 		{
-			sf::Vector2i mousePos = sf::Mouse::getPosition(mApp->getWindow());
-			sf::Vector2f mouseWorldPos = mApp->getWindow().mapPixelToCoords(mousePos, mCamera.getView()) / SCALE;
+			sf::Vector2i mousePos = sf::Mouse::getPosition(mApp.getWindow());
+			sf::Vector2f mouseWorldPos = mApp.getWindow().mapPixelToCoords(mousePos, mCamera.getView()) / SCALE;
 			ungod::WorldGraphNode* clickedNode = mEditorState.getWorldGraph().getNode(mouseWorldPos);
 			if (event.mouseButton.button == sf::Mouse::Left)
 			{
@@ -529,17 +531,17 @@ namespace uedit
 			if (mFont.isLoaded())
 			{
 				float resizeFactor = (rect.getSize().x + rect.getSize().y) / 10000.0f;
-				sf::Text textID{ node->getIdentifier(), *(mFont.get()), unsigned(TEXTSIZE*SCALE* resizeFactor) };
+				sf::Text textID{ node->getIdentifier(), mFont.get(), unsigned(TEXTSIZE*SCALE* resizeFactor) };
                 textID.setPosition(SCALE * (bounds.left + 0.25f*bounds.width), SCALE * (bounds.top + 0.25f*bounds.height));
                 
                 std::string posStr = "(" + std::to_string(node->getBounds().left) + "," +
                     std::to_string(node->getBounds().top) + ")";
-                sf::Text textNodepos{ posStr, *(mFont.get()), unsigned(TEXTSIZE * SCALE * resizeFactor) };
+                sf::Text textNodepos{ posStr, mFont.get(), unsigned(TEXTSIZE * SCALE * resizeFactor) };
                 textNodepos.setPosition(SCALE * (bounds.left + 0.25f * bounds.width), SCALE * (bounds.top + 0.25f * bounds.height) + textID.getGlobalBounds().height);
 
                 std::string sizeStr = "(" + std::to_string(node->getBounds().width) + "," +
                     std::to_string(node->getBounds().height) + ")";
-                sf::Text textNodesize{ sizeStr, *(mFont.get()), unsigned(TEXTSIZE * SCALE * resizeFactor) };
+                sf::Text textNodesize{ sizeStr, mFont.get(), unsigned(TEXTSIZE * SCALE * resizeFactor) };
                 textNodesize.setPosition(SCALE * (bounds.left + 0.25f * bounds.width), SCALE * (bounds.top + 0.25f * bounds.height) + textID.getGlobalBounds().height + textNodepos.getGlobalBounds().height);
 
 
@@ -664,7 +666,7 @@ namespace uedit
         //creating a new window will also reset the default view, which is fine
         createWindow(GetHandle());
         //getWindow().setSize( sf::Vector2u{ (unsigned)sizeEvent.GetSize().x, (unsigned)sizeEvent.GetSize().y } );
-        mEditorState->getCamera().setViewSize(sf::Vector2f{(float)sizeEvent.GetSize().x, (float)sizeEvent.GetSize().y});
+        mEditorState->getWorldGraph().getCamera().setViewSize(sf::Vector2f{(float)sizeEvent.GetSize().x, (float)sizeEvent.GetSize().y});
 		mWorldGraphState->mCamera.setViewSize(sf::Vector2f{ (float)sizeEvent.GetSize().x, (float)sizeEvent.GetSize().y });
     }
 

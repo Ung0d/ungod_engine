@@ -1,5 +1,6 @@
 #include "VisualsEditState.h"
 #include "EntityPreview.h"
+#include "Canvas.h"
 
 namespace uedit
 {
@@ -164,8 +165,8 @@ namespace uedit
 
     void VisualsEditState::render(EntityPreview& preview, sf::RenderWindow& window, sf::RenderStates states)
     {
-        ungod::Renderer::renderBounds(preview.mEntity.get<ungod::TransformComponent>(), window, states);
-        ungod::Renderer::renderTextureRects(preview.mEntity, preview.mEntity.get<ungod::TransformComponent>(), window, states);
+        preview.getCanvas().getEditorState()->getRenderer().renderBounds(preview.mEntity.get<ungod::TransformComponent>(), window, states);
+        preview.getCanvas().getEditorState()->getRenderer().renderTextureRects(preview.mEntity, preview.mEntity.get<ungod::TransformComponent>(), window, states);
 
 
         if (!preview.mEntity.has<ungod::TransformComponent>())

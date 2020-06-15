@@ -80,6 +80,13 @@ namespace ungod
         /** \brief Returns the filepath of the currently loaded vertex shader. */
         const std::string& getVertexShaderID() const { return mVertexShaderID; }
 
+
+        bool isShowingReflections() const { return mShowReflections; }
+        bool isShowingShaders() const { return mShowShaders; }
+        float getDistortionFactor() const { return mDistortionFactor; }
+        float getFlowFactor() const { return mFlowFactor; }
+        float getReflectionOpacity() const { return mReflectionOpacity; }
+
     private:
         sf::Texture mDistortionTexture;
         std::string mDistortionTextureFile;
