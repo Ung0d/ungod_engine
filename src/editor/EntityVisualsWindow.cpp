@@ -18,10 +18,10 @@ namespace uedit
         EVT_COLOURPICKER_CHANGED(VERTEX_COLOR_PICKER, EntityVisualsWindow::onVertexColorSelect)
     wxEND_EVENT_TABLE()
 
-    EntityVisualsWindow::EntityVisualsWindow(ungod::Entity e, WorldActionWrapper& waw, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
-        wxWindow(parent, id, pos, siz), mEntity(e), mWorldAction(waw), mTypeNotebook(nullptr), mTexRectLabel(nullptr), mMultiTexRectLabel(nullptr),
+    EntityVisualsWindow::EntityVisualsWindow(ungod::Entity e, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
+        wxWindow(parent, id, pos, siz), mEntity(e), mActionManager(actionManager), mTypeNotebook(nullptr), mTexRectLabel(nullptr), mMultiTexRectLabel(nullptr),
         mCompCountCtrl(nullptr), mMultiSpriteChoice(nullptr), mSpritePanel(nullptr), mMultiSpritePanel(nullptr),
-        mVertexPanel(nullptr), mVertexRectCountCtrl(nullptr), mVertexChoice(nullptr), mVertexTexRectLabel(nullptr),
+        mVertexPanel(nullptr), mVertexChoice(nullptr), mVertexTexRectLabel(nullptr),
         mVertexPositionX(nullptr), mVertexPositionY(nullptr), mSelectedVertex(-1), mVertexColor(nullptr), mVertexFlipX(nullptr), mVertexFlipY(nullptr)
     {
         wxSizer* boxsizer = new wxBoxSizer(wxVERTICAL);
@@ -107,19 +107,19 @@ namespace uedit
 
     void EntityVisualsWindow::onTexSelect(wxFileDirPickerEvent& event)
     {
-        mWorldAction.loadTexture(mEntity, std::string(event.GetPath().mb_str()));
+        mActionManager.visualsActions().loadTexture(mEntity, std::string(event.GetPath().mb_str()));
     }
 
     void EntityVisualsWindow::onTexCopyButton(wxCommandEvent & event)
     {
-        if (!mWorldAction.getEditorFrame()->getSheetPreview())
+        if (!mActionManager.getEditorFrame()->getSheetPreview())
         {
             auto err = wxMessageDialog(this, _("Sheet preview is currently closed!"));
             err.ShowModal();
             return;
         }
 
-        std::string selectedTex = mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentTexture();
+        std::string selectedTex = mActionManager.getEditorFrame()->getSheetPreview()->getCurrentTexture();
 
         if (selectedTex == "")
         {
@@ -128,7 +128,7 @@ namespace uedit
             return;
         }
 
-        mWorldAction.loadTexture(mEntity, selectedTex);
+        mActionManager.visualsActions().loadTexture(mEntity, selectedTex);
         if (mEntity.get<ungod::VisualsComponent>().isLoaded())
         {
             mSheetPicker->SetPath(_(selectedTex));
@@ -137,14 +137,14 @@ namespace uedit
 
     void EntityVisualsWindow::onRectByMetaKey(wxCommandEvent & event)
     {
-        if (!mWorldAction.getEditorFrame()->getSheetPreview())
+        if (!mActionManager.getEditorFrame()->getSheetPreview())
         {
             auto err = wxMessageDialog(this, _("Sheet preview is currently closed!"));
             err.ShowModal();
             return;
         }
 
-        std::string selectedKey = mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentKey();
+        std::string selectedKey = mActionManager.getEditorFrame()->getSheetPreview()->getCurrentKey();
 
         if (selectedKey == "")
         {
@@ -153,7 +153,7 @@ namespace uedit
             return;
         }
 
-        std::string selectedMeta = mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentMeta();
+        std::string selectedMeta = mActionManager.getEditorFrame()->getSheetPreview()->getCurrentMeta();
 
         if (selectedMeta == "")
         {
@@ -162,27 +162,27 @@ namespace uedit
             return;
         }
 
-        mWorldAction.loadMetadata(mEntity, selectedMeta);
-        mWorldAction.setSpriteTextureRect(mEntity, selectedKey);
+        mActionManager.visualsActions().loadMetadata(mEntity, selectedMeta);
+        mActionManager.visualsActions().setSpriteTextureRect(mEntity, selectedKey);
     }
 
 
     void EntityVisualsWindow::onHideForCameraChecked(wxCommandEvent & event)
     {
-        mWorldAction.setEntityHideForCamera(mEntity, mHideForCameraChecked->IsChecked());
+        mActionManager.visualsActions().setEntityHideForCamera(mEntity, mHideForCameraChecked->IsChecked());
     }
 
 
     void EntityVisualsWindow::onMultiRectByMetaKey(wxCommandEvent & event)
     {
-        if (!mWorldAction.getEditorFrame()->getSheetPreview())
+        if (!mActionManager.getEditorFrame()->getSheetPreview())
         {
             auto err = wxMessageDialog(this, _("Sheet preview is currently closed!"));
             err.ShowModal();
             return;
         }
 
-        std::string selectedKey = mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentKey();
+        std::string selectedKey = mActionManager.getEditorFrame()->getSheetPreview()->getCurrentKey();
 
         if (selectedKey == "")
         {
@@ -191,7 +191,7 @@ namespace uedit
             return;
         }
 
-        std::string selectedMeta = mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentMeta();
+        std::string selectedMeta = mActionManager.getEditorFrame()->getSheetPreview()->getCurrentMeta();
 
         if (selectedMeta == "")
         {
@@ -200,8 +200,8 @@ namespace uedit
             return;
         }
 
-        mWorldAction.loadMetadata(mEntity, selectedMeta);
-        mWorldAction.setMultiSpriteTextureRect(mEntity, selectedKey, mMultiSpriteChoice->GetSelection());
+        mActionManager.visualsActions().loadMetadata(mEntity, selectedMeta);
+        mActionManager.visualsActions().setMultiSpriteTextureRect(mEntity, selectedKey, mMultiSpriteChoice->GetSelection());
     }
 
     void EntityVisualsWindow::onMultiSpriteCompCountChange(wxCommandEvent & event)
@@ -303,31 +303,24 @@ namespace uedit
 
     void EntityVisualsWindow::onVertexRectCountChange(wxCommandEvent & event)
     {
-        try
-        {
-            std::size_t cc = (std::size_t)(std::stoi( std::string(mVertexRectCountCtrl->GetValue().mb_str()) ));
-            mWorldAction.setVertexRectCount(mEntity, cc);
+        mActionManager.visualsActions().newVertexArrayRect(mEntity, {0,0,1,1});
 
-			std::vector<wxString> keys{ cc };
-            for (std::size_t i = 0; i < cc; ++i)
-            {
-                keys[i] = std::to_string(i);
-            }
-            mVertexChoice->Set(keys);
+        unsigned cc = mEntity.get<ungod::VertexArrayComponent>().getVertices().textureRectCount();
 
-            if (cc > 0)
-            {
-                mVertexChoice->SetSelection(0);
-                displayVertexRect(0);
-            }
-            else
-                displayVertexRect(-1);
-        }
-        catch(const std::exception&)
+		std::vector<wxString> keys{ cc };
+        for (std::size_t i = 0; i < cc; ++i)
         {
-            auto err = wxMessageDialog(this, _("Text field must contain a valid number."));
-            err.ShowModal();
+            keys[i] = std::to_string(i);
         }
+        mVertexChoice->Set(keys);
+
+        if (cc > 0)
+        {
+            mVertexChoice->SetSelection(0);
+            displayVertexRect(0);
+        }
+        else
+            displayVertexRect(-1);
     }
 
     void EntityVisualsWindow::onVectexRectSelect(wxCommandEvent & event)
@@ -341,14 +334,14 @@ namespace uedit
         if (mSelectedVertex == -1)
             return;
 
-        if (!mWorldAction.getEditorFrame()->getSheetPreview())
+        if (!mActionManager.getEditorFrame()->getSheetPreview())
         {
             auto err = wxMessageDialog(this, _("Sheet preview is currently closed!"));
             err.ShowModal();
             return;
         }
 
-        std::string selectedKey = mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentKey();
+        std::string selectedKey = mActionManager.getEditorFrame()->getSheetPreview()->getCurrentKey();
 
         if (selectedKey == "")
         {
@@ -357,7 +350,7 @@ namespace uedit
             return;
         }
 
-        std::string selectedMeta = mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentMeta();
+        std::string selectedMeta = mActionManager.getEditorFrame()->getSheetPreview()->getCurrentMeta();
 
         if (selectedMeta == "")
         {
@@ -366,8 +359,8 @@ namespace uedit
             return;
         }
 
-        mWorldAction.loadMetadata(mEntity, selectedMeta);
-        mWorldAction.setVertexArrayRect(mEntity, mSelectedVertex, selectedKey);
+        mActionManager.visualsActions().loadMetadata(mEntity, selectedMeta);
+        mActionManager.visualsActions().setVertexArrayRect(mEntity, mSelectedVertex, selectedKey);
 
         displayVertexRect(mSelectedVertex);
     }
@@ -376,7 +369,7 @@ namespace uedit
     {
         if (mSelectedVertex != -1)
         {
-            mWorldAction.setVertexArrayRectColor(mEntity, mSelectedVertex, convertColor(event.GetColour()));
+            mActionManager.visualsActions().setVertexArrayRectColor(mEntity, mSelectedVertex, convertColor(event.GetColour()));
             displayVertexRect(mSelectedVertex);
         }
     }
@@ -404,7 +397,7 @@ namespace uedit
             mSpritePositionX = new StatDisplay<float>("position x:", mSpritePanel, -1);
             mSpritePositionX->connectSetter( [this](float x)
                     {
-                        mWorldAction.setSpritePosition(mEntity, { x, mEntity.get<ungod::SpriteComponent>().getSprite().getPosition().y });
+                        mActionManager.visualsActions().setSpritePosition(mEntity, { x, mEntity.get<ungod::SpriteComponent>().getSprite().getPosition().y });
                     } );
             mSpritePositionX->connectGetter( [this]()
                     {
@@ -417,7 +410,7 @@ namespace uedit
             mSpritePositionY = new StatDisplay<float>("position y:", mSpritePanel, -1);
             mSpritePositionY->connectSetter( [this](float y)
                     {
-                        mWorldAction.setSpritePosition(mEntity, { mEntity.get<ungod::SpriteComponent>().getSprite().getPosition().x, y });
+                        mActionManager.visualsActions().setSpritePosition(mEntity, { mEntity.get<ungod::SpriteComponent>().getSprite().getPosition().x, y });
                     } );
             mSpritePositionY->connectGetter( [this]()
                     {
@@ -430,7 +423,7 @@ namespace uedit
             mSpriteScaleX = new StatDisplay<float>("scale x:", mSpritePanel, -1);
             mSpriteScaleX->connectSetter( [this](float scalex)
                     {
-                        mWorldAction.setSpriteScale(mEntity, { scalex, mEntity.get<ungod::SpriteComponent>().getSprite().getScale().y });
+                        mActionManager.visualsActions().setSpriteScale(mEntity, { scalex, mEntity.get<ungod::SpriteComponent>().getSprite().getScale().y });
                     } );
             mSpriteScaleX->connectGetter( [this]()
                     {
@@ -443,7 +436,7 @@ namespace uedit
             mSpriteScaleY = new StatDisplay<float>("scale y:", mSpritePanel, -1);
             mSpriteScaleY->connectSetter( [this](float scaley)
                     {
-                        mWorldAction.setSpriteScale(mEntity, { mEntity.get<ungod::SpriteComponent>().getSprite().getScale().x, scaley });
+                        mActionManager.visualsActions().setSpriteScale(mEntity, { mEntity.get<ungod::SpriteComponent>().getSprite().getScale().x, scaley });
                     } );
             mSpriteScaleY->connectGetter( [this]()
                     {
@@ -456,7 +449,7 @@ namespace uedit
             mSpriteRotation = new StatDisplay<float>("rotation:", mSpritePanel, -1);
             mSpriteRotation->connectSetter( [this](float rota)
                     {
-                        mWorldAction.setSpriteRotation(mEntity, rota);
+                        mActionManager.visualsActions().setSpriteRotation(mEntity, rota);
                     } );
             mSpriteRotation->connectGetter( [this]()
                     {
@@ -507,7 +500,7 @@ namespace uedit
             mMultiSpritePositionX = new StatDisplay<float>("position x:", mMultiSpritePanel, -1);
             mMultiSpritePositionX->connectSetter( [this, index](float x)
                     {
-                        mWorldAction.setMultiSpritePosition(mEntity, { x, mEntity.get<ungod::SpriteComponent>().getSprite().getPosition().y }, index);
+                        mActionManager.visualsActions().setMultiSpritePosition(mEntity, { x, mEntity.get<ungod::SpriteComponent>().getSprite().getPosition().y }, index);
                     } );
             mMultiSpritePositionX->connectGetter( [this, index]()
                     {
@@ -520,7 +513,7 @@ namespace uedit
             mMultiSpritePositionY = new StatDisplay<float>("position y:", mMultiSpritePanel, -1);
             mMultiSpritePositionY->connectSetter( [this, index](float y)
                     {
-                        mWorldAction.setMultiSpritePosition(mEntity, { mEntity.get<ungod::SpriteComponent>().getSprite().getPosition().x, y }, index);
+                        mActionManager.visualsActions().setMultiSpritePosition(mEntity, { mEntity.get<ungod::SpriteComponent>().getSprite().getPosition().x, y }, index);
                     } );
             mMultiSpritePositionY->connectGetter( [this, index]()
                     {
@@ -533,7 +526,7 @@ namespace uedit
             mMultiSpriteScaleX = new StatDisplay<float>("scale x:", mMultiSpritePanel, -1);
             mMultiSpriteScaleX->connectSetter( [this, index](float scalex)
                     {
-                        mWorldAction.setMultiSpriteScale(mEntity, { scalex, mEntity.get<ungod::SpriteComponent>().getSprite().getScale().y }, index);
+                        mActionManager.visualsActions().setMultiSpriteScale(mEntity, { scalex, mEntity.get<ungod::SpriteComponent>().getSprite().getScale().y }, index);
                     } );
             mMultiSpriteScaleX->connectGetter( [this, index]()
                     {
@@ -546,7 +539,7 @@ namespace uedit
             mMultiSpriteScaleY = new StatDisplay<float>("scale y:", mMultiSpritePanel, -1);
             mMultiSpriteScaleY->connectSetter( [this, index](float scaley)
                     {
-                        mWorldAction.setMultiSpriteScale(mEntity, { mEntity.get<ungod::SpriteComponent>().getSprite().getScale().x, scaley }, index);
+                        mActionManager.visualsActions().setMultiSpriteScale(mEntity, { mEntity.get<ungod::SpriteComponent>().getSprite().getScale().x, scaley }, index);
                     } );
             mMultiSpriteScaleY->connectGetter( [this, index]()
                     {
@@ -559,7 +552,7 @@ namespace uedit
             mMultiSpriteRotation = new StatDisplay<float>("rotation:", mMultiSpritePanel, -1);
             mMultiSpriteRotation->connectSetter( [this, index](float rota)
                     {
-                        mWorldAction.setMultiSpriteRotation(mEntity, rota, index);
+                        mActionManager.visualsActions().setMultiSpriteRotation(mEntity, rota, index);
                     } );
             mMultiSpriteRotation->connectGetter( [this, index]()
                     {
@@ -591,21 +584,15 @@ namespace uedit
         mVertexPanel = new wxPanel(mTypeNotebook);
         wxBoxSizer* vertexSizer = new wxBoxSizer(wxVERTICAL);
 
-
-        std::size_t rectCount = vertices.getVertices().textureRectCount();
-
-
-        mVertexRectCountCtrl = new wxTextCtrl(mVertexPanel, -1, _(std::to_string(rectCount)));
         wxBoxSizer* hbox0 = new wxBoxSizer(wxHORIZONTAL);
-        hbox0->Add(mVertexRectCountCtrl);
-
-        hbox0->Add(new wxButton(mVertexPanel, SET_VERTEX_RECT_COUNT, "Set tex rect count"));
+        hbox0->Add(new wxButton(mVertexPanel, SET_VERTEX_RECT_COUNT, "add tex rect"));
         vertexSizer->Add(hbox0,0,wxALIGN_CENTER_HORIZONTAL);
 
+        unsigned rectCount = vertices.getVertices().textureRectCount();
 
         wxBoxSizer* hbox1 = new wxBoxSizer(wxHORIZONTAL);
         wxArrayString str;
-        for (std::size_t i = 0; i < rectCount; ++i)
+        for (unsigned i = 0; i < rectCount; ++i)
             str.Add(std::to_string(i));
         mVertexChoice = new wxChoice(mVertexPanel, CHOICE_VERTEX, wxDefaultPosition, wxDefaultSize, str);
         hbox1->Add(mVertexChoice, 1, wxALL, 5);
@@ -653,7 +640,7 @@ namespace uedit
                 mVertexFlipX = new wxCheckBox(mVertexPanel, -1, _("flip x"));
                 mVertexFlipX->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent& evt)
                 {
-                   mWorldAction.flipVertexX(mEntity, mSelectedVertex);
+                   mActionManager.visualsActions().flipVertexX(mEntity, mSelectedVertex);
                 });
                 vertexSizer->Add(mVertexFlipX, 0, wxALIGN_CENTER_HORIZONTAL);
             }
@@ -662,7 +649,7 @@ namespace uedit
                 mVertexFlipY = new wxCheckBox(mVertexPanel, -1, _("flip y"));
                 mVertexFlipY->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent& evt)
                     {
-                        mWorldAction.flipVertexY(mEntity, mSelectedVertex);
+                        mActionManager.visualsActions().flipVertexY(mEntity, mSelectedVertex);
                     });
                 vertexSizer->Add(mVertexFlipY, 0, wxALIGN_CENTER_HORIZONTAL);
             }
@@ -716,7 +703,7 @@ namespace uedit
             setTexRectLabel(mVertexTexRectLabel, mEntity.modify<ungod::VertexArrayComponent>().getVertices().getTextureRect(index));
             mVertexPositionX->connectSetter( [this, index](float posx)
                     {
-                        mWorldAction.setVertexarrayPosition( mEntity,
+                        mActionManager.visualsActions().setVertexarrayPosition( mEntity,
                                     sf::Vector2f { posx, mEntity.modify<ungod::VertexArrayComponent>().getVertices().getPosition(index).y }, index );
                     } );
             mVertexPositionX->connectGetter( [this, index]()
@@ -725,7 +712,7 @@ namespace uedit
                     } );
             mVertexPositionY->connectSetter( [this, index](float posy)
                     {
-                        mWorldAction.setVertexarrayPosition( mEntity,
+                        mActionManager.visualsActions().setVertexarrayPosition( mEntity,
                                     sf::Vector2f { mEntity.modify<ungod::VertexArrayComponent>().getVertices().getPosition(index).x, posy },index );
                     } );
             mVertexPositionY->connectGetter( [this, index]()

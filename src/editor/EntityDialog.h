@@ -3,7 +3,7 @@
 
 #include "ungod/base/World.h"
 #include "ungod/content/EntityTypes.h"
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 #include "wx/dialog.h"
 #include "wx/radiobut.h"
 

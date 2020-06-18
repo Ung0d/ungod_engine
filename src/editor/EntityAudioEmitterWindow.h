@@ -1,7 +1,7 @@
 #ifndef UEDIT_EAUDIOEMIT_WINDOW_H
 #define UEDIT_EAUDIOEMIT_WINDOW_H
 
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 #include "StatDisplayer.h"
 #include "Utility.h"
 #include "wx/window.h"
@@ -13,12 +13,12 @@ namespace uedit
     class EntityAudioEmitterWindow : public wxWindow
     {
     public:
-        EntityAudioEmitterWindow(ungod::Entity e, WorldActionWrapper& waw, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
+        EntityAudioEmitterWindow(ungod::Entity e, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
 
 
     private:
         ungod::Entity mEntity;
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         wxFilePickerCtrl* mFilepicker;
         StatDisplay<float>* mVolume;
         StatDisplay<float>* mDistanceCap;

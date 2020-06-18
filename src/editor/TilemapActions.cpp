@@ -3,13 +3,13 @@
 
 namespace uedit
 {
-    bool TilemapActions::setTiles(Entity e, TileData& tiles, unsigned mapSizeX, unsigned mapSizeY)
+    void TilemapActions::setTiles(ungod::Entity e, const ungod::TileData& tiles, unsigned mapSizeX, unsigned mapSizeY)
     {
         const ungod::TileMap& tm = e.get<ungod::TileMapComponent>().getTileMap();
-        TileData oldData = tm.getTileData();
+        ungod::TileData oldData = tm.getTileData();
         unsigned oldmapx = tm.getMapSizeX();
         unsigned oldmapy = tm.getMapSizeY();
-        mActionManager.action(std::function([this, tiles, mapSizeX, mapSizeY](ungod::Entity e)
+        mActionManager.action(std::function([this, &tiles, mapSizeX, mapSizeY](ungod::Entity e)
             { 
                 e.getWorld().getTileMapHandler().setTiles(e, tiles, mapSizeX, mapSizeY);
             }),
@@ -20,15 +20,15 @@ namespace uedit
                 e);
     }
 
-    bool TilemapActions::setInactiveTiles(Entity e, unsigned mapSizeX, unsigned mapSizeY)
+    void TilemapActions::setInactiveTiles(ungod::Entity e, unsigned mapSizeX, unsigned mapSizeY)
     {
-        TileData data;
+        ungod::TileData data;
         data.ids = std::make_shared<std::vector<int>>();
-        data.ids->resize(mapX * mapY, -1);
+        data.ids->resize(mapSizeX * mapSizeY, -1);
         setTiles(e, data, mapSizeX, mapSizeY);
     }
 
-    void TilemapActions::setTile(Entity e, int id, unsigned x, unsigned y)
+    void TilemapActions::setTile(ungod::Entity e, int id, unsigned x, unsigned y)
     {
         const ungod::TileMap& tm = e.get<ungod::TileMapComponent>().getTileMap();
         int oldid = tm.getTileID(x, y);
@@ -43,7 +43,7 @@ namespace uedit
                 e, x, y);
     }
 
-    void TilemapActions::setTile(Entity e, int id, const sf::Vector2f& position)
+    void TilemapActions::setTile(ungod::Entity e, int id, const sf::Vector2f& position)
     {
         const ungod::TileMap& tm = e.get<ungod::TileMapComponent>().getTileMap();
         sf::Vector2i indices = tm.getTileIndices(position);
@@ -51,38 +51,60 @@ namespace uedit
             setTile(e, id, (unsigned)indices.x, (unsigned)indices.y);
     }
 
-    void TilemapActions::setTileDims(Entity e,
+    void TilemapActions::setTileDims(ungod::Entity e,
         unsigned tileWidth, unsigned tileHeight,
-        const std::vector<std::string>& keymap = {})
+        const std::vector<std::string>& keymap)
     {
         const ungod::TileMap& tm = e.get<ungod::TileMapComponent>().getTileMap();
         unsigned oldTileWidth = tm.getTileWidth();
         unsigned oldTileHeight = tm.getTileHeight();
         std::vector<std::string> oldKeymap = tm.getKeyMap();
 
-        mActionManager.action(std::function([this, cTileWidth, cTileHeight, keymap](ungod::Entity e)
-            { e.getWorld().getTileMapHandler().setTileDims(e, cTileWidth, cTileHeight, keymap); }),
+        mActionManager.action(std::function([this, tileWidth, tileHeight, keymap](ungod::Entity e)
+            { e.getWorld().getTileMapHandler().setTileDims(e, tileWidth, tileHeight, keymap); }),
             std::function([this, oldTileWidth, oldTileHeight, oldKeymap](ungod::Entity e)
                 { e.getWorld().getTileMapHandler().setTileDims(e, oldTileWidth, oldTileHeight, oldKeymap); }),
             e);
     }
 
-    void TilemapActions::addKey(Entity e, const std::string& key)
+    void TilemapActions::addKey(ungod::Entity e, const std::string& key)
     {
         e.getWorld().getTileMapHandler().addKey(e, key);
     }
 
-    void TilemapActions::floodFillTileMap(Entity e, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs)
+    void TilemapActions::floodFillTileMap(ungod::Entity e, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs)
     {
         const ungod::TileMap& tm = e.get<ungod::TileMapComponent>().getTileMap();
-        TileData oldData;
+        ungod::TileData oldData;
         unsigned oldmapx = tm.getMapSizeX();
         unsigned oldmapy = tm.getMapSizeY();
-        oldData.ids = std::make_shared<std::vector<int>>(tm.getTileData());
+        oldData.ids = std::make_shared<std::vector<int>>(*tm.getTileData().ids);
         mActionManager.action(std::function([this, ix, iy, replacementIDs](ungod::Entity e)
             { e.getWorld().getTileMapHandler().floodFillTileMap(e, ix, iy, replacementIDs); }),
             std::function([this, oldData, oldmapx, oldmapy](ungod::Entity e)
                 { e.getWorld().getTileMapHandler().setTiles(e, oldData, oldmapx, oldmapy); }),
             e);
+    }
+
+    void TilemapActions::paintTile(ungod::TilemapBrush& brush, const sf::Vector2f& worldpos, bool connect)
+    {
+        if (!brush.getTilemap())
+            return;
+        sf::Vector2i indices = brush.getTilemap()->getTileIndices(worldpos);
+        if (indices.x == -1)
+            return;
+        int tileID = brush.getTilemap()->getTileID(indices.x, indices.y);
+        mActionManager.action(std::function([&brush, worldpos, connect]()
+            { brush.paintTile(worldpos, connect); }),
+            std::function([&brush, worldpos, tileID]()
+                { brush.eraseTile(worldpos, tileID); }));
+    }
+
+    void TilemapActions::eraseTile(ungod::TilemapBrush& brush, const sf::Vector2f& worldpos, int erasingID)
+    {
+        mActionManager.action(std::function([&brush, worldpos, erasingID]()
+            { brush.eraseTile(worldpos, erasingID); }),
+            std::function([&brush, worldpos]()
+                { brush.paintTile(worldpos); }));
     }
 }

@@ -7,7 +7,7 @@ namespace uedit
 {
     LightEditState::LightEditState(EntityPreview& preview, const EntityLightWindow& lightWindow) :
         mPreview(preview), mMouseDown(false), mCtrlDown(false), mShiftDown(false),
-        mPointSet(false), mLightSelected(false), mColliderSelected(false), mEntityLightWindow(lightWindow), mShadowEmitterDraggers(preview.getWorldAction())
+        mPointSet(false), mLightSelected(false), mColliderSelected(false), mEntityLightWindow(lightWindow), mShadowEmitterDraggers(preview.getActionManager())
     {
         mShadowEmitterDraggers.setupPointDraggers(mPreview.getEntity());
         mLink = mPreview.getEntity().getWorld().getLightHandler().onContentsChanged([this](ungod::Entity e, const sf::FloatRect&)
@@ -79,15 +79,15 @@ namespace uedit
                         int mult = mEntityLightWindow.multiColliderActive();
                         if (mEntityLightWindow.singleColliderActive())
                         {
-                            mPreview.mWorldAction.setPointCount(mPreview.mEntity, preview.mEntity.get<ungod::ShadowEmitterComponent>().getCollider().getPointCount()+1);
-                            mPreview.mWorldAction.setPoint(mPreview.mEntity, mousePos, preview.mEntity.get<ungod::ShadowEmitterComponent>().getCollider().getPointCount()-1);
+                            mPreview.mActionManager.lightActions().setPointCount(mPreview.mEntity, preview.mEntity.get<ungod::ShadowEmitterComponent>().getCollider().getPointCount()+1);
+                            mPreview.mActionManager.lightActions().setPoint(mPreview.mEntity, mousePos, preview.mEntity.get<ungod::ShadowEmitterComponent>().getCollider().getPointCount()-1);
                             mPointSet = true;
                         }
                         else if (mult != wxNOT_FOUND)
                         {
                             const ungod::MultiShadowEmitter& ms = preview.mEntity.get<ungod::MultiShadowEmitter>();
-                            mPreview.mWorldAction.setMultiPointCount(mPreview.mEntity, ms.getComponent(mult).getCollider().getPointCount()+1, mult);
-                            mPreview.mWorldAction.setMultiPoint(mPreview.mEntity, mousePos, ms.getComponent(mult).getCollider().getPointCount()-1, mult);
+                            mPreview.mActionManager.lightActions().setMultiPointCount(mPreview.mEntity, ms.getComponent(mult).getCollider().getPointCount()+1, mult);
+                            mPreview.mActionManager.lightActions().setMultiPoint(mPreview.mEntity, mousePos, ms.getComponent(mult).getCollider().getPointCount()-1, mult);
                             mPointSet = true;
                         }
                     }
@@ -167,26 +167,26 @@ namespace uedit
 
                     if (mLightSelected)
                     {
-                        preview.mWorldAction.setLightPosition(preview.mEntity, preview.mEntity.get<ungod::LightEmitterComponent>().getLight().getPosition() + offset);
+                        preview.mActionManager.lightActions().setLightPosition(preview.mEntity, preview.mEntity.get<ungod::LightEmitterComponent>().getLight().getPosition() + offset);
                     }
 
                     for (const auto& i : mSelectedMultiLights)
                     {
-                        preview.mWorldAction.setMultiLightPosition(preview.mEntity, preview.mEntity.get<ungod::MultiLightEmitter>().getComponent(i).getLight().getPosition() + offset, i);
+                        preview.mActionManager.lightActions().setMultiLightPosition(preview.mEntity, preview.mEntity.get<ungod::MultiLightEmitter>().getComponent(i).getLight().getPosition() + offset, i);
                     }
 
                     if (mColliderSelected)
                     {
                         auto& comp = preview.mEntity.get<ungod::ShadowEmitterComponent>();
                         for (unsigned i = 0; i < comp.getCollider().getPointCount(); i++)
-                            preview.mWorldAction.setPoint(preview.mEntity, comp.getCollider().getPoint(i) + offset, i);
+                            preview.mActionManager.lightActions().setPoint(preview.mEntity, comp.getCollider().getPoint(i) + offset, i);
                     }
 
                     for (const auto& i : mSelectedMultiLights)
                     {
                         auto& comp = preview.mEntity.get<ungod::MultiShadowEmitter>().getComponent(i);
                         for (unsigned j = 0; j < comp.getCollider().getPointCount(); j++)
-                            preview.mWorldAction.setMultiPoint(preview.mEntity, comp.getCollider().getPoint(j) + offset, j, i);
+                            preview.mActionManager.lightActions().setMultiPoint(preview.mEntity, comp.getCollider().getPoint(j) + offset, j, i);
                     }
 
                     mLastMouse = sf::Mouse::getPosition();

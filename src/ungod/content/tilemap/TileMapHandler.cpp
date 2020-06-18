@@ -62,7 +62,7 @@ namespace ungod
             });
     }
 
-    bool TileMapHandler::setTiles(Entity e, TileData& tiles, unsigned mapSizeX, unsigned mapSizeY)
+    bool TileMapHandler::setTiles(Entity e, const TileData& tiles, unsigned mapSizeX, unsigned mapSizeY)
     {
         bool b = e.modify<TileMapComponent>().mTileMap.setTiles(tiles, mapSizeX, mapSizeY);
         if (b)

@@ -8,7 +8,7 @@
 #include "ungod/base/World.h"
 #include "ungod/visual/Camera.h"
 #include "ungod/content/EntityTypes.h"
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 #include "CameraController.h"
 #include <wx/wx.h>
 #include "utilitySFML.h"

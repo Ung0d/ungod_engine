@@ -7,7 +7,7 @@ namespace uedit
 {
     EntityPreview::EntityPreview(const EditorCanvas& canvas, 
                                   ungod::Entity e,
-                                  WorldActionWrapper& waw,
+                                  ActionManager& actionManager,
                                    wxWindow* parent,
                                   wxWindowID id,
                                   const wxPoint& cPosition,
@@ -15,7 +15,7 @@ namespace uedit
                                   long cStyle) :
                           RenderArea(parent, id, cPosition, cSize, cStyle),
                           mEntity(e),
-                          mWorldAction(waw),
+                          mActionManager(actionManager),
                           mCamContrl(mCamera),
                           mCanvas(canvas)
     {

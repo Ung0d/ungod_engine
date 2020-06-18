@@ -35,7 +35,7 @@ namespace ungod
 {
     class VertexArray
     {
-    private:
+    public:
         constexpr static unsigned MAX_NUM_RECT = 5;
 
     public:
@@ -84,6 +84,12 @@ namespace ungod
         bool newTextureRect(const sf::FloatRect& rect);
 
         bool newTextureRect(MetaNode node);
+
+        void setTextureRect(const sf::FloatRect& rect, unsigned index);
+
+        void setTextureRect(MetaNode node, unsigned index);
+
+        void removeLastTextureRect();
 
         void setPoints(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4, unsigned index);
 

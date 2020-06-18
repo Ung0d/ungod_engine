@@ -125,7 +125,7 @@ namespace ungod
     }
 
 
-    bool TileMap::setTiles(TileData& tiles, unsigned mapSizeX, unsigned mapSizeY)
+    bool TileMap::setTiles(const TileData& tiles, unsigned mapSizeX, unsigned mapSizeY)
     {
         if (!tiles.ids)
         {

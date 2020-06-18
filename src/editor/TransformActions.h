@@ -25,7 +25,7 @@ namespace uedit
     private:
         ActionManager& mActionManager;
         std::unordered_map<ungod::Entity, sf::Vector2f> mEntityMovements;
-    }
+    };
 }
 
 #endif

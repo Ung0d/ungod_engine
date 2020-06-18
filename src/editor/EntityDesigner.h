@@ -12,7 +12,7 @@
 #include "EntityParticleSystemWindow.h"
 #include "EntityAudioEmitterWindow.h"
 #include "EntityCollidersWindow.h"
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 #include "Canvas.h"
 #include "wx/dialog.h"
 #include "wx/frame.h"
@@ -27,7 +27,7 @@ namespace uedit
     {
     public:
 
-        EntityDesigner ( EditorCanvas& canvas, WorldActionWrapper& waw, ungod::Entity e,
+        EntityDesigner ( EditorCanvas& canvas, ActionManager& actionManager, ungod::Entity e,
                       wxWindow * parent, wxWindowID id,
                       const wxPoint & pos = wxDefaultPosition );
 
@@ -80,7 +80,7 @@ namespace uedit
         static const wxSize DEFAULT_SIZE;
 
         EditorCanvas& mCanvas;
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         ungod::Entity mEntity;
         std::vector<wxString> mComponentNames;
         std::vector<std::function<void()>> mAddCallbacks;

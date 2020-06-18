@@ -34,7 +34,7 @@ namespace uedit
 
     private:
         bool mMouseDown;
-        sf::Vector2u mLastTileIndices;
+        sf::Vector2i mLastTileIndices;
         std::optional<ungod::TilemapBrush> mTMBrush;
     };
 
@@ -42,7 +42,7 @@ namespace uedit
     class TileMapFloodFillState : public TileMapEditBase
     {
     public:
-        TileMapFloodFillState(EntityPreview& preview, bool water = false);
+        TileMapFloodFillState(EntityPreview& preview);
 
 
         virtual void handleInput(EntityPreview& preview, const sf::Event& event) override;

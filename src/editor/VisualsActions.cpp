@@ -102,19 +102,18 @@ namespace uedit
             e, i);
     }
 
-    void VisualsActions::setVertexRectCount(ungod::Entity e, std::size_t numrect)
+    void VisualsActions::newVertexArrayRect(ungod::Entity e, const sf::FloatRect& rect)
     {
-        auto oldnum = e.get<ungod::VertexArrayComponent>().getVertices().textureRectCount();
-        mActionManager.action(std::function([this, numrect](ungod::Entity e) { e.getWorld().getVisualsHandler().initTextureRects(e, numrect); }),
-            std::function([this, oldnum](ungod::Entity e) { e.getWorld().getVisualsHandler().initTextureRects(e, oldnum); }),
+        mActionManager.action(std::function([this, rect](ungod::Entity e) { e.getWorld().getVisualsHandler().newVertexTextureRect(e, rect); }),
+            std::function([this](ungod::Entity e) { e.getWorld().getVisualsHandler().removeLastVertexTextureRect(e); }),
             e);
     }
 
     void VisualsActions::setVertexArrayRect(ungod::Entity e, std::size_t i, const std::string& key)
     {
         auto oldrect = e.get<ungod::VertexArrayComponent>().getVertices().getTextureRect(i);
-        mActionManager.action(std::function([this, key](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setArrayTextureRect(e, i, key); }),
-            std::function([this, oldrect](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setArrayTextureRect(e, oldrect, i); }),
+        mActionManager.action(std::function([this, key](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setVertexTextureRect(e, i, key); }),
+            std::function([this, oldrect](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setVertexTextureRect(e, i, oldrect); }),
             e, i);
     }
 

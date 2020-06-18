@@ -1,7 +1,7 @@
 #ifndef ENTITY_TRANSFORM_PREVIEW_H
 #define ENTITY_TRANSFORM_PREVIEW_H
 
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 #include "StatDisplayer.h"
 #include "Utility.h"
 #include "wx/window.h"
@@ -17,7 +17,7 @@ namespace uedit
     class EntityTransformWindow : public wxWindow
     {
     public:
-        EntityTransformWindow(ungod::Entity e, WorldActionWrapper& waw, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
+        EntityTransformWindow(ungod::Entity e, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
 
         void onEntityContentsChanged(ungod::Entity e);
         void onEntityPositionChanged(ungod::Entity e, const sf::Vector2f& pos);
@@ -25,7 +25,7 @@ namespace uedit
 
     private:
         ungod::Entity mEntity;
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         StatDisplay<float>* mPosX;
         StatDisplay<float>* mPosY;
         StatDisplay<float>* mScaleX;

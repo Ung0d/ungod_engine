@@ -17,11 +17,11 @@ namespace uedit
             return c.getCollider().getPointCount();
         }
 
-        static void setup(ungod::Entity e, ungod::ShadowEmitterComponent& c, WorldActionWrapper& waw, std::list<PointDragger>& draggers)
+        static void setup(ungod::Entity e, ungod::ShadowEmitterComponent& c, ActionManager& actionManager, std::list<PointDragger>& draggers)
         {
             for (unsigned i = 0; i < c.getCollider().getPointCount(); i++)
             {
-                auto setter = [e, &c, i, &waw](const sf::Vector2f& p) mutable { waw.setPoint(e, c, p, i); };
+                auto setter = [e, &c, i, &actionManager](const sf::Vector2f& p) mutable { actionManager.lightActions().setPoint(e, c, p, i); };
                 auto getter = [&c, i]() { return c.getCollider().getPoint(i); };
                 draggers.emplace_back(setter, getter);
             }

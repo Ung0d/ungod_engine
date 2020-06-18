@@ -16,7 +16,7 @@ namespace uedit
     class MultiComponentPanel : public wxPanel
     {
     public:
-        MultiComponentPanel(wxWindow* parent, ungod::Entity e, WorldActionWrapper& waw);
+        MultiComponentPanel(wxWindow* parent, ungod::Entity e, ActionManager& actionManager);
 
         void showComponent(unsigned i);
 
@@ -30,7 +30,7 @@ namespace uedit
 
     private:
         ungod::Entity mEntity;
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         unsigned mCurMultiSelect;
         wxTextCtrl* mCompCountCtrl;
         wxChoice* mChoice;
@@ -45,7 +45,7 @@ namespace uedit
 
 
     template<typename T, typename EDIT_PANEL, typename ... OPT>
-    MultiComponentPanel<T, EDIT_PANEL, OPT...>::MultiComponentPanel(wxWindow* parent, ungod::Entity e, WorldActionWrapper& waw) : wxPanel(parent), mEntity(e), mWorldAction(waw), mPanel(nullptr)
+    MultiComponentPanel<T, EDIT_PANEL, OPT...>::MultiComponentPanel(wxWindow* parent, ungod::Entity e, ActionManager& actionManager) : wxPanel(parent), mEntity(e), mActionManager(actionManager), mPanel(nullptr)
     {
         const ungod::MultiComponent<T>& multi = mEntity.get<ungod::MultiComponent<T>>();
         mSizer = new wxBoxSizer(wxVERTICAL);
@@ -100,7 +100,7 @@ namespace uedit
             mEntity.initMulti<ungod::MultiComponent<T>>(cc);
             onSetupChoice(cc);
         }
-        catch(const std::exception& e)
+        catch(const std::exception&)
         {
             auto err = wxMessageDialog(this, _("Text field must contain a valid number."));
             err.ShowModal();
@@ -134,7 +134,7 @@ namespace uedit
             RemoveChild(mPanel);
             mPanel->Destroy();
         }
-        mPanel = new EDIT_PANEL(mEntity, mWorldAction, this, component, mEntity.modify<ungod::MultiComponent<OPT>>().getComponent(i)...);
+        mPanel = new EDIT_PANEL(mEntity, mActionManager, this, component, mEntity.modify<ungod::MultiComponent<OPT>>().getComponent(i)...);
         mSizer->Add(mPanel,0,wxALIGN_CENTER_HORIZONTAL);
         Fit();
     }

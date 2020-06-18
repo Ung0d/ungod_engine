@@ -17,11 +17,6 @@ namespace uedit
     {
         wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
 
-        mSheetPicker = new wxFilePickerCtrl( this, -1, fileDialogHeader("png"), wxFileSelectorPromptStr, fileDialogWildcard("png")  );
-        mMetaPicker = new wxFilePickerCtrl( this, -1, fileDialogHeader("xml"), wxFileSelectorPromptStr, fileDialogWildcard("xml")  );
-        vbox->Add(mSheetPicker, 1, wxEXPAND);
-        vbox->Add(mMetaPicker, 1, wxEXPAND);
-
         mWidthCtrl = new wxTextCtrl(this, -1, _("enter tile width"));
         mHeightCtrl = new wxTextCtrl(this, -1, _("enter tile height"));
         vbox->Add(mWidthCtrl, 1, wxEXPAND);
@@ -45,9 +40,6 @@ namespace uedit
 
     void TileMapDialog::onOk( wxCommandEvent & event )
     {
-        mSheetID = mSheetPicker->GetPath();
-        mMetaID = mMetaPicker->GetPath();
-
         try
         {
             mTileWidth = std::stoi( std::string(mWidthCtrl->GetLineText(0).mb_str()) );
@@ -61,16 +53,6 @@ namespace uedit
         {
             EndModal(wxID_CANCEL);
         }
-    }
-
-    const wxString& TileMapDialog::getSheetID() const
-    {
-        return mSheetID;
-    }
-
-    const wxString& TileMapDialog::getMetaID() const
-    {
-        return mMetaID;
     }
 
     unsigned TileMapDialog::getTileWidth() const

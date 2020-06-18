@@ -14,8 +14,6 @@ namespace uedit
 
         TileMapDialog ( wxWindow * parent, wxWindowID id );
 
-        const wxString& getSheetID() const;
-        const wxString& getMetaID() const;
         unsigned getTileWidth() const;
         unsigned getTileHeight() const;
         unsigned getMapWidth() const;
@@ -28,14 +26,10 @@ namespace uedit
         wxDECLARE_EVENT_TABLE();
 
     private:
-        wxString mSheetID;
-        wxString mMetaID;
         unsigned mTileWidth;
         unsigned mTileHeight;
         unsigned mMapWidth;
         unsigned mMapHeight;
-        wxFilePickerCtrl * mSheetPicker;
-        wxFilePickerCtrl * mMetaPicker;
         wxTextCtrl * mWidthCtrl;
         wxTextCtrl * mHeightCtrl;
         wxTextCtrl * mMapWidthCtrl;

@@ -1,7 +1,7 @@
 #ifndef ENTITY_VISUALS_PREVIEW_H
 #define ENTITY_VISUALS_PREVIEW_H
 
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 #include "StatDisplayer.h"
 #include "wx/stattext.h"
 #include "Utility.h"
@@ -39,14 +39,14 @@ namespace uedit
     class EntityVisualsWindow : public wxWindow
     {
     public:
-        EntityVisualsWindow(ungod::Entity e, WorldActionWrapper& waw, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
+        EntityVisualsWindow(ungod::Entity e, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
 
         void onEntityContentsChanged(ungod::Entity e);
 
     private:
         wxFilePickerCtrl* mSheetPicker;
         ungod::Entity mEntity;
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         wxNotebook* mTypeNotebook;
         wxCheckBox* mHideForCameraChecked;
         wxStaticText* mTexRectLabel;
@@ -70,7 +70,6 @@ namespace uedit
         std::size_t mCurMultiSelect;
 
         wxPanel* mVertexPanel;
-        wxTextCtrl* mVertexRectCountCtrl;
         wxChoice* mVertexChoice;
         wxStaticText* mVertexTexRectLabel;
         StatDisplay<float>* mVertexPositionX;

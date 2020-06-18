@@ -28,10 +28,10 @@ namespace uedit
 
     const wxSize EntityDesigner::DEFAULT_SIZE = {1600, 1000};
 
-    EntityDesigner::EntityDesigner ( EditorCanvas& canvas, WorldActionWrapper& waw, ungod::Entity e,
+    EntityDesigner::EntityDesigner ( EditorCanvas& canvas, ActionManager& actionManager, ungod::Entity e,
                                 wxWindow * parent, wxWindowID id,
                            const wxPoint & position )
-    : wxFrame( parent, id, _("Entity Designer"), position, DEFAULT_SIZE, wxDEFAULT_FRAME_STYLE), mCanvas(canvas), mWorldAction(waw), mEntity(e)
+    : wxFrame( parent, id, _("Entity Designer"), position, DEFAULT_SIZE, wxDEFAULT_FRAME_STYLE), mCanvas(canvas), mActionManager(actionManager), mEntity(e)
     {
         reset();
 
@@ -70,7 +70,7 @@ namespace uedit
             wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
             wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
 
-            mEntityPreview = new EntityPreview(mCanvas, mEntity, mWorldAction, panel, -1, wxDefaultPosition, wxSize(DEFAULT_SIZE.x - mTabs->GetSize().x, DEFAULT_SIZE.y));
+            mEntityPreview = new EntityPreview(mCanvas, mEntity, mActionManager, panel, -1, wxDefaultPosition, wxSize(DEFAULT_SIZE.x - mTabs->GetSize().x, DEFAULT_SIZE.y));
 
             hbox->Add(mEntityPreview,1, wxEXPAND);
             vbox->Add(hbox,1, wxEXPAND);
@@ -87,12 +87,12 @@ namespace uedit
 
     void EntityDesigner::onEditUndo(wxCommandEvent& event)
     {
-        mWorldAction.getEditorFrame()->getActionManager().undo();
+        mActionManager.getEditorFrame()->getActionManager().undo();
     }
 
     void EntityDesigner::onEditRedo(wxCommandEvent& event)
     {
-        mWorldAction.getEditorFrame()->getActionManager().redo();
+        mActionManager.getEditorFrame()->getActionManager().redo();
     }
 
     void EntityDesigner::onEntityContentsChanged(ungod::Entity e, ungod::World& world)
@@ -245,56 +245,56 @@ namespace uedit
     {
         if (mEntity.has<ungod::TransformComponent>())
         {
-            mTransformOrganizer = new EntityTransformWindow(mEntity, mWorldAction, mTabs,-1,wxDefaultPosition,wxDefaultSize);
+            mTransformOrganizer = new EntityTransformWindow(mEntity, mActionManager, mTabs,-1,wxDefaultPosition,wxDefaultSize);
             mTabs->AddPage(mTransformOrganizer, "Transform");
         }
         if (mEntity.has<ungod::VisualsComponent>())
         {
-            mVisualsOrganizer = new EntityVisualsWindow(mEntity, mWorldAction, mTabs,-1,wxDefaultPosition,wxDefaultSize);
+            mVisualsOrganizer = new EntityVisualsWindow(mEntity, mActionManager, mTabs,-1,wxDefaultPosition,wxDefaultSize);
             mTabs->AddPage(mVisualsOrganizer, "Visuals");
         }
         if (mEntity.has<ungod::RigidbodyComponent<ungod::MOVEMENT_COLLISION_CONTEXT>>() ||
             mEntity.has<ungod::MultiRigidbodyComponent<ungod::MOVEMENT_COLLISION_CONTEXT>>())
         {
-            mMovementCollidersOrganizer = new EntityCollidersWindow<ungod::MOVEMENT_COLLISION_CONTEXT>(mEntity, mWorldAction, mTabs,-1,wxDefaultPosition,wxDefaultSize);
+            mMovementCollidersOrganizer = new EntityCollidersWindow<ungod::MOVEMENT_COLLISION_CONTEXT>(mEntity, mActionManager, mTabs,-1,wxDefaultPosition,wxDefaultSize);
             mTabs->AddPage(mMovementCollidersOrganizer, "MovementCollision");
         }
         if (mEntity.has<ungod::RigidbodyComponent<ungod::SEMANTICS_COLLISION_CONTEXT>>() ||
             mEntity.has<ungod::MultiRigidbodyComponent<ungod::SEMANTICS_COLLISION_CONTEXT>>())
         {
-            mSemanticsCollidersOrganizer = new EntityCollidersWindow<ungod::SEMANTICS_COLLISION_CONTEXT>(mEntity, mWorldAction, mTabs,-1,wxDefaultPosition,wxDefaultSize);
+            mSemanticsCollidersOrganizer = new EntityCollidersWindow<ungod::SEMANTICS_COLLISION_CONTEXT>(mEntity, mActionManager, mTabs,-1,wxDefaultPosition,wxDefaultSize);
             mTabs->AddPage(mSemanticsCollidersOrganizer, "SemanticsCollision");
         }
         if (mEntity.has<ungod::EntityBehaviorComponent>())
         {
-            mScriptOrganizer = new EntityScriptWindow(mEntity, mWorldAction, *mWorldAction.getEditorFrame()->getScriptManager(), mTabs,-1,wxDefaultPosition,wxDefaultSize);
+            mScriptOrganizer = new EntityScriptWindow(mEntity, mActionManager, *mActionManager.getEditorFrame()->getScriptManager(), mTabs,-1,wxDefaultPosition,wxDefaultSize);
             mTabs->AddPage(mScriptOrganizer, "Script");
         }
         if (mEntity.has<ungod::TileMapComponent>())
         {
-            mTileMapOrganizer = new EntityTileMapWindow(mCanvas, mEntity, this, mWorldAction, mTabs,-1,wxDefaultPosition,wxDefaultSize);
+            mTileMapOrganizer = new EntityTileMapWindow(mCanvas, mEntity, this, mActionManager, mTabs,-1,wxDefaultPosition,wxDefaultSize);
             mTabs->AddPage(mTileMapOrganizer, "TileMap");
         }
         if (mEntity.has<ungod::WaterComponent>())
         {
-            mWaterOrganizer = new EntityWaterWindow(mCanvas, mEntity, this, mWorldAction, mTabs,-1,wxDefaultPosition,wxDefaultSize);
+            mWaterOrganizer = new EntityWaterWindow(mCanvas, mEntity, this, mActionManager, mTabs,-1,wxDefaultPosition,wxDefaultSize);
             mTabs->AddPage(mWaterOrganizer, "Water");
         }
         if (mEntity.has<ungod::LightEmitterComponent>() || mEntity.has<ungod::MultiLightEmitter>() ||
             mEntity.has<ungod::ShadowEmitterComponent>() || mEntity.has<ungod::MultiShadowEmitter>() ||
             mEntity.has<ungod::LightAffectorComponent>() || mEntity.has<ungod::MultiLightAffector>())
         {
-            mLightOrganizer = new EntityLightWindow(mEntity, mWorldAction, mTabs,-1,wxDefaultPosition,wxDefaultSize);
+            mLightOrganizer = new EntityLightWindow(mEntity, mActionManager, mTabs,-1,wxDefaultPosition,wxDefaultSize);
             mTabs->AddPage(mLightOrganizer, "Light");
         }
         if (mEntity.has<ungod::ParticleSystemComponent>())
         {
-            mParticlesOrganizer = new EntityParticleSystemWindow(mEntity, mWorldAction, *mEntityPreview, mTabs,-1,wxDefaultPosition,wxDefaultSize);
+            mParticlesOrganizer = new EntityParticleSystemWindow(mEntity, mActionManager, *mEntityPreview, mTabs,-1,wxDefaultPosition,wxDefaultSize);
             mTabs->AddPage(mParticlesOrganizer, "ParticleSystem");
         }
         if (mEntity.has<ungod::MusicEmitterComponent>())
         {
-            mAudioEmitterOrganizer = new EntityAudioEmitterWindow(mEntity, mWorldAction, mTabs,-1,wxDefaultPosition,wxDefaultSize);
+            mAudioEmitterOrganizer = new EntityAudioEmitterWindow(mEntity, mActionManager, mTabs,-1,wxDefaultPosition,wxDefaultSize);
             mTabs->AddPage(mAudioEmitterOrganizer, "MusicEmitter");
         }
     }
@@ -315,7 +315,7 @@ namespace uedit
 
     void EntityDesigner::onWindowClose(wxCloseEvent& event)
     {
-        mWorldAction.getEditorFrame()->clearEntityDesigner(this);
+        mActionManager.getEditorFrame()->clearEntityDesigner(this);
         event.Skip();
     }
 
@@ -335,11 +335,11 @@ namespace uedit
         }
         else if (mTabs->GetPageText(event.GetSelection()) == _("TileMap"))
         {
-            mEntityPreview->toggle<TileMapEditState>(false);
+            mEntityPreview->toggle<TileMapEditState>();
         }
         else if (mTabs->GetPageText(event.GetSelection()) == _("Water"))
         {
-            mEntityPreview->toggle<TileMapEditState>(true);
+           // mEntityPreview->toggle<TileMapEditState>();
         }
         else if (mTabs->GetPageText(event.GetSelection()) == _("ParticleSystem"))
         {

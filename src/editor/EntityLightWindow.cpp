@@ -2,8 +2,8 @@
 
 namespace uedit
 {
-    LightComponentEdit::LightComponentEdit(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent, ungod::LightEmitterComponent& lightComponent)
-     : wxPanel(parent), mEntity(e), mWorldAction(waw), mLightComponent(lightComponent)
+    LightComponentEdit::LightComponentEdit(ungod::Entity e, ActionManager& actionManager, wxWindow* parent, ungod::LightEmitterComponent& lightComponent)
+     : wxPanel(parent), mEntity(e), mActionManager(actionManager), mLightComponent(lightComponent)
     {
         wxSizer* vbox = new wxBoxSizer(wxVERTICAL);
 
@@ -24,7 +24,7 @@ namespace uedit
             mPosX = new StatDisplay<float>("position x:", this, -1);
             mPosX->connectSetter( [this, &lightComponent](float x)
             {
-                mWorldAction.setLightPosition(mEntity, mLightComponent, { x, lightComponent.getLight().getPosition().y });
+                mActionManager.lightActions().setLightPosition(mEntity, mLightComponent, { x, lightComponent.getLight().getPosition().y });
             } );
             mPosX->connectGetter( [this, &lightComponent]()
             {
@@ -37,7 +37,7 @@ namespace uedit
             mPosY = new StatDisplay<float>("position y:", this, -1);
             mPosY->connectSetter( [this, &lightComponent](float y)
             {
-                mWorldAction.setLightPosition(mEntity, mLightComponent, { lightComponent.getLight().getPosition().x, y });
+                mActionManager.lightActions().setLightPosition(mEntity, mLightComponent, { lightComponent.getLight().getPosition().x, y });
             } );
             mPosY->connectGetter( [this, &lightComponent]()
             {
@@ -50,7 +50,7 @@ namespace uedit
             mScaleX = new StatDisplay<float>("scale x:", this, -1);
             mScaleX->connectSetter( [this, &lightComponent](float x)
             {
-                mWorldAction.setLightPosition(mEntity, mLightComponent, { x, lightComponent.getLight().getScale().y });
+                mActionManager.lightActions().setLightPosition(mEntity, mLightComponent, { x, lightComponent.getLight().getScale().y });
             } );
             mScaleX->connectGetter( [this, &lightComponent]()
             {
@@ -63,7 +63,7 @@ namespace uedit
             mScaleY = new StatDisplay<float>("scale y:", this, -1);
             mScaleY->connectSetter( [this, &lightComponent](float y)
             {
-                mWorldAction.setLightPosition(mEntity, mLightComponent, { lightComponent.getLight().getScale().x, y });
+                mActionManager.lightActions().setLightPosition(mEntity, mLightComponent, { lightComponent.getLight().getScale().x, y });
             } );
             mScaleY->connectGetter( [this, &lightComponent]()
             {
@@ -88,7 +88,7 @@ namespace uedit
 
     void LightComponentEdit::onLightTexturePicked(wxFileDirPickerEvent& event)
     {
-        mWorldAction.loadLightTexture(mEntity, mLightComponent, std::string{mTexPicker->GetPath().mb_str()});
+        mActionManager.lightActions().loadLightTexture(mEntity, mLightComponent, std::string{mTexPicker->GetPath().mb_str()});
     }
 
 
@@ -143,8 +143,8 @@ namespace uedit
     }
 
 
-    LightAffectorEdit::LightAffectorEdit(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent, ungod::LightAffectorComponent& affector, ungod::LightEmitterComponent& emitter)
-     : wxPanel(parent), mEntity(e), mWorldAction(waw), mAffectorComponent(affector), mEmitterComponent(emitter)
+    LightAffectorEdit::LightAffectorEdit(ungod::Entity e, ActionManager& actionManager, wxWindow* parent, ungod::LightAffectorComponent& affector, ungod::LightEmitterComponent& emitter)
+     : wxPanel(parent), mEntity(e), mActionManager(actionManager), mAffectorComponent(affector), mEmitterComponent(emitter)
      {
         wxSizer* vbox = new wxBoxSizer(wxVERTICAL);
 
@@ -174,27 +174,27 @@ namespace uedit
         {
             FlickeringDialog fd(this, -1, "Flickering");
             if (fd.ShowModal() == wxID_OK)
-                mWorldAction.setAffectorCallback(mEntity, mAffectorComponent, mEmitterComponent, ungod::LightFlickering(fd.getPeriod(), fd.getStrength()));
+                mActionManager.lightActions().setAffectorCallback(mEntity, mAffectorComponent, mEmitterComponent, ungod::LightFlickering(fd.getPeriod(), fd.getStrength()));
         }
         else if (mChoice->GetSelection() == 2) //Randomized Flickering
         {
             FlickeringDialog fd(this, -1, "RandomizedFlickering");
             if (fd.ShowModal() == wxID_OK)
-                mWorldAction.setAffectorCallback(mEntity, mAffectorComponent, mEmitterComponent, ungod::RandomizedFlickering(fd.getPeriod(), fd.getStrength()));
+                mActionManager.lightActions().setAffectorCallback(mEntity, mAffectorComponent, mEmitterComponent, ungod::RandomizedFlickering(fd.getPeriod(), fd.getStrength()));
         }
     }
 
 
 
 
-    LightColliderEdit::LightColliderEdit(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent, ungod::ShadowEmitterComponent& shadowEmitter)
-     : wxPanel(parent), mEntity(e), mWorldAction(waw), mShadowEmitter(shadowEmitter)
+    LightColliderEdit::LightColliderEdit(ungod::Entity e, ActionManager& actionManager, wxWindow* parent, ungod::ShadowEmitterComponent& shadowEmitter)
+     : wxPanel(parent), mEntity(e), mActionManager(actionManager), mShadowEmitter(shadowEmitter)
     {
         mSizer = new wxBoxSizer(wxVERTICAL);
 
         mLightOverShapeCheck = new wxCheckBox(this, -1, "light over shape");
         mLightOverShapeCheck->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent&) {
-                mWorldAction.setLightOverShape(mEntity, mShadowEmitter, mLightOverShapeCheck->IsChecked());
+                mActionManager.lightActions().setLightOverShape(mEntity, mShadowEmitter, mLightOverShapeCheck->IsChecked());
             });
         mSizer->Add(mLightOverShapeCheck,0,wxALIGN_CENTER_HORIZONTAL);
 
@@ -202,14 +202,14 @@ namespace uedit
         wxButton* removeAll = new wxButton(this, -1, "Remove all");
         removeAll->Bind(wxEVT_BUTTON, [this](wxCommandEvent& event)
             {
-                mWorldAction.setPointCount(mEntity, mShadowEmitter, 0);
+                mActionManager.lightActions().setPointCount(mEntity, mShadowEmitter, 0);
             });
         hbox->Add(removeAll,0,wxALIGN_CENTER_HORIZONTAL);
         wxButton* removeLast = new wxButton(this, -1, "Remove last");
         removeLast->Bind(wxEVT_BUTTON, [this](wxCommandEvent& event)
             {
                 if (mShadowEmitter.getCollider().getPointCount() > 0)
-                    mWorldAction.setPointCount(mEntity, mShadowEmitter, mShadowEmitter.getCollider().getPointCount()-1);
+                    mActionManager.lightActions().setPointCount(mEntity, mShadowEmitter, mShadowEmitter.getCollider().getPointCount()-1);
             });
         hbox->Add(removeLast,0,wxALIGN_CENTER_HORIZONTAL);
         mSizer->Add(hbox,0,wxALIGN_CENTER_HORIZONTAL);
@@ -260,7 +260,7 @@ namespace uedit
         mPosX.emplace_back(new StatDisplay<float>("x"+std::to_string(i)+":", mPanels.back(), -1) );
         mPosX.back()->connectSetter( [this, i](float x)
         {
-            mWorldAction.setPoint(mEntity, mShadowEmitter, { x, mShadowEmitter.getCollider().getPoint(i).y }, i);
+            mActionManager.lightActions().setPoint(mEntity, mShadowEmitter, { x, mShadowEmitter.getCollider().getPoint(i).y }, i);
         } );
         mPosX.back()->connectGetter( [this, i]()
         {
@@ -271,7 +271,7 @@ namespace uedit
         mPosY.emplace_back(new StatDisplay<float>("y"+std::to_string(i)+":", mPanels.back(), -1) );
         mPosY.back()->connectSetter( [this, i](float y)
         {
-            mWorldAction.setPoint(mEntity, mShadowEmitter, { mShadowEmitter.getCollider().getPoint(i).x, y }, i);
+            mActionManager.lightActions().setPoint(mEntity, mShadowEmitter, { mShadowEmitter.getCollider().getPoint(i).x, y }, i);
         } );
         mPosY.back()->connectGetter( [this, i]()
         {
@@ -286,8 +286,8 @@ namespace uedit
 
 
 
-    EntityLightWindow::EntityLightWindow(ungod::Entity e, WorldActionWrapper& waw, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz)
-        : wxWindow(parent, id, pos, siz), mEntity(e), mWorldAction(waw), mLightEdit(nullptr), mMultiLightPanel(nullptr)
+    EntityLightWindow::EntityLightWindow(ungod::Entity e, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz)
+        : wxWindow(parent, id, pos, siz), mEntity(e), mActionManager(actionManager), mLightEdit(nullptr), mMultiLightPanel(nullptr)
     {
         wxSizer* boxsizer = new wxBoxSizer(wxVERTICAL);
         mNotebook = new wxNotebook(this, -1, wxDefaultPosition, wxDefaultSize, wxNB_TOP);
@@ -295,37 +295,37 @@ namespace uedit
 
         if (e.has<ungod::LightEmitterComponent>())
         {
-            mLightEdit = new LightComponentEdit(mEntity, mWorldAction, mNotebook, e.modify<ungod::LightEmitterComponent>());
+            mLightEdit = new LightComponentEdit(mEntity, mActionManager, mNotebook, e.modify<ungod::LightEmitterComponent>());
             mNotebook->AddPage(mLightEdit,"Light");
         }
 
         if (e.has<ungod::MultiLightEmitter>())
         {
-            mMultiLightPanel = new MultiComponentPanel<ungod::LightEmitterComponent, LightComponentEdit>(mNotebook, mEntity, mWorldAction);
+            mMultiLightPanel = new MultiComponentPanel<ungod::LightEmitterComponent, LightComponentEdit>(mNotebook, mEntity, mActionManager);
             mNotebook->AddPage(mMultiLightPanel,"MultiLight");
         }
 
         if (e.has<ungod::LightAffectorComponent>() && e.has<ungod::LightEmitterComponent>())
         {
-            mAffectorEdit = new LightAffectorEdit(mEntity, mWorldAction, mNotebook, e.modify<ungod::LightAffectorComponent>(), e.modify<ungod::LightEmitterComponent>());
+            mAffectorEdit = new LightAffectorEdit(mEntity, mActionManager, mNotebook, e.modify<ungod::LightAffectorComponent>(), e.modify<ungod::LightEmitterComponent>());
             mNotebook->AddPage(mAffectorEdit,"Affect");
         }
 
         if (e.has<ungod::MultiLightAffector>() && e.has<ungod::MultiLightEmitter>())
         {
-            mMultiAffectorPanel = new MultiComponentPanel<ungod::LightAffectorComponent, LightAffectorEdit, ungod::LightEmitterComponent>(mNotebook, mEntity, mWorldAction);
+            mMultiAffectorPanel = new MultiComponentPanel<ungod::LightAffectorComponent, LightAffectorEdit, ungod::LightEmitterComponent>(mNotebook, mEntity, mActionManager);
             mNotebook->AddPage(mMultiAffectorPanel,"MultiAffect");
         }
 
         if (e.has<ungod::ShadowEmitterComponent>())
         {
-            mLightColliderEdit = new LightColliderEdit(mEntity, mWorldAction, mNotebook, e.modify<ungod::ShadowEmitterComponent>());
+            mLightColliderEdit = new LightColliderEdit(mEntity, mActionManager, mNotebook, e.modify<ungod::ShadowEmitterComponent>());
             mNotebook->AddPage(mLightColliderEdit,"Collider");
         }
 
         if (e.has<ungod::MultiShadowEmitter>())
         {
-            mMultiLightColliderPanel = new MultiComponentPanel<ungod::ShadowEmitterComponent, LightColliderEdit>(mNotebook, mEntity, mWorldAction);
+            mMultiLightColliderPanel = new MultiComponentPanel<ungod::ShadowEmitterComponent, LightColliderEdit>(mNotebook, mEntity, mActionManager);
             mNotebook->AddPage(mMultiLightColliderPanel,"MultiCollider");
         }
 

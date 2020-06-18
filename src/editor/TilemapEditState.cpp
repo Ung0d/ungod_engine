@@ -63,8 +63,8 @@ namespace uedit
 
         if (!mPreview.mEntity.has<ungod::VisualsComponent>())
             return;
-        auto& v = &mPreview.mEntity.modify<ungod::VisualsComponent>();
-        if (!v->isLoaded())
+        auto& v = mPreview.mEntity.modify<ungod::VisualsComponent>();
+        if (!v.isLoaded())
             return;
 
         switch (event.type)
@@ -83,7 +83,7 @@ namespace uedit
                 if (indices.x > -1)
                 {
                     std::string key = tm->getKeyMap()[tm->getTileID(indices.x, indices.y)];
-                    mPreview.mWorldAction.getEditorFrame()->getSheetPreview()->selectSheetKey(v.getFilePath(), key + " (object)");
+                    mPreview.mActionManager.getEditorFrame()->getSheetPreview()->selectSheetKey(v.getFilePath(), key + " (object)");
                 }
             }
             break;
@@ -109,8 +109,8 @@ namespace uedit
             sf::Vector2f worldpos = mPreview.mWindow.mapPixelToCoords( sf::Mouse::getPosition(mPreview.mWindow), mPreview.mCamera.getView() );
             worldpos = mPreview.mEntity.modify<ungod::TransformComponent>().getTransform().getInverse().transformPoint(worldpos);
             sf::Vector2i tileIndices = tm->getTileIndices(worldpos);
-            std::string key = mPreview.mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentKey();
-            std::string type = mPreview.mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentType();
+            std::string key = mPreview.mActionManager.getEditorFrame()->getSheetPreview()->getCurrentKey();
+            std::string type = mPreview.mActionManager.getEditorFrame()->getSheetPreview()->getCurrentType();
             if (key != "")
             {
                 if (!mLastTileIndices.x == -1 || mLastTileIndices != tileIndices)
@@ -131,13 +131,13 @@ namespace uedit
 
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) //remove key
                         {
-                            mPreview.mWorldAction.setTile(mPreview.mEntity, worldpos, -1);
+                            mPreview.mActionManager.tilemapActions().setTile(mPreview.mEntity, -1, worldpos);
                         }
                         else //add key
                         {
                             if (tileID == (int)tm->getKeyMap().size())
-                                mPreview.mWorldAction.addKey(mPreview.mEntity, key);
-                            mPreview.mWorldAction.setTile(mPreview.mEntity, worldpos, tileID);
+                                mPreview.mActionManager.tilemapActions().addKey(mPreview.mEntity, key);
+                            mPreview.mActionManager.tilemapActions().setTile(mPreview.mEntity, tileID, worldpos);
                         }
                     }
                     else if (type == "brush")
@@ -146,7 +146,7 @@ namespace uedit
                         //erase or paint?
                         /*if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
                         {
-                            mPreview.mWorldAction.eraseTile(*mTMBrush, worldpos, );
+                            mPreview.mActionManager.eraseTile(*mTMBrush, worldpos, );
                         }
                         else
                         {*/
@@ -154,7 +154,7 @@ namespace uedit
                             //that the key-set this key belongs to, is completely contained in the keymap of the tilemap
                             //afterwards, we have to create a new brush for the identifier that can be deduced from the key, if no brush is
                             //currently present or if the identifier of the present brush is something different
-                            if (!mPreview.mWorldAction.getEditorFrame()->getSelectedWorld())
+                            if (!mPreview.mActionManager.getEditorFrame()->getSelectedWorld())
                                 return;
                             if (!mTMBrush || mTMBrush->getIdentifier() != key)
                             {
@@ -163,12 +163,12 @@ namespace uedit
                                 {
                                     if (std::find(tm->getKeyMap().begin(), tm->getKeyMap().end(), k) == tm->getKeyMap().end())
                                     {
-                                        mPreview.mWorldAction.addKey(mPreview.mEntity, k);
+                                        mPreview.mActionManager.tilemapActions().addKey(mPreview.mEntity, k);
                                     }
                                 }
-                                mTMBrush = mPreview.mWorldAction.getEditorFrame()->getSelectedWorld()->getTileMapRenderer().makeTilemapBrush(mPreview.mEntity, key);
+                                mTMBrush = mPreview.mActionManager.getEditorFrame()->getSelectedWorld()->getTileMapHandler().makeTilemapBrush(mPreview.mEntity, key);
                             }
-                            mPreview.mWorldAction.paintTile(*mTMBrush, worldpos, !sf::Keyboard::isKeyPressed(sf::Keyboard::LControl));
+                            mPreview.mActionManager.tilemapActions().paintTile(*mTMBrush, worldpos, !sf::Keyboard::isKeyPressed(sf::Keyboard::LControl));
                         //}
                     }
                 }
@@ -177,7 +177,7 @@ namespace uedit
     }
 
 
-    TileMapFloodFillState::TileMapFloodFillState(EntityPreview& preview, bool water) : TileMapEditBase(preview, water), mMouseDown(false)
+    TileMapFloodFillState::TileMapFloodFillState(EntityPreview& preview) : TileMapEditBase(preview), mMouseDown(false)
     {
     }
 
@@ -198,9 +198,9 @@ namespace uedit
 
                     sf::Vector2f worldpos = mPreview.mWindow.mapPixelToCoords( {sf::Mouse::getPosition(mPreview.mWindow).x, sf::Mouse::getPosition(mPreview.mWindow).y}, mPreview.mCamera.getView() );
                     worldpos = mPreview.mEntity.modify<ungod::TransformComponent>().getTransform().getInverse().transformPoint(worldpos);
-                    ungod::Tile const* tile = tm->getTiledata(worldpos);
-                    std::string key = mPreview.mWorldAction.getEditorFrame()->getSheetPreview()->getCurrentKey();
-                    if (tile && key != "")
+                    sf::Vector2i ti = tm->getTileIndices(worldpos);
+                    std::string key = mPreview.mActionManager.getEditorFrame()->getSheetPreview()->getCurrentKey();
+                    if (ti.x > -1 && key != "")
                     {
                         //retrieve the id for the key or add it to the keylist and create a new id
                         int tileID = tm->getKeyMap().size();
@@ -213,11 +213,9 @@ namespace uedit
                             }
                         }
 
-                        auto ti = tm->getTileIndices(worldpos);
-
                         if (tileID == (int)tm->getKeyMap().size())
-                            mPreview.mWorldAction.addKey(mPreview.mEntity, key);
-                        mPreview.mWorldAction.floodFill(mPreview.mEntity, ti.x, ti.y, {tileID});
+                            mPreview.mActionManager.tilemapActions().addKey(mPreview.mEntity, key);
+                        mPreview.mActionManager.tilemapActions().floodFillTileMap(mPreview.mEntity, ti.x, ti.y, {tileID});
                     }
                 }
             }

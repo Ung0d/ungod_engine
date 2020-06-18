@@ -26,18 +26,18 @@ namespace uedit
             }
         }
 
-        static void setup(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& c, WorldActionWrapper& waw, std::list<PointDragger>& draggers)
+        static void setup(ungod::Entity e, ungod::RigidbodyComponent<CONTEXT>& c, ActionManager& actionManager, std::list<PointDragger>& draggers)
         {
             switch (c.getCollider().getType())
             {
             case ungod::ColliderType::ROTATED_RECT:
             {
                 ungod::RotatedRectConstAggregator rrca{ c.getCollider() };
-                auto ulsetter = [e, &c, rrca, &waw](const sf::Vector2f& p) mutable
+                auto ulsetter = [e, &c, rrca, &actionManager](const sf::Vector2f& p) mutable
                 { 
                     sf::Transform t;
                     t.rotate(rrca.getRotation(), rrca.getCenter());
-                    waw.setRectUpLeft(e, c, t.getInverse().transformPoint(p)); 
+                    actionManager.collisionActions<CONTEXT>().setRectUpLeft(e, c, t.getInverse().transformPoint(p));
                 };
                 auto ulgetter = [rrca]() 
                 { 
@@ -46,12 +46,12 @@ namespace uedit
                     return t.transformPoint({rrca.getUpLeftX(), rrca.getUpLeftY()}); 
                 };
                 draggers.emplace_back(ulsetter, ulgetter);
-                auto ursetter = [e, rrca, &c, &waw](const sf::Vector2f& p) mutable 
+                auto ursetter = [e, rrca, &c, &actionManager](const sf::Vector2f& p) mutable
                 {
                     sf::Transform t;
                     t.rotate(rrca.getRotation(), rrca.getCenter());
-                    waw.setRectUpLeft(e, c, t.getInverse().transformPoint({ rrca.getUpLeftX(), p.y }));
-                    waw.setRectDownRight(e, c, t.getInverse().transformPoint({ p.x, rrca.getDownRightY() }));
+                    actionManager.collisionActions<CONTEXT>().setRectUpLeft(e, c, t.getInverse().transformPoint({ rrca.getUpLeftX(), p.y }));
+                    actionManager.collisionActions<CONTEXT>().setRectDownRight(e, c, t.getInverse().transformPoint({ p.x, rrca.getDownRightY() }));
                 };
                 auto urgetter = [rrca]() 
                 {
@@ -60,11 +60,11 @@ namespace uedit
                     return t.transformPoint({ rrca.getDownRightX(), rrca.getUpLeftY() });
                 };
                 draggers.emplace_back(ursetter, urgetter);
-                auto drsetter = [e, rrca, &c, &waw](const sf::Vector2f& p) mutable
+                auto drsetter = [e, rrca, &c, &actionManager](const sf::Vector2f& p) mutable
                 {
                     sf::Transform t;
                     t.rotate(rrca.getRotation(), rrca.getCenter());
-                    waw.setRectDownRight(e, c, t.getInverse().transformPoint(p));
+                    actionManager.collisionActions<CONTEXT>().setRectDownRight(e, c, t.getInverse().transformPoint(p));
                 };
                 auto drgetter = [rrca]() 
                 {
@@ -73,12 +73,12 @@ namespace uedit
                     return t.transformPoint({ rrca.getDownRightX(), rrca.getDownRightY() });
                 };
                 draggers.emplace_back(drsetter, drgetter);
-                auto dlsetter = [e, rrca, &c, &waw](const sf::Vector2f& p) mutable
+                auto dlsetter = [e, rrca, &c, &actionManager](const sf::Vector2f& p) mutable
                 {
                     sf::Transform t;
                     t.rotate(rrca.getRotation(), rrca.getCenter());
-                    waw.setRectUpLeft(e, c, t.getInverse().transformPoint({ p.x, rrca.getUpLeftY() }));
-                    waw.setRectDownRight(e, c, t.getInverse().transformPoint({ rrca.getDownRightX(), p.y }));
+                    actionManager.collisionActions<CONTEXT>().setRectUpLeft(e, c, t.getInverse().transformPoint({ p.x, rrca.getUpLeftY() }));
+                    actionManager.collisionActions<CONTEXT>().setRectDownRight(e, c, t.getInverse().transformPoint({ rrca.getDownRightX(), p.y }));
                 };
                 auto dlgetter = [rrca]() 
                 {
@@ -94,7 +94,7 @@ namespace uedit
                 ungod::PointSetConstAggregator psca{ c.getCollider() };
                 for (unsigned i = 0; i < psca.getNumberOfPoints(); i++)
                 {
-                    auto setter = [e, &c, i, &waw](const sf::Vector2f& p) mutable { waw.setColliderPoint(e, c, p, i); };
+                    auto setter = [e, &c, i, &actionManager](const sf::Vector2f& p) mutable { actionManager.collisionActions<CONTEXT>().setColliderPoint(e, c, p, i); };
                     auto getter = [psca, i]() { return sf::Vector2f{ psca.getPointX(i), psca.getPointY(i) }; };
                     draggers.emplace_back(setter, getter);
                 }
@@ -135,7 +135,7 @@ namespace uedit
 
     template<std::size_t CONTEXT>
     CollidersEditState<CONTEXT>::CollidersEditState(EntityPreview& preview, EntityCollidersWindow<CONTEXT>& colliderWindow) :
-        mPreview(preview), mSingleSelected(false), mMousePressed(false), mColliderPointDraggers(mPreview.getWorldAction()), mCollidersWindow(colliderWindow)
+        mPreview(preview), mSingleSelected(false), mMousePressed(false), mColliderPointDraggers(mPreview.getActionManager()), mCollidersWindow(colliderWindow)
     {
         mLastMouse = sf::Mouse::getPosition(preview.mWindow);
 
@@ -203,7 +203,7 @@ namespace uedit
                             if (mCollidersWindow.getActiveComponent() && 
                                 (mCollidersWindow.getActiveComponent()->getCollider().getType() == ungod::ColliderType::CONVEX_POLYGON ||
                                 mCollidersWindow.getActiveComponent()->getCollider().getType() == ungod::ColliderType::EDGE_CHAIN))
-                                preview.mWorldAction.addColliderPoint(preview.mEntity, *mCollidersWindow.getActiveComponent(), mousePosLocal);
+                                preview.mActionManager.collisionActions<CONTEXT>().addColliderPoint(preview.mEntity, *mCollidersWindow.getActiveComponent(), mousePosLocal);
                         }
                     }
                     mMousePressed = true;
@@ -230,9 +230,9 @@ namespace uedit
                     if (!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
                     {
                         if (mSingleSelected)
-                            preview.mWorldAction.moveCollider(preview.mEntity, offset);
+                            preview.mActionManager.collisionActions<CONTEXT>().moveCollider(preview.mEntity, offset);
                         for (auto c : mSelectedMultiColliders)
-                            preview.mWorldAction.moveCollider(preview.mEntity, c, offset);
+                            preview.mActionManager.collisionActions<CONTEXT>().moveCollider(preview.mEntity, c, offset);
                     }
                     else 
                     {
@@ -240,18 +240,18 @@ namespace uedit
                             preview.mEntity.get<ungod::RigidbodyComponent<CONTEXT>>().getCollider().getType() == ungod::ColliderType::ROTATED_RECT)
                         {
                             if (offset.y > 0)
-                                preview.mWorldAction.rotateRect(preview.mEntity, -ungod::magnitude(offset));
+                                preview.mActionManager.collisionActions<CONTEXT>().rotateRect(preview.mEntity, -ungod::magnitude(offset));
                             else
-                                preview.mWorldAction.rotateRect(preview.mEntity, ungod::magnitude(offset));
+                                preview.mActionManager.collisionActions<CONTEXT>().rotateRect(preview.mEntity, ungod::magnitude(offset));
                         }
                         for (auto c : mSelectedMultiColliders)
                         {
                             if (preview.mEntity.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponent(c).getCollider().getType() == ungod::ColliderType::ROTATED_RECT)
                             {
                                 if (offset.y > 0)
-                                    preview.mWorldAction.rotateRect(preview.mEntity, c, -ungod::magnitude(offset));
+                                    preview.mActionManager.collisionActions<CONTEXT>().rotateRect(preview.mEntity, c, -ungod::magnitude(offset));
                                 else
-                                    preview.mWorldAction.rotateRect(preview.mEntity, c, ungod::magnitude(offset));
+                                    preview.mActionManager.collisionActions<CONTEXT>().rotateRect(preview.mEntity, c, ungod::magnitude(offset));
                             }
                         }
 

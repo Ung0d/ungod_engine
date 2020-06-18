@@ -2,8 +2,7 @@
 #define UEDIT_WATER_ACTIONS_H
 
 #include "ungod/base/Entity.h"
-#include "ungod/base/water/WaterHandler.h"
-#include <unordered_map>
+#include "ungod/content/water/WaterHandler.h"
 
 namespace uedit
 {
@@ -16,7 +15,7 @@ namespace uedit
 
         void loadWaterShaders(ungod::Entity e, const std::string& distortionMap,
             const std::string& fragmentShader, const std::string& vertexShader);
-        
+
         void setWaterReflections(ungod::Entity e, bool flag);
 
         void setWaterShaders(ungod::Entity e, bool flag);
@@ -30,7 +29,7 @@ namespace uedit
     private:
         ActionManager& mActionManager;
         std::unordered_map<ungod::Entity, sf::Vector2f> mEntityMovements;
-    }
+    };
 }
 
 #endif

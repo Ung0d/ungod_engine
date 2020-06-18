@@ -2,8 +2,8 @@
 
 namespace uedit
 {
-    EntityAudioEmitterWindow::EntityAudioEmitterWindow(ungod::Entity e, WorldActionWrapper& waw, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
-        wxWindow(parent, id, pos, siz), mEntity(e), mWorldAction(waw)
+    EntityAudioEmitterWindow::EntityAudioEmitterWindow(ungod::Entity e, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
+        wxWindow(parent, id, pos, siz), mEntity(e), mActionManager(actionManager)
     {
         wxSizer* boxsizer = new wxBoxSizer(wxVERTICAL);
 
@@ -17,7 +17,7 @@ namespace uedit
             mVolume = new StatDisplay<float>("volume:", this, -1);
             mVolume->connectSetter( [this](float vol)
             {
-                mWorldAction.setAudioEmitterVolume(mEntity, vol);
+                mActionManager.audioActions().setAudioEmitterVolume(mEntity, vol);
             } );
             mVolume->connectGetter( [this]()
             {
@@ -30,7 +30,7 @@ namespace uedit
             mDistanceCap = new StatDisplay<float>("distance cap:", this, -1);
             mDistanceCap->connectSetter( [this](float cap)
             {
-                mWorldAction.setAudioEmitterDistanceCap(mEntity, cap);
+                mActionManager.audioActions().setAudioEmitterDistanceCap(mEntity, cap);
             } );
             mDistanceCap->connectGetter( [this]()
             {
@@ -55,7 +55,7 @@ namespace uedit
 
     void EntityAudioEmitterWindow::onActiveChecked(wxCommandEvent& event)
     {
-        mWorldAction.setAudioEmitterActive(mEntity, mActive->GetValue());
+        mActionManager.audioActions().setAudioEmitterActive(mEntity, mActive->GetValue());
     }
 
 
@@ -68,6 +68,6 @@ namespace uedit
 
     void EntityAudioEmitterWindow::onFilepick(wxFileDirPickerEvent& event)
     {
-        mWorldAction.loadAudioEmitterTrack(mEntity, std::string(event.GetPath().mb_str()));
+        mActionManager.audioActions().loadAudioEmitterTrack(mEntity, std::string(event.GetPath().mb_str()));
     }
 }

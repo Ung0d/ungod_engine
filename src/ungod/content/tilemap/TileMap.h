@@ -81,7 +81,7 @@ namespace ungod
 
         /** Initializes the map by setting the given tiles and dimensions. The product of dimensions has to match the number of tiles. 
         * The tilemap takes ownership of the tiledata. */
-        bool setTiles(TileData& tiles, unsigned mapSizeX, unsigned mapSizeY);
+        bool setTiles(const TileData& tiles, unsigned mapSizeX, unsigned mapSizeY);
 
         /** \brief Sets the id of the given tile. */
         void setTile(int id, unsigned x, unsigned y);

@@ -6,8 +6,8 @@
 
 namespace uedit
 {
-    EntityParticleSystemWindow::EntityParticleSystemWindow(ungod::Entity e, WorldActionWrapper& waw, EntityPreview& preview, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
-        wxWindow(parent, id, pos, siz), mEntity(e), mWorldAction(waw), mPreview(preview), mEmitterPanel(nullptr), mTexrectInitPanel(nullptr), mAffectorsPanel(nullptr)
+    EntityParticleSystemWindow::EntityParticleSystemWindow(ungod::Entity e, ActionManager& actionManager, EntityPreview& preview, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
+        wxWindow(parent, id, pos, siz), mEntity(e), mActionManager(actionManager), mPreview(preview), mEmitterPanel(nullptr), mTexrectInitPanel(nullptr), mAffectorsPanel(nullptr)
     {
         mBox = new wxBoxSizer(wxVERTICAL);
 
@@ -43,7 +43,7 @@ namespace uedit
             mMaxForce = new StatDisplay<float>("max force:", this, -1);
             mMaxForce->connectSetter( [this](float x)
             {
-                mWorldAction.setParticleMaxForce(mEntity, x);
+                mActionManager.particleSystemActions().setParticleMaxForce(mEntity, x);
             } );
             mMaxForce->connectGetter( [this]()
             {
@@ -57,7 +57,7 @@ namespace uedit
             mMaxVel = new StatDisplay<float>("max velocity:", this, -1);
             mMaxVel->connectSetter( [this](float x)
             {
-                mWorldAction.setParticleMaxVelocity(mEntity, x);
+                mActionManager.particleSystemActions().setParticleMaxVelocity(mEntity, x);
             } );
             mMaxVel->connectGetter( [this]()
             {
@@ -71,7 +71,7 @@ namespace uedit
             mSpeed = new StatDisplay<float>("speed:", this, -1);
             mSpeed->connectSetter( [this](float x)
             {
-                mWorldAction.setParticleSpeed(mEntity, x);
+                mActionManager.particleSystemActions().setParticleSpeed(mEntity, x);
             } );
             mSpeed->connectGetter( [this]()
             {
@@ -110,7 +110,7 @@ namespace uedit
 
         if (key == ungod::PS_UNIVERSAL_EMITTER)
         {
-            mEmitterPanel = new UniversalEmitterPanel(mEntity, mWorldAction, mTabs);
+            mEmitterPanel = new UniversalEmitterPanel(mEntity, mActionManager, mTabs);
         }
         else
         {
@@ -136,7 +136,7 @@ namespace uedit
             mTexrectInitPanel = nullptr;
         }
 
-        mTexrectInitPanel = new TexrectInitailizerPanel(mEntity, mWorldAction, mTabs);
+        mTexrectInitPanel = new TexrectInitailizerPanel(mEntity, mActionManager, mTabs);
         mTabs->InsertPage(1, mTexrectInitPanel, _("TexrectInit"));
         mTabs->SetSelection(1);
 
@@ -156,7 +156,7 @@ namespace uedit
             mAffectorsPanel = nullptr;
         }
 
-        mAffectorsPanel = new AffectorsPanel(mEntity, mWorldAction, mTabs, sel);
+        mAffectorsPanel = new AffectorsPanel(mEntity, mActionManager, mTabs, sel);
         mTabs->InsertPage(2, mAffectorsPanel, _("Affectors"));
         mTabs->SetSelection(2);
 
@@ -190,7 +190,7 @@ namespace uedit
 
 
 
-    UniversalEmitterPanel::UniversalEmitterPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent) :
+    UniversalEmitterPanel::UniversalEmitterPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent) :
         wxPanel(parent), mPositionDistPanel(nullptr), mVelocityDistPanel(nullptr), mSpawnIntervalPanel(nullptr), mLifetimeIntervalPanel(nullptr)
     {
         SetWindowStyle(wxBORDER_SUNKEN);
@@ -204,7 +204,7 @@ namespace uedit
             posdists.Add(ungod::PS_ELLIPSE_DIST);
             posdists.Add(ungod::PS_LINE_SEGMENT_DIST);
             mPosDistChoice = new LabeledChoice(this, -1, posdists, _("Position distribution: "));
-            mPosDistChoice->bindChoice([this, e, &waw] (wxCommandEvent& event) { this->onPosDistChoice(event, e, waw); });
+            mPosDistChoice->bindChoice([this, e, &actionManager] (wxCommandEvent& event) { this->onPosDistChoice(event, e, actionManager); });
 
             std::string key = e.get<ungod::ParticleSystemComponent>().getSystem().getEmitter<ungod::UniversalEmitter>().getPositionDistKey();
             int f = mPosDistChoice->getChoice()->FindString( key );
@@ -215,22 +215,22 @@ namespace uedit
 
             if (key == ungod::PS_FIXED_POSITION)
             {
-                mPositionDistPanel = new FixedPositionDistPanel(e, waw, this);
+                mPositionDistPanel = new FixedPositionDistPanel(e, actionManager, this);
                 vbox->Add(mPositionDistPanel, 0, wxALIGN_CENTER_HORIZONTAL);
             }
             else if (key == ungod::PS_ELLIPSE_DIST)
             {
-                mPositionDistPanel = new EllipseDistPanel(e, waw, this);
+                mPositionDistPanel = new EllipseDistPanel(e, actionManager, this);
                 vbox->Add(mPositionDistPanel, 0, wxALIGN_CENTER_HORIZONTAL);
             }
             else if (key == ungod::PS_RECTANGLE_DIST)
             {
-                mPositionDistPanel = new RectangleDistPanel(e, waw, this);
+                mPositionDistPanel = new RectangleDistPanel(e, actionManager, this);
                 vbox->Add(mPositionDistPanel, 0, wxALIGN_CENTER_HORIZONTAL);
             }
             else if (key == ungod::PS_LINE_SEGMENT_DIST)
             {
-                mPositionDistPanel = new LineSegmentDistPanel(e, waw, this);
+                mPositionDistPanel = new LineSegmentDistPanel(e, actionManager, this);
                 vbox->Add(mPositionDistPanel, 0, wxALIGN_CENTER_HORIZONTAL);
             }
         }
@@ -240,7 +240,7 @@ namespace uedit
             veldists.Add(ungod::PS_FIXED_VELOCITY);
             veldists.Add(ungod::PS_CONE_DIST);
             mVelDistCoice = new LabeledChoice(this, -1, veldists, _("Velocity distribution: "));
-            mVelDistCoice->bindChoice([this, e, &waw] (wxCommandEvent& event) { this->onVelDistChoice(event, e, waw); });
+            mVelDistCoice->bindChoice([this, e, &actionManager] (wxCommandEvent& event) { this->onVelDistChoice(event, e, actionManager); });
 
             std::string key = e.get<ungod::ParticleSystemComponent>().getSystem().getEmitter<ungod::UniversalEmitter>().getVelocityDistKey();
             int f = mVelDistCoice->getChoice()->FindString( key );
@@ -251,12 +251,12 @@ namespace uedit
 
             if (key == ungod::PS_FIXED_VELOCITY)
             {
-                mVelocityDistPanel = new FixedVelocityDistPanel(e, waw, this);
+                mVelocityDistPanel = new FixedVelocityDistPanel(e, actionManager, this);
                 vbox->Add(mVelocityDistPanel, 0, wxALIGN_CENTER_HORIZONTAL);
             }
             else if (key == ungod::PS_CONE_DIST)
             {
-                mVelocityDistPanel = new ConeDistPanel(e, waw, this);
+                mVelocityDistPanel = new ConeDistPanel(e, actionManager, this);
                 vbox->Add(mVelocityDistPanel, 0, wxALIGN_CENTER_HORIZONTAL);
             }
         }
@@ -265,7 +265,7 @@ namespace uedit
             wxArrayString spawnIntervals;
             spawnIntervals.Add(ungod::PS_INTERVAL_TICK);
             mSpawnIntervalChoice = new LabeledChoice(this, -1, spawnIntervals, _("Spawn interval: "));
-            mSpawnIntervalChoice->bindChoice([this, e, &waw] (wxCommandEvent& event) { this->onSpawnIntervalChoice(event, e, waw); });
+            mSpawnIntervalChoice->bindChoice([this, e, &actionManager] (wxCommandEvent& event) { this->onSpawnIntervalChoice(event, e, actionManager); });
 
             std::string key = e.get<ungod::ParticleSystemComponent>().getSystem().getEmitter<ungod::UniversalEmitter>().getSpawnIntervalKey();
             int f = mSpawnIntervalChoice->getChoice()->FindString( key );
@@ -276,7 +276,7 @@ namespace uedit
 
             if (key == ungod::PS_INTERVAL_TICK)
             {
-                mSpawnIntervalPanel = new IntervalTickPanel(e, waw, this);
+                mSpawnIntervalPanel = new IntervalTickPanel(e, actionManager, this);
                 vbox->Add(mSpawnIntervalPanel, 0, wxALIGN_CENTER_HORIZONTAL);
             }
         }
@@ -285,7 +285,7 @@ namespace uedit
             wxArrayString lifetimeIntervals;
             lifetimeIntervals.Add(ungod::PS_INTERVAL_LIFETIME);
             mLifetimeIntervalChoice = new LabeledChoice(this, -1, lifetimeIntervals, _("Lifetime distribution: "));
-            mLifetimeIntervalChoice->bindChoice([this, e, &waw] (wxCommandEvent& event) { this->onLifetimeIntervalChoice(event, e, waw); });
+            mLifetimeIntervalChoice->bindChoice([this, e, &actionManager] (wxCommandEvent& event) { this->onLifetimeIntervalChoice(event, e, actionManager); });
 
             std::string key = e.get<ungod::ParticleSystemComponent>().getSystem().getEmitter<ungod::UniversalEmitter>().getLifetimeDistKey();
             int f = mLifetimeIntervalChoice->getChoice()->FindString( key );
@@ -296,7 +296,7 @@ namespace uedit
 
             if (key == ungod::PS_INTERVAL_LIFETIME)
             {
-                mLifetimeIntervalPanel = new IntervalLifetimePanel(e, waw, this);
+                mLifetimeIntervalPanel = new IntervalLifetimePanel(e, actionManager, this);
                 vbox->Add(mLifetimeIntervalPanel, 0, wxALIGN_CENTER_HORIZONTAL);
             }
         }
@@ -306,7 +306,7 @@ namespace uedit
         Fit();
     }
 
-    void UniversalEmitterPanel::onPosDistChoice(wxCommandEvent& event, ungod::Entity e, WorldActionWrapper& waw)
+    void UniversalEmitterPanel::onPosDistChoice(wxCommandEvent& event, ungod::Entity e, ActionManager& actionManager)
     {
         int sel = mPosDistChoice->getChoice()->GetSelection();
         if (sel == wxNOT_FOUND)
@@ -317,24 +317,24 @@ namespace uedit
         //this will reset the pos dist and trigger a recreation of the universal emitter panel
         if (key == ungod::PS_FIXED_POSITION)
         {
-            waw.setPositionDist<ungod::FixedPosition>(e, key, sf::Vector2f{0,0});
+            actionManager.particleSystemActions().setPositionDist<ungod::FixedPosition>(e, key, sf::Vector2f{0,0});
         }
         else if (key == ungod::PS_ELLIPSE_DIST)
         {
-            waw.setPositionDist<ungod::EllipseDist>(e, key, sf::Vector2f{0,0}, sf::Vector2f{200,100});
+            actionManager.particleSystemActions().setPositionDist<ungod::EllipseDist>(e, key, sf::Vector2f{0,0}, sf::Vector2f{200,100});
         }
         else if (key == ungod::PS_RECTANGLE_DIST)
         {
-            waw.setPositionDist<ungod::RectangleDist>(e, key, sf::Vector2f{0,0}, sf::Vector2f{100,60});
+            actionManager.particleSystemActions().setPositionDist<ungod::RectangleDist>(e, key, sf::Vector2f{0,0}, sf::Vector2f{100,60});
         }
         else if (key == ungod::PS_LINE_SEGMENT_DIST)
         {
-            waw.setPositionDist<ungod::LineSegmentDist>(e, key, sf::Vector2f{0,0}, sf::Vector2f{60,60});
+            actionManager.particleSystemActions().setPositionDist<ungod::LineSegmentDist>(e, key, sf::Vector2f{0,0}, sf::Vector2f{60,60});
         }
     }
 
 
-    void UniversalEmitterPanel::onVelDistChoice(wxCommandEvent& event, ungod::Entity e, WorldActionWrapper& waw)
+    void UniversalEmitterPanel::onVelDistChoice(wxCommandEvent& event, ungod::Entity e, ActionManager& actionManager)
     {
         int sel = mVelDistCoice->getChoice()->GetSelection();
         if (sel == wxNOT_FOUND)
@@ -345,16 +345,16 @@ namespace uedit
         //this will reset the pos dist and trigger a recreation of the universal emitter panel
         if (key == ungod::PS_FIXED_VELOCITY)
         {
-            waw.setVelocityDist<ungod::FixedVelocity>(e, key, sf::Vector2f{1,0});
+            actionManager.particleSystemActions().setVelocityDist<ungod::FixedVelocity>(e, key, sf::Vector2f{1,0});
         }
         else if (key == ungod::PS_CONE_DIST)
         {
-            waw.setVelocityDist<ungod::ConeDist>(e, key, sf::Vector2f{-1,1}, sf::Vector2f{1,1});
+            actionManager.particleSystemActions().setVelocityDist<ungod::ConeDist>(e, key, sf::Vector2f{-1,1}, sf::Vector2f{1,1});
         }
     }
 
 
-    void UniversalEmitterPanel::onSpawnIntervalChoice(wxCommandEvent& event, ungod::Entity e, WorldActionWrapper& waw)
+    void UniversalEmitterPanel::onSpawnIntervalChoice(wxCommandEvent& event, ungod::Entity e, ActionManager& actionManager)
     {
         int sel = mSpawnIntervalChoice->getChoice()->GetSelection();
         if (sel == wxNOT_FOUND)
@@ -365,12 +365,12 @@ namespace uedit
         //this will reset the pos dist and trigger a recreation of the universal emitter panel
         if (key == ungod::PS_INTERVAL_TICK)
         {
-            waw.setSpawnInterval<ungod::IntervalTick>(e, key, 200, 500, 1);
+            actionManager.particleSystemActions().setSpawnInterval<ungod::IntervalTick>(e, key, 200, 500, 1);
         }
     }
 
 
-    void UniversalEmitterPanel::onLifetimeIntervalChoice(wxCommandEvent& event, ungod::Entity e, WorldActionWrapper& waw)
+    void UniversalEmitterPanel::onLifetimeIntervalChoice(wxCommandEvent& event, ungod::Entity e, ActionManager& actionManager)
     {
         int sel = mLifetimeIntervalChoice->getChoice()->GetSelection();
         if (sel == wxNOT_FOUND)
@@ -381,14 +381,14 @@ namespace uedit
         //this will reset the pos dist and trigger a recreation of the universal emitter panel
         if (key == ungod::PS_INTERVAL_LIFETIME)
         {
-            waw.setLifetimeDist<ungod::IntervalLifetime>(e, key, 1500, 2000);
+            actionManager.particleSystemActions().setLifetimeDist<ungod::IntervalLifetime>(e, key, 1500, 2000);
         }
     }
 
 
 
-    AffectorsPanel::AffectorsPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent, int sel) :
-        wxPanel(parent), mEntity(e), mWaw(waw), mAffectorPanel(nullptr), mSel(sel)
+    AffectorsPanel::AffectorsPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent, int sel) :
+        wxPanel(parent), mEntity(e), mActionManager(actionManager), mAffectorPanel(nullptr), mSel(sel)
     {
         const ungod::ParticleSystem& ps = e.get<ungod::ParticleSystemComponent>().getSystem();
 
@@ -417,7 +417,7 @@ namespace uedit
             wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
 
             mAddNew = new wxButton(this, -1, _("add"));
-            mAddNew->Bind(wxEVT_BUTTON, [&waw, e, this] (wxCommandEvent& evemt)
+            mAddNew->Bind(wxEVT_BUTTON, [&actionManager, e, this] (wxCommandEvent& evemt)
                             {
                                 bool ok = false;
                                 AffectorCreateDialog::AffType type;
@@ -434,28 +434,28 @@ namespace uedit
                                     switch (type)
                                     {
                                         case AffectorCreateDialog::AffType::DIRECTIONAL_FORCE:
-                                            waw.addAffector<ungod::DirectionalForce>(e, ungod::PS_DIRECTIONAL_FORCE, sf::Vector2f{0,1});
+                                            actionManager.particleSystemActions().addAffector<ungod::DirectionalForce>(e, ungod::PS_DIRECTIONAL_FORCE, sf::Vector2f{0,1});
                                             break;
                                         case AffectorCreateDialog::AffType::DISPLACE_FORCE:
-                                            waw.addAffector<ungod::DisplaceForce>(e, ungod::PS_DISPLACE_FORCE, 1.0f, 10.0f, 20.0f);
+                                            actionManager.particleSystemActions().addAffector<ungod::DisplaceForce>(e, ungod::PS_DISPLACE_FORCE, 1.0f, 10.0f, 20.0f);
                                             break;
                                         case AffectorCreateDialog::AffType::FADE_OUT:
-                                            waw.addAffector<ungod::FadeOut>(e, ungod::PS_FADE_OUT);
+                                            actionManager.particleSystemActions().addAffector<ungod::FadeOut>(e, ungod::PS_FADE_OUT);
                                             break;
                                         case AffectorCreateDialog::AffType::ANIMATED_PARTICLES:
-                                            waw.addAffector<ungod::AnimatedParticles>(e, ungod::PS_ANIMATED_PARTICLES, "", "", 0);
+                                            actionManager.particleSystemActions().addAffector<ungod::AnimatedParticles>(e, ungod::PS_ANIMATED_PARTICLES, "", "", 0);
                                             break;
                                         case AffectorCreateDialog::AffType::COLOR_SHIFT:
-                                            waw.addAffector<ungod::ColorShift>(e, ungod::PS_COLOR_SHIFT, sf::Color::White, sf::Color::Black);
+                                            actionManager.particleSystemActions().addAffector<ungod::ColorShift>(e, ungod::PS_COLOR_SHIFT, sf::Color::White, sf::Color::Black);
                                             break;
                                         case AffectorCreateDialog::AffType::ROTATE_PARTICLES:
-                                            waw.addAffector<ungod::RotateParticle>(e, ungod::PS_ROTATE_PARTICLE, 1.0f);
+                                            actionManager.particleSystemActions().addAffector<ungod::RotateParticle>(e, ungod::PS_ROTATE_PARTICLE, 1.0f);
                                             break;
                                         case AffectorCreateDialog::AffType::SCALE_PARTICLES:
-                                            waw.addAffector<ungod::ScaleParticle>(e, ungod::PS_SCALE_PARTICLE, sf::Vector2f{1.0f,1.0f}, sf::Vector2f{0.3f,0.3f});
+                                            actionManager.particleSystemActions().addAffector<ungod::ScaleParticle>(e, ungod::PS_SCALE_PARTICLE, sf::Vector2f{1.0f,1.0f}, sf::Vector2f{0.3f,0.3f});
                                             break;
                                         case AffectorCreateDialog::AffType::VELOCITY_BASED_ROTATION:
-                                            waw.addAffector<ungod::VelocityBasedRotation>(e, ungod::PS_ROTATE_VELOCITY);
+                                            actionManager.particleSystemActions().addAffector<ungod::VelocityBasedRotation>(e, ungod::PS_ROTATE_VELOCITY);
                                             break;
                                         default:
                                             break;
@@ -464,15 +464,15 @@ namespace uedit
                             });
 
             mRemoveCurrent = new wxButton(this, -1, _("remove"));
-            mRemoveCurrent->Bind(wxEVT_BUTTON, [&waw, e] (wxCommandEvent& evemt)
+            mRemoveCurrent->Bind(wxEVT_BUTTON, [&actionManager, e] (wxCommandEvent& evemt)
                             {
                                 //todo
                             });
 
             mClearAll = new wxButton(this, -1, _("clear all"));
-            mClearAll->Bind(wxEVT_BUTTON, [&waw, e] (wxCommandEvent& evemt)
+            mClearAll->Bind(wxEVT_BUTTON, [&actionManager, e] (wxCommandEvent& evemt)
                             {
-                                waw.clearAffectors(e);
+                                actionManager.particleSystemActions().clearAffectors(e);
                             });
 
             hbox->Add(mAddNew, 0, wxEXPAND);
@@ -512,35 +512,35 @@ namespace uedit
 
             if (activeKey == ungod::PS_DIRECTIONAL_FORCE)
             {
-                mAffectorPanel = new DirectionalForcePanel(mEntity, mWaw, mList->GetSelection(), this);
+                mAffectorPanel = new DirectionalForcePanel(mEntity, mActionManager, mList->GetSelection(), this);
             }
             else if (activeKey == ungod::PS_DISPLACE_FORCE)
             {
-                mAffectorPanel = new DisplaceForcePanel(mEntity, mWaw, mList->GetSelection(), this);
+                mAffectorPanel = new DisplaceForcePanel(mEntity, mActionManager, mList->GetSelection(), this);
             }
             else if (activeKey == ungod::PS_FADE_OUT)
             {
-                mAffectorPanel = new FadeOutPanel(mEntity, mWaw, mList->GetSelection(), this);
+                mAffectorPanel = new FadeOutPanel(mEntity, mActionManager, mList->GetSelection(), this);
             }
             else if (activeKey == ungod::PS_ANIMATED_PARTICLES)
             {
-                mAffectorPanel = new AnimatedParticlesPanel(mEntity, mWaw, mList->GetSelection(), this);
+                mAffectorPanel = new AnimatedParticlesPanel(mEntity, mActionManager, mList->GetSelection(), this);
             }
             else if (activeKey == ungod::PS_COLOR_SHIFT)
             {
-                mAffectorPanel = new ColorShiftPanel(mEntity, mWaw, mList->GetSelection(), this);
+                mAffectorPanel = new ColorShiftPanel(mEntity, mActionManager, mList->GetSelection(), this);
             }
             else if (activeKey == ungod::PS_ROTATE_PARTICLE)
             {
-                mAffectorPanel = new RotateParticlePanel(mEntity, mWaw, mList->GetSelection(), this);
+                mAffectorPanel = new RotateParticlePanel(mEntity, mActionManager, mList->GetSelection(), this);
             }
             else if (activeKey == ungod::PS_SCALE_PARTICLE)
             {
-                mAffectorPanel = new ScaleParticlePanel(mEntity, mWaw, mList->GetSelection(), this);
+                mAffectorPanel = new ScaleParticlePanel(mEntity, mActionManager, mList->GetSelection(), this);
             }
             else if (activeKey == ungod::PS_ROTATE_VELOCITY)
             {
-                mAffectorPanel = new VelocityBasedRotationPanel(mEntity, mWaw, mList->GetSelection(), this);
+                mAffectorPanel = new VelocityBasedRotationPanel(mEntity, mActionManager, mList->GetSelection(), this);
             }
         }
 
@@ -643,7 +643,7 @@ namespace uedit
     }
 
 
-    DirectionalForcePanel::DirectionalForcePanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent)
+    DirectionalForcePanel::DirectionalForcePanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent)
         : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SUNKEN);
@@ -652,9 +652,9 @@ namespace uedit
 
         {
             auto* displ = new StatDisplay<float>("force x:", this, -1);
-            displ->connectSetter( [this, e, &waw, i](float x)
+            displ->connectSetter( [this, e, &actionManager, i](float x)
             {
-                waw.alterAffector<ungod::DirectionalForce>(e, i, [x] (ungod::ScopedAccessor<ungod::DirectionalForce>& f)
+                actionManager.particleSystemActions().alterAffector<ungod::DirectionalForce>(e, i, [x] (ungod::ScopedAccessor<ungod::DirectionalForce>& f)
                                                {
                                                     f->force.x = x;
                                                });
@@ -669,9 +669,9 @@ namespace uedit
         }
         {
             auto* displ = new StatDisplay<float>("force y:", this, -1);
-            displ->connectSetter( [this, e, &waw, i](float y)
+            displ->connectSetter( [this, e, &actionManager, i](float y)
             {
-                waw.alterAffector<ungod::DirectionalForce>(e, i, [y] (ungod::ScopedAccessor<ungod::DirectionalForce>& f)
+                actionManager.particleSystemActions().alterAffector<ungod::DirectionalForce>(e, i, [y] (ungod::ScopedAccessor<ungod::DirectionalForce>& f)
                                                {
                                                     f->force.y = y;
                                                });
@@ -691,7 +691,7 @@ namespace uedit
     }
 
 
-    DisplaceForcePanel::DisplaceForcePanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent)
+    DisplaceForcePanel::DisplaceForcePanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent)
         : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SUNKEN);
@@ -700,9 +700,9 @@ namespace uedit
 
         {
             auto* displ = new StatDisplay<float>("speed:", this, -1);
-            displ->connectSetter( [this, e, &waw, i](float y)
+            displ->connectSetter( [this, e, &actionManager, i](float y)
             {
-                waw.alterAffector<ungod::DisplaceForce>(e, i, [y] (ungod::ScopedAccessor<ungod::DisplaceForce>& f)
+                actionManager.particleSystemActions().alterAffector<ungod::DisplaceForce>(e, i, [y] (ungod::ScopedAccessor<ungod::DisplaceForce>& f)
                                                {
                                                     f->speed = y;
                                                });
@@ -717,9 +717,9 @@ namespace uedit
         }
         {
             auto* displ = new StatDisplay<float>("circle:", this, -1);
-            displ->connectSetter( [this, e, &waw, i](float y)
+            displ->connectSetter( [this, e, &actionManager, i](float y)
             {
-                waw.alterAffector<ungod::DisplaceForce>(e, i, [y] (ungod::ScopedAccessor<ungod::DisplaceForce>& f)
+                actionManager.particleSystemActions().alterAffector<ungod::DisplaceForce>(e, i, [y] (ungod::ScopedAccessor<ungod::DisplaceForce>& f)
                                                {
                                                     f->circle = y;
                                                });
@@ -734,9 +734,9 @@ namespace uedit
         }
         {
             auto* displ = new StatDisplay<float>("angle:", this, -1);
-            displ->connectSetter( [this, e, &waw, i](float y)
+            displ->connectSetter( [this, e, &actionManager, i](float y)
             {
-                waw.alterAffector<ungod::DisplaceForce>(e, i, [y] (ungod::ScopedAccessor<ungod::DisplaceForce>& f)
+                actionManager.particleSystemActions().alterAffector<ungod::DisplaceForce>(e, i, [y] (ungod::ScopedAccessor<ungod::DisplaceForce>& f)
                                                {
                                                     f->angle = y;
                                                });
@@ -756,7 +756,7 @@ namespace uedit
     }
 
 
-    FadeOutPanel::FadeOutPanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent)
+    FadeOutPanel::FadeOutPanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent)
         : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SUNKEN);
@@ -765,7 +765,7 @@ namespace uedit
 
         {
             auto* displ = new StatDisplay<float>("speed [currently not implemented]:", this, -1);
-            displ->connectSetter( [this, e, &waw, i](float y)
+            displ->connectSetter( [this, e, &actionManager, i](float y)
             {
                 /*waw.alterAffector<ungod::DisplaceForce>(e, i, [y] (ungod::ScopedAccessor<ungod::DisplaceForce>& f)
                                                {
@@ -787,7 +787,7 @@ namespace uedit
     }
 
 
-    AnimatedParticlesPanel::AnimatedParticlesPanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent)
+    AnimatedParticlesPanel::AnimatedParticlesPanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent)
         : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SUNKEN);
@@ -797,21 +797,21 @@ namespace uedit
 
         {
             auto* but = new wxButton(this, -1, "set selected");
-            but->Bind(wxEVT_BUTTON, [e, i, &waw] (wxCommandEvent& event)
+            but->Bind(wxEVT_BUTTON, [e, i, &actionManager] (wxCommandEvent& event)
                       {
-                        waw.alterAffector<ungod::AnimatedParticles>(e, i, [&waw] (ungod::ScopedAccessor<ungod::AnimatedParticles>& f)
+                        actionManager.particleSystemActions().alterAffector<ungod::AnimatedParticles>(e, i, [&actionManager] (ungod::ScopedAccessor<ungod::AnimatedParticles>& f)
                                                        {
-                                                            f->init(waw.getEditorFrame()->getSheetPreview()->getCurrentMeta(),
-                                                                    waw.getEditorFrame()->getSheetPreview()->getCurrentKey(),
+                                                            f->init(actionManager.getEditorFrame()->getSheetPreview()->getCurrentMeta(),
+                                                                    actionManager.getEditorFrame()->getSheetPreview()->getCurrentKey(),
                                                                     f->animations.size());
                                                        });
                       });
         }
         {
             auto* displ = new StatDisplay<int>("num anim:", this, -1);
-            displ->connectSetter( [this, e, &waw, i](float y)
+            displ->connectSetter( [this, e, &actionManager, i](float y)
             {
-                waw.alterAffector<ungod::AnimatedParticles>(e, i, [y] (ungod::ScopedAccessor<ungod::AnimatedParticles>& f)
+                actionManager.particleSystemActions().alterAffector<ungod::AnimatedParticles>(e, i, [y] (ungod::ScopedAccessor<ungod::AnimatedParticles>& f)
                                                {
                                                     f->init(f->meta.getFilePath(), f->key, y);
                                                });
@@ -831,7 +831,7 @@ namespace uedit
     }
 
 
-    ColorShiftPanel::ColorShiftPanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent)
+    ColorShiftPanel::ColorShiftPanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent)
         : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SUNKEN);
@@ -845,9 +845,9 @@ namespace uedit
             hbox->Add(new wxStaticText(this, -1, "start color: "), 2, wxEXPAND);
 
             auto* colpick = new wxColourPickerCtrl(this, -1, convertColor( ps.getAffector<ungod::ColorShift>(i).colorBegin ));
-            colpick->Bind(wxEVT_COLOURPICKER_CHANGED, [e, &waw, i] (wxColourPickerEvent& event)
+            colpick->Bind(wxEVT_COLOURPICKER_CHANGED, [e, &actionManager, i] (wxColourPickerEvent& event)
               {
-                waw.alterAffector<ungod::ColorShift>(e, i, [&event] (ungod::ScopedAccessor<ungod::ColorShift>& f)
+                actionManager.particleSystemActions().alterAffector<ungod::ColorShift>(e, i, [&event] (ungod::ScopedAccessor<ungod::ColorShift>& f)
                                                {
                                                     f->colorBegin = convertColor( event.GetColour() );
                                                });
@@ -863,9 +863,9 @@ namespace uedit
             hbox->Add(new wxStaticText(this, -1, "end color: "), 2, wxEXPAND);
 
             auto* colpick = new wxColourPickerCtrl(this, -1, convertColor( ps.getAffector<ungod::ColorShift>(i).colorEnd ));
-            colpick->Bind(wxEVT_COLOURPICKER_CHANGED, [e, &waw, i] (wxColourPickerEvent& event)
+            colpick->Bind(wxEVT_COLOURPICKER_CHANGED, [e, &actionManager, i] (wxColourPickerEvent& event)
               {
-                waw.alterAffector<ungod::ColorShift>(e, i, [&event] (ungod::ScopedAccessor<ungod::ColorShift>& f)
+                actionManager.particleSystemActions().alterAffector<ungod::ColorShift>(e, i, [&event] (ungod::ScopedAccessor<ungod::ColorShift>& f)
                                                {
                                                     f->colorEnd = convertColor( event.GetColour() );
                                                });
@@ -881,7 +881,7 @@ namespace uedit
     }
 
 
-    RotateParticlePanel::RotateParticlePanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent)
+    RotateParticlePanel::RotateParticlePanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent)
         : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SUNKEN);
@@ -890,9 +890,9 @@ namespace uedit
 
         {
             auto* displ = new StatDisplay<float>("speed:", this, -1);
-            displ->connectSetter( [this, e, &waw, i](float y)
+            displ->connectSetter( [this, e, &actionManager, i](float y)
             {
-                waw.alterAffector<ungod::RotateParticle>(e, i, [y] (ungod::ScopedAccessor<ungod::RotateParticle>& f)
+                actionManager.particleSystemActions().alterAffector<ungod::RotateParticle>(e, i, [y] (ungod::ScopedAccessor<ungod::RotateParticle>& f)
                                                {
                                                     f->speed = y;
                                                });
@@ -912,7 +912,7 @@ namespace uedit
     }
 
 
-    ScaleParticlePanel::ScaleParticlePanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent)
+    ScaleParticlePanel::ScaleParticlePanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent)
         : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SUNKEN);
@@ -922,9 +922,9 @@ namespace uedit
 
         {
             auto* displ = new StatDisplay<float>("scale begin x:", this, -1);
-            displ->connectSetter( [this, e, &waw, i](float x)
+            displ->connectSetter( [this, e, &actionManager, i](float x)
             {
-                waw.alterAffector<ungod::ScaleParticle>(e, i, [x] (ungod::ScopedAccessor<ungod::ScaleParticle>& f)
+                actionManager.particleSystemActions().alterAffector<ungod::ScaleParticle>(e, i, [x] (ungod::ScopedAccessor<ungod::ScaleParticle>& f)
                                                {
                                                     f->scalesBegin.x = x;
                                                });
@@ -940,9 +940,9 @@ namespace uedit
 
         {
             auto* displ = new StatDisplay<float>("scale begin y:", this, -1);
-            displ->connectSetter( [this, e, &waw, i](float y)
+            displ->connectSetter( [this, e, &actionManager, i](float y)
             {
-                waw.alterAffector<ungod::ScaleParticle>(e, i, [y] (ungod::ScopedAccessor<ungod::ScaleParticle>& f)
+                actionManager.particleSystemActions().alterAffector<ungod::ScaleParticle>(e, i, [y] (ungod::ScopedAccessor<ungod::ScaleParticle>& f)
                                                {
                                                     f->scalesBegin.y = y;
                                                });
@@ -958,9 +958,9 @@ namespace uedit
 
         {
             auto* displ = new StatDisplay<float>("scale end x:", this, -1);
-            displ->connectSetter( [this, e, &waw, i](float x)
+            displ->connectSetter( [this, e, &actionManager, i](float x)
             {
-                waw.alterAffector<ungod::ScaleParticle>(e, i, [x] (ungod::ScopedAccessor<ungod::ScaleParticle>& f)
+                actionManager.particleSystemActions().alterAffector<ungod::ScaleParticle>(e, i, [x] (ungod::ScopedAccessor<ungod::ScaleParticle>& f)
                                                {
                                                     f->scalesEnd.x = x;
                                                });
@@ -976,9 +976,9 @@ namespace uedit
 
         {
             auto* displ = new StatDisplay<float>("scale end y:", this, -1);
-            displ->connectSetter( [this, e, &waw, i](float y)
+            displ->connectSetter( [this, e, &actionManager, i](float y)
             {
-                waw.alterAffector<ungod::ScaleParticle>(e, i, [y] (ungod::ScopedAccessor<ungod::ScaleParticle>& f)
+                actionManager.particleSystemActions().alterAffector<ungod::ScaleParticle>(e, i, [y] (ungod::ScopedAccessor<ungod::ScaleParticle>& f)
                                                {
                                                     f->scalesEnd.y = y;
                                                });
@@ -998,7 +998,7 @@ namespace uedit
     }
 
 
-    VelocityBasedRotationPanel::VelocityBasedRotationPanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent)
+    VelocityBasedRotationPanel::VelocityBasedRotationPanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent)
         : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SUNKEN);
@@ -1013,7 +1013,7 @@ namespace uedit
 
 
 
-    TexrectInitailizerPanel::TexrectInitailizerPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent) :
+    TexrectInitailizerPanel::TexrectInitailizerPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent) :
         wxPanel(parent), mTexrectInitPanel(nullptr)
     {
         SetWindowStyle(wxBORDER_SUNKEN);
@@ -1025,7 +1025,7 @@ namespace uedit
             texrectInitializers.Add(ungod::PS_EXPLICIT_TEXRECT);
             texrectInitializers.Add(ungod::PS_TEXRECT_BY_KEY);
             mTexrectInitChoice = new LabeledChoice(this, -1, texrectInitializers, _("texrect initializers: "));
-            mTexrectInitChoice->bindChoice([this, e, &waw] (wxCommandEvent& event) { this->onTexrectInitChoice(event, e, waw); });
+            mTexrectInitChoice->bindChoice([this, e, &actionManager] (wxCommandEvent& event) { this->onTexrectInitChoice(event, e, actionManager); });
 
             std::string key = e.get<ungod::ParticleSystemComponent>().getSystem().getTexrectInitializerKey();
             int f = mTexrectInitChoice->getChoice()->FindString( key );
@@ -1036,12 +1036,12 @@ namespace uedit
 
             if (key == ungod::PS_TEXRECT_BY_KEY)
             {
-                mTexrectInitPanel = new TexrectByKeyPanel(e, waw, this);
+                mTexrectInitPanel = new TexrectByKeyPanel(e, actionManager, this);
                 vbox->Add(mTexrectInitPanel, 0, wxALIGN_CENTER_HORIZONTAL);
             }
             else if (key == ungod::PS_EXPLICIT_TEXRECT )
             {
-                mTexrectInitPanel = new ExplicitTexrectPanel(e, waw, this);
+                mTexrectInitPanel = new ExplicitTexrectPanel(e, actionManager, this);
                 vbox->Add(mTexrectInitPanel, 0, wxALIGN_CENTER_HORIZONTAL);
             }
         }
@@ -1052,7 +1052,7 @@ namespace uedit
     }
 
 
-    void TexrectInitailizerPanel::onTexrectInitChoice(wxCommandEvent& event, ungod::Entity e, WorldActionWrapper& waw)
+    void TexrectInitailizerPanel::onTexrectInitChoice(wxCommandEvent& event, ungod::Entity e, ActionManager& actionManager)
     {
         int sel = mTexrectInitChoice->getChoice()->GetSelection();
         if (sel == wxNOT_FOUND)
@@ -1063,16 +1063,16 @@ namespace uedit
         //this will reset the pos dist and trigger a recreation of the universal emitter panel
         if (key == ungod::PS_EXPLICIT_TEXRECT)
         {
-            waw.setTexrectInitializer<ungod::ExplicitTexrect>(e, key, sf::IntRect{0,0,64,64});
+            actionManager.particleSystemActions().setTexrectInitializer<ungod::ExplicitTexrect>(e, key, sf::IntRect{0,0,64,64});
         }
         else if (key == ungod::PS_TEXRECT_BY_KEY)
         {
-            waw.setTexrectInitializer<ungod::TexrectByKey>(e, key, "", "");
+            actionManager.particleSystemActions().setTexrectInitializer<ungod::TexrectByKey>(e, key, "", "");
         }
     }
 
 
-    ExplicitTexrectPanel::ExplicitTexrectPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent) : wxPanel(parent)
+    ExplicitTexrectPanel::ExplicitTexrectPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent) : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SIMPLE);
 
@@ -1081,9 +1081,9 @@ namespace uedit
 
         {
             mLeft = new StatDisplay<int>("left:", this, -1);
-            mLeft->connectSetter( [this, e, &waw](int l)
+            mLeft->connectSetter( [this, e, &actionManager](int l)
             {
-                waw.alterTexrectInitializer<ungod::ExplicitTexrect>(e, [l] (ungod::ScopedAccessor<ungod::ExplicitTexrect>& f)
+                actionManager.particleSystemActions().alterTexrectInitializer<ungod::ExplicitTexrect>(e, [l] (ungod::ScopedAccessor<ungod::ExplicitTexrect>& f)
                                                {
                                                     f->rect.left = l;
                                                });
@@ -1098,9 +1098,9 @@ namespace uedit
 
         {
             mTop = new StatDisplay<int>("top:", this, -1);
-            mTop->connectSetter( [this, e, &waw](int t)
+            mTop->connectSetter( [this, e, &actionManager](int t)
             {
-                waw.alterTexrectInitializer<ungod::ExplicitTexrect>(e, [t] (ungod::ScopedAccessor<ungod::ExplicitTexrect>& f)
+                actionManager.particleSystemActions().alterTexrectInitializer<ungod::ExplicitTexrect>(e, [t] (ungod::ScopedAccessor<ungod::ExplicitTexrect>& f)
                                                {
                                                     f->rect.top = t;
                                                });
@@ -1115,9 +1115,9 @@ namespace uedit
 
         {
             mWidth = new StatDisplay<int>("width:", this, -1);
-            mWidth->connectSetter( [this, e, &waw](int w)
+            mWidth->connectSetter( [this, e, &actionManager](int w)
             {
-                waw.alterTexrectInitializer<ungod::ExplicitTexrect>(e, [w] (ungod::ScopedAccessor<ungod::ExplicitTexrect>& f)
+                actionManager.particleSystemActions().alterTexrectInitializer<ungod::ExplicitTexrect>(e, [w] (ungod::ScopedAccessor<ungod::ExplicitTexrect>& f)
                                                {
                                                     f->rect.width = w;
                                                });
@@ -1132,9 +1132,9 @@ namespace uedit
 
         {
             mHeight = new StatDisplay<int>("height:", this, -1);
-            mHeight->connectSetter( [this, e, &waw](int h)
+            mHeight->connectSetter( [this, e, &actionManager](int h)
             {
-                waw.alterTexrectInitializer<ungod::ExplicitTexrect>(e, [h] (ungod::ScopedAccessor<ungod::ExplicitTexrect>& f)
+                actionManager.particleSystemActions().alterTexrectInitializer<ungod::ExplicitTexrect>(e, [h] (ungod::ScopedAccessor<ungod::ExplicitTexrect>& f)
                                                {
                                                     f->rect.height = h;
                                                });
@@ -1158,18 +1158,18 @@ namespace uedit
     }
 
 
-    TexrectByKeyPanel::TexrectByKeyPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent) : wxPanel(parent)
+    TexrectByKeyPanel::TexrectByKeyPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent) : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SIMPLE);
 
         wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
 
         mSetSelected = new wxButton(this, -1, _("set selected"));
-        mSetSelected->Bind(wxEVT_BUTTON, [e, &waw] (wxCommandEvent& event)
+        mSetSelected->Bind(wxEVT_BUTTON, [e, &actionManager] (wxCommandEvent& event)
             {
-                std::string meta = waw.getEditorFrame()->getSheetPreview()->getCurrentMeta();
-                std::string key = waw.getEditorFrame()->getSheetPreview()->getCurrentKey();
-                waw.alterTexrectInitializer<ungod::TexrectByKey>(e, [meta, key] (ungod::ScopedAccessor<ungod::TexrectByKey>& a)
+                std::string meta = actionManager.getEditorFrame()->getSheetPreview()->getCurrentMeta();
+                std::string key = actionManager.getEditorFrame()->getSheetPreview()->getCurrentKey();
+                actionManager.particleSystemActions().alterTexrectInitializer<ungod::TexrectByKey>(e, [meta, key] (ungod::ScopedAccessor<ungod::TexrectByKey>& a)
                      {
                         a->init(meta, key);
                      });
@@ -1183,7 +1183,7 @@ namespace uedit
 
 
 
-    FixedPositionDistPanel::FixedPositionDistPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent) : wxPanel(parent)
+    FixedPositionDistPanel::FixedPositionDistPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent) : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SIMPLE);
 
@@ -1192,9 +1192,9 @@ namespace uedit
 
         {
             mPosX = new StatDisplay<float>("emit pos x:", this, -1);
-            mPosX->connectSetter( [this, e, &waw](float x)
+            mPosX->connectSetter( [this, e, &actionManager](float x)
             {
-                waw.alterPositionDist<ungod::FixedPosition>(e, [x] (ungod::ScopedAccessor<ungod::FixedPosition>& f)
+                actionManager.particleSystemActions().alterPositionDist<ungod::FixedPosition>(e, [x] (ungod::ScopedAccessor<ungod::FixedPosition>& f)
                                                {
                                                     f->position.x = x;
                                                });
@@ -1210,9 +1210,9 @@ namespace uedit
 
         {
             mPosY = new StatDisplay<float>("emit pos y:", this, -1);
-            mPosY->connectSetter( [this, e, &waw](float y)
+            mPosY->connectSetter( [this, e, &actionManager](float y)
             {
-                waw.alterPositionDist<ungod::FixedPosition>(e, [y] (ungod::ScopedAccessor<ungod::FixedPosition>& f)
+                actionManager.particleSystemActions().alterPositionDist<ungod::FixedPosition>(e, [y] (ungod::ScopedAccessor<ungod::FixedPosition>& f)
                                                {
                                                     f->position.y = y;
                                                });
@@ -1234,7 +1234,7 @@ namespace uedit
         Fit();
     }
 
-    EllipseDistPanel::EllipseDistPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent) : wxPanel(parent)
+    EllipseDistPanel::EllipseDistPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent) : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SIMPLE);
 
@@ -1243,9 +1243,9 @@ namespace uedit
 
         {
             mCenterX = new StatDisplay<float>("center x:", this, -1);
-            mCenterX->connectSetter( [this, e, &waw](float x)
+            mCenterX->connectSetter( [this, e, &actionManager](float x)
             {
-                waw.alterPositionDist<ungod::EllipseDist>(e, [x] (ungod::ScopedAccessor<ungod::EllipseDist>& f)
+                actionManager.particleSystemActions().alterPositionDist<ungod::EllipseDist>(e, [x] (ungod::ScopedAccessor<ungod::EllipseDist>& f)
                                                {
                                                     f->center.x = x;
                                                });
@@ -1261,9 +1261,9 @@ namespace uedit
 
         {
             mCenterY = new StatDisplay<float>("center y:", this, -1);
-            mCenterY->connectSetter( [this, e, &waw](float y)
+            mCenterY->connectSetter( [this, e, &actionManager](float y)
             {
-                waw.alterPositionDist<ungod::EllipseDist>(e, [y] (ungod::ScopedAccessor<ungod::EllipseDist>& f)
+                actionManager.particleSystemActions().alterPositionDist<ungod::EllipseDist>(e, [y] (ungod::ScopedAccessor<ungod::EllipseDist>& f)
                                                {
                                                     f->center.y = y;
                                                });
@@ -1279,9 +1279,9 @@ namespace uedit
 
         {
             mRadiusX = new StatDisplay<float>("radius x:", this, -1);
-            mRadiusX->connectSetter( [this, e, &waw](float x)
+            mRadiusX->connectSetter( [this, e, &actionManager](float x)
             {
-                waw.alterPositionDist<ungod::EllipseDist>(e, [x] (ungod::ScopedAccessor<ungod::EllipseDist>& f)
+                actionManager.particleSystemActions().alterPositionDist<ungod::EllipseDist>(e, [x] (ungod::ScopedAccessor<ungod::EllipseDist>& f)
                                                {
                                                     f->radius.x = x;
                                                });
@@ -1297,9 +1297,9 @@ namespace uedit
 
         {
             mRadiusY = new StatDisplay<float>("radius y:", this, -1);
-            mRadiusY->connectSetter( [this, e, &waw](float y)
+            mRadiusY->connectSetter( [this, e, &actionManager](float y)
             {
-                waw.alterPositionDist<ungod::EllipseDist>(e, [y] (ungod::ScopedAccessor<ungod::EllipseDist>& f)
+                actionManager.particleSystemActions().alterPositionDist<ungod::EllipseDist>(e, [y] (ungod::ScopedAccessor<ungod::EllipseDist>& f)
                                                {
                                                     f->radius.y = y;
                                                });
@@ -1324,7 +1324,7 @@ namespace uedit
     }
 
 
-    RectangleDistPanel::RectangleDistPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent) : wxPanel(parent)
+    RectangleDistPanel::RectangleDistPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent) : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SIMPLE);
 
@@ -1333,9 +1333,9 @@ namespace uedit
 
         {
             mTopleftX = new StatDisplay<float>("topleft x:", this, -1);
-            mTopleftX->connectSetter( [this, e, &waw](float x)
+            mTopleftX->connectSetter( [this, e, &actionManager](float x)
             {
-                waw.alterPositionDist<ungod::RectangleDist>(e, [x] (ungod::ScopedAccessor<ungod::RectangleDist>& f)
+                actionManager.particleSystemActions().alterPositionDist<ungod::RectangleDist>(e, [x] (ungod::ScopedAccessor<ungod::RectangleDist>& f)
                                                {
                                                     f->topleft.x = x;
                                                });
@@ -1351,9 +1351,9 @@ namespace uedit
 
         {
             mTopleftY = new StatDisplay<float>("topleft y:", this, -1);
-            mTopleftY->connectSetter( [this, e, &waw](float y)
+            mTopleftY->connectSetter( [this, e, &actionManager](float y)
             {
-                waw.alterPositionDist<ungod::RectangleDist>(e, [y] (ungod::ScopedAccessor<ungod::RectangleDist>& f)
+                actionManager.particleSystemActions().alterPositionDist<ungod::RectangleDist>(e, [y] (ungod::ScopedAccessor<ungod::RectangleDist>& f)
                                                {
                                                     f->topleft.y = y;
                                                });
@@ -1369,9 +1369,9 @@ namespace uedit
 
         {
             mSizeX = new StatDisplay<float>("rect width:", this, -1);
-            mSizeX->connectSetter( [this, e, &waw](float x)
+            mSizeX->connectSetter( [this, e, &actionManager](float x)
             {
-                waw.alterPositionDist<ungod::RectangleDist>(e, [x] (ungod::ScopedAccessor<ungod::RectangleDist>& f)
+                actionManager.particleSystemActions().alterPositionDist<ungod::RectangleDist>(e, [x] (ungod::ScopedAccessor<ungod::RectangleDist>& f)
                                                {
                                                     f->sizes.x = x;
                                                });
@@ -1387,9 +1387,9 @@ namespace uedit
 
         {
             mSizeY = new StatDisplay<float>("rect height:", this, -1);
-            mSizeY->connectSetter( [this, e, &waw](float y)
+            mSizeY->connectSetter( [this, e, &actionManager](float y)
             {
-                waw.alterPositionDist<ungod::RectangleDist>(e, [y] (ungod::ScopedAccessor<ungod::RectangleDist>& f)
+                actionManager.particleSystemActions().alterPositionDist<ungod::RectangleDist>(e, [y] (ungod::ScopedAccessor<ungod::RectangleDist>& f)
                                                {
                                                     f->sizes.y = y;
                                                });
@@ -1414,7 +1414,7 @@ namespace uedit
     }
 
 
-    LineSegmentDistPanel::LineSegmentDistPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent) : wxPanel(parent)
+    LineSegmentDistPanel::LineSegmentDistPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent) : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SIMPLE);
 
@@ -1423,9 +1423,9 @@ namespace uedit
 
         {
             mPoint1X = new StatDisplay<float>("point 1 x:", this, -1);
-            mPoint1X->connectSetter( [this, e, &waw](float x)
+            mPoint1X->connectSetter( [this, e, &actionManager](float x)
             {
-                waw.alterPositionDist<ungod::LineSegmentDist>(e, [x] (ungod::ScopedAccessor<ungod::LineSegmentDist>& f)
+                actionManager.particleSystemActions().alterPositionDist<ungod::LineSegmentDist>(e, [x] (ungod::ScopedAccessor<ungod::LineSegmentDist>& f)
                                                {
                                                     f->point1.x = x;
                                                });
@@ -1441,9 +1441,9 @@ namespace uedit
 
         {
             mPoint1Y = new StatDisplay<float>("point 1 y:", this, -1);
-            mPoint1Y->connectSetter( [this, e, &waw](float y)
+            mPoint1Y->connectSetter( [this, e, &actionManager](float y)
             {
-                waw.alterPositionDist<ungod::LineSegmentDist>(e, [y] (ungod::ScopedAccessor<ungod::LineSegmentDist>& f)
+                actionManager.particleSystemActions().alterPositionDist<ungod::LineSegmentDist>(e, [y] (ungod::ScopedAccessor<ungod::LineSegmentDist>& f)
                                                {
                                                     f->point1.y = y;
                                                });
@@ -1459,9 +1459,9 @@ namespace uedit
 
         {
             mPoint2X = new StatDisplay<float>("point 2 x:", this, -1);
-            mPoint2X->connectSetter( [this, e, &waw](float x)
+            mPoint2X->connectSetter( [this, e, &actionManager](float x)
             {
-                waw.alterPositionDist<ungod::LineSegmentDist>(e, [x] (ungod::ScopedAccessor<ungod::LineSegmentDist>& f)
+                actionManager.particleSystemActions().alterPositionDist<ungod::LineSegmentDist>(e, [x] (ungod::ScopedAccessor<ungod::LineSegmentDist>& f)
                                                {
                                                     f->point2.x = x;
                                                });
@@ -1477,9 +1477,9 @@ namespace uedit
 
         {
             mPoint2Y = new StatDisplay<float>("point 2 y:", this, -1);
-            mPoint2Y->connectSetter( [this, e, &waw](float y)
+            mPoint2Y->connectSetter( [this, e, &actionManager](float y)
             {
-                waw.alterPositionDist<ungod::LineSegmentDist>(e, [y] (ungod::ScopedAccessor<ungod::LineSegmentDist>& f)
+                actionManager.particleSystemActions().alterPositionDist<ungod::LineSegmentDist>(e, [y] (ungod::ScopedAccessor<ungod::LineSegmentDist>& f)
                                                {
                                                     f->point2.y = y;
                                                });
@@ -1506,7 +1506,7 @@ namespace uedit
 
 
 
-    FixedVelocityDistPanel::FixedVelocityDistPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent) : wxPanel(parent)
+    FixedVelocityDistPanel::FixedVelocityDistPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent) : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SIMPLE);
 
@@ -1515,9 +1515,9 @@ namespace uedit
 
         {
             mVelX = new StatDisplay<float>("velocity x:", this, -1);
-            mVelX->connectSetter( [this, e, &waw](float x)
+            mVelX->connectSetter( [this, e, &actionManager](float x)
             {
-                waw.alterVelocityDist<ungod::FixedVelocity>(e, [x] (ungod::ScopedAccessor<ungod::FixedVelocity>& f)
+                actionManager.particleSystemActions().alterVelocityDist<ungod::FixedVelocity>(e, [x] (ungod::ScopedAccessor<ungod::FixedVelocity>& f)
                                                {
                                                     f->velocity.x = x;
                                                });
@@ -1533,9 +1533,9 @@ namespace uedit
 
         {
             mVelY = new StatDisplay<float>("velocity y:", this, -1);
-            mVelY->connectSetter( [this, e, &waw](float y)
+            mVelY->connectSetter( [this, e, &actionManager](float y)
             {
-                waw.alterVelocityDist<ungod::FixedVelocity>(e, [y] (ungod::ScopedAccessor<ungod::FixedVelocity>& f)
+                actionManager.particleSystemActions().alterVelocityDist<ungod::FixedVelocity>(e, [y] (ungod::ScopedAccessor<ungod::FixedVelocity>& f)
                                                {
                                                     f->velocity.y = y;
                                                });
@@ -1559,7 +1559,7 @@ namespace uedit
 
 
 
-    ConeDistPanel::ConeDistPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent) : wxPanel(parent)
+    ConeDistPanel::ConeDistPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent) : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SIMPLE);
 
@@ -1568,9 +1568,9 @@ namespace uedit
 
         {
             mDirection1X = new StatDisplay<float>("direction 1 x:", this, -1);
-            mDirection1X->connectSetter( [this, e, &waw](float x)
+            mDirection1X->connectSetter( [this, e, &actionManager](float x)
             {
-                waw.alterVelocityDist<ungod::ConeDist>(e, [x] (ungod::ScopedAccessor<ungod::ConeDist>& f)
+                actionManager.particleSystemActions().alterVelocityDist<ungod::ConeDist>(e, [x] (ungod::ScopedAccessor<ungod::ConeDist>& f)
                                                {
                                                     f->direction1.x = x;
                                                });
@@ -1586,9 +1586,9 @@ namespace uedit
 
         {
             mDirection1Y = new StatDisplay<float>("direction 1 y:", this, -1);
-            mDirection1Y->connectSetter( [this, e, &waw](float y)
+            mDirection1Y->connectSetter( [this, e, &actionManager](float y)
             {
-                waw.alterVelocityDist<ungod::ConeDist>(e, [y] (ungod::ScopedAccessor<ungod::ConeDist>& f)
+                actionManager.particleSystemActions().alterVelocityDist<ungod::ConeDist>(e, [y] (ungod::ScopedAccessor<ungod::ConeDist>& f)
                                                {
                                                     f->direction1.y = y;
                                                });
@@ -1604,9 +1604,9 @@ namespace uedit
 
         {
             mDirection2X = new StatDisplay<float>("direction 2 x:", this, -1);
-            mDirection2X->connectSetter( [this, e, &waw](float x)
+            mDirection2X->connectSetter( [this, e, &actionManager](float x)
             {
-                waw.alterVelocityDist<ungod::ConeDist>(e, [x] (ungod::ScopedAccessor<ungod::ConeDist>& f)
+                actionManager.particleSystemActions().alterVelocityDist<ungod::ConeDist>(e, [x] (ungod::ScopedAccessor<ungod::ConeDist>& f)
                                                {
                                                     f->direction2.x = x;
                                                });
@@ -1622,9 +1622,9 @@ namespace uedit
 
         {
             mDirection2Y = new StatDisplay<float>("direction 2 y:", this, -1);
-            mDirection2Y->connectSetter( [this, e, &waw](float y)
+            mDirection2Y->connectSetter( [this, e, &actionManager](float y)
             {
-                waw.alterVelocityDist<ungod::ConeDist>(e, [y] (ungod::ScopedAccessor<ungod::ConeDist>& f)
+                actionManager.particleSystemActions().alterVelocityDist<ungod::ConeDist>(e, [y] (ungod::ScopedAccessor<ungod::ConeDist>& f)
                                                {
                                                     f->direction2.y = y;
                                                });
@@ -1649,7 +1649,7 @@ namespace uedit
     }
 
 
-    IntervalTickPanel::IntervalTickPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent) : wxPanel(parent)
+    IntervalTickPanel::IntervalTickPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent) : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SIMPLE);
 
@@ -1658,9 +1658,9 @@ namespace uedit
 
         {
             mMin = new StatDisplay<float>("min tick:", this, -1);
-            mMin->connectSetter( [this, e, &waw](float x)
+            mMin->connectSetter( [this, e, &actionManager](float x)
             {
-                waw.alterSpawnInterval<ungod::IntervalTick>(e, [x] (ungod::ScopedAccessor<ungod::IntervalTick>& f)
+                actionManager.particleSystemActions().alterSpawnInterval<ungod::IntervalTick>(e, [x] (ungod::ScopedAccessor<ungod::IntervalTick>& f)
                                                {
                                                     f->msmin = x;
                                                });
@@ -1676,9 +1676,9 @@ namespace uedit
 
         {
             mMax = new StatDisplay<float>("max tick:", this, -1);
-            mMax->connectSetter( [this, e, &waw](float x)
+            mMax->connectSetter( [this, e, &actionManager](float x)
             {
-                waw.alterSpawnInterval<ungod::IntervalTick>(e, [x] (ungod::ScopedAccessor<ungod::IntervalTick>& f)
+                actionManager.particleSystemActions().alterSpawnInterval<ungod::IntervalTick>(e, [x] (ungod::ScopedAccessor<ungod::IntervalTick>& f)
                                                {
                                                     f->msmax = x;
                                                });
@@ -1694,9 +1694,9 @@ namespace uedit
 
         {
             mNum = new StatDisplay<int>("spawn count:", this, -1);
-            mNum->connectSetter( [this, e, &waw](int n)
+            mNum->connectSetter( [this, e, &actionManager](int n)
             {
-                waw.alterSpawnInterval<ungod::IntervalTick>(e, [n] (ungod::ScopedAccessor<ungod::IntervalTick>& f)
+                actionManager.particleSystemActions().alterSpawnInterval<ungod::IntervalTick>(e, [n] (ungod::ScopedAccessor<ungod::IntervalTick>& f)
                                                {
                                                     f->numparticle = n;
                                                });
@@ -1721,7 +1721,7 @@ namespace uedit
 
 
 
-    IntervalLifetimePanel::IntervalLifetimePanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent) : wxPanel(parent)
+    IntervalLifetimePanel::IntervalLifetimePanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent) : wxPanel(parent)
     {
         SetWindowStyle(wxBORDER_SIMPLE);
 
@@ -1730,9 +1730,9 @@ namespace uedit
 
         {
             mMin = new StatDisplay<float>("min lifetime:", this, -1);
-            mMin->connectSetter( [this, e, &waw](float x)
+            mMin->connectSetter( [this, e, &actionManager](float x)
             {
-                waw.alterLifetimeDist<ungod::IntervalLifetime>(e, [x] (ungod::ScopedAccessor<ungod::IntervalLifetime>& f)
+                actionManager.particleSystemActions().alterLifetimeDist<ungod::IntervalLifetime>(e, [x] (ungod::ScopedAccessor<ungod::IntervalLifetime>& f)
                                                {
                                                     f->msmin = x;
                                                });
@@ -1748,9 +1748,9 @@ namespace uedit
 
         {
             mMax = new StatDisplay<float>("max lifetime:", this, -1);
-            mMax->connectSetter( [this, e, &waw](float x)
+            mMax->connectSetter( [this, e, &actionManager](float x)
             {
-                waw.alterLifetimeDist<ungod::IntervalLifetime>(e, [x] (ungod::ScopedAccessor<ungod::IntervalLifetime>& f)
+                actionManager.particleSystemActions().alterLifetimeDist<ungod::IntervalLifetime>(e, [x] (ungod::ScopedAccessor<ungod::IntervalLifetime>& f)
                                                {
                                                     f->msmax = x;
                                                });

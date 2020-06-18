@@ -107,7 +107,7 @@ namespace uedit
         {
             if (mBound)
             {
-                preview.getWorldAction().alterPositionDist<ungod::FixedPosition>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::FixedPosition>& f)
+                preview.getActionManager().particleSystemActions().alterPositionDist<ungod::FixedPosition>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::FixedPosition>& f)
                                                {
                                                     f->position = mouseRelativeToEntity;
                                                });
@@ -193,21 +193,21 @@ namespace uedit
         {
             if (mBoundCenter)
             {
-                preview.getWorldAction().alterPositionDist<ungod::EllipseDist>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::EllipseDist>& f)
+                preview.getActionManager().particleSystemActions().alterPositionDist<ungod::EllipseDist>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::EllipseDist>& f)
                                                {
                                                     f->center = mouseRelativeToEntity;
                                                });
             }
             if (mBoundRadX)
             {
-                preview.getWorldAction().alterPositionDist<ungod::EllipseDist>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::EllipseDist>& f)
+                preview.getActionManager().particleSystemActions().alterPositionDist<ungod::EllipseDist>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::EllipseDist>& f)
                                                {
                                                     f->radius.x = mouseRelativeToEntity.x - f->center.x;
                                                });
             }
             if (mBoundRadY)
             {
-                preview.getWorldAction().alterPositionDist<ungod::EllipseDist>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::EllipseDist>& f)
+                preview.getActionManager().particleSystemActions().alterPositionDist<ungod::EllipseDist>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::EllipseDist>& f)
                                                {
                                                     f->radius.y = mouseRelativeToEntity.y - f->center.y;
                                                });
@@ -265,14 +265,14 @@ namespace uedit
         {
             if (mBoundTopleft)
             {
-                preview.getWorldAction().alterPositionDist<ungod::RectangleDist>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::RectangleDist>& f)
+                preview.getActionManager().particleSystemActions().alterPositionDist<ungod::RectangleDist>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::RectangleDist>& f)
                                                {
                                                     f->topleft = mouseRelativeToEntity;
                                                });
             }
             if (mBoundSizes)
             {
-                preview.getWorldAction().alterPositionDist<ungod::RectangleDist>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::RectangleDist>& f)
+                preview.getActionManager().particleSystemActions().alterPositionDist<ungod::RectangleDist>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::RectangleDist>& f)
                                                {
                                                     f->sizes = mouseRelativeToEntity - f->topleft;
                                                });
@@ -327,14 +327,14 @@ namespace uedit
         {
             if (mBound1)
             {
-                preview.getWorldAction().alterPositionDist<ungod::LineSegmentDist>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::LineSegmentDist>& f)
+                preview.getActionManager().particleSystemActions().alterPositionDist<ungod::LineSegmentDist>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::LineSegmentDist>& f)
                                                {
                                                     f->point1 = mouseRelativeToEntity;
                                                });
             }
             if (mBound2)
             {
-                preview.getWorldAction().alterPositionDist<ungod::LineSegmentDist>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::LineSegmentDist>& f)
+                preview.getActionManager().particleSystemActions().alterPositionDist<ungod::LineSegmentDist>(preview.getEntity(), [mouseRelativeToEntity] (ungod::ScopedAccessor<ungod::LineSegmentDist>& f)
                                                {
                                                     f->point2 = mouseRelativeToEntity;
                                                });

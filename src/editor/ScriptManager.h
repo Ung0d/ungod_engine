@@ -2,7 +2,7 @@
 #define UEDIT_SCRIPT_MANAGER_H
 
 #include "ungod/serialization/Serializable.h"
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 #include "FileManager.h"
 #include "wx/frame.h"
 #include "wx/stc/stc.h"
@@ -52,7 +52,7 @@ namespace uedit
     public:
         ScriptManager(const std::string& baseFilepath,
                       ungod::Application& app,
-                      WorldActionWrapper& waw,
+                      ActionManager& actionManager,
                       wxWindow* parent = nullptr,
                       wxWindowID id = -1,
                       const wxPoint& pos = wxDefaultPosition);
@@ -61,7 +61,7 @@ namespace uedit
     const std::vector<CodeEditor*>& getEditors() const { return mEditors; }
 
     private:
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         ungod::Application& mApp;
         wxNotebook* mEditorTabs;
         FileManager* mLoadedScripts;

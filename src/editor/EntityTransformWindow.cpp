@@ -8,8 +8,8 @@ namespace uedit
     wxBEGIN_EVENT_TABLE(EntityTransformWindow, wxWindow)
     wxEND_EVENT_TABLE()
 
-    EntityTransformWindow::EntityTransformWindow(ungod::Entity e, WorldActionWrapper& waw, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
-        wxWindow(parent, id, pos, siz), mEntity(e), mWorldAction(waw)
+    EntityTransformWindow::EntityTransformWindow(ungod::Entity e, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
+        wxWindow(parent, id, pos, siz), mEntity(e), mActionManager(actionManager)
     {
         wxSizer* boxsizer = new wxBoxSizer(wxVERTICAL);
 
@@ -17,7 +17,7 @@ namespace uedit
             mPosX = new StatDisplay<float>("position x:", this, -1);
             mPosX->connectSetter( [this](float x)
             {
-                mWorldAction.setEntityPosition(mEntity, { x, mEntity.get<ungod::TransformComponent>().getPosition().y });
+                mActionManager.transformActions().setEntityPosition(mEntity, { x, mEntity.get<ungod::TransformComponent>().getPosition().y });
             } );
             mPosX->connectGetter( [this]()
             {
@@ -30,7 +30,7 @@ namespace uedit
             mPosY = new StatDisplay<float>("position y:", this, -1);
             mPosY->connectSetter( [this](float y)
             {
-                mWorldAction.setEntityPosition(mEntity, { mEntity.get<ungod::TransformComponent>().getPosition().x, y });
+                mActionManager.transformActions().setEntityPosition(mEntity, { mEntity.get<ungod::TransformComponent>().getPosition().x, y });
             } );
             mPosY->connectGetter( [this]()
             {
@@ -43,7 +43,7 @@ namespace uedit
             mScaleX = new StatDisplay<float>("scale x:", this, -1);
             mScaleX->connectSetter( [this](float scalex)
             {
-                mWorldAction.setEntityScale(mEntity, { scalex, mEntity.get<ungod::TransformComponent>().getScale().y });
+                mActionManager.transformActions().setEntityScale(mEntity, { scalex, mEntity.get<ungod::TransformComponent>().getScale().y });
             } );
             mScaleX->connectGetter( [this]()
             {
@@ -56,7 +56,7 @@ namespace uedit
             mScaleY = new StatDisplay<float>("scale y:", this, -1);
             mScaleY->connectSetter( [this](float scaley)
             {
-                mWorldAction.setEntityScale(mEntity, { mEntity.get<ungod::TransformComponent>().getScale().x, scaley });
+                mActionManager.transformActions().setEntityScale(mEntity, { mEntity.get<ungod::TransformComponent>().getScale().x, scaley });
             } );
             mScaleY->connectGetter( [this]()
             {
@@ -69,7 +69,7 @@ namespace uedit
             mBaseLineOffsetX = new StatDisplay<float>("base line offset left:", this, -1);
             mBaseLineOffsetX->connectSetter( [this](float offsetx)
             {
-                mWorldAction.setEntityBaseLineOffset(mEntity, { offsetx, mEntity.get<ungod::TransformComponent>().getBaseLineOffsets().y });
+                mActionManager.transformActions().setEntityBaseLineOffset(mEntity, { offsetx, mEntity.get<ungod::TransformComponent>().getBaseLineOffsets().y });
             } );
             mBaseLineOffsetX->connectGetter( [this]()
             {
@@ -82,7 +82,7 @@ namespace uedit
             mBaseLineOffsetY = new StatDisplay<float>("base line offset right:", this, -1);
             mBaseLineOffsetY->connectSetter( [this](float offsety)
             {
-                mWorldAction.setEntityBaseLineOffset(mEntity, { mEntity.get<ungod::TransformComponent>().getBaseLineOffsets().x, offsety });
+                mActionManager.transformActions().setEntityBaseLineOffset(mEntity, { mEntity.get<ungod::TransformComponent>().getBaseLineOffsets().x, offsety });
             } );
             mBaseLineOffsetY->connectGetter( [this]()
             {

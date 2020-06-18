@@ -1,7 +1,7 @@
 #ifndef UEDIT_ENTITY_SCRIPT_WINDOW_H
 #define UEDIT_ENTITY_SCRIPT_WINDOW_H
 
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 #include "ScriptManager.h"
 #include "Utility.h"
 #include "wx/window.h"
@@ -19,11 +19,11 @@ namespace uedit
     class EntityScriptWindow : public wxWindow
     {
     public:
-        EntityScriptWindow(ungod::Entity e, WorldActionWrapper& waw, ScriptManager& sm, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
+        EntityScriptWindow(ungod::Entity e, ActionManager& actionManager, ScriptManager& sm, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
 
     private:
         ungod::Entity mEntity;
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         ScriptManager& mScriptManager;
         wxComboBox* mScriptsComboBox;
 

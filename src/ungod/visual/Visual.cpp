@@ -191,6 +191,31 @@ namespace ungod
         return false;
     }
 
+    void VisualsHandler::setVertexTextureRect(Entity e, VertexArrayComponent& vertices, unsigned i, const sf::FloatRect& rect)
+    {
+        vertices.mVertices.setTextureRect(rect, i);
+    }
+
+    bool VisualsHandler::setVertexTextureRect(Entity e, VertexArrayComponent& vertices, const SpriteMetadataComponent& data, unsigned i, const std::string& key)
+    {
+        auto node = data.mMeta.getNodeWithKey(key);
+        if (node)
+        {
+            vertices.mVertices.setTextureRect(node, i);
+            mContentsChangedSignal.emit(e, e.modify<VertexArrayComponent>().mVertices.getBounds());
+            return true;
+        }
+        else
+            Logger::warning(key, "not found in meta file: ", data.mMeta.getFilePath());
+        return false;
+    }
+
+    void VisualsHandler::removeLastVertexTextureRect(Entity e, VertexArrayComponent& vertices)
+    {
+        vertices.mVertices.removeLastTextureRect();
+        mContentsChangedSignal.emit(e, e.modify<VertexArrayComponent>().mVertices.getBounds());
+    }
+
     void VisualsHandler::loadTexture(VisualsComponent& visuals, const std::string& imageID, std::function<void(VisualsComponent&)> callback)
     {
         visuals.mImage.load(imageID, LoadPolicy::ASYNC);

@@ -1,7 +1,7 @@
 #ifndef UEDIT_TILEMAP_WINDOW_H
 #define UEDIT_TILEMAP_WINDOW_H
 
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 #include "Utility.h"
 #include "Canvas.h"
 #include "wx/window.h"
@@ -13,11 +13,11 @@ namespace uedit
     class EntityTileMapWindow : public wxWindow
     {
     public:
-        EntityTileMapWindow(EditorCanvas& canvas, ungod::Entity e, EntityDesigner* d, WorldActionWrapper& waw, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
+        EntityTileMapWindow(EditorCanvas& canvas, ungod::Entity e, EntityDesigner* d, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
 
     private:
         ungod::Entity mEntity;
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         EntityDesigner* mDesigner;
 
     private:
@@ -29,11 +29,11 @@ namespace uedit
     class EntityWaterWindow : public wxWindow
     {
     public:
-        EntityWaterWindow(EditorCanvas& canvas, ungod::Entity e, EntityDesigner* d, WorldActionWrapper& waw, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
+        EntityWaterWindow(EditorCanvas& canvas, ungod::Entity e, EntityDesigner* d, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
 
     private:
         ungod::Entity mEntity;
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         EntityDesigner* mDesigner;
 
     private:

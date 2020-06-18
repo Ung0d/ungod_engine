@@ -11,10 +11,10 @@ namespace uedit
         std::string oldFrag = w.getFragmentShaderID();
         std::string oldVert = w.getVertexShaderID();
 
-        mEFrame->action(std::function([this, distortionMap, fragmentShader, vertexShader](ungod::Entity e)
-            { e.getWorld().getTileMapRenderer().loadWaterShaders(e, distortionMap, fragmentShader, vertexShader); }),
+        mActionManager.action(std::function([this, distortionMap, fragmentShader, vertexShader](ungod::Entity e)
+            { e.getWorld().getWaterHandler().initWater(e, distortionMap, fragmentShader, vertexShader); }),
             std::function([this, oldDist, oldFrag, oldVert](ungod::Entity e)
-                { e.getWorld().getTileMapRenderer().loadWaterShaders(e, oldDist, oldFrag, oldVert); }),
+                { e.getWorld().getWaterHandler().initWater(e, oldDist, oldFrag, oldVert); }),
             e);
     }
 

@@ -1,7 +1,7 @@
 #ifndef ENTITY_LIGHT_WINDOW_H
 #define ENTITY_LIGHT_WINDOW_H
 
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 #include "StatDisplayer.h"
 #include "MultiComponentPanel.h"
 #include "Utility.h"
@@ -16,13 +16,13 @@ namespace uedit
     class LightComponentEdit : public wxPanel
     {
     public:
-        LightComponentEdit(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent, ungod::LightEmitterComponent& lightComponent);
+        LightComponentEdit(ungod::Entity e, ActionManager& actionManager, wxWindow* parent, ungod::LightEmitterComponent& lightComponent);
 
         void refreshStats();
 
     private:
         ungod::Entity mEntity;
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         ungod::LightEmitterComponent& mLightComponent;
         wxFilePickerCtrl* mTexPicker;
         StatDisplay<float>* mPosX;
@@ -68,7 +68,7 @@ namespace uedit
     class LightAffectorEdit : public wxPanel
     {
     public:
-        LightAffectorEdit(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent, ungod::LightAffectorComponent& affector, ungod::LightEmitterComponent& emitter);
+        LightAffectorEdit(ungod::Entity e, ActionManager& actionManager, wxWindow* parent, ungod::LightAffectorComponent& affector, ungod::LightEmitterComponent& emitter);
 
         void refreshStats();
 
@@ -76,7 +76,7 @@ namespace uedit
 
     private:
         ungod::Entity mEntity;
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         ungod::LightAffectorComponent& mAffectorComponent;
         ungod::LightEmitterComponent& mEmitterComponent;
         wxChoice* mChoice;
@@ -87,7 +87,7 @@ namespace uedit
     class LightColliderEdit : public wxPanel
     {
     public:
-        LightColliderEdit(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent, ungod::ShadowEmitterComponent& shadowEmitter);
+        LightColliderEdit(ungod::Entity e, ActionManager& actionManager, wxWindow* parent, ungod::ShadowEmitterComponent& shadowEmitter);
 
         void refreshStats();
 
@@ -95,7 +95,7 @@ namespace uedit
 
     private:
         ungod::Entity mEntity;
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         ungod::ShadowEmitterComponent& mShadowEmitter;
         std::vector<StatDisplay<float>*> mPosX;
         std::vector<StatDisplay<float>*> mPosY;
@@ -112,7 +112,7 @@ namespace uedit
     class EntityLightWindow : public wxWindow
     {
     public:
-        EntityLightWindow(ungod::Entity e, WorldActionWrapper& waw, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
+        EntityLightWindow(ungod::Entity e, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
 
         void onEntityContentsChanged(ungod::Entity e);
 
@@ -125,7 +125,7 @@ namespace uedit
 
     private:
         ungod::Entity mEntity;
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         wxNotebook* mNotebook;
 
         LightComponentEdit* mLightEdit;

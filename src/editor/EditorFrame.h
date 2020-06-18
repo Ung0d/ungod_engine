@@ -2,7 +2,7 @@
 #define EDITOR_FRAME_H
 
 #include "Canvas.h"
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 #include "SheetPreview.h"
 #include "ScriptManager.h"
 #include "WorldCreateDialog.h"
@@ -40,8 +40,6 @@ namespace uedit
     public:
         EditorFrame();
 
-        command::ActionManager& getActionManager() { return mActionManager; }
-
         SheetPreview* getSheetPreview() { return mSheetPreview; }
         ScriptManager* getScriptManager() { return mScriptManager; }
         LayerDisplay* getLayerDisplay() { return mLayerDisplay; }
@@ -57,7 +55,7 @@ namespace uedit
         //opens a new entity desginer for the given entity, if no designer is currently open for it
         void openEntityDesigner(ungod::Entity e);
 
-        WorldActionWrapper& getWorldActionWrapper() { return mWorldAction; }
+        ActionManager& getActionManager() { return mActionManager; }
 
         void registerWorld(ungod::World* world);
 
@@ -75,7 +73,7 @@ namespace uedit
         EditorStates mCurrentState;
         std::vector<EntityDesigner*> mActiveDesigners;
         wxNotebook* mEditorTabs;
-        WorldActionWrapper mWorldAction;
+        ActionManager mActionManager;
         std::string mProjectFilePath;
 		MetaInfo mMetaInfo;
 
@@ -105,9 +103,9 @@ namespace uedit
     private:
         wxDECLARE_EVENT_TABLE();
     };
-
-    #include "WorldActionWrapper.inl"
 }
+
+#include "ActionManager.inl"
 
 
 

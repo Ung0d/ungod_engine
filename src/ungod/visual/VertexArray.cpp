@@ -128,10 +128,7 @@ namespace ungod
     {
         if (mRectsUsed < MAX_NUM_RECT)
         {
-            mVertices[mRectsUsed * 4u].texCoords = sf::Vector2f(rect.left, rect.top);
-            mVertices[mRectsUsed * 4u + 1].texCoords = sf::Vector2f(rect.left + rect.width, rect.top);
-            mVertices[mRectsUsed * 4u + 2].texCoords = sf::Vector2f(rect.left + rect.width, rect.top + rect.height);
-            mVertices[mRectsUsed * 4u + 3].texCoords = sf::Vector2f(rect.left, rect.top + rect.height);
+            setTextureRect(rect, mRectsUsed);
             mRectsUsed++;
             return true;
         }
@@ -150,6 +147,27 @@ namespace ungod
         if (done)
             setRectPosition({ std::get<4>(result), std::get<5>(result) }, mRectsUsed-1);
         return done;
+    }
+
+    void VertexArray::setTextureRect(const sf::FloatRect& rect, unsigned index)
+    {
+        mVertices[index * 4u].texCoords = sf::Vector2f(rect.left, rect.top);
+        mVertices[index * 4u + 1].texCoords = sf::Vector2f(rect.left + rect.width, rect.top);
+        mVertices[index * 4u + 2].texCoords = sf::Vector2f(rect.left + rect.width, rect.top + rect.height);
+        mVertices[index * 4u + 3].texCoords = sf::Vector2f(rect.left, rect.top + rect.height);
+    }
+
+    void VertexArray::setTextureRect(MetaNode node, unsigned index)
+    {
+        auto result = node.getAttributes<float, float, float, float, float, float>(
+            { "pos_x", 0 }, { "pos_y", 0 }, { "width", 0 }, { "height", 0 }, { "offset_x", 0 }, { "offset_y", 0 });
+        setTextureRect(sf::FloatRect(std::get<0>(result), std::get<1>(result), std::get<2>(result), std::get<3>(result)), index);
+        setRectPosition({ std::get<4>(result), std::get<5>(result) }, index);
+    }
+
+    void VertexArray::removeLastTextureRect()
+    {
+        mRectsUsed -= 1;
     }
 
     void VertexArray::setPoints(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4, unsigned index)

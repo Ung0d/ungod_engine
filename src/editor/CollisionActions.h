@@ -2,7 +2,7 @@
 #define UEDIT_COLLISION_ACTIONS_H
 
 #include "ungod/base/Entity.h"
-#include "ungod/base/Visuals.h"
+#include "ungod/physics/Collision.h"
 #include <unordered_map>
 
 namespace uedit
@@ -111,7 +111,7 @@ namespace uedit
 
     private:
         ActionManager& mActionManager;
-    }
+    };
 }
 
 #endif

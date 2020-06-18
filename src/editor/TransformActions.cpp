@@ -48,7 +48,7 @@ namespace uedit
                 {
                     e.getWorld().getTransformHandler().setPosition(e, endPos);
                 }),
-                std::function([this, e, startPos](const sf::Vector2f& p)
+                std::function([this, e, startPos]()
                 {
                     e.getWorld().getTransformHandler().setPosition(e, startPos);
                 }));

@@ -2,8 +2,8 @@
 
 namespace uedit
 {
-    EntityScriptWindow::EntityScriptWindow(ungod::Entity e, WorldActionWrapper& waw, ScriptManager& sm, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz)
-        : wxWindow(parent, id, pos, siz), mEntity(e), mWorldAction(waw), mScriptManager(sm)
+    EntityScriptWindow::EntityScriptWindow(ungod::Entity e, ActionManager& actionManager, ScriptManager& sm, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz)
+        : wxWindow(parent, id, pos, siz), mEntity(e), mActionManager(actionManager), mScriptManager(sm)
     {
         wxSizer* boxsizer = new wxBoxSizer(wxVERTICAL);
 
@@ -66,6 +66,6 @@ namespace uedit
 
     void EntityScriptWindow::onScriptSelected(wxCommandEvent& event)
     {
-        mWorldAction.attachScript(mEntity, std::string(mScriptsComboBox->GetValue().mb_str()));
+        mActionManager.attachScript(mEntity, std::string(mScriptsComboBox->GetValue().mb_str()));
     }
 }

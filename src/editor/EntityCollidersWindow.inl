@@ -4,8 +4,8 @@
 namespace uedit
 {
     template<std::size_t CONTEXT>
-    EntityCollidersWindow<CONTEXT>::EntityCollidersWindow(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& siz)
-        : wxWindow(parent, id, pos, siz), mEntity(e), mWaw(waw), mSelection(-1), mSingleSelected(false), mColliderDetail(nullptr)
+    EntityCollidersWindow<CONTEXT>::EntityCollidersWindow(ungod::Entity e, ActionManager& actionManager, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& siz)
+        : wxWindow(parent, id, pos, siz), mEntity(e), mActionManager(actionManager), mSelection(-1), mSingleSelected(false), mColliderDetail(nullptr)
     {
         wxBoxSizer* boxsizer = new wxBoxSizer(wxVERTICAL);
 
@@ -46,9 +46,9 @@ namespace uedit
                     else
                         rect = ungod::makeRotatedRect({ 0,0 }, mEntity.get<ungod::TransformComponent>().getSize());
                     if (mSingleSelected)
-                        mWaw.addCollider(mEntity, rect);
+                        mActionManager.collisionActions<CONTEXT>().addCollider(mEntity, rect);
                     else if (mSelection >= 0)
-                        mWaw.addCollider(mEntity, mSelection, rect);
+                        mActionManager.collisionActions<CONTEXT>().addCollider(mEntity, mSelection, rect);
                 });
             initButtonsSizer->Add(rectButton, 0, wxALIGN_CENTER);
 
@@ -63,9 +63,9 @@ namespace uedit
                         poly = ungod::makeConvexPolygon({ { 0,0 }, {mEntity.get<ungod::TransformComponent>().getSize().x, 0},
                                                 {mEntity.get<ungod::TransformComponent>().getSize().x/2, mEntity.get<ungod::TransformComponent>().getSize().y} });
                     if (mSingleSelected)
-                        mWaw.addCollider(mEntity, poly);
+                        mActionManager.collisionActions<CONTEXT>().addCollider(mEntity, poly);
                     else if (mSelection >= 0)
-                        mWaw.addCollider(mEntity, mSelection, poly);
+                        mActionManager.collisionActions<CONTEXT>().addCollider(mEntity, mSelection, poly);
                 });
             initButtonsSizer->Add(polyButton, 0, wxALIGN_CENTER);
 
@@ -74,9 +74,9 @@ namespace uedit
                 {
                     ungod::Collider chain = ungod::makeEdgeChain({ { 0,0 }, {100, 0} });
                     if (mSingleSelected)
-                        mWaw.addCollider(mEntity, chain);
+                        mActionManager.collisionActions<CONTEXT>().addCollider(mEntity, chain);
                     else if (mSelection >= 0)
-                        mWaw.addCollider(mEntity, mSelection, chain);
+                        mActionManager.collisionActions<CONTEXT>().addCollider(mEntity, mSelection, chain);
                 });
             initButtonsSizer->Add(edgechainButton, 0, wxALIGN_CENTER);
 
@@ -153,10 +153,10 @@ namespace uedit
             switch (coll->getType())
             {
             case ungod::ColliderType::ROTATED_RECT:
-                mColliderDetail = new RectangleWindow<CONTEXT>(mEntity, *coll, this, mWaw, isel);
+                mColliderDetail = new RectangleWindow<CONTEXT>(mEntity, *coll, this, mActionManager, isel);
                 break;
             case ungod::ColliderType::CONVEX_POLYGON: case ungod::ColliderType::EDGE_CHAIN:
-                mColliderDetail = new PointSetWindow<CONTEXT>(mEntity, *coll, this, mWaw, isel);
+                mColliderDetail = new PointSetWindow<CONTEXT>(mEntity, *coll, this, mActionManager, isel);
                 break;
             default:
                 mColliderDetail = new BaseColliderDisplay(this);
@@ -234,7 +234,7 @@ namespace uedit
             mEntity.initMulti<ungod::MultiRigidbodyComponent<CONTEXT>>(cc);
             updateRigidbodyList();
         }
-        catch (const std::exception & e)
+        catch (const std::exception &)
         {
             auto err = wxMessageDialog(this, _("Text field must contain a valid number."));
             err.ShowModal();
@@ -243,7 +243,7 @@ namespace uedit
 
     template<std::size_t CONTEXT>
     RectangleWindow<CONTEXT>::RectangleWindow(ungod::Entity e, const ungod::Collider& c, 
-        wxWindow* parent, WorldActionWrapper& waw, int multiIndex) : BaseColliderDisplay(parent), mEntity(e), mRect(c), mMulti(multiIndex), mWaw(waw)
+        wxWindow* parent, ActionManager& actionManager, int multiIndex) : BaseColliderDisplay(parent), mEntity(e), mRect(c), mMulti(multiIndex), mActionManager(actionManager)
     {
         wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
         {
@@ -251,9 +251,9 @@ namespace uedit
             mUpLeftX->connectSetter([this](float x)
                 {
                     if (mMulti >= 0)
-                        mWaw.setRectUpLeft(mEntity, mMulti, { x, mRect.getUpLeftY() });
+                        mActionManager.collisionActions<CONTEXT>().setRectUpLeft(mEntity, mMulti, { x, mRect.getUpLeftY() });
                     else
-                        mWaw.setRectUpLeft(mEntity, { x, mRect.getUpLeftY() });
+                        mActionManager.collisionActions<CONTEXT>().setRectUpLeft(mEntity, { x, mRect.getUpLeftY() });
                 });
             mUpLeftX->connectGetter([this]()
                 {
@@ -266,9 +266,9 @@ namespace uedit
             mUpLeftY->connectSetter([this](float y)
                 {
                     if (mMulti >= 0)
-                        mWaw.setRectUpLeft(mEntity, mMulti, { mRect.getUpLeftX(), y });
+                        mActionManager.collisionActions<CONTEXT>().setRectUpLeft(mEntity, mMulti, { mRect.getUpLeftX(), y });
                     else
-                        mWaw.setRectUpLeft(mEntity, { mRect.getUpLeftX(), y });
+                        mActionManager.collisionActions<CONTEXT>().setRectUpLeft(mEntity, { mRect.getUpLeftX(), y });
                 });
             mUpLeftY->connectGetter([this]()
                 {
@@ -281,9 +281,9 @@ namespace uedit
             mDownRightX->connectSetter([this](float x)
                 {
                     if (mMulti >= 0)
-                        mWaw.setRectDownRight(mEntity, mMulti, { x, mRect.getDownRightY() });
+                        mActionManager.collisionActions<CONTEXT>().setRectDownRight(mEntity, mMulti, { x, mRect.getDownRightY() });
                     else
-                        mWaw.setRectDownRight(mEntity, { x, mRect.getDownRightY() });
+                        mActionManager.collisionActions<CONTEXT>().setRectDownRight(mEntity, { x, mRect.getDownRightY() });
                 });
             mDownRightX->connectGetter([this]()
                 {
@@ -296,9 +296,9 @@ namespace uedit
             mDownRightY->connectSetter([this](float y)
                 {
                     if (mMulti >= 0)
-                        mWaw.setRectDownRight(mEntity, mMulti, { mRect.getDownRightX(), y });
+                        mActionManager.collisionActions<CONTEXT>().setRectDownRight(mEntity, mMulti, { mRect.getDownRightX(), y });
                     else
-                        mWaw.setRectDownRight(mEntity, { mRect.getDownRightX(), y });
+                        mActionManager.collisionActions<CONTEXT>().setRectDownRight(mEntity, { mRect.getDownRightX(), y });
                 });
             mDownRightY->connectGetter([this]()
                 {
@@ -311,9 +311,9 @@ namespace uedit
             mRotation->connectSetter([this](float y)
                 {
                     if (mMulti >= 0)
-                        mWaw.setRectRotation(mEntity, mMulti, mRect.getRotation());
+                        mActionManager.collisionActions<CONTEXT>().setRectRotation(mEntity, mMulti, mRect.getRotation());
                     else
-                        mWaw.setRectRotation(mEntity, mRect.getRotation());
+                        mActionManager.collisionActions<CONTEXT>().setRectRotation(mEntity, mRect.getRotation());
                 });
             mRotation->connectGetter([this]()
                 {
@@ -340,8 +340,8 @@ namespace uedit
 
     template<std::size_t CONTEXT>
     PointSetWindow<CONTEXT>::PointSetWindow(ungod::Entity e, const ungod::Collider& c, 
-        wxWindow* parent, WorldActionWrapper& waw, int multiIndex) : BaseColliderDisplay(parent), 
-        mEntity(e), mPointSet(c), mMulti(multiIndex), mWaw(waw), mVbox(new wxBoxSizer(wxVERTICAL)), mType(mPointSet.getType())
+        wxWindow* parent, ActionManager& actionManager, int multiIndex) : BaseColliderDisplay(parent),
+        mEntity(e), mPointSet(c), mMulti(multiIndex), mActionManager(actionManager), mVbox(new wxBoxSizer(wxVERTICAL)), mType(mPointSet.getType())
     {
         mPointsX.reserve(mPointSet.getNumberOfPoints());
         mPointsY.reserve(mPointSet.getNumberOfPoints());
@@ -360,9 +360,9 @@ namespace uedit
         statX->connectSetter([this, i](float x)
             {
                 if (mMulti >= 0)
-                    mWaw.setColliderPoint(mEntity, mMulti, { x, mPointSet.getPointY(i) }, i);
+                    mActionManager.collisionActions<CONTEXT>().setColliderPoint(mEntity, mMulti, { x, mPointSet.getPointY(i) }, i);
                 else
-                    mWaw.setColliderPoint(mEntity, { x, mPointSet.getPointY(i) }, i);
+                    mActionManager.collisionActions<CONTEXT>().setColliderPoint(mEntity, { x, mPointSet.getPointY(i) }, i);
             });
         statX->connectGetter([this, i]()
             {
@@ -375,9 +375,9 @@ namespace uedit
         statY->connectSetter([this,i](float y)
             {
                 if (mMulti >= 0)
-                    mWaw.setColliderPoint(mEntity, mMulti, { mPointSet.getPointX(i), y }, i);
+                    mActionManager.collisionActions<CONTEXT>().setColliderPoint(mEntity, mMulti, { mPointSet.getPointX(i), y }, i);
                 else
-                    mWaw.setColliderPoint(mEntity, { mPointSet.getPointX(i), y }, i);
+                    mActionManager.collisionActions<CONTEXT>().setColliderPoint(mEntity, { mPointSet.getPointX(i), y }, i);
             });
         statY->connectGetter([this, i]()
             {

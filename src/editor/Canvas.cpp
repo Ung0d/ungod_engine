@@ -97,7 +97,7 @@ namespace uedit
                 for (const auto& e : mSelectedEntities)
                 {
                     if (e.has<ungod::TransformComponent>())
-                        mEFrame->getWorldActionWrapper().endEntityMoveSession(e);
+                        mEFrame->getActionManager().transformActions().endEntityMoveSession(e);
                 }
             }
             break;
@@ -112,7 +112,7 @@ namespace uedit
                     for (const auto& e : mSelectedEntities)
                     {
                         if (e.has<ungod::TransformComponent>())
-                            mEFrame->getWorldActionWrapper().startEntityMoveSession(e);
+                            mEFrame->getActionManager().transformActions().startEntityMoveSession(e);
                     }
                 }
 
@@ -121,7 +121,7 @@ namespace uedit
                     if (e.has<ungod::TransformComponent>())
                     {
                         sf::Vector2f mouseMove = mEditorState->getWorldGraph().getCamera().getZoom() * sf::Vector2f{(float)(curEvent.mouseMove.x - mMouseLastPos.x), (float)(curEvent.mouseMove.y - mMouseLastPos.y)};
-                        mEFrame->getWorldActionWrapper().moveEntity(e, mouseMove);
+                        mEFrame->getActionManager().transformActions().moveEntity(e, mouseMove);
                     }
                 }
             }
@@ -140,7 +140,7 @@ namespace uedit
                     {
                         for (const auto& e : mSelectedEntities)
                         {
-                            mEFrame->getWorldActionWrapper().removeEntity(e);
+                            mEFrame->getActionManager().removeEntity(e);
                         }
                         clearEntitySelection();
                     }
@@ -195,9 +195,9 @@ namespace uedit
                     {
                         for (const auto& e : mSelectedEntities)
                         {
-                            mEFrame->getWorldActionWrapper().startEntityMoveSession(e);
-                            mEFrame->getWorldActionWrapper().moveEntity(e, sf::Vector2f{-1,0});
-                            mEFrame->getWorldActionWrapper().endEntityMoveSession(e);
+                            mEFrame->getActionManager().transformActions().startEntityMoveSession(e);
+                            mEFrame->getActionManager().transformActions().moveEntity(e, sf::Vector2f{-1,0});
+                            mEFrame->getActionManager().transformActions().endEntityMoveSession(e);
                         }
                         break;
                     }
@@ -205,9 +205,9 @@ namespace uedit
                     {
                         for (const auto& e : mSelectedEntities)
                         {
-                            mEFrame->getWorldActionWrapper().startEntityMoveSession(e);
-                            mEFrame->getWorldActionWrapper().moveEntity(e, sf::Vector2f{1,0});
-                            mEFrame->getWorldActionWrapper().endEntityMoveSession(e);
+                            mEFrame->getActionManager().transformActions().startEntityMoveSession(e);
+                            mEFrame->getActionManager().transformActions().moveEntity(e, sf::Vector2f{1,0});
+                            mEFrame->getActionManager().transformActions().endEntityMoveSession(e);
                         }
                         break;
                     }
@@ -215,9 +215,9 @@ namespace uedit
                     {
                         for (const auto& e : mSelectedEntities)
                         {
-                            mEFrame->getWorldActionWrapper().startEntityMoveSession(e);
-                            mEFrame->getWorldActionWrapper().moveEntity(e, sf::Vector2f{-1,0});
-                            mEFrame->getWorldActionWrapper().endEntityMoveSession(e);
+                            mEFrame->getActionManager().transformActions().startEntityMoveSession(e);
+                            mEFrame->getActionManager().transformActions().moveEntity(e, sf::Vector2f{-1,0});
+                            mEFrame->getActionManager().transformActions().endEntityMoveSession(e);
                         }
                         break;
                     }
@@ -225,9 +225,9 @@ namespace uedit
                     {
                         for (const auto& e : mSelectedEntities)
                         {
-                            mEFrame->getWorldActionWrapper().startEntityMoveSession(e);
-                            mEFrame->getWorldActionWrapper().moveEntity(e, sf::Vector2f{1,0});
-                            mEFrame->getWorldActionWrapper().endEntityMoveSession(e);
+                            mEFrame->getActionManager().transformActions().startEntityMoveSession(e);
+                            mEFrame->getActionManager().transformActions().moveEntity(e, sf::Vector2f{1,0});
+                            mEFrame->getActionManager().transformActions().endEntityMoveSession(e);
                         }
                         break;
                     }

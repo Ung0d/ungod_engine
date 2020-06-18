@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include "ungod/base/Utility.h"
 #include "ungod/base/Entity.h"
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 
 namespace uedit
 {
@@ -43,7 +43,7 @@ namespace uedit
 			return 0u;
 		}
 
-		static void setup(ungod::Entity e, COMP& c, WorldActionWrapper& waw, std::list<PointDragger>& draggers)
+		static void setup(ungod::Entity e, COMP& c, ActionManager& actionManager, std::list<PointDragger>& draggers)
 		{
 			static_assert(ungod::AlwaysFalse<COMP>::value, "No explicit specialization for this type found!");
 		}
@@ -55,7 +55,7 @@ namespace uedit
 	class PointDraggerSet
 	{
 	public:
-		PointDraggerSet(WorldActionWrapper& waw) : mWaw(waw) {}
+		PointDraggerSet(ActionManager& actionManager) : mActionManager(actionManager) {}
 
 		bool handleEvent(EntityPreview& preview, const sf::Event& event)
 		{
@@ -75,10 +75,10 @@ namespace uedit
 		{
 			mPointDraggers.clear();
 			if (e.has<COMP>())
-				CompTraits<COMP>::setup(e, e.modify<COMP>(), mWaw, mPointDraggers);
+				CompTraits<COMP>::setup(e, e.modify<COMP>(), mActionManager, mPointDraggers);
 			if (e.has<ungod::MultiComponent<COMP>>())
 				for (unsigned i = 0; i < e.get<ungod::MultiComponent<COMP>>().getComponentCount(); i++)
-					CompTraits<COMP>::setup(e, e.modify<ungod::MultiComponent<COMP>>().getComponent(i), mWaw, mPointDraggers);
+					CompTraits<COMP>::setup(e, e.modify<ungod::MultiComponent<COMP>>().getComponent(i), mActionManager, mPointDraggers);
 		}
 
 		/** \brief Notifies the set that a point might be added or remove for some component and triggers
@@ -97,7 +97,7 @@ namespace uedit
 		}
 	private:
 		std::list<PointDragger> mPointDraggers;
-		WorldActionWrapper& mWaw;
+		ActionManager& mActionManager;
 	};
 }
 

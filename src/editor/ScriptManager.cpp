@@ -17,9 +17,9 @@ namespace uedit
         SCRIPT_RUN = 999
     };
 
-    ScriptManager::ScriptManager(const std::string& baseFilepath, ungod::Application& app,WorldActionWrapper& waw, wxWindow* parent, wxWindowID id, const wxPoint& pos) :
+    ScriptManager::ScriptManager(const std::string& baseFilepath, ungod::Application& app, ActionManager& actionManager, wxWindow* parent, wxWindowID id, const wxPoint& pos) :
                                       wxFrame(parent, id, "Script Manager", pos),
-                                          mWorldAction(waw), mApp(app), mEditorTabs(nullptr), mLoadedScripts(nullptr), mBasePath(baseFilepath)
+                                    mActionManager(actionManager), mApp(app), mEditorTabs(nullptr), mLoadedScripts(nullptr), mBasePath(baseFilepath)
     {
         wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
 
@@ -71,12 +71,12 @@ namespace uedit
 
     void ScriptManager::onScriptLoad(wxCommandEvent& event)
     {
-        if (!mWorldAction.getEditorFrame()->getSelectedWorld())
+        if (!mActionManager.getEditorFrame()->getSelectedWorld())
             return;
 
         std::string file = std::string{event.GetString().mb_str()};
         //load the script
-        ungod::ScriptErrorCode err = mWorldAction.getEditorFrame()->getCanvas()->getEditorState()->getEntityBehaviorManager().loadBehaviorScript(file);
+        ungod::ScriptErrorCode err = mActionManager.getEditorFrame()->getCanvas()->getEditorState()->getEntityBehaviorManager().loadBehaviorScript(file);
         evaluateScriptExecution(err, file);
 
         //display the text
@@ -125,7 +125,7 @@ namespace uedit
 
     void ScriptManager::onMenuMod(wxCommandEvent& event)
     {
-        if (!mWorldAction.getEditorFrame()->getSelectedWorld())
+        if (!mActionManager.getEditorFrame()->getSelectedWorld())
             return;
         switch (event.GetInt())
         {
@@ -133,7 +133,7 @@ namespace uedit
             {
                 onScriptSave(event);
                 std::vector<std::pair<std::string, ungod::ScriptErrorCode>> err = 
-                        mWorldAction.getEditorFrame()->getCanvas()->getEditorState()->getEntityBehaviorManager().reload(mApp.getScriptState(), mApp.getGlobalScriptEnv());
+                        mActionManager.getEditorFrame()->getCanvas()->getEditorState()->getEntityBehaviorManager().reload(mApp.getScriptState(), mApp.getGlobalScriptEnv());
                 for (const auto& e : err)
                 {
                     evaluateScriptExecution(e.second, e.first);

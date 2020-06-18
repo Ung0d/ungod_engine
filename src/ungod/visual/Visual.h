@@ -276,7 +276,7 @@ namespace ungod
         * Point indexing is clockwise 0 to 3. Requires VertexArray-component. */
         const sf::Vector2f& getPoint(Entity e, unsigned rectIndex, unsigned pointIndex);
 
-        /** \brief Accomodates a new texture rect on a new index. The index is returned. Requires a VertexArray component. */
+        /** \brief Accomodates a new texture rect. Requires a VertexArray component. */
         inline bool newVertexTextureRect(Entity e, const sf::FloatRect& rect) { return newVertexTextureRect(e, e.modify<VertexArrayComponent>(), rect); }
         bool newVertexTextureRect(Entity e, VertexArrayComponent& vertices, const sf::FloatRect& rect);
 
@@ -289,6 +289,18 @@ namespace ungod
         inline bool newVertexTextureRect(Entity e, const std::string& key)
         { return newVertexTextureRect(e, e.modify<VertexArrayComponent>(), e.get<SpriteMetadataComponent>(), key); }
         bool newVertexTextureRect(Entity e, VertexArrayComponent& vertices, const SpriteMetadataComponent& data, const std::string& key);
+
+        /** \brief Sets texture coordinates for an existing rect. */
+        inline void setVertexTextureRect(Entity e, unsigned i, const sf::FloatRect& rect) { return setVertexTextureRect(e, e.modify<VertexArrayComponent>(), i, rect); }
+        void setVertexTextureRect(Entity e, VertexArrayComponent& vertices, unsigned i, const sf::FloatRect& rect);
+
+        /** \brief Sets texture coordinates for an existing rect. */
+        inline bool setVertexTextureRect(Entity e, unsigned i, const std::string& key) { return setVertexTextureRect(e, e.modify<VertexArrayComponent>(), e.get<SpriteMetadataComponent>(), i, key); }
+        bool setVertexTextureRect(Entity e, VertexArrayComponent& vertices, const SpriteMetadataComponent& data, unsigned i, const std::string& key);
+
+        /** \brief Removes an existing rect. */
+        inline void removeLastVertexTextureRect(Entity e) { return removeLastVertexTextureRect(e, e.modify<VertexArrayComponent>()); }
+        void removeLastVertexTextureRect(Entity e, VertexArrayComponent& vertices);
 
         /** \brief Initializes async loading of the internal texture and invokes the given callback when the loading is done. */
         inline void loadTexture(Entity e, const std::string& imageID, std::function<void(VisualsComponent&)> callback)

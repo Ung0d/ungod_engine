@@ -1,7 +1,7 @@
 #ifndef ENTITY_PARTICLE_SYSTEM_PREVIEW_H
 #define ENTITY_PARTICLE_SYSTEM_PREVIEW_H
 
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 #include "StatDisplayer.h"
 #include "Utility.h"
 #include "LabeledChoice.h"
@@ -20,7 +20,7 @@ namespace uedit
     class EntityParticleSystemWindow : public wxWindow
     {
     public:
-        EntityParticleSystemWindow(ungod::Entity e, WorldActionWrapper& waw, EntityPreview& preview, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
+        EntityParticleSystemWindow(ungod::Entity e, ActionManager& actionManager, EntityPreview& preview, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
 
         void refreshStats(); //calling this will reset all values in the stat displays to their currrent correct values+
 
@@ -41,7 +41,7 @@ namespace uedit
 
     private:
         ungod::Entity mEntity;
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         EntityPreview& mPreview;
         wxNotebook* mTabs;
         wxBoxSizer* mBox;
@@ -59,12 +59,12 @@ namespace uedit
     class UniversalEmitterPanel : public wxPanel
     {
     public:
-        UniversalEmitterPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent);
+        UniversalEmitterPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent);
 
-        void onPosDistChoice(wxCommandEvent& event, ungod::Entity e, WorldActionWrapper& waw);
-        void onVelDistChoice(wxCommandEvent& event, ungod::Entity e, WorldActionWrapper& waw);
-        void onSpawnIntervalChoice(wxCommandEvent& event, ungod::Entity e, WorldActionWrapper& waw);
-        void onLifetimeIntervalChoice(wxCommandEvent& event, ungod::Entity e, WorldActionWrapper& waw);
+        void onPosDistChoice(wxCommandEvent& event, ungod::Entity e, ActionManager& actionManager);
+        void onVelDistChoice(wxCommandEvent& event, ungod::Entity e, ActionManager& actionManager);
+        void onSpawnIntervalChoice(wxCommandEvent& event, ungod::Entity e, ActionManager& actionManager);
+        void onLifetimeIntervalChoice(wxCommandEvent& event, ungod::Entity e, ActionManager& actionManager);
 
     private:
         LabeledChoice* mPosDistChoice;
@@ -84,7 +84,7 @@ namespace uedit
     class AffectorsPanel : public wxPanel
     {
     public:
-        AffectorsPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent, int sel);
+        AffectorsPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent, int sel);
 
         void updateSelection();
 
@@ -92,7 +92,7 @@ namespace uedit
 
     private:
         ungod::Entity mEntity;
-        WorldActionWrapper mWaw;
+        ActionManager& mActionManager;
         wxBoxSizer* mVBox;
         wxListBox* mList;
         wxButton* mAddNew;
@@ -142,7 +142,7 @@ namespace uedit
     class DirectionalForcePanel : public wxPanel
     {
     public:
-        DirectionalForcePanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent);
+        DirectionalForcePanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent);
 
 
     private:
@@ -152,7 +152,7 @@ namespace uedit
     class DisplaceForcePanel : public wxPanel
     {
     public:
-        DisplaceForcePanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent);
+        DisplaceForcePanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent);
 
 
     private:
@@ -162,7 +162,7 @@ namespace uedit
     class FadeOutPanel : public wxPanel
     {
     public:
-        FadeOutPanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent);
+        FadeOutPanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent);
 
 
     private:
@@ -172,7 +172,7 @@ namespace uedit
     class AnimatedParticlesPanel : public wxPanel
     {
     public:
-        AnimatedParticlesPanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent);
+        AnimatedParticlesPanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent);
 
 
     private:
@@ -182,7 +182,7 @@ namespace uedit
     class ColorShiftPanel : public wxPanel
     {
     public:
-        ColorShiftPanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent);
+        ColorShiftPanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent);
 
 
     private:
@@ -192,7 +192,7 @@ namespace uedit
     class RotateParticlePanel : public wxPanel
     {
     public:
-        RotateParticlePanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent);
+        RotateParticlePanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent);
 
 
     private:
@@ -202,7 +202,7 @@ namespace uedit
     class ScaleParticlePanel : public wxPanel
     {
     public:
-        ScaleParticlePanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent);
+        ScaleParticlePanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent);
 
 
     private:
@@ -212,7 +212,7 @@ namespace uedit
     class VelocityBasedRotationPanel : public wxPanel
     {
     public:
-        VelocityBasedRotationPanel(ungod::Entity e, WorldActionWrapper& waw, std::size_t i, wxWindow* parent);
+        VelocityBasedRotationPanel(ungod::Entity e, ActionManager& actionManager, std::size_t i, wxWindow* parent);
 
 
     private:
@@ -225,9 +225,9 @@ namespace uedit
     class TexrectInitailizerPanel : public wxPanel
     {
     public:
-        TexrectInitailizerPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent);
+        TexrectInitailizerPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent);
 
-        void onTexrectInitChoice(wxCommandEvent& event, ungod::Entity e, WorldActionWrapper& waw);
+        void onTexrectInitChoice(wxCommandEvent& event, ungod::Entity e, ActionManager& actionManager);
 
     private:
         LabeledChoice* mTexrectInitChoice;
@@ -238,7 +238,7 @@ namespace uedit
     class ExplicitTexrectPanel : public wxPanel
     {
     public:
-        ExplicitTexrectPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent);
+        ExplicitTexrectPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent);
 
     private:
         StatDisplay<int>* mLeft;
@@ -251,7 +251,7 @@ namespace uedit
     class TexrectByKeyPanel : public wxPanel
     {
     public:
-        TexrectByKeyPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent);
+        TexrectByKeyPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent);
 
     private:
         wxButton* mSetSelected;
@@ -263,7 +263,7 @@ namespace uedit
     class FixedPositionDistPanel : public wxPanel
     {
     public:
-        FixedPositionDistPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent);
+        FixedPositionDistPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent);
 
     private:
         StatDisplay<float>* mPosX;
@@ -274,7 +274,7 @@ namespace uedit
     class EllipseDistPanel : public wxPanel
     {
     public:
-        EllipseDistPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent);
+        EllipseDistPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent);
 
     private:
         StatDisplay<float>* mCenterX;
@@ -287,7 +287,7 @@ namespace uedit
     class RectangleDistPanel : public wxPanel
     {
     public:
-        RectangleDistPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent);
+        RectangleDistPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent);
 
     private:
         StatDisplay<float>* mTopleftX;
@@ -300,7 +300,7 @@ namespace uedit
     class LineSegmentDistPanel : public wxPanel
     {
     public:
-        LineSegmentDistPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent);
+        LineSegmentDistPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent);
 
     private:
         StatDisplay<float>* mPoint1X;
@@ -316,7 +316,7 @@ namespace uedit
     class FixedVelocityDistPanel : public wxPanel
     {
     public:
-        FixedVelocityDistPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent);
+        FixedVelocityDistPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent);
 
     private:
         StatDisplay<float>* mVelX;
@@ -327,7 +327,7 @@ namespace uedit
     class ConeDistPanel : public wxPanel
     {
     public:
-        ConeDistPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent);
+        ConeDistPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent);
 
     private:
         StatDisplay<float>* mDirection1X;
@@ -344,7 +344,7 @@ namespace uedit
     class IntervalTickPanel : public wxPanel
     {
     public:
-        IntervalTickPanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent);
+        IntervalTickPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent);
 
     private:
         StatDisplay<float>* mMin;
@@ -359,7 +359,7 @@ namespace uedit
     class IntervalLifetimePanel : public wxPanel
     {
     public:
-        IntervalLifetimePanel(ungod::Entity e, WorldActionWrapper& waw, wxWindow* parent);
+        IntervalLifetimePanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent);
 
     private:
         StatDisplay<float>* mMin;

@@ -8,8 +8,8 @@
 
 namespace uedit
 {
-    EntityTileMapWindow::EntityTileMapWindow(EditorCanvas& canvas, ungod::Entity e, EntityDesigner* d, WorldActionWrapper& waw, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
-        wxWindow(parent, id, pos, siz), mEntity(e), mWorldAction(waw), mDesigner(d)
+    EntityTileMapWindow::EntityTileMapWindow(EditorCanvas& canvas, ungod::Entity e, EntityDesigner* d, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
+        wxWindow(parent, id, pos, siz), mEntity(e), mActionManager(actionManager), mDesigner(d)
     {
         wxSizer* vbox = new wxBoxSizer(wxVERTICAL);
 
@@ -45,21 +45,20 @@ namespace uedit
         TileMapDialog dia(this, -1);
         if (dia.ShowModal() == wxID_OK)
         {
-            mWorldAction.loadTiles(mEntity, std::string{dia.getSheetID().mbc_str()}, std::string{dia.getMetaID().mbc_str()},
-                                   dia.getTileWidth(), dia.getTileHeight());
-            mWorldAction.reserveTileCount(mEntity, dia.getMapWidth()*dia.getMapHeight(), dia.getMapWidth(), dia.getMapHeight());
+            mActionManager.tilemapActions().setTileDims(mEntity, dia.getTileWidth(), dia.getTileHeight());
+            mActionManager.tilemapActions().setInactiveTiles(mEntity, dia.getMapWidth(), dia.getMapHeight());
         }
     }
 
     void EntityTileMapWindow::onFitClicked(wxCommandEvent& event)
     {
-        mWorldAction.setEntityPosition(mEntity, {});
+        mActionManager.transformActions().setEntityPosition(mEntity, {});
         const auto& tm = mEntity.get<ungod::TileMapComponent>().getTileMap();
         if (tm.getTileWidth() != 0 && tm.getTileHeight() != 0)
         {
             unsigned width = (unsigned)std::floor(mEntity.getWorld().getSize().x / tm.getTileWidth());
             unsigned height = (unsigned)std::floor(mEntity.getWorld().getSize().y / tm.getTileHeight());
-            mWorldAction.reserveTileCount(mEntity, width * height, width, height);
+            mActionManager.tilemapActions().setInactiveTiles(mEntity, width, height);
         }
         else
         {
@@ -73,8 +72,8 @@ namespace uedit
     }
 
 
-    EntityWaterWindow::EntityWaterWindow(EditorCanvas& canvas, ungod::Entity e, EntityDesigner* d, WorldActionWrapper& waw, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
-        wxWindow(parent, id, pos, siz), mEntity(e), mWorldAction(waw), mDesigner(d)
+    EntityWaterWindow::EntityWaterWindow(EditorCanvas& canvas, ungod::Entity e, EntityDesigner* d, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
+        wxWindow(parent, id, pos, siz), mEntity(e), mActionManager(actionManager), mDesigner(d)
     {
         wxSizer* vbox = new wxBoxSizer(wxVERTICAL);
 
@@ -98,7 +97,7 @@ namespace uedit
         WaterDialog dia(this, -1);
         if (dia.ShowModal() == wxID_OK)
         {
-            mWorldAction.loadWaterShaders(mEntity, std::string{dia.getDistortionMapID().mbc_str()},
+            mActionManager.waterActions().loadWaterShaders(mEntity, std::string{dia.getDistortionMapID().mbc_str()},
                                                    std::string{dia.getFragmentShaderID().mbc_str()},
                                                    std::string{dia.getVertexShaderID().mbc_str()});
         }

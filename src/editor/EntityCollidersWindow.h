@@ -7,7 +7,7 @@
 #include <wx/panel.h>
 #include <wx/listctrl.h>
 #include <wx/button.h>
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 #include "StatDisplayer.h"
 
 namespace uedit
@@ -27,7 +27,7 @@ namespace uedit
     class EntityCollidersWindow : public wxWindow
     {
     public:
-        EntityCollidersWindow(ungod::Entity e, WorldActionWrapper& waw, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
+        EntityCollidersWindow(ungod::Entity e, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
 
 
         void onColliderChanged(ungod::Entity e);
@@ -40,7 +40,7 @@ namespace uedit
 
     private:
         ungod::Entity mEntity;
-        WorldActionWrapper& mWaw;
+        ActionManager& mActionManager;
         int mSelection;
         bool mSingleSelected;
         wxChoice* mRigidbodyChoice;
@@ -58,7 +58,7 @@ namespace uedit
     class RectangleWindow : public BaseColliderDisplay
     {
     public:
-        RectangleWindow(ungod::Entity e, const ungod::Collider& c, wxWindow* parent, WorldActionWrapper& waw, int multiIndex = -1);
+        RectangleWindow(ungod::Entity e, const ungod::Collider& c, wxWindow* parent, ActionManager& actionManager, int multiIndex = -1);
 
         virtual void refresh() override;
 
@@ -73,7 +73,7 @@ namespace uedit
         StatDisplay<float>* mDownRightY;
         StatDisplay<float>* mRotation;
         int mMulti;
-        WorldActionWrapper& mWaw;
+        ActionManager& mActionManager;
     };
 
 
@@ -81,7 +81,7 @@ namespace uedit
     class PointSetWindow : public BaseColliderDisplay
     {
     public:
-        PointSetWindow(ungod::Entity e, const ungod::Collider& c, wxWindow* parent, WorldActionWrapper& waw, int multiIndex = -1);
+        PointSetWindow(ungod::Entity e, const ungod::Collider& c, wxWindow* parent, ActionManager& actionManager, int multiIndex = -1);
 
         virtual void refresh() override;
 
@@ -93,7 +93,7 @@ namespace uedit
         std::vector<StatDisplay<float>*> mPointsX;
         std::vector<StatDisplay<float>*> mPointsY;
         int mMulti;
-        WorldActionWrapper& mWaw;
+        ActionManager& mActionManager;
         wxBoxSizer* mVbox;
         ungod::ColliderType mType;
 

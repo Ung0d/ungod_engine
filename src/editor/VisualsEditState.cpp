@@ -120,17 +120,17 @@ namespace uedit
 
                     if (mSpriteSelected)
                     {
-                        preview.mWorldAction.setSpritePosition(preview.mEntity, preview.mEntity.get<ungod::SpriteComponent>().getSprite().getPosition() + offset);
+                        preview.mActionManager.visualsActions().setSpritePosition(preview.mEntity, preview.mEntity.get<ungod::SpriteComponent>().getSprite().getPosition() + offset);
                     }
 
                     for (const auto& i : mSelectedMultiSprites)
                     {
-                        preview.mWorldAction.setMultiSpritePosition(preview.mEntity, preview.mEntity.get<ungod::MultiSpriteComponent>().getComponent(i).getSprite().getPosition() + offset, i);
+                        preview.mActionManager.visualsActions().setMultiSpritePosition(preview.mEntity, preview.mEntity.get<ungod::MultiSpriteComponent>().getComponent(i).getSprite().getPosition() + offset, i);
                     }
 
                     for (const auto& i : mSelectedVertices)
                     {
-                        preview.mWorldAction.setVertexarrayPosition(preview.mEntity, preview.mEntity.get<ungod::VertexArrayComponent>().getVertices().getPosition(i) + offset, i);
+                        preview.mActionManager.visualsActions().setVertexarrayPosition(preview.mEntity, preview.mEntity.get<ungod::VertexArrayComponent>().getVertices().getPosition(i) + offset, i);
                     }
 
                     mLastMouse = sf::Mouse::getPosition();

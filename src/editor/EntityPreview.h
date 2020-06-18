@@ -6,7 +6,7 @@
 #include "ungod/visual/Renderer.h"
 #include "EntityEditState.h"
 #include "RenderArea.h"
-#include "WorldActionWrapper.h"
+#include "ActionManager.h"
 #include "CameraController.h"
 
 namespace uedit
@@ -29,7 +29,7 @@ namespace uedit
     public:
         EntityPreview(const EditorCanvas& canvas, 
                         ungod::Entity e,
-                      WorldActionWrapper& waw,
+                      ActionManager& actionManager,
                       wxWindow* parent = nullptr,
                           wxWindowID id = -1,
                           const wxPoint& cPosition = wxDefaultPosition,
@@ -59,12 +59,12 @@ namespace uedit
         void lookAt(const sf::Vector2f& position);
 
         ungod::Entity getEntity() { return mEntity; }
-        WorldActionWrapper& getWorldAction() { return mWorldAction; }
+        ActionManager& getActionManager() { return mActionManager; }
         const EditorCanvas& getCanvas() const { return mCanvas; }
 
     private:
         ungod::Entity mEntity;
-        WorldActionWrapper& mWorldAction;
+        ActionManager& mActionManager;
         std::unique_ptr<EditState> mState;
         CameraController mCamContrl;
         const EditorCanvas& mCanvas;

@@ -78,7 +78,7 @@ namespace ungod
         void update(const std::list<Entity>& entities, const World& world);
 
         /** \brief Sets the tiles for a tilemap takes ownership of the tiledata. */
-        bool setTiles(Entity e, TileData& tiles, unsigned mapSizeX, unsigned mapSizeY);
+        bool setTiles(Entity e, const TileData& tiles, unsigned mapSizeX, unsigned mapSizeY);
 
         /** \brief Sets a single tile of the tilemap. */
         void setTile(Entity e, int id, unsigned x, unsigned y);
