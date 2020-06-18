@@ -174,7 +174,7 @@ namespace quad
     {
         static Vector2f getPosition(ungod::WorldGraphNode const* e);
         static Vector2f getSize(ungod::WorldGraphNode const* e);
-        static std::size_t getID(ungod::WorldGraphNode const* e);
+        static uint64_t getID(ungod::WorldGraphNode const* e);
     };
 }
 

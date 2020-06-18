@@ -57,6 +57,8 @@ namespace uedit
                 mEditorTabs(nullptr),
                 mActionManager(this)
     {
+        mActionManager.onSomethingChanged([this]() { notifyProjectChanged(); });
+
         Maximize();
 
         wxMenu* menuFile = new wxMenu;

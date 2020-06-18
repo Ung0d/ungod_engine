@@ -28,7 +28,11 @@ namespace uedit
         EditorFrame* getEditorFrame() { return mEFrame; }
 
         template<typename ... T>
-        void action(const std::function<void(T...)>& execute, const std::function<void(T...)>& undo, T... t);
+        void action(const std::function<void(T...)>& execute, const std::function<void(T...)>& undo, T... t)
+        {
+            mSomethingChangedSignal();
+            mActionManager.execute(execute, undo, std::forward<T>(t)...);
+        }
 
         void undo()
         {
@@ -74,6 +78,11 @@ namespace uedit
 
         ParticleSystemActions& particleSystemActions() { return mParticleSystemActions; } 
 
+        void onSomethingChanged(const std::function<void()>& callback)
+        {
+            mSomethingChangedSignal.connect(callback);
+        }
+
     private:
         command::ActionManager mActionManager;
         TransformActions mTransformActions;
@@ -85,6 +94,7 @@ namespace uedit
         LightActions mLightActions;
         AudioActions mAudioActions;
         ParticleSystemActions mParticleSystemActions;
+        owls::Signal<> mSomethingChangedSignal;
 
     private:
         EditorFrame* mEFrame;
