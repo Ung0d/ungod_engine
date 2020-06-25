@@ -51,22 +51,6 @@ namespace ungod
     }
 
 
-    template<typename T, typename std::enable_if<std::is_fundamental<T>::value, T>::type*>
-    std::string SerializationContext::convertToString(const T& data)
-    {
-        return std::to_string(data);
-    }
-
-    template<typename T, typename std::enable_if<!std::is_fundamental<T>::value, T>::type*>
-    std::string SerializationContext::convertToString(const T& data)
-    {
-        std::stringstream sst;
-        sst << data;
-        return sst.str();
-    }
-
-
-
 
     template<typename T, typename ... PARAM>
     const SerializationContext::SerialInfo& SerializationContext::serialImpl(const T& data, const std::string& typeIdentifier, PARAM&& ... additionalParam)
@@ -242,6 +226,25 @@ namespace ungod
         serializeProperty(identifier, std::string(build.str()), serializer);
     }
 
+    template<typename T>
+    std::string SerializationContext::convertToString(const T& data)
+    {
+        if constexpr (std::is_fundamental<T>::value)
+            return std::to_string(data);
+        else
+        {
+            std::stringstream sst;
+            sst << data;
+            return sst.str();
+        }
+    }
+
+    template<>
+    inline std::string SerializationContext::convertToString<sf::Color>(const sf::Color& col)
+    {
+        return std::to_string(col.r) + "," + std::to_string(col.g) + "," + std::to_string(col.b) + "," + std::to_string(col.a);
+    }
+
 
 
     template<typename EVAL>
@@ -415,7 +418,7 @@ namespace ungod
         return [&] (MetaAttribute attr)
         {
             if (attr)
-                data = attr.convertValue<T>();
+                data = convertToProperty<T>(attr.convertValue<std::string>());
             else
                 data = defaultValue;
         };
@@ -428,7 +431,7 @@ namespace ungod
         return [&] (MetaAttribute attr)
         {
             if (attr)
-                setter(attr.convertValue<T>());
+                setter(convertToProperty<T>(attr.convertValue<std::string>()));
             else
                 setter(defaultValue);
         };
@@ -480,11 +483,11 @@ namespace ungod
             {
                 initializer(siz);
             }
-            typename std::decay<T>::type t;
+            std::string data;
             std::size_t i = 0;
-            while (stream >> t && i < siz)
+            while (stream >> data && i < siz)
             {
-                inserter(t);
+                inserter(convertToProperty<T>(data));
                 i++;
             };
         };
@@ -538,5 +541,54 @@ namespace ungod
                 i++;
             };
         };
+    }
+
+    template<typename T>
+    T DeserializationContext::convertToProperty(const std::string& data)
+    {
+        /*if constexpr (std::is_integral<T>::value)
+            return std::stoi(data);
+        else if (std::is_floating_point<T>::value)
+            return std::stof(data);
+        else
+        {*/
+            T value;
+            std::stringstream convert(data);
+            convert >> value;
+            return value;
+       // }
+    }
+
+    template<>
+    inline sf::Color DeserializationContext::convertToProperty<sf::Color>(const std::string& data)
+    {
+        sf::Color col;
+        std::string split = data;
+        size_t pos = 0;
+        std::vector<sf::Uint8> vals;
+        while ((pos = split.find(",")) != std::string::npos)
+        {
+            vals.emplace_back(stoi(split.substr(0, pos)));
+            split.erase(0, pos + 1);
+        }
+        vals.emplace_back(stoi(split));
+        if (vals.size() == 4)
+        {
+            col.r = vals[0];
+            col.g = vals[1];
+            col.b = vals[2];
+            col.a = vals[3];
+        }
+        else
+        {
+            Logger::warning("Invalid string to parse a color from.");
+        }
+        return col;
+    }
+
+    template<>
+    inline std::string DeserializationContext::convertToProperty<std::string>(const std::string& data)
+    {
+        return data;
     }
 }

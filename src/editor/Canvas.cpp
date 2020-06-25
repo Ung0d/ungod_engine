@@ -420,20 +420,6 @@ namespace uedit
         getStateManager().moveToForeground(EDITOR_STATE);
     }
 
-    void EditorCanvas::load(const std::string& filepath)
-    {
-        mCurrentFile = filepath;
-        if (boost::filesystem::exists(boost::filesystem::path(filepath)))
-        {
-            mEditorState->load(filepath);
-        }
-    }
-
-    void EditorCanvas::save()
-    {
-        mEditorState->save(mCurrentFile);
-    }
-
 
     void EditorCanvas::lookAt(const sf::Vector2f& position) const
     {
@@ -486,5 +472,31 @@ namespace uedit
 
     EditorCanvas::~EditorCanvas()
     {
+    }
+}
+
+namespace ungod
+{
+    //serialization code
+    void SerialBehavior<uedit::EditorCanvas>::serialize(const uedit::EditorCanvas& data, MetaNode serializer, SerializationContext& context)
+    {
+        if (!data.getMasterFile().empty())
+        {
+            context.serializeProperty("gameMasterFile", data.getMasterFile(), serializer);
+            data.getEditorState()->save(data.getMasterFile());
+        }
+        context.serializeObject("worldGraphState", *data.mWorldGraphState, serializer);
+    }
+
+    void DeserialBehavior<uedit::EditorCanvas>::deserialize(uedit::EditorCanvas& data, MetaNode deserializer, DeserializationContext& context)
+    {
+        std::string master;
+        auto attr = context.first(context.deserializeProperty(master), "gameMasterFile", deserializer);
+        data.setMasterFile(master);
+        if (boost::filesystem::exists(boost::filesystem::path(master)))
+        {
+            data.getEditorState()->load(master);
+        }
+        attr = context.next(context.deserializeObject(*data.mWorldGraphState), "worldGraphState", deserializer, attr);
     }
 }

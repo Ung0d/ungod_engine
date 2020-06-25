@@ -215,3 +215,36 @@ namespace uedit
 
 	}
 }
+
+namespace ungod
+{
+	//serialization code
+	void SerialBehavior<uedit::WorldGraphState>::serialize(const uedit::WorldGraphState& data, MetaNode serializer, SerializationContext& context)
+	{
+		std::vector<sf::Color> colors;
+		for (unsigned i = 0; i < data.mEditorState.getWorldGraph().getALlists().getVertexCount(); i++)
+		{
+			ungod::WorldGraphNode* node = data.mEditorState.getWorldGraph().getNode(i);
+			auto res = data.mColorMapper.find(node);
+			if (res != data.mColorMapper.end())
+				colors.emplace_back(res->second);
+			else
+				colors.emplace_back(uedit::WorldGraphState::NODE_DEFAULT_COLOR);
+		}
+		context.serializePropertyContainer("nodeColorMap", colors, serializer);
+	}
+
+	void DeserialBehavior<uedit::WorldGraphState>::deserialize(uedit::WorldGraphState& data, MetaNode deserializer, DeserializationContext& context)
+	{
+		std::vector<sf::Color> colors;
+		auto init = [&colors](std::size_t num) { colors.reserve(num); };
+		auto ref = [&colors](const sf::Color& col) { colors.emplace_back(col); };
+		context.first(context.deserializeContainer<sf::Color>(init, ref), "nodeColorMap", deserializer);
+		for (int i = 0; i < colors.size(); i++)
+		{
+			ungod::WorldGraphNode* node = data.mEditorState.getWorldGraph().getNode(i);
+			if (node)
+				data.mColorMapper[node] = colors[i];
+		}
+	}
+}

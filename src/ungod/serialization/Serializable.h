@@ -29,6 +29,7 @@
 
 #include "ungod/serialization/MetaNode.h"
 #include "ungod/base/Utility.h"
+#include <SFML/Graphics/Color.hpp>
 #include <sstream>
 #include <functional>
 #include <unordered_map>
@@ -251,11 +252,7 @@ namespace ungod
 
 
         /** \brief Converts a given object to string (template specialization for maximum efficiency. */
-        template<typename T, typename std::enable_if<std::is_fundamental<T>::value, T>::type* = nullptr>
-        static std::string convertToString(const T& data);
-
-        /** \brief Converts a given object to string (template specialization for maximum efficiency. */
-        template<typename T, typename std::enable_if<!std::is_fundamental<T>::value, T>::type* = nullptr>
+        template<typename T>
         static std::string convertToString(const T& data);
 
 
@@ -435,6 +432,11 @@ namespace ungod
 
     public:
         DeserializationContext() {}
+
+
+        /** \brief Converts from string to property. Provides utility overloads. */
+        template<typename T>
+        static T convertToProperty(const std::string& data);
 
 
         /** \brief Reads the given xml file and initializes the context. */

@@ -144,7 +144,7 @@ namespace uedit
         ProjectCreateDialog dia (this, -1, ("Create a new project"), wxPoint(100, 100) );
         if (dia.ShowModal() == wxID_OK)
         {
-            mCanvas->load(std::string{dia.getGameMasterFilepath().mb_str()});
+            mCanvas->setMasterFile(std::string{dia.getGameMasterFilepath().mb_str()});
             mProjectFilePath = dia.getProjectFilepath();
             mLayerDisplay->setup();
             mMetaInfo.lastProject = dia.getProjectFilepath().mb_str();
@@ -411,21 +411,16 @@ namespace ungod
     //serialization code
     void SerialBehavior<uedit::EditorFrame>::serialize(const uedit::EditorFrame& data, MetaNode serializer, SerializationContext& context)
     {
-        data.mCanvas->save();
-
-        context.serializeProperty("game_master_file", data.mCanvas->getCurrentFile(), serializer);
         context.serializeObject("script_manager", *data.mScriptManager, serializer);
         context.serializeObject("sheet_preview", *data.mSheetPreview, serializer);
+        context.serializeObject("canvas", *data.mCanvas, serializer);
     }
 
     void DeserialBehavior<uedit::EditorFrame>::deserialize(uedit::EditorFrame& data, MetaNode deserializer, DeserializationContext& context)
     {
-        std::string filepath;
-        auto attr = context.first(context.deserializeProperty(filepath), "game_master_file", deserializer);
-        attr = context.next(context.deserializeObject(*data.mScriptManager), "script_manager", deserializer, attr);
+        auto attr = context.first(context.deserializeObject(*data.mScriptManager), "script_manager", deserializer);
         attr = context.next(context.deserializeObject(*data.mSheetPreview), "sheet_preview", deserializer, attr);
-
-        data.mCanvas->load(filepath); 
+        context.next(context.deserializeObject(*data.mCanvas), "canvas", deserializer, attr);
     }
 
 

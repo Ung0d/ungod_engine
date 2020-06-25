@@ -22,8 +22,10 @@ namespace uedit
 	/** \brief A state that visualizes the current world graph. Each node is a colored rect with a name.
 	* Connections between nodes are also marked. A double click to a node switches back to the Editor State with the
 	* clicked node as the current graph reference node. */
-	class WorldGraphState : public ungod::State
+	class WorldGraphState : public ungod::State, public ungod::Serializable<WorldGraphState>
 	{
+	friend struct ungod::SerialBehavior<WorldGraphState>;
+	friend struct ungod::DeserialBehavior<WorldGraphState>;
 	friend EditorCanvas;
 	public:
 		WorldGraphState(ungod::Application& app, ungod::StateID id, EditorState& editorState, EditorFrame* editorframe);
@@ -55,6 +57,28 @@ namespace uedit
 		static constexpr float CORNER_CLICK_RANGE = 0.05f; //in percentage of (node.width+node.height)
 		static const sf::Color NODE_DEFAULT_COLOR;
 		wxColourData mColorData;
+	};
+}
+
+namespace ungod
+{
+	//define how to (de)serialize the filemanager
+	template <>
+	struct SerialIdentifier<uedit::WorldGraphState>
+	{
+		static std::string get() { return "WorldGraphState"; }
+	};
+
+	template <>
+	struct SerialBehavior<uedit::WorldGraphState>
+	{
+		static void serialize(const uedit::WorldGraphState& data, MetaNode serializer, SerializationContext& context);
+	};
+
+	template <>
+	struct DeserialBehavior<uedit::WorldGraphState>
+	{
+		static void deserialize(uedit::WorldGraphState& data, MetaNode deserializer, DeserializationContext& context);
 	};
 }
 

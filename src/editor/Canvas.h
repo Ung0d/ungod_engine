@@ -94,8 +94,10 @@ namespace uedit
 
     /** \brief Defines the canvas of the editor, where the game world is rendered
     * and edit operations can be performed. */
-    class EditorCanvas : public wxControl, public ungod::Application
+    class EditorCanvas : public wxControl, public ungod::Application, public ungod::Serializable<EditorCanvas>
     {
+    friend struct ungod::SerialBehavior<EditorCanvas>;
+    friend struct ungod::DeserialBehavior<EditorCanvas>;
     friend class EditorFrame;
     public :
         EditorCanvas(EditorFrame* editorframe,
@@ -107,16 +109,11 @@ namespace uedit
 
         virtual ~EditorCanvas();
 
-        /** \brief Loads serialized project from file. */
-        void load(const std::string& filepath);
-
-        /** \brief Saves the current state to file. */
-        void save();
-
         EditorState* getEditorState() const { return mEditorState; }
         EntityEditState* getEntityEditState() const { return mEntityEditState; }
 
-        const std::string& getCurrentFile() const { return mCurrentFile; }
+        void setMasterFile(const std::string& file) { mMasterFilePath = file; }
+        const std::string& getMasterFile() const { return mMasterFilePath; }
 
         void lookAt(const sf::Vector2f& position) const;
         const sf::Vector2f& getCameraCenter() const;
@@ -130,7 +127,7 @@ namespace uedit
         TileMapEditState* mWaterEditState;
         EntityEditState* mEntityEditState;
 		WorldGraphState* mWorldGraphState;
-        std::string mCurrentFile;
+        std::string mMasterFilePath;
 
         /*
         * wx event handling
@@ -142,6 +139,28 @@ namespace uedit
 
     public:
         wxDECLARE_EVENT_TABLE();
+    };
+}
+
+namespace ungod
+{
+    //define how to (de)serialize the filemanager
+    template <>
+    struct SerialIdentifier<uedit::EditorCanvas>
+    {
+        static std::string get() { return "EditorCanvas"; }
+    };
+
+    template <>
+    struct SerialBehavior<uedit::EditorCanvas>
+    {
+        static void serialize(const uedit::EditorCanvas& data, MetaNode serializer, SerializationContext& context);
+    };
+
+    template <>
+    struct DeserialBehavior<uedit::EditorCanvas>
+    {
+        static void deserialize(uedit::EditorCanvas& data, MetaNode deserializer, DeserializationContext& context);
     };
 }
 
