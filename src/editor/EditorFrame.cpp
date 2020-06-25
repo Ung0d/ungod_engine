@@ -147,7 +147,8 @@ namespace uedit
             mCanvas->load(std::string{dia.getGameMasterFilepath().mb_str()});
             mProjectFilePath = dia.getProjectFilepath();
             mLayerDisplay->setup();
-            Fit();
+            mMetaInfo.lastProject = dia.getProjectFilepath().mb_str();
+            //Fit();
             saveProject();
         }
     }

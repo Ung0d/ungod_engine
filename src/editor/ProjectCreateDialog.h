@@ -28,8 +28,6 @@ namespace uedit
         void onOk( wxCommandEvent & event );
 
         wxDECLARE_EVENT_TABLE();
-
-        static const wxSize DEFAULT_SIZE;
     };
 }
 

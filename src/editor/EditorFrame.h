@@ -61,7 +61,7 @@ namespace uedit
 
         void notifyProjectChanged();
 
-		~EditorFrame();
+		virtual ~EditorFrame();
 
     private:
         bool mContentSaved;  ///< indicates whether unsaved changes are currently made
