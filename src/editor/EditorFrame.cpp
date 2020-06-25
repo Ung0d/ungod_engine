@@ -89,7 +89,7 @@ namespace uedit
         wxMenuBar *menuBar = new wxMenuBar;
         menuBar->Append( menuFile, "&Project" );
         menuBar->Append( menuEdit, "&Edit");
-        menuBar->Append( menuLayers, "&Renderlayer" );
+        menuBar->Append( menuLayers, "&WorldGraph" );
         menuBar->Append( menuScript, "&Scripts" );
         SetMenuBar( menuBar );
         CreateStatusBar();

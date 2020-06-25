@@ -8,7 +8,6 @@
 #include "ungod/base/World.h"
 #include "ungod/visual/Camera.h"
 #include "ungod/content/EntityTypes.h"
-#include "ActionManager.h"
 #include "CameraController.h"
 #include <wx/wx.h>
 #include "utilitySFML.h"
@@ -22,6 +21,7 @@ namespace uedit
     class EditorCanvas;
     class TileMapEditState;
     class EntityEditState;
+    class WorldGraphState;
 
     /** \brief A state that is runned by the underlying ungod-engine application.
     * World rendering and updating is done here. */
@@ -92,43 +92,6 @@ namespace uedit
     };
 
 
-	/** \brief A state that visualizes the current world graph. Each node is a colored rect with a name.
-	* Connections between nodes are also marked. A double click to a node switches back to the Editor State with the
-	* clicked node as the current graph reference node. */
-	class WorldGraphState : public ungod::State
-	{
-	friend EditorCanvas;
-	public:
-		WorldGraphState(ungod::Application& app, ungod::StateID id, EditorState& editorState, EditorFrame* editorframe);
-
-		virtual void handleEvent(const sf::Event& event) override;
-		virtual void update(float delta) override;
-		virtual void render(sf::RenderTarget& target, sf::RenderStates states) override;
-
-	private:
-		virtual void init() override;
-		virtual void close() override;
-
-	private: 
-		EditorFrame* mEditorframe;
-		EditorState& mEditorState;
-		PressedKeyClickChecker mClickChecker;
-		ungod::Camera mCamera;
-		CameraController mCamContrl;
-		std::unordered_map<ungod::WorldGraphNode*, sf::Color> mColorMapper;
-		ungod::Font mFont;
-		ungod::WorldGraphNode* mSelectedNode;
-		bool mClicked;
-		sf::Vector2i mMouseLastPos;
-		ungod::WorldGraphNode* mConnect;
-		int mCornerSelected;
-		sf::Vector2f mTotalMove;
-		static constexpr float SCALE = 0.02f;
-		static constexpr int TEXTSIZE = 20000;
-		static constexpr float CORNER_CLICK_RANGE = 0.05f; //in percentage of (node.width+node.height)
-	};
-
-
     /** \brief Defines the canvas of the editor, where the game world is rendered
     * and edit operations can be performed. */
     class EditorCanvas : public wxControl, public ungod::Application
@@ -147,7 +110,7 @@ namespace uedit
         /** \brief Loads serialized project from file. */
         void load(const std::string& filepath);
 
-        /** \brief Saves the current world and ground objects to file. */
+        /** \brief Saves the current state to file. */
         void save();
 
         EditorState* getEditorState() const { return mEditorState; }
