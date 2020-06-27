@@ -85,6 +85,12 @@ namespace uedit
             mTextCtrl->SetLabel(std::to_string(mGetter()));
         }
 
+        template<>
+        inline void StatDisplayImpl<std::string>::refreshValue()
+        {
+            mTextCtrl->SetLabel(mGetter());
+        }
+
         template<typename T>
         void StatDisplayImpl<T>::connectSetter(const std::function<void(T)>& setter)
         {
@@ -114,12 +120,14 @@ namespace uedit
 
         try
         {
-			T t;
 			if constexpr (std::is_integral_v<T>)
-				t = static_cast<T>(std::stoi( std::string(detail::StatDisplayImpl<T>::mTextCtrl->GetValue().mb_str()) ));
-			else
-				t = static_cast<T>(std::stof(std::string(detail::StatDisplayImpl<T>::mTextCtrl->GetValue().mb_str())));
-            detail::StatDisplayImpl<T>::mSetter(t);
+                detail::StatDisplayImpl<T>::mSetter(
+                    static_cast<T>(std::stoi( 
+                        std::string(detail::StatDisplayImpl<T>::mTextCtrl->GetValue().mb_str()) )));
+            else //assume floating point
+                detail::StatDisplayImpl<T>::mSetter(
+                    static_cast<T>(std::stof(
+                        std::string(detail::StatDisplayImpl<T>::mTextCtrl->GetValue().mb_str()))));
         }
         catch(const std::exception&)
         {
@@ -127,6 +135,16 @@ namespace uedit
             err.ShowModal();
             detail::StatDisplayImpl<T>::setValue(detail::StatDisplayImpl<T>::mGetter());
         }
+    }
+
+
+    template<>
+    inline void StatDisplay<std::string>::onTextChange(wxCommandEvent& event)
+    {
+        if (!detail::StatDisplayImpl<std::string>::mSetter || !detail::StatDisplayImpl<std::string>::mGetter)
+            return;
+        detail::StatDisplayImpl<std::string>::mSetter(
+            std::string(detail::StatDisplayImpl<std::string>::mTextCtrl->GetValue().mb_str()));
     }
 }
 

@@ -71,7 +71,7 @@ namespace uedit
 					else
 						mnu.Append(1, "Connect with tracked");
                 }
-                mnu.Append(2, "Set position or size");
+                mnu.Append(2, "Change properties");
                 mnu.Append(3, "Set color");
 				mnu.Bind(wxEVT_COMMAND_MENU_SELECTED, [this, clickedNode](wxCommandEvent& event)
 					{
@@ -302,6 +302,21 @@ namespace uedit
 				});
 			boxsizer->Add(mSizeY, 0, wxALIGN_CENTER_HORIZONTAL);
 		}
+		{
+			mIdentifier = new StatDisplay<std::string>("identifier:", this, -1);
+			mIdentifier->connectSetter([this](std::string id)
+				{
+					if (!mNode) return;
+					SetTitle(_(id + " properties"));
+					mNode->setIdentifier(id);
+				});
+			mIdentifier->connectGetter([this]() -> std::string
+				{
+					if (!mNode) return "";
+					return mNode->getIdentifier();
+				});
+			boxsizer->Add(mIdentifier, 0, wxALIGN_CENTER_HORIZONTAL);
+		}
 
 		SetSizer(boxsizer);
 		Fit();
@@ -314,6 +329,7 @@ namespace uedit
 		mNodeChangedLink.disconnect();
 		mNodeChangedLink = node->onNodeChanged([this]() { refresh(); });
 		refresh();
+		mIdentifier->refreshValue();
 	}
 
 	void NodeChangeDialog::refresh()

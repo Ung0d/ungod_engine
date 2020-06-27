@@ -91,6 +91,8 @@ namespace ungod
 
         const std::string& getIdentifier() const {return mIdentifier;}
 
+        void setIdentifier(const std::string& id) { mIdentifier = id; }
+
         const std::string& getDataFile() const {return mDataFile;}
 
 		/** \brief Sets the position of the node (and of all internal layers). */
