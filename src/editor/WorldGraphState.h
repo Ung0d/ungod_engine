@@ -41,6 +41,8 @@ namespace uedit
 		virtual void init() override;
 		virtual void close() override;
 
+		void waitAll();
+
 	private: 
 		EditorFrame* mEditorframe;
 		EditorState& mEditorState;
@@ -57,7 +59,7 @@ namespace uedit
 		sf::Vector2f mTotalMove;
 		static constexpr float SCALE = 0.02f;
 		static constexpr int TEXTSIZE = 80;
-		static constexpr float CORNER_CLICK_RANGE = 0.05f; //in percentage of (node.width+node.height)
+		static constexpr float CORNER_CLICK_RANGE = 500.0f; //in pixel/SCALE
 		static const sf::Color NODE_DEFAULT_COLOR;
 		wxColourData mColorData;
 		NodeChangeDialog* mNodeChangeDialog;

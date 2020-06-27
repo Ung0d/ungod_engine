@@ -17,6 +17,7 @@ namespace uedit
 				sf::Vector2f mouseWorldPos = mApp.getWindow().mapPixelToCoords(pos, mCamera.getView())/SCALE;
 				mEditorState.getWorldGraph().updateReferencePosition(mouseWorldPos);
 				mEditorState.getWorldGraph().getCamera().lookAt(mouseWorldPos);
+				waitAll();
 				closeState();
 				mApp.getStateManager().moveToForeground(EDITOR_STATE);
 			});
@@ -47,7 +48,7 @@ namespace uedit
 															sf::Vector2f{bounds.left + bounds.width, bounds.top + bounds.height},
 															sf::Vector2f{bounds.left, bounds.top + bounds.height} };
 						for (int i = 0; i < 4; i++)
-							if (ungod::distance(points[i], mouseWorldPos) < (bounds.width+ bounds.height)*CORNER_CLICK_RANGE)
+							if (ungod::distance(points[i], mouseWorldPos) < CORNER_CLICK_RANGE)
 							{
 								mCornerSelected = i;
 								break;
@@ -90,6 +91,7 @@ namespace uedit
 								mEditorState.getWorldGraph().disconnect(*mConnect, *clickedNode);
 							else
 								mEditorState.getWorldGraph().connect(*mConnect, *clickedNode);
+							waitAll();
 							break;
 						}
                         case 2:
@@ -209,7 +211,10 @@ namespace uedit
 				unsigned textSize = (unsigned)std::ceil(TEXTSIZE * resizeFactor / mCamera.getZoom());
 				textSize = std::max(std::min(textSize, 80u), 5u);
 
-				sf::Text textID{ node->getIdentifier(), mFont.get(), textSize };
+				std::string id = node->getIdentifier();
+				if (node == mEditorState.getWorldGraph().getActiveNode())
+					id += " (active)";
+				sf::Text textID{ id, mFont.get(), textSize };
                 textID.setPosition(SCALE * (bounds.left + 0.25f*bounds.width), SCALE * (bounds.top + 0.25f*bounds.height));
 				textID.setScale(mCamera.getZoom(), mCamera.getZoom());
                 
@@ -228,6 +233,14 @@ namespace uedit
                 target.draw(textID, states);
                 target.draw(textNodepos, states);
                 target.draw(textNodesize, states);
+
+				if (node->isLoaded())
+				{
+					sf::Text textLoaded{ "[loaded]", mFont.get(), (unsigned)(textSize / 2) };
+					textLoaded.setPosition(SCALE * (bounds.left + 0.25f * bounds.width), SCALE * (bounds.top + 0.4f * bounds.height) + textID.getGlobalBounds().height + 2*textNodepos.getGlobalBounds().height);
+					textLoaded.setScale(mCamera.getZoom(), mCamera.getZoom());
+					target.draw(textLoaded, states);
+				}
 			}
 		}
 		mCamera.renderEnd();
@@ -245,6 +258,13 @@ namespace uedit
 
 	}
 
+	void WorldGraphState::waitAll()
+	{
+		for (unsigned i = 0; i < mEditorState.getWorldGraph().getALlists().getVertexCount(); i++)
+		{
+			mEditorState.getWorldGraph().getNode(i)->wait();
+		}
+	}
 
 	NodeChangeDialog::NodeChangeDialog(wxWindow* parent, wxWindowID id, const wxPoint& pos)
 		: wxDialog(parent, id, _("_ properties"), pos, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxSTAY_ON_TOP), mNode(nullptr)
