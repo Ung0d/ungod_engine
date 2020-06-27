@@ -9,7 +9,8 @@ namespace uedit
 
 	WorldGraphState::WorldGraphState(ungod::Application& app, ungod::StateID id, EditorState& editorState, EditorFrame* editorframe) :
 		ungod::State(app, id), mEditorframe(editorframe), mEditorState(editorState), mCamera(app.getWindow()), mCamContrl(mCamera), mFont("data/arial.ttf"),
-		mSelectedNode(nullptr), mClicked(false), mMouseLastPos(sf::Mouse::getPosition(app.getWindow())), mConnect(nullptr), mCornerSelected(-1)
+		mSelectedNode(nullptr), mClicked(false), mMouseLastPos(sf::Mouse::getPosition(app.getWindow())), mConnect(nullptr), mCornerSelected(-1),
+		mNodeChangeDialog(new NodeChangeDialog(editorframe, -1, wxPoint(100, 100)))
 	{
 		mClickChecker.onClick([this](const sf::Vector2i& pos)
 			{
@@ -19,6 +20,7 @@ namespace uedit
 				closeState();
 				mApp.getStateManager().moveToForeground(EDITOR_STATE);
 			});
+		mNodeChangeDialog->Hide();
 	}
 
 
@@ -75,6 +77,8 @@ namespace uedit
 							mEditorState.getWorldGraph().connect(*mConnect, *clickedNode);
 							break;
                         case 2:
+							mNodeChangeDialog->setNode(clickedNode);
+							mNodeChangeDialog->Show();
                             break;
                         case 3:
 						{
@@ -213,6 +217,90 @@ namespace uedit
 	void WorldGraphState::close()
 	{
 
+	}
+
+
+	NodeChangeDialog::NodeChangeDialog(wxWindow* parent, wxWindowID id, const wxPoint& pos)
+		: wxDialog(parent, id, _("_ properties"), pos, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxSTAY_ON_TOP), mNode(nullptr)
+	{
+		wxSizer* boxsizer = new wxBoxSizer(wxVERTICAL);
+
+		{
+			mPosX = new StatDisplay<float>("position x:", this, -1);
+			mPosX->connectSetter([this](float x)
+				{
+					if (!mNode) return;
+					mNode->setPosition({ x, mNode->getPosition().y });
+				});
+			mPosX->connectGetter([this]() 
+				{
+					if (!mNode) return 0.0f;
+					return mNode->getPosition().x;
+				});
+			boxsizer->Add(mPosX, 0, wxALIGN_CENTER_HORIZONTAL);
+		}
+		{
+			mPosY = new StatDisplay<float>("position y:", this, -1);
+			mPosY->connectSetter([this](float y)
+				{
+					if (!mNode) return;
+					mNode->setPosition({ mNode->getPosition().x, y });
+				});
+			mPosY->connectGetter([this]()
+				{
+					if (!mNode) return 0.0f;
+					return mNode->getPosition().y;
+				});
+			boxsizer->Add(mPosY, 0, wxALIGN_CENTER_HORIZONTAL);
+		}
+		{
+			mSizeX = new StatDisplay<float>("size x:", this, -1);
+			mSizeX->connectSetter([this](float sx)
+				{
+					if (!mNode) return;
+					mNode->setSize({ sx, mNode->getSize().y });
+				});
+			mSizeX->connectGetter([this]() 
+				{
+					if (!mNode) return 0.0f;
+					return mNode->getSize().x;
+				});
+			boxsizer->Add(mSizeX, 0, wxALIGN_CENTER_HORIZONTAL);
+		}
+		{
+			mSizeY = new StatDisplay<float>("size y:", this, -1);
+			mSizeY->connectSetter([this](float sy)
+				{
+					if (!mNode) return;
+					mNode->setSize({ mNode->getSize().x, sy });
+				});
+			mSizeY->connectGetter([this]() 
+				{
+					if (!mNode) return 0.0f;
+					return mNode->getSize().y;
+				});
+			boxsizer->Add(mSizeY, 0, wxALIGN_CENTER_HORIZONTAL);
+		}
+
+		SetSizer(boxsizer);
+		Fit();
+	}
+
+	void NodeChangeDialog::setNode(ungod::WorldGraphNode* node)
+	{
+		mNode = node;
+		SetTitle(_(node->getIdentifier() + " properties"));
+		mNodeChangedLink.disconnect();
+		mNodeChangedLink = node->onNodeChanged([this]() { refresh(); });
+		refresh();
+	}
+
+	void NodeChangeDialog::refresh()
+	{
+		mPosX->refreshValue();
+		mPosY->refreshValue();
+		mSizeX->refreshValue();
+		mSizeY->refreshValue();
 	}
 }
 

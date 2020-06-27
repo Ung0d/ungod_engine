@@ -26,6 +26,7 @@
 #ifndef UNGOD_WORLD_GRAPH_NODE_H
 #define UNGOD_WORLD_GRAPH_NODE_H
 
+#include "owls/Signal.h"
 #include "quadtree/QuadTree.h"
 #include "ungod/base/Transform.h"
 #include "ungod/base/NodeData.h"
@@ -125,6 +126,8 @@ namespace ungod
 
         void setSaveContents(bool save) { mSaveContents = save; }
 
+        owls::SignalLink<void> onNodeChanged(const std::function<void()>& callback);
+
         ~WorldGraphNode();
 
     private:
@@ -139,6 +142,7 @@ namespace ungod
         std::string mDataFile;
         sf::FloatRect mBounds;
         bool mSaveContents;
+        owls::Signal<> mNodeChangedSignal;
 
     private:
         // if loading is currently in progress, attempts to init the loaded render layers if ready returning success

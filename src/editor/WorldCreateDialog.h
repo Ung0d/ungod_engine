@@ -15,8 +15,8 @@ namespace uedit
         WorldCreateDialog ( wxWindow * parent, wxWindowID id, const wxString & title,
                       const wxPoint & pos = wxDefaultPosition );
 
-        float getDepth() const { return mDepth; }
-        const wxString& getName() const { return mName; }
+		float getDepth() const { return mDepth; }
+		const wxString& getName() const { return mName; }
 
     private:
 

@@ -128,12 +128,14 @@ namespace ungod
         mBounds.left = pos.x;
         mBounds.top = pos.y;
 		mWorldGraph.notifyBoundsChanged(this);
+        mNodeChangedSignal();
 	}
 
 	void WorldGraphNode::move(const sf::Vector2f& offset)
 	{
 		setPosition(getPosition() + offset);
 		mWorldGraph.notifyBoundsChanged(this);
+        mNodeChangedSignal();
 	}
 
 	void WorldGraphNode::setSize(const sf::Vector2f& size)
@@ -142,6 +144,7 @@ namespace ungod
         mBounds.height = size.y;
 		mLayers.setSize(size);
 		mWorldGraph.notifyBoundsChanged(this);
+        mNodeChangedSignal();
 	}
 
 
@@ -174,6 +177,11 @@ namespace ungod
     {
         while (mLoadingInProcess)
             mLoadingInProcess = !tryInit();
+    }
+
+    owls::SignalLink<void> WorldGraphNode::onNodeChanged(const std::function<void()>& callback)
+    {
+        return mNodeChangedSignal.connect(callback);
     }
 
     WorldGraphNode::~WorldGraphNode()

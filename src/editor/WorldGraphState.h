@@ -9,15 +9,18 @@
 #include "ungod/base/World.h"
 #include <wx/wx.h>
 #include <wx/colordlg.h>
+#include "wx/dialog.h"
 #include "ungod/visual/Font.h"
 #include "utilitySFML.h"
 #include "CameraController.h"
+#include "StatDisplayer.h"
 
 namespace uedit
 {
 	class EditorCanvas;
 	class EditorFrame;
 	class EditorState;
+	class NodeChangeDialog;
 
 	/** \brief A state that visualizes the current world graph. Each node is a colored rect with a name.
 	* Connections between nodes are also marked. A double click to a node switches back to the Editor State with the
@@ -57,6 +60,26 @@ namespace uedit
 		static constexpr float CORNER_CLICK_RANGE = 0.05f; //in percentage of (node.width+node.height)
 		static const sf::Color NODE_DEFAULT_COLOR;
 		wxColourData mColorData;
+		NodeChangeDialog* mNodeChangeDialog;
+	};
+
+
+	class NodeChangeDialog : public wxDialog
+	{
+	public:
+		NodeChangeDialog(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition);
+
+		void setNode(ungod::WorldGraphNode* node);
+
+		void refresh();
+
+	private:
+		ungod::WorldGraphNode* mNode;
+		StatDisplay<float>* mPosX;
+		StatDisplay<float>* mPosY;
+		StatDisplay<float>* mSizeX;
+		StatDisplay<float>* mSizeY;
+		owls::SignalLink<void> mNodeChangedLink;
 	};
 }
 
