@@ -205,20 +205,25 @@ namespace uedit
 			//draw text
 			if (mFont.isLoaded())
 			{
-				float resizeFactor = (rect.getSize().x + rect.getSize().y) / 10000.0f;
-				sf::Text textID{ node->getIdentifier(), mFont.get(), unsigned(TEXTSIZE*SCALE* resizeFactor) };
+				float resizeFactor = (rect.getSize().x + rect.getSize().y) / 2000.0f;
+				unsigned textSize = (unsigned)std::ceil(TEXTSIZE * resizeFactor / mCamera.getZoom());
+				textSize = std::max(std::min(textSize, 80u), 5u);
+
+				sf::Text textID{ node->getIdentifier(), mFont.get(), textSize };
                 textID.setPosition(SCALE * (bounds.left + 0.25f*bounds.width), SCALE * (bounds.top + 0.25f*bounds.height));
+				textID.setScale(mCamera.getZoom(), mCamera.getZoom());
                 
                 std::string posStr = "(" + std::to_string(node->getBounds().left) + "," +
                     std::to_string(node->getBounds().top) + ")";
-                sf::Text textNodepos{ posStr, mFont.get(), unsigned(TEXTSIZE * SCALE * resizeFactor) };
-                textNodepos.setPosition(SCALE * (bounds.left + 0.25f * bounds.width), SCALE * (bounds.top + 0.25f * bounds.height) + textID.getGlobalBounds().height);
+                sf::Text textNodepos{ posStr, mFont.get(), (unsigned)(textSize/2) };
+                textNodepos.setPosition(SCALE * (bounds.left + 0.25f * bounds.width), SCALE * (bounds.top + 0.3f * bounds.height) + textID.getGlobalBounds().height);
+				textNodepos.setScale(mCamera.getZoom(), mCamera.getZoom());
 
                 std::string sizeStr = "(" + std::to_string(node->getBounds().width) + "," +
                     std::to_string(node->getBounds().height) + ")";
-                sf::Text textNodesize{ sizeStr, mFont.get(), unsigned(TEXTSIZE * SCALE * resizeFactor) };
-                textNodesize.setPosition(SCALE * (bounds.left + 0.25f * bounds.width), SCALE * (bounds.top + 0.25f * bounds.height) + textID.getGlobalBounds().height + textNodepos.getGlobalBounds().height);
-
+                sf::Text textNodesize{ sizeStr, mFont.get(), (unsigned)(textSize / 2) };
+                textNodesize.setPosition(SCALE * (bounds.left + 0.25f * bounds.width), SCALE * (bounds.top + 0.3f * bounds.height) + textID.getGlobalBounds().height + textNodepos.getGlobalBounds().height);
+				textNodesize.setScale(mCamera.getZoom(), mCamera.getZoom());
 
                 target.draw(textID, states);
                 target.draw(textNodepos, states);
