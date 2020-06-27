@@ -53,6 +53,11 @@ namespace ungod
             ALEdge(std::size_t cDestination) : destination(cDestination) {}
 
             std::size_t destination;
+
+            bool operator==(const ALEdge& other)
+            {
+                return destination == other.destination;
+            }
         };
 
         /** \brief An undirected graph represented through adjacency lists. */
@@ -88,6 +93,9 @@ namespace ungod
 
             /** \brief Removes the edge between nodes i and j if existing. */
             void removeEdge(unsigned i, unsigned j);
+
+            /** \brief Returns true if and only if there exists and edge between i and j. */
+            bool isEdge(unsigned i, unsigned j);
 
         private:
             std::size_t mNumEdges;

@@ -93,6 +93,9 @@ namespace ungod
         /** \brief Removes the connection between n1 and n2 if it exists. */
         void disconnect(WorldGraphNode& n1, WorldGraphNode& n2);
 
+        /** \brief Returns true if and only if n1 and n2 are connected nodes. */
+        bool areConnected(WorldGraphNode& n1, WorldGraphNode& n2);
+
         /** \brief Creates a new, empty node with default bounds and returns a reference to it. */
         WorldGraphNode& createNode(ScriptedGameState& gamestate, const std::string& identifier, const std::string& datafile);
 

@@ -60,10 +60,16 @@ namespace uedit
 			else if (event.mouseButton.button == sf::Mouse::Right)
 			{
 				wxMenu mnu;
-				mnu.Append(0, "Connect from here");
+				if (clickedNode == mConnect)
+					mnu.Append(0, "Untrack");
+				else
+					mnu.Append(0, "Track");
                 if (mConnect && mConnect != clickedNode)
                 {
-                    mnu.Append(1, "Connect to here");
+					if (mEditorState.getWorldGraph().areConnected(*mConnect, *clickedNode))
+						mnu.Append(1, "Disconnect with tracked");
+					else
+						mnu.Append(1, "Connect with tracked");
                 }
                 mnu.Append(2, "Set position or size");
                 mnu.Append(3, "Set color");
@@ -71,15 +77,27 @@ namespace uedit
 					{
 						switch (event.GetId()) {
 						case 0:
-							mConnect = clickedNode;
+						{
+							if (mConnect == clickedNode)
+								mConnect = nullptr;
+							else
+								mConnect = clickedNode;
 							break;
+						}
 						case 1:
-							mEditorState.getWorldGraph().connect(*mConnect, *clickedNode);
+						{
+							if (mEditorState.getWorldGraph().areConnected(*mConnect, *clickedNode))
+								mEditorState.getWorldGraph().disconnect(*mConnect, *clickedNode);
+							else
+								mEditorState.getWorldGraph().connect(*mConnect, *clickedNode);
 							break;
+						}
                         case 2:
+						{
 							mNodeChangeDialog->setNode(clickedNode);
 							mNodeChangeDialog->Show();
-                            break;
+							break;
+						}
                         case 3:
 						{
 							sf::Color prev = NODE_DEFAULT_COLOR;
@@ -165,7 +183,10 @@ namespace uedit
 			sf::RectangleShape rect{ {SCALE * bounds.width, SCALE * bounds.height} };
 			rect.setFillColor(rectColor);
 			rect.setOutlineThickness(100*SCALE);
-			rect.setOutlineColor(sf::Color::White);
+			if (node == mConnect)
+				rect.setOutlineColor(sf::Color::Red);
+			else
+				rect.setOutlineColor(sf::Color::White);
 			rect.setPosition({ SCALE*bounds.left, SCALE * bounds.top});
 			target.draw(rect, states);
 

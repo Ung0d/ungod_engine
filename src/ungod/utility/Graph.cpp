@@ -54,6 +54,11 @@ namespace ungod
 				mNumEdges--;
         }
 
+        bool UndirectedAdjacencyLists::isEdge(unsigned i, unsigned j)
+        {
+            return std::find(mAdjacencies[i].begin(), mAdjacencies[i].end(), ALEdge{ j }) != mAdjacencies[i].end();
+        }
+
          void BFS::VertexProperties::reset(unsigned index)
          {
             visited = false;

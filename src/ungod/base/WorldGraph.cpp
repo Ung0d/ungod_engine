@@ -256,6 +256,11 @@ namespace ungod
         updateReferencePosition(mReferencePosition, false);
     }
 
+    bool WorldGraph::areConnected(WorldGraphNode& n1, WorldGraphNode& n2)
+    {
+        return mAdjacencies.isEdge(n1.getIndex(), n2.getIndex());
+    }
+
     WorldGraphNode& WorldGraph::createNode(ScriptedGameState& gamestate, const std::string& identifier, const std::string& datafile)
     {
         mNodes.emplace_back(std::make_unique<WorldGraphNode>(*this, (unsigned)mNodes.size(), gamestate, identifier, datafile));
