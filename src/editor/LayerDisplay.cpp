@@ -25,7 +25,6 @@ namespace uedit
                       mLayerlist(nullptr),
                       mLpw(nullptr)
     {
-        setup();
     }
 
     void LayerDisplay::setup()
@@ -121,8 +120,7 @@ namespace uedit
         vbox->Add(hbox3, 1, wxEXPAND);
 
         SetSizer(vbox);
-        Fit();
-		GetParent()->Fit();
+        Layout();
     }
 
     int LayerDisplay::getSelection() const

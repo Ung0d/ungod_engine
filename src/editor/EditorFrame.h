@@ -100,6 +100,8 @@ namespace uedit
         void saveProject();
         void loadProject(const std::string& filepath);
 
+        void setupLayerDisplay();
+
     private:
         wxDECLARE_EVENT_TABLE();
     };

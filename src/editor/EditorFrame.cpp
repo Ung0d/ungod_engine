@@ -99,7 +99,7 @@ namespace uedit
         mCanvas = new EditorCanvas(this, mParent, wxID_ANY);
 		mCanvas->getEditorState()->getWorldGraph().onActiveNodeChanged([this](ungod::WorldGraph& wg, ungod::WorldGraphNode& oldNode, ungod::WorldGraphNode& newNode)
 			{
-				mLayerDisplay->setup();
+				setupLayerDisplay();
 			});
         mLayerDisplay = new LayerDisplay(mCanvas, this, mEditorTabs, LAYER_DISPLAY);
         mSheetPreview = new SheetPreview(mEditorTabs, SHEET_PREVIEW);
@@ -159,12 +159,7 @@ namespace uedit
         if (path.first)
         {
             loadProject(path.second);
-            /*for (const auto& l : mCanvas->getEditorState()->getLayers().getVector())
-            {
-                //TODO TODO TODO sloppy hack, because World is currently the only render layers
-                registerWorld(static_cast<ungod::World*>(l.first.get()));
-            }
-            mLayerDisplay->setup();*/
+            setupLayerDisplay();
         }
     }
 
@@ -320,6 +315,16 @@ namespace uedit
         SetTitle(_("Ungod Editor"));
         mContentSaved = true;
 		Fit();
+    }
+
+    void EditorFrame::setupLayerDisplay()
+    {
+        /*for (const auto& l : mCanvas->getEditorState()->getWorldGraph()->)
+        {
+            //TODO TODO TODO sloppy hack, because World is currently the only render layers
+            registerWorld(static_cast<ungod::World*>(l.first.get()));
+        }*/
+        mLayerDisplay->setup();
     }
 
 
