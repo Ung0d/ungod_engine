@@ -310,7 +310,7 @@ namespace ungod
 
     void PointLight::loadTexture(const std::string& path)
     {
-        mTexture.load(path, LoadPolicy::ASYNC, true);
+        mTexture.load(path, LoadPolicy::SYNC, true);
         if (mTexture.isLoaded())
             mSprite.setTexture(mTexture.get(), true);
         mSprite.setOrigin({ mSprite.getTextureRect().width*0.5f, mSprite.getTextureRect().height*0.5f });

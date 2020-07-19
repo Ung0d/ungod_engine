@@ -113,6 +113,8 @@ namespace uedit
             mEntityList->InsertColumn(2, enInst);
         }
 
+        vbox->Add(new wxStaticText(this, -1, _("Curently displayed: " + 
+                mCanvas->getEditorState()->getWorldGraph().getActiveNode()->getIdentifier())));
         vbox->Add(mLayerlist, 2, wxEXPAND);
         vbox->Add(mEntityList, 5, wxEXPAND);
         vbox->Add(hbox, 1, wxEXPAND);

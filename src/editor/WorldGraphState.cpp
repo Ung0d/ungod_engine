@@ -304,7 +304,14 @@ namespace uedit
 			mSizeX->connectSetter([this](float sx)
 				{
 					if (!mNode) return;
-					mNode->setSize({ sx, mNode->getSize().y });
+					if (sx > 0.0f)
+					{
+						bool wasActive = mNode == mNode->getGraph().getActiveNode();
+						mNode->setSize({ sx, mNode->getSize().y });
+						if (wasActive) updateGraphRefPos();
+					}
+					else
+						wxMessageBox(wxT("Width has to be greater zero!"), wxT("Invalid width"), wxICON_ERROR);
 				});
 			mSizeX->connectGetter([this]() 
 				{
@@ -318,7 +325,14 @@ namespace uedit
 			mSizeY->connectSetter([this](float sy)
 				{
 					if (!mNode) return;
-					mNode->setSize({ mNode->getSize().x, sy });
+					if (sy > 0.0f)
+					{
+						bool wasActive = mNode == mNode->getGraph().getActiveNode();
+						mNode->setSize({ mNode->getSize().x, sy });
+						if (wasActive) updateGraphRefPos();
+					}
+					else
+						wxMessageBox(wxT("Height has to be greater zero!"), wxT("Invalid height"), wxICON_ERROR);
 				});
 			mSizeY->connectGetter([this]() 
 				{
@@ -364,6 +378,14 @@ namespace uedit
 		mSizeX->refreshValue();
 		mSizeY->refreshValue();
 	}
+
+	void NodeChangeDialog::updateGraphRefPos()
+	{
+		//if node is active, updating its size may cause and oob ref position
+		//we reset the ref position to the new node center to make sure it is still inside the node
+		sf::Vector2f newRef = mNode->getPosition() + 0.5f*mNode->getSize();
+		mNode->getGraph().updateReferencePosition(newRef);
+	}
 }
 
 namespace ungod
@@ -396,5 +418,6 @@ namespace ungod
 			if (node)
 				data.mColorMapper[node] = colors[i];
 		}
+		data.waitAll();
 	}
 }

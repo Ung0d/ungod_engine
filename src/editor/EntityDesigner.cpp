@@ -31,7 +31,7 @@ namespace uedit
     EntityDesigner::EntityDesigner ( EditorCanvas& canvas, ActionManager& actionManager, ungod::Entity e,
                                 wxWindow * parent, wxWindowID id,
                            const wxPoint & position )
-    : wxFrame( parent, id, _("Entity Designer"), position, DEFAULT_SIZE, wxDEFAULT_FRAME_STYLE), mCanvas(canvas), mActionManager(actionManager), mEntity(e)
+    : wxFrame( parent, id, _("Entity Designer"), position, DEFAULT_SIZE, wxDEFAULT_FRAME_STYLE|wxFRAME_FLOAT_ON_PARENT), mCanvas(canvas), mActionManager(actionManager), mEntity(e)
     {
         reset();
 
@@ -272,7 +272,7 @@ namespace uedit
         }
         if (mEntity.has<ungod::TileMapComponent>())
         {
-            mTileMapOrganizer = new EntityTileMapWindow(mCanvas, mEntity, this, mActionManager, mTabs,-1,wxDefaultPosition,wxDefaultSize);
+            mTileMapOrganizer = new EntityTileMapWindow(mEntity, this, mActionManager, mTabs,-1,wxDefaultPosition,wxDefaultSize);
             mTabs->AddPage(mTileMapOrganizer, "TileMap");
         }
         if (mEntity.has<ungod::WaterComponent>())

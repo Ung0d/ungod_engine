@@ -452,8 +452,8 @@ namespace uedit
         {
             wxPaintDC Dc(this);
             processEvents();
-            update();
-            render();
+            if (update())
+                render();
         }
     }
 

@@ -496,7 +496,7 @@ namespace ungod
 			visualsHandlerType["loadMetadata"] = &VisualHandlerFrontEnd::loadMetadata;
 			visualsHandlerType["getVertexRectCount"] = &VisualHandlerFrontEnd::getVertexRectCount;
 			visualsHandlerType["getVertexRectPosition"] = &VisualHandlerFrontEnd::getVertexRectPosition;
-			visualsHandlerType["getVertexTexureRect"] = &VisualHandlerFrontEnd::getVertexTexureRect;
+			visualsHandlerType["getVertexTextureRect"] = &VisualHandlerFrontEnd::getVertexTexureRect;
 			visualsHandlerType["getVertexBounds"] = &VisualHandlerFrontEnd::getVertexBounds;
 			visualsHandlerType["setVertexRectPosition"] = &VisualHandlerFrontEnd::setVertexRectPosition;
 			visualsHandlerType["setVertexPoints"] = &VisualHandlerFrontEnd::setVertexPoints;

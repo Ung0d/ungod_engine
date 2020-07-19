@@ -11,6 +11,7 @@ namespace uedit
     RenderArea::RenderArea(wxWindow* parent, wxWindowID id, const wxPoint& cPosition, const wxSize& cSize, long cStyle)
         : wxControl(parent, id, cPosition, cSize, cStyle), mWindow(GetHandle()), mCamera(mWindow)
     {
+        mWindow.setFramerateLimit(60u);
     }
 
     const sf::RenderWindow& RenderArea::getWindow() const

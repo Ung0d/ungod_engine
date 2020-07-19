@@ -159,7 +159,6 @@ namespace uedit
         if (path.first)
         {
             loadProject(path.second);
-            setupLayerDisplay();
         }
     }
 
@@ -314,16 +313,12 @@ namespace uedit
 			context.deserializeRootObject(*this); 
         SetTitle(_("Ungod Editor"));
         mContentSaved = true;
+        setupLayerDisplay();
 		Fit();
     }
 
     void EditorFrame::setupLayerDisplay()
     {
-        /*for (const auto& l : mCanvas->getEditorState()->getWorldGraph()->)
-        {
-            //TODO TODO TODO sloppy hack, because World is currently the only render layers
-            registerWorld(static_cast<ungod::World*>(l.first.get()));
-        }*/
         mLayerDisplay->setup();
     }
 
@@ -407,6 +402,8 @@ namespace uedit
 		ungod::SerializationContext context;
 		context.serializeRootObject(mMetaInfo);
 		context.save("meta_info.xml");
+        for (auto d : mActiveDesigners)
+            d->Close();
 	}
 }
 

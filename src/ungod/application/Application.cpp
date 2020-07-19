@@ -214,6 +214,8 @@ namespace ungod
         mWindow.clear(mBackgroundColor);
         mWindow.display();
         mCursorCamera.init(mWindow);
+        if (mActiveCursor.getTexture())
+            mWindow.setMouseCursorVisible(false);
     }
 
 
@@ -225,6 +227,8 @@ namespace ungod
         mWindow.clear(sf::Color::Black);
         mWindow.display();
         mCursorCamera.init(mWindow);
+        if (mActiveCursor.getTexture())
+            mWindow.setMouseCursorVisible(false);
     }
 
 
@@ -241,18 +245,13 @@ namespace ungod
            });
 
         //setup initial state
-        std::string type = mConfig.getOr<std::string>("initial_state/type", "GameState");
+        std::string type = mConfig.getOr<std::string>("initial_state/type", "");
         std::string scriptFile = mConfig.getOr<std::string>("initial_state/script_file", "init.lua");
 
         if (type == "GameState")
             mStatemanager.addState<ScriptedGameState>(0, scriptFile);
         else if (type == "MenuState")
             mStatemanager.addState<ScriptedMenuState>(0, scriptFile);
-        else
-        {
-            ungod::Logger::error("Unknown initial state identifier.");
-            quitApplication(ErrorCode::INIT_FAILED);
-        }
     }
 
 
@@ -261,8 +260,8 @@ namespace ungod
         while(mRunning && mStatemanager.hasState() && mWindow.isOpen())
         {
             processEvents();
-            update();
-            render();
+            if (update())
+                render();
         }
     }
 
@@ -300,8 +299,9 @@ namespace ungod
         }
     }
 
-    void Application::update()
+    bool Application::update()
     {
+        bool updated = false;
         mAccumulator += mUpdateTimer.restart().asMicroseconds()/1000.0f;
         mUpdateCounter = 0;
         while (mAccumulator >= mDelta && ++mUpdateCounter <= mMaxUpdates)
@@ -311,7 +311,9 @@ namespace ungod
              mStatemanager.update(mDelta);
              mMusicManager.update(mDelta);
              mAccumulator -= mDelta;
+             updated = true;
         }
+        return updated;
     }
 
     void Application::render()

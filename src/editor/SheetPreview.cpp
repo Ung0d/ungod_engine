@@ -115,8 +115,8 @@ namespace uedit
 
                       {
                           wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
-                          mLoadedSheets = new wxListBox(this, SHEET_LISTBOX, wxPoint(5, 20), wxSize(200, 100), 0, 0, wxLB_ALWAYS_SB);
-                          mSheetKeys = new wxListBox(this, KEY_LISTBOX, wxPoint(5, 130), wxSize(200, 100), 0, 0, wxLB_ALWAYS_SB);
+                          mLoadedSheets = new wxListBox(this, SHEET_LISTBOX, wxPoint(5, 20), wxSize(200, 100), 0, 0, wxLB_ALWAYS_SB | wxLB_SORT);
+                          mSheetKeys = new wxListBox(this, KEY_LISTBOX, wxPoint(5, 130), wxSize(200, 100), 0, 0, wxLB_ALWAYS_SB | wxLB_SORT);
                           hbox->Add(mLoadedSheets,1,wxEXPAND);
                           hbox->Add(mSheetKeys,1,wxEXPAND);
 

@@ -51,11 +51,16 @@ namespace ungod
 
     void TileMapHandler::update(const std::list<Entity>& entities, const World& world)
     {
-        viewSizeChanged(world, world.getGraph().getCamera().getView().getSize());
+        update(entities, world, world.getGraph().getCamera());
+    }
+
+    void TileMapHandler::update(const std::list<Entity>& entities, const World& world, const ungod::Camera& camera)
+    {
+        viewSizeChanged(world, camera.getView().getSize());
         dom::Utility<Entity>::iterate<TransformComponent, TileMapComponent>(entities,
-            [&world](Entity e, TransformComponent& transf, TileMapComponent& tmc)
+            [&world, &camera](Entity e, TransformComponent& transf, TileMapComponent& tmc)
             {
-                auto windowPos = world.getState()->getApp().getWindow().mapPixelToCoords(sf::Vector2i{ 0, 0 }, world.getGraph().getCamera().getView());
+                auto windowPos = world.getState()->getApp().getWindow().mapPixelToCoords(sf::Vector2i{ 0, 0 }, camera.getView());
                 windowPos = world.getNode().mapToLocalPosition(windowPos);
                 //windowPos = transf.getTransform().transformPoint(windowPos);
                 tmc.mTileMap.update(windowPos);

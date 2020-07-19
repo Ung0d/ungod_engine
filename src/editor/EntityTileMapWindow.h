@@ -13,7 +13,7 @@ namespace uedit
     class EntityTileMapWindow : public wxWindow
     {
     public:
-        EntityTileMapWindow(EditorCanvas& canvas, ungod::Entity e, EntityDesigner* d, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
+        EntityTileMapWindow(ungod::Entity e, EntityDesigner* d, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz);
 
     private:
         ungod::Entity mEntity;

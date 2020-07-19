@@ -133,6 +133,19 @@ namespace uedit
         {
             mSheetPicker->SetPath(_(selectedTex));
         }
+
+        if (mEntity.has<ungod::SpriteMetadataComponent>())
+        {
+            std::string selectedMeta = mActionManager.getEditorFrame()->getSheetPreview()->getCurrentMeta();
+            if (selectedMeta != "")
+                mActionManager.visualsActions().loadMetadata(mEntity, selectedMeta);
+            else
+            {
+                auto err = wxMessageDialog(this, _("No valid meta file selected in the sheet preview!"));
+                err.ShowModal();
+                return;
+            }
+        }
     }
 
     void EntityVisualsWindow::onRectByMetaKey(wxCommandEvent & event)
@@ -153,16 +166,6 @@ namespace uedit
             return;
         }
 
-        std::string selectedMeta = mActionManager.getEditorFrame()->getSheetPreview()->getCurrentMeta();
-
-        if (selectedMeta == "")
-        {
-            auto err = wxMessageDialog(this, _("No valid meta file selected in the sheet preview!"));
-            err.ShowModal();
-            return;
-        }
-
-        mActionManager.visualsActions().loadMetadata(mEntity, selectedMeta);
         mActionManager.visualsActions().setSpriteTextureRect(mEntity, selectedKey);
     }
 
@@ -191,16 +194,6 @@ namespace uedit
             return;
         }
 
-        std::string selectedMeta = mActionManager.getEditorFrame()->getSheetPreview()->getCurrentMeta();
-
-        if (selectedMeta == "")
-        {
-            auto err = wxMessageDialog(this, _("No valid meta file selected in the sheet preview!"));
-            err.ShowModal();
-            return;
-        }
-
-        mActionManager.visualsActions().loadMetadata(mEntity, selectedMeta);
         mActionManager.visualsActions().setMultiSpriteTextureRect(mEntity, selectedKey, mMultiSpriteChoice->GetSelection());
     }
 

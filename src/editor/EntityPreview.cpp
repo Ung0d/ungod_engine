@@ -33,6 +33,7 @@ namespace uedit
     void EntityPreview::update(float delta)
     {
         mState->update(*this, delta);
+        mEntity.getWorld().getTileMapHandler().update({ mEntity }, mEntity.getWorld(), mCamera);
     }
 
     void EntityPreview::render(sf::RenderWindow& window, sf::RenderStates states)

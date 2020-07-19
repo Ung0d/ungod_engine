@@ -203,7 +203,7 @@ namespace ungod
         template<typename STATE, typename ... PARAM>
         STATE* addInactiveState(PARAM&& ... param);
         void processEvents();
-        void update();
+        bool update();
         void render();
     };
 

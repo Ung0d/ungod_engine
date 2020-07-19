@@ -31,8 +31,12 @@ namespace uedit
 
     void SheetDialog::onOk( wxCommandEvent & event )
     {
-        mSheetID = mSheetPicker->GetPath();
-        mMetaID = mMetaPicker->GetPath();
+        auto sheetpath = mSheetPicker->GetFileName();
+        auto metapath = mMetaPicker->GetFileName();
+        sheetpath.MakeRelativeTo();
+        metapath.MakeRelativeTo();
+        mSheetID = sheetpath.GetFullPath();
+        mMetaID = metapath.GetFullPath();
         EndModal(wxID_OK);
     }
 

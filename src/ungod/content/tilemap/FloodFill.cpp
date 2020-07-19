@@ -31,8 +31,8 @@ namespace ungod
     void floodFill(TileMap& tilemap, unsigned ix, unsigned iy, const std::vector<int>& replacementIDs)
     {
         int targetID = tilemap.getTileID(ix, iy);
-        if (targetID == -1)
-            return;
+        //if (targetID == -1)
+            //return;
 
         std::vector<bool> visited((std::size_t)tilemap.getMapSizeX()* (std::size_t)tilemap.getMapSizeY(), false);
 

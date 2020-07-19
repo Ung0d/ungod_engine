@@ -83,6 +83,9 @@ namespace uedit
 		StatDisplay<float>* mSizeY;
 		StatDisplay<std::string>* mIdentifier;
 		owls::SignalLink<void> mNodeChangedLink;
+
+	private:
+		void updateGraphRefPos();
 	};
 }
 

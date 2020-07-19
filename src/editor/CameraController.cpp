@@ -3,10 +3,7 @@
 namespace uedit
 {
     CameraController::CameraController(ungod::Camera& cam) :
-        mMouseLastPos(sf::Mouse::getPosition()), mCam(cam)
-    {
-
-    }
+        mMouseLastPos(sf::Mouse::getPosition()), mCam(cam) {}
 
     void CameraController::handleEvent(const sf::Event& curEvent)
     {

@@ -73,6 +73,9 @@ namespace ungod
         /** \brief Returns a pointer to the world at position i of the layer stack. */
         World* getWorld(unsigned i) const;
 
+        /** \brief Access the world graph object this node belongs to. */
+        WorldGraph& getGraph() { return mWorldGraph; }
+
         /** \brief Returns the number of worlds. */
         unsigned getNumWorld() const { return (unsigned)getLayers().getVector().size(); }
 

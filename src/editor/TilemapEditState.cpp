@@ -78,6 +78,7 @@ namespace uedit
             else if (event.mouseButton.button == sf::Mouse::Right)
             {
                 sf::Vector2f worldpos = mPreview.mWindow.mapPixelToCoords(sf::Mouse::getPosition(mPreview.getWindow()), mPreview.mCamera.getView() );
+                worldpos = mPreview.mEntity.getWorld().getNode().mapToLocalPosition(worldpos);
                 worldpos = mPreview.mEntity.modify<ungod::TransformComponent>().getTransform().getInverse().transformPoint(worldpos);
                 sf::Vector2i indices = tm->getTileIndices(worldpos);
                 if (indices.x > -1)
@@ -107,6 +108,7 @@ namespace uedit
         if (mMouseDown)
         {
             sf::Vector2f worldpos = mPreview.mWindow.mapPixelToCoords( sf::Mouse::getPosition(mPreview.mWindow), mPreview.mCamera.getView() );
+            worldpos = mPreview.mEntity.getWorld().getNode().mapToLocalPosition(worldpos);
             worldpos = mPreview.mEntity.modify<ungod::TransformComponent>().getTransform().getInverse().transformPoint(worldpos);
             sf::Vector2i tileIndices = tm->getTileIndices(worldpos);
             std::string key = mPreview.mActionManager.getEditorFrame()->getSheetPreview()->getCurrentKey();
@@ -197,6 +199,7 @@ namespace uedit
                     mMouseDown = true;
 
                     sf::Vector2f worldpos = mPreview.mWindow.mapPixelToCoords( {sf::Mouse::getPosition(mPreview.mWindow).x, sf::Mouse::getPosition(mPreview.mWindow).y}, mPreview.mCamera.getView() );
+                    worldpos = mPreview.mEntity.getWorld().getNode().mapToLocalPosition(worldpos);
                     worldpos = mPreview.mEntity.modify<ungod::TransformComponent>().getTransform().getInverse().transformPoint(worldpos);
                     sf::Vector2i ti = tm->getTileIndices(worldpos);
                     std::string key = mPreview.mActionManager.getEditorFrame()->getSheetPreview()->getCurrentKey();

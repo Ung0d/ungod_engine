@@ -8,7 +8,7 @@
 
 namespace uedit
 {
-    EntityTileMapWindow::EntityTileMapWindow(EditorCanvas& canvas, ungod::Entity e, EntityDesigner* d, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
+    EntityTileMapWindow::EntityTileMapWindow(ungod::Entity e, EntityDesigner* d, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
         wxWindow(parent, id, pos, siz), mEntity(e), mActionManager(actionManager), mDesigner(d)
     {
         wxSizer* vbox = new wxBoxSizer(wxVERTICAL);
@@ -37,7 +37,7 @@ namespace uedit
         Fit();
         Layout();
 
-        mDesigner->getEntityPreview()->lookAt(canvas.getCameraCenter());
+       // mDesigner->getEntityPreview()->lookAt(canvas.getCameraCenter());
     }
 
     void EntityTileMapWindow::onInitClicked(wxCommandEvent & event)
