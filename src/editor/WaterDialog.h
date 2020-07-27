@@ -14,15 +14,9 @@ namespace uedit
 
         WaterDialog ( wxWindow * parent, wxWindowID id );
 
-        const wxString& getSheetID() const;
-        const wxString& getMetaID() const;
         const wxString& getDistortionMapID() const;
         const wxString& getVertexShaderID() const;
         const wxString& getFragmentShaderID() const;
-        unsigned getTileWidth() const;
-        unsigned getTileHeight() const;
-        unsigned getMapWidth() const;
-        unsigned getMapHeight() const;
 
     private:
 
@@ -31,24 +25,12 @@ namespace uedit
         wxDECLARE_EVENT_TABLE();
 
     private:
-        wxString mSheetID;
-        wxString mMetaID;
         wxString mDistortionID;
         wxString mVertexID;
         wxString mFragmentID;
-        unsigned mTileWidth;
-        unsigned mTileHeight;
-        unsigned mMapWidth;
-        unsigned mMapHeight;
-        wxFilePickerCtrl * mSheetPicker;
-        wxFilePickerCtrl * mMetaPicker;
         wxFilePickerCtrl * mDistortionPicker;
         wxFilePickerCtrl * mVertexPicker;
         wxFilePickerCtrl * mFragmentPicker;
-        wxTextCtrl * mTileWidthCtrl;
-        wxTextCtrl * mTileHeightCtrl;
-        wxTextCtrl * mMapWidthCtrl;
-        wxTextCtrl * mMapHeightCtrl;
     };
 }
 

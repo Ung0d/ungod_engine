@@ -32,7 +32,12 @@ namespace ungod
         mTileWidth(0),
         mTileHeight(0),
         mMapSizeX(0),
-        mMapSizeY(0)
+        mMapSizeY(0),
+        mAltered(true),
+        mLastMetaX(0),
+        mLastMetaY(0),
+        mOverextendX(0),
+        mOverextendY(0)
     {
         mVertices.setPrimitiveType(sf::Quads);
         mHorizontalSize = 0;
@@ -56,8 +61,17 @@ namespace ungod
         bool active = false;
         if (mVertices.getVertexCount())
         {
-            unsigned metaX = std::max(0, (int)(std::round(windowPosition.x - getPosition().x) / (getScale().x * mTileWidth)));
-            unsigned metaY = std::max(0, (int)(std::round(windowPosition.y - getPosition().y) / (getScale().y * mTileHeight)));
+            unsigned metaX = std::max(0, (int)(std::round(windowPosition.x - getPosition().x) / (getScale().x * mTileWidth)) - (int)mOverextendX );
+            unsigned metaY = std::max(0, (int)(std::round(windowPosition.y - getPosition().y) / (getScale().y * mTileHeight)) - (int)mOverextendY );
+
+            if (!mAltered && 
+                std::abs((int)mLastMetaX - (int)metaX) < mOverextendX  && 
+                std::abs((int)mLastMetaY - (int)metaY) < mOverextendY)
+                return true;
+
+            mLastMetaX = metaX;
+            mLastMetaY = metaY;
+            mAltered = false;
 
             for (unsigned x = metaX; x < metaX + mHorizontalSize && x < mMapSizeX; x++)
                 for (unsigned y = metaY; y < metaY + mVerticalSize && y < mMapSizeY; y++)
@@ -140,6 +154,7 @@ namespace ungod
         mTiles = tiles;
         mMapSizeX = mapSizeX;
         mMapSizeY = mapSizeY;
+        mAltered = true;
         return true;
     }
 
@@ -150,6 +165,7 @@ namespace ungod
         if (!mTiles.ids || estimatedPos < 0 || estimatedPos >= mTiles.ids->size())
             return;
         (*mTiles.ids)[estimatedPos] = id;
+        mAltered = true;
     }
 
 
@@ -162,6 +178,7 @@ namespace ungod
         mTilePositions.reserve(mKeymap.size());
         for (const auto& key : mKeymap)
             keylookup(key);
+        mAltered = true;
     }
 
     void TileMap::keylookup(const std::string& key)
@@ -189,6 +206,7 @@ namespace ungod
     {
         mKeymap.emplace_back(key);
         keylookup(key);
+        mAltered = true;
     }
 
     int TileMap::getTileID(const sf::Vector2f& position) const
@@ -225,9 +243,19 @@ namespace ungod
 
     void TileMap::setViewSize(const sf::Vector2f& targetsize)
     {
-        mHorizontalSize = (unsigned)ceil(targetsize.x / (getScale().x*mTileWidth) ) + 1;
-        mVerticalSize = (unsigned)ceil(targetsize.y / (getScale().y*mTileHeight) ) + 1;
+        unsigned hs = (unsigned)ceil(targetsize.x / (getScale().x*mTileWidth) ) + 1;
+        unsigned vs = (unsigned)ceil(targetsize.y / (getScale().y*mTileHeight) ) + 1;
+        unsigned ox = std::min(100, (int)std::floor(hs / 5));
+        unsigned oy = std::min(80, (int)std::floor(vs / 4));
+        if (hs + 2*ox == mHorizontalSize && 
+            vs + 2*oy == mVerticalSize)
+            return;
+        mOverextendX = ox;
+        mOverextendY = oy;
+        mHorizontalSize = hs + 2*ox;
+        mVerticalSize = vs + 2*oy;
         mVertices.resize(mHorizontalSize*mVerticalSize*4);
+        mAltered = true;
     }
 
 

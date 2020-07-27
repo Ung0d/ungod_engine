@@ -202,6 +202,7 @@ namespace ungod
         if (node)
         {
             vertices.mVertices.setTextureRect(node, i);
+            vertices.mKeys[i] = key;
             mContentsChangedSignal.emit(e, e.modify<VertexArrayComponent>().mVertices.getBounds());
             return true;
         }

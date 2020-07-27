@@ -74,6 +74,7 @@ namespace uedit
 
         void onEditUndo(wxCommandEvent& event);
         void onEditRedo(wxCommandEvent& event);
+        void onToggleRenderEnv(wxCommandEvent& event);
 
     private:
 

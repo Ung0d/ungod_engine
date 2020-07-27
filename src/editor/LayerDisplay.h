@@ -31,6 +31,8 @@ namespace uedit
 
         ungod::World* getSelectedWorld() const;  //nullptr if no world selected
 
+        ~LayerDisplay();
+
     private:
         EditorCanvas* mCanvas;
         EditorFrame* mEditorFrame;
@@ -57,6 +59,7 @@ namespace uedit
         void onLayerPropterties(wxCommandEvent& event);
         void onPropertiesClose(wxCloseEvent& event);
         void onLayerSelect(wxCommandEvent& event);
+        void onLayerChecked(wxCommandEvent& event);
         void listEntity(ungod::Entity e);
         void onEntityRightClick(wxListEvent& event);
         void onEntityMenuSelect(wxCommandEvent& event);

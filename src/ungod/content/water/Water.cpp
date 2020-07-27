@@ -56,27 +56,29 @@ namespace ungod
     {
         rendertex.clear(sf::Color::Transparent);
 
-        //sf::RenderStates inverse;
-        //inverse.transform.translate(-renderpos);
         rendertex.setView(target.getView());
         tilemap.render(rendertex, tilemapTex, states);
 
-        sf::Vector2f windowPosition = target.mapPixelToCoords(sf::Vector2i(0, 0));
-        windowPosition = states.transform.getInverse().transformPoint(windowPosition);
+        sf::Vector2f windowUpLeftPosition = target.mapPixelToCoords(sf::Vector2i(0, 0));
+        windowUpLeftPosition = world.getNode().mapToLocalPosition(windowUpLeftPosition);
 
         //render reflections
         if (mShowReflections)
         {
             quad::PullResult<Entity> pull;
-            world.getQuadTree().retrieve(pull, { windowPosition.x,
-                                                  windowPosition.y - (BOUNDING_BOX_SCALING - 1) * target.getView().getSize().y,
+            world.getQuadTree().retrieve(pull, { windowUpLeftPosition.x,
+                                                  windowUpLeftPosition.y - (BOUNDING_BOX_SCALING - 1) * target.getView().getSize().y,
                                                   target.getView().getSize().x,
                                                   BOUNDING_BOX_SCALING * target.getView().getSize().y });
 
             dom::Utility<Entity>::iterate<TransformComponent, VisualsComponent>(pull.getList(),
                 [this, &states, &world, &rendertex, &tilemap](Entity e, TransformComponent& transf, VisualsComponent& vis)
                 {
-                    if (states.transform.getInverse().transformRect(tilemap.getBounds()).intersects(e.get<TransformComponent>().getBounds()))
+                    auto globalTMBounds = states.transform.getInverse().transformRect(tilemap.getBounds());
+                    auto transformedUpLeft = world.getNode().mapToLocalPosition(sf::Vector2f{ globalTMBounds.left, globalTMBounds.top});
+                    globalTMBounds.left = transformedUpLeft.x;
+                    globalTMBounds.top = transformedUpLeft.y;
+                    if (globalTMBounds.intersects(e.get<TransformComponent>().getBounds()))
                     {
                         //get the bounds of the visual contents of the entity
                         //we need to take the untransformed bounds here
@@ -93,11 +95,37 @@ namespace ungod
                 });
         }
 
-        states.transform *= tilemap.getTransform();
-
         //drawing to the rendertex done, attach it to a sprite
         rendertex.display();
         sf::Sprite renderbody(rendertex.getTexture());
+        /*sf::IntRect texRect = renderbody.getTextureRect();
+        sf::Vector2f posUL = states.transform.getInverse().transformPoint(tilemap.getPosition());
+        sf::Vector2i nodeScreenUpLeft = target.mapCoordsToPixel(posUL);
+        sf::Vector2i nodeScreenDownRight = target.mapCoordsToPixel(posUL + sf::Vector2f{tilemap.getBounds().width, tilemap.getBounds().height});
+
+        //may cut off the sprite
+        if (nodeScreenUpLeft.x > 0)
+        {
+            texRect.left = std::min(texRect.width, nodeScreenUpLeft.x);
+            renderbody.setPosition(nodeScreenUpLeft.x, renderbody.getPosition().y);
+            texRect.width = std::max(0, texRect.width - nodeScreenUpLeft.x);
+        }
+        if (nodeScreenUpLeft.y > 0)
+        {
+            texRect.top = std::min(texRect.height, nodeScreenUpLeft.y);
+            renderbody.setPosition(renderbody.getPosition().x, nodeScreenUpLeft.y);
+            texRect.height = std::max(0, texRect.height - nodeScreenUpLeft.y);
+        }
+        if (nodeScreenDownRight.x < target.getSize().x)
+        {
+            texRect.width = std::max(0, nodeScreenDownRight.x);
+        }
+        if (nodeScreenDownRight.y < target.getSize().y)
+        {
+            texRect.height = std::max(0, nodeScreenDownRight.y);
+        }
+
+        renderbody.setTextureRect(texRect); */
 
         sf::RenderStates waterstates;
 

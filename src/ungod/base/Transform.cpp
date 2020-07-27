@@ -41,7 +41,7 @@ namespace ungod
     sf::Vector2f TransformComponent::getSize() const { return { getScale().x * (mLowerBound.x - mUpperBound.x), getScale().y * (mLowerBound.y - mUpperBound.y) }; }
 
 
-    sf::Vector2f TransformComponent::getPosition() const { return mTransform.getTransform().transformPoint(mUpperBound); }
+    sf::Vector2f TransformComponent::getPosition() const { return mTransform.getTransform().transformPoint({}); }
 
 
     sf::Vector2f TransformComponent::getCenterPosition() const

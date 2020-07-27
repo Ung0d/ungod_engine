@@ -267,14 +267,14 @@ namespace uedit
         mEditorState->render(target, states);
         mEditorState->toggleDebugmode(false);
 
-		auto bounds = mEditorState->getWorldGraph().getActiveNode()->getBounds();
+		/*auto bounds = mEditorState->getWorldGraph().getActiveNode()->getBounds();
         sf::RenderStates nodeStates = states;
-        nodeStates.transform.translate({ bounds.left, bounds.top });
+        nodeStates.transform.translate({ bounds.left, bounds.top });*/
 
         for (const auto& e : mSelectedEntities)
         {
             mEditorState->getWorldGraph().getCamera().renderBegin(e.getWorld().getRenderDepth());
-            sf::RenderStates local = nodeStates;
+            sf::RenderStates local = states;
             sf::RectangleShape rect;
             if (e.has<ungod::TransformComponent>())
             {
@@ -299,6 +299,8 @@ namespace uedit
         {
             mEditorState->getWorldGraph().getCamera().renderBegin();
             auto nbounds = n->getBounds();
+            nbounds.left = 0;
+            nbounds.top = 0;
             if (sf::FloatRect{windowTop, windowBot - windowTop}.intersects(nbounds))
             {
                 sf::RectangleShape rect;
@@ -395,12 +397,13 @@ namespace uedit
                               const wxSize& cSize,
                               long cStyle) :
             wxControl(parent, id, cPosition, cSize, cStyle),
-            ungod::Application()
+            ungod::Application(),
+            mEditorframe(editorframe)
     {
         //set up the ungod application
         loadConfig();
         createWindow(GetHandle());
-        init();
+        init(false);
 
         getStateManager().addState<EditorState>(EDITOR_STATE);
         mEditorState = getStateManager().getState<EditorState>(EDITOR_STATE);

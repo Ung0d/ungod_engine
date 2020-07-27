@@ -43,7 +43,8 @@ namespace ungod
         mIdentifier(identifier), 
         mDataFile(datafile),
         mBounds(0.0f, 0.0f, 0.0f, 0.0f),
-        mSaveContents(true)
+        mSaveContents(true),
+        mPriority(0)
     {
         mBounds.width = DEFAULT_SIZE;
         mBounds.height = DEFAULT_SIZE;
@@ -103,6 +104,20 @@ namespace ungod
             return nullptr;
     }
 
+    World* WorldGraphNode::getWorld(const std::string& identifier) const
+    {
+        World* result = nullptr;
+        for (const auto& layer : mLayers.getVector())
+        {
+            if (layer.first->getName() == identifier)
+            {
+                result = static_cast<World*>(layer.first.get());
+                break;
+            }
+        }
+        return result;
+    }
+
     void WorldGraphNode::update(float delta)
     {
         if (mLoadingInProcess)
@@ -146,6 +161,12 @@ namespace ungod
 		mWorldGraph.notifyBoundsChanged(this);
         mNodeChangedSignal();
 	}
+
+
+    void WorldGraphNode::activateLayer(unsigned i, bool active)
+    {
+        mLayers.setActive(i, active);
+    }
 
 
 	void WorldGraphNode::moveLayerUp(unsigned i)
@@ -222,14 +243,15 @@ namespace ungod
 		context.serializeProperty("y", data.getPosition().y, serializer);
 		context.serializeProperty("w", data.getSize().x, serializer);
 		context.serializeProperty("h", data.getSize().y, serializer);
+        context.serializeProperty("priority", data.getPriority(), serializer);
 
     }
 
     void DeserialBehavior<WorldGraphNode>::deserialize(WorldGraphNode& data, MetaNode deserializer, DeserializationContext& context)
     {
         //world graph nodes are deserialized in sleeping state
-        auto result = deserializer.getAttributes<std::string, std::string, float, float, float, float>(
-			{"id", ""}, {"file", ""}, { "x", 0.0f }, { "y", 0.0f }, { "w", 0.0f }, { "h", 0.0f });
+        auto result = deserializer.getAttributes<std::string, std::string, float, float, float, float, int>(
+            { "id", "" }, { "file", "" }, { "x", 0.0f }, { "y", 0.0f }, { "w", 0.0f }, { "h", 0.0f }, { "priority", 0 });
         data.mIdentifier = std::get<0>(result);
         data.mDataFile = std::get<1>(result);
         data.mBounds.left = std::get<2>(result);
@@ -238,6 +260,7 @@ namespace ungod
         data.mBounds.width = size.x;
         data.mBounds.height = size.y;
         data.mLayers.setSize(size);
+        data.setPriority(std::get<6>(result));
     }
 }
 

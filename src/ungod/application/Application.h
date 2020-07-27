@@ -194,7 +194,7 @@ namespace ungod
     * application functionality must be invoked indirectly (see editor implementation)
     */
     protected:
-        void init();
+        void init(bool initStateFromConfig = true);
         void createWindow();
         void createWindow(sf::WindowHandle handle);
         void mainloop();

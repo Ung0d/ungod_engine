@@ -232,7 +232,7 @@ namespace ungod
     }
 
 
-    void Application::init()
+    void Application::init(bool initStateFromConfig)
     {
         mRunning = true;
 
@@ -248,10 +248,13 @@ namespace ungod
         std::string type = mConfig.getOr<std::string>("initial_state/type", "");
         std::string scriptFile = mConfig.getOr<std::string>("initial_state/script_file", "init.lua");
 
-        if (type == "GameState")
-            mStatemanager.addState<ScriptedGameState>(0, scriptFile);
-        else if (type == "MenuState")
-            mStatemanager.addState<ScriptedMenuState>(0, scriptFile);
+        if (initStateFromConfig)
+        {
+            if (type == "GameState")
+                mStatemanager.addState<ScriptedGameState>(0, scriptFile);
+            else if (type == "MenuState")
+                mStatemanager.addState<ScriptedMenuState>(0, scriptFile);
+        }
     }
 
 

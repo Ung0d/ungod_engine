@@ -14,6 +14,9 @@ namespace uedit
     {
         ungod::TileMap const* tm = &mPreview.mEntity.modify<ungod::TileMapComponent>().getTileMap();
 
+        if (!tm->getTileData().ids)
+            return;
+
 		if (!preview.mEntity.has<ungod::TransformComponent>())
 			return;
 
@@ -61,6 +64,9 @@ namespace uedit
     {
         ungod::TileMap const* tm = &mPreview.mEntity.modify<ungod::TileMapComponent>().getTileMap();
 
+        if (!tm->getTileData().ids)
+            return;
+
         if (!mPreview.mEntity.has<ungod::VisualsComponent>())
             return;
         auto& v = mPreview.mEntity.modify<ungod::VisualsComponent>();
@@ -104,6 +110,9 @@ namespace uedit
     void TileMapEditState::update(EntityPreview& preview, float delta)
     {
         ungod::TileMap const* tm = &mPreview.mEntity.modify<ungod::TileMapComponent>().getTileMap();
+
+        if (!tm->getTileData().ids)
+            return;
 
         if (mMouseDown)
         {
@@ -187,6 +196,9 @@ namespace uedit
     void TileMapFloodFillState::handleInput(EntityPreview& preview, const sf::Event& event)
     {
         ungod::TileMap const* tm = &mPreview.mEntity.modify<ungod::TileMapComponent>().getTileMap();
+
+        if (!tm->getTileData().ids)
+            return;
 
         switch (event.type)
         {

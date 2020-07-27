@@ -85,18 +85,10 @@ namespace ungod
 
         if (node)
         {
-            if (oldActive)
-            {
-                //adjust cameras coordinate system relative to the active node
-                sf::Vector2f diff = oldActive->getPosition() - node->getPosition();
-                mCamera.lookAt(mCamera.getCenter() + diff);
-                //emit signal
-                mActiveNodeChanged(*this, *oldActive, *node);
-            }
-            else
-            {
-                mCamera.lookAt(mCamera.getCenter() - node->getPosition());
-            }
+            //adjust cameras coordinate system relative to the active node
+            mCamera.relativeTo(node->getPosition());
+            //emit signal
+            mActiveNodeChanged(*this, *oldActive, *node);
 
             Logger::info("New active node:", node->getIdentifier());
         }
@@ -167,7 +159,7 @@ namespace ungod
             if (l.layer->getRenderDepth() == r.layer->getRenderDepth())
             {
                 if (l.rank == r.rank)
-                    return l.node->getIndex() < r.node->getIndex();
+                    return l.node->getPriority() < r.node->getPriority();
                 else
                     return l.rank < r.rank;
             }
@@ -264,6 +256,9 @@ namespace ungod
     WorldGraphNode& WorldGraph::createNode(ScriptedGameState& gamestate, const std::string& identifier, const std::string& datafile)
     {
         mNodes.emplace_back(std::make_unique<WorldGraphNode>(*this, (unsigned)mNodes.size(), gamestate, identifier, datafile));
+        if (!boost::filesystem::exists(datafile))
+            mNodes.back()->save();
+        mCurrentNeighborhood.emplace(mNodes.size()-1); 
         mAdjacencies.setVertexCount((unsigned)mAdjacencies.getVertexCount() + 1);
         notifyBoundsChanged(mNodes.back().get());
         return *mNodes.back();

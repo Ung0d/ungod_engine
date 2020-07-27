@@ -82,6 +82,7 @@ namespace uedit
 		StatDisplay<float>* mSizeX;
 		StatDisplay<float>* mSizeY;
 		StatDisplay<std::string>* mIdentifier;
+		StatDisplay<int>* mPriority;
 		owls::SignalLink<void> mNodeChangedLink;
 
 	private:

@@ -89,6 +89,7 @@ namespace uedit
 
         mLayerlist = new wxRearrangeList(this, LAYER_LIST, wxDefaultPosition, wxDefaultSize, order, items);
         mLayerlist->Bind(wxEVT_LISTBOX, &LayerDisplay::onLayerSelect, this);
+        mLayerlist->Bind(wxEVT_CHECKLISTBOX, &LayerDisplay::onLayerChecked, this);
 
         mEntityList = new wxListCtrl(this, ENTITY_LIST, wxDefaultPosition, wxDefaultSize, wxLC_REPORT);
         mEntityList->Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, &LayerDisplay::onEntityRightClick, this);
@@ -254,6 +255,16 @@ namespace uedit
 
         mEditorFrame->registerWorld(world);
     }
+    
+    void LayerDisplay::onLayerChecked(wxCommandEvent& event)
+    {
+        int check = event.GetInt();
+        if (check >= 0)
+        {
+            mCanvas->getEditorState()->getWorldGraph().getActiveNode()->activateLayer(
+                check, mLayerlist->IsChecked((unsigned)check));
+        }
+    }
 
 
     void LayerDisplay::listEntity(ungod::Entity e)
@@ -326,6 +337,13 @@ namespace uedit
     void LayerDisplay::onEntityListSelect(wxListEvent& event)
     {
         mCanvas->selectEntity(mEntities[event.GetIndex()]);
+    }
+
+
+    LayerDisplay::~LayerDisplay()
+    {
+        mEnCreationLink.disconnect();
+        mEnDestructionLink.disconnect();
     }
 }
 

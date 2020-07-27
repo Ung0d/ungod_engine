@@ -36,11 +36,11 @@ namespace ungod
     constexpr float Camera::DEFAULT_SCROLL_SPEED;
     constexpr float Camera::SCROLL_LOCK;
 
-    Camera::Camera() : mTarget(nullptr), mCurZoom(1.0f), mDeadZoneRadius(DEFAULT_DEAD_ZONE_RADIUS), mScrollSpeed(DEFAULT_SCROLL_SPEED), mMoving(false)
+    Camera::Camera() : mTarget(nullptr), mCurZoom(1.0f), mDeadZoneRadius(DEFAULT_DEAD_ZONE_RADIUS), mScrollSpeed(DEFAULT_SCROLL_SPEED), mMoving(false), mRelative(0,0)
     {
     }
 
-    Camera::Camera(sf::RenderTarget& target) : mTarget(nullptr), mCurZoom(1.0f), mDeadZoneRadius(DEFAULT_DEAD_ZONE_RADIUS), mScrollSpeed(DEFAULT_SCROLL_SPEED), mMoving(false)
+    Camera::Camera(sf::RenderTarget& target) : mTarget(nullptr), mCurZoom(1.0f), mDeadZoneRadius(DEFAULT_DEAD_ZONE_RADIUS), mScrollSpeed(DEFAULT_SCROLL_SPEED), mMoving(false), mRelative(0, 0)
     {
         init(target);
     }
@@ -121,14 +121,14 @@ namespace ungod
 
     void Camera::lookAt(const sf::Vector2f& position)
     {
-        mView.setCenter(position);
+        mView.setCenter(sf::Vector2f{ std::floor(position.x), std::floor(position.y) });
         mViewCenterChanged(mView.getCenter());
     }
 
     void Camera::setZoom(float zoom)
     {
         mCurZoom = zoom;
-        mView.setSize(zoom * mDefault.getSize());
+        mView.setSize(sf::Vector2f{ std::floor(zoom * mDefault.getSize().x), std::floor(zoom * mDefault.getSize().y) });
         mViewSizeChanged(mView.getSize());
     }
 
@@ -187,7 +187,7 @@ namespace ungod
     sf::View Camera::getView(float depth) const
     {
         sf::View finView = mView;
-        finView.setCenter(depth * mView.getCenter());
+        finView.setCenter(depth * (mView.getCenter() + mRelative) - mRelative);
         return finView;
     }
 
@@ -199,6 +199,12 @@ namespace ungod
     void Camera::onViewCenterChanged(const std::function<void(const sf::Vector2f&)>& callback)
     {
         mViewCenterChanged.connect(callback);
+    }
+
+    void Camera::relativeTo(const sf::Vector2f& point)
+    {
+        lookAt(getCenter() + mRelative - point); 
+        mRelative = point;
     }
 
     std::unique_ptr<CameraAffector> Camera::makeScreenShake(float duration, float frequency, float amplitude)

@@ -17,7 +17,8 @@ namespace uedit
                           mEntity(e),
                           mActionManager(actionManager),
                           mCamContrl(mCamera),
-                          mCanvas(canvas)
+                          mCanvas(canvas),
+                          mRenderEnvironment(false)
     {
         toggleDefault();
         resetView();
@@ -34,18 +35,26 @@ namespace uedit
     {
         mState->update(*this, delta);
         mEntity.getWorld().getTileMapHandler().update({ mEntity }, mEntity.getWorld(), mCamera);
+        mEntity.getWorld().getWaterHandler().targetSizeChanged(mEntity.getWorld(), mWindow.getSize());
     }
 
     void EntityPreview::render(sf::RenderWindow& window, sf::RenderStates states)
     {
-        if (mEntity.has<ungod::TransformComponent>())
+        if (mRenderEnvironment)
         {
-            window.setSize(sf::Vector2u((unsigned)GetSize().x, (unsigned)GetSize().y));
-            if (mEntity.has<ungod::VisualsComponent>())
-                mCanvas.getEditorState()->getRenderer().renderEntity(mEntity, mEntity.modify<ungod::TransformComponent>(), mEntity.modify<ungod::VisualsComponent>(), window, states);
+            mEntity.getWorld().getGraph().render(window, states);
         }
-
+        else
+        {
+            if (mEntity.has<ungod::TransformComponent>())
+            {
+                window.setSize(sf::Vector2u((unsigned)GetSize().x, (unsigned)GetSize().y));
+                if (mEntity.has<ungod::VisualsComponent>())
+                    mCanvas.getEditorState()->getRenderer().renderEntity(mEntity, mEntity.modify<ungod::TransformComponent>(), mEntity.modify<ungod::VisualsComponent>(), window, states);
+            }
+        }
         mState->render(*this, window, states);
+        mEntity.getWorld().getWaterHandler().targetSizeChanged(mEntity.getWorld(), mCanvas.getWindow().getSize());
     }
 
     void EntityPreview::toggleDefault()

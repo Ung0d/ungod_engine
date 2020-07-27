@@ -154,6 +154,7 @@ namespace ungod
         private:
             struct TileDataBundle
             {
+                TileDataBundle() : x(0u), y(0u), id(-1) {}
                 unsigned x, y;
                 int id;
             };

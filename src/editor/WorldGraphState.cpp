@@ -2,6 +2,7 @@
 #include "Utility.h"
 #include "Canvas.h"
 #include "EditorFrame.h"
+#include <numeric>
 
 namespace uedit
 {
@@ -16,7 +17,11 @@ namespace uedit
 			{
 				sf::Vector2f mouseWorldPos = mApp.getWindow().mapPixelToCoords(pos, mCamera.getView())/SCALE;
 				mEditorState.getWorldGraph().updateReferencePosition(mouseWorldPos);
-				mEditorState.getWorldGraph().getCamera().lookAt(mouseWorldPos);
+				if (mEditorState.getWorldGraph().getActiveNode())
+				{
+					mouseWorldPos = mouseWorldPos - mEditorState.getWorldGraph().getActiveNode()->getPosition();
+					mEditorState.getWorldGraph().getCamera().lookAt(mouseWorldPos);
+				}
 				waitAll();
 				closeState();
 				mApp.getStateManager().moveToForeground(EDITOR_STATE);
@@ -171,7 +176,12 @@ namespace uedit
 	{
 		//states.transform.scale(SCALE, SCALE);
 		mCamera.renderBegin();
-		for (unsigned i = 0; i < mEditorState.getWorldGraph().getALlists().getVertexCount(); i++)
+		std::list<int> prioritySorted(mEditorState.getWorldGraph().getALlists().getVertexCount());
+		std::iota(prioritySorted.begin(), prioritySorted.end(), 0);
+		auto sortF = [this] (int i, int j) 
+			{ return mEditorState.getWorldGraph().getNode(i)->getPriority() < mEditorState.getWorldGraph().getNode(j)->getPriority(); };
+		prioritySorted.sort(sortF);
+		for (unsigned i : prioritySorted)
 		{
 			ungod::WorldGraphNode* node = mEditorState.getWorldGraph().getNode(i);
 			sf::FloatRect bounds = node->getBounds();
@@ -356,6 +366,20 @@ namespace uedit
 				});
 			boxsizer->Add(mIdentifier, 0, wxALIGN_CENTER_HORIZONTAL);
 		}
+		{
+			mPriority = new StatDisplay<int>("priority:", this, -1);
+			mPriority->connectSetter([this](int priority)
+				{
+					if (!mNode) return;
+					mNode->setPriority(priority);
+				});
+			mPriority->connectGetter([this]()
+				{
+					if (!mNode) return 0;
+					return mNode->getPriority();
+				});
+			boxsizer->Add(mPriority, 0, wxALIGN_CENTER_HORIZONTAL);
+		}
 
 		SetSizer(boxsizer);
 		Fit();
@@ -377,6 +401,7 @@ namespace uedit
 		mPosY->refreshValue();
 		mSizeX->refreshValue();
 		mSizeY->refreshValue();
+		mPriority->refreshValue();
 	}
 
 	void NodeChangeDialog::updateGraphRefPos()

@@ -23,8 +23,8 @@
 *    source distribution.
 */
 
-#ifndef UNGOD_TILEMAP_RENDERER_H
-#define UNGOD_TILEMAP_RENDERER_H
+#ifndef UNGOD_WATER_HANDLER_H
+#define UNGOD_WATER_HANDLER_H
 
 #include "ungod/content/water/Water.h"
 #include "ungod/base/Entity.h"
@@ -33,6 +33,7 @@
 namespace ungod
 {
     class World;
+    class Camera;
 
     /**
     * \ingroup Components
@@ -91,15 +92,16 @@ namespace ungod
         { setWaterReflectionOpacity(e.modify<WaterComponent>(), opacity); }
         static void setWaterReflectionOpacity(WaterComponent& water, float opacity);
 
+        void targetSizeChanged(const World& world, const sf::Vector2u& targetsize);
+
         ~WaterHandler();
 
     private:
-        owls::SignalLink<void, const sf::Vector2u&> mTargetSizeLink;
+        owls::SignalLink<void, const sf::Vector2u&> mTargetSizeLink; 
 
     private:
-        void targetSizeChanged(const World& world, const sf::Vector2u& targetsize);
     };
 }
 
-#endif // UNGOD_TILEMAP_RENDERER_H
+#endif // UNGOD_WATER_HANDLER_H
 

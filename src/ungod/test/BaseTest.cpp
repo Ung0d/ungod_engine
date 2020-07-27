@@ -438,7 +438,6 @@ BOOST_AUTO_TEST_CASE( world_graph_test )
     {
         ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
         ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "test_output/nodefile");
-        node.wait();
         ungod::World* world1;
         ungod::World* world2;
         if (node.getNumWorld() == 0)

@@ -73,6 +73,9 @@ namespace ungod
         /** \brief Returns a pointer to the world at position i of the layer stack. */
         World* getWorld(unsigned i) const;
 
+        /** \brief Returns a pointer to the (a) world with identifier on the layer stack. */
+        World* getWorld(const std::string& identifier) const;
+
         /** \brief Access the world graph object this node belongs to. */
         WorldGraph& getGraph() { return mWorldGraph; }
 
@@ -110,6 +113,8 @@ namespace ungod
 
 		const RenderLayerContainer& getLayers() const { return mLayers; }
 
+        void activateLayer(unsigned i, bool active = true);
+
 		void moveLayerUp(unsigned i);
 
 		void moveLayerDown(unsigned i);
@@ -133,6 +138,10 @@ namespace ungod
 
         owls::SignalLink<void> onNodeChanged(const std::function<void()>& callback);
 
+        int getPriority() const { return mPriority; }
+
+        void setPriority(int priority) { mPriority = priority; }
+
         ~WorldGraphNode();
 
     private:
@@ -148,6 +157,7 @@ namespace ungod
         sf::FloatRect mBounds;
         bool mSaveContents;
         owls::Signal<> mNodeChangedSignal;
+        int mPriority;
 
     private:
         // if loading is currently in progress, attempts to init the loaded render layers if ready returning success

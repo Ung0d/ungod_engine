@@ -1,5 +1,5 @@
-#ifndef VISUALS_ORIGANIZER_H
-#define VISUALS_ORIGANIZER_H
+#ifndef UEDIT_ENTITY_PREVIEW_H
+#define UEDIT_ENTITY_PREVIEW_H
 
 #include "ungod/base/Entity.h"
 #include "ungod/visual/Visual.h"
@@ -62,13 +62,16 @@ namespace uedit
         ActionManager& getActionManager() { return mActionManager; }
         const EditorCanvas& getCanvas() const { return mCanvas; }
 
+        void toggleRenderEnv() { mRenderEnvironment = !mRenderEnvironment; }
+
     private:
         ungod::Entity mEntity;
         ActionManager& mActionManager;
         std::unique_ptr<EditState> mState;
         CameraController mCamContrl;
         const EditorCanvas& mCanvas;
+        bool mRenderEnvironment;
     };
 }
 
-#endif // VISUALS_ORIGANIZER_H
+#endif // UEDIT_ENTITY_PREVIEW_H

@@ -14,7 +14,8 @@ namespace uedit
         COMP_CHECKBOX = 177,
         COMP_TABS = 178,
         EDIT_UNDO = 555,
-        EDIT_REDO = 556
+        EDIT_REDO = 556,
+        TOGGLE_RENDER_ENV = 558
     };
 
 //connect events
@@ -24,6 +25,7 @@ namespace uedit
         EVT_NOTEBOOK_PAGE_CHANGED(COMP_TABS, EntityDesigner::onTabChanged)
         EVT_MENU(EDIT_UNDO, EntityDesigner::onEditUndo)
         EVT_MENU(EDIT_REDO, EntityDesigner::onEditRedo)
+        EVT_MENU(TOGGLE_RENDER_ENV, EntityDesigner::onToggleRenderEnv)
     wxEND_EVENT_TABLE()
 
     const wxSize EntityDesigner::DEFAULT_SIZE = {1600, 1000};
@@ -39,6 +41,7 @@ namespace uedit
             wxMenu* menuEdit = new wxMenu;
             menuEdit->Append(EDIT_UNDO, "&undo\tCtrl-Z");
             menuEdit->Append(EDIT_REDO, "&redo\tCtrl-Shift-Z");
+            menuEdit->Append(TOGGLE_RENDER_ENV, "&render environment\tCtrl-R");
 
             wxMenuBar *menuBar = new wxMenuBar;
             menuBar->Append( menuEdit, "&Edit");
@@ -93,6 +96,11 @@ namespace uedit
     void EntityDesigner::onEditRedo(wxCommandEvent& event)
     {
         mActionManager.getEditorFrame()->getActionManager().redo();
+    }
+
+    void EntityDesigner::onToggleRenderEnv(wxCommandEvent& event)
+    {
+        mEntityPreview->toggleRenderEnv();
     }
 
     void EntityDesigner::onEntityContentsChanged(ungod::Entity e, ungod::World& world)

@@ -34,7 +34,8 @@ namespace ungod
         {
 			script::Usertype<WorldGraphNode> worldGraphNodeType = state.registerUsertype<WorldGraphNode>("WorldGraphNode");
 			worldGraphNodeType["addWorld"] = [](WorldGraphNode& node) { return node.addWorld(); };
-			worldGraphNodeType["getWorld"] = &WorldGraphNode::getWorld;
+			worldGraphNodeType["getWorld"] = sol::overload([](WorldGraphNode& node, unsigned i) { return node.getWorld(i); },
+															[](WorldGraphNode& node, const std::string& identifier) { return node.getWorld(identifier); });
 			worldGraphNodeType["setSize"] = &WorldGraphNode::setSize;
 			worldGraphNodeType["setPosition"] = &WorldGraphNode::setPosition;
 			worldGraphNodeType["getBounds"] = &WorldGraphNode::getBounds;
@@ -48,6 +49,8 @@ namespace ungod
 			worldGraphNodeType["getIdentifier"] = &WorldGraphNode::getIdentifier;
 			worldGraphNodeType["mapToGlobalPosition"] = &WorldGraphNode::mapToGlobalPosition;
 			worldGraphNodeType["mapToLocalPosition"] = &WorldGraphNode::mapToLocalPosition;
+			worldGraphNodeType["setPriority"] = &WorldGraphNode::setPriority;
+			worldGraphNodeType["getPriority"] = &WorldGraphNode::getPriority;
 
 			script::Usertype<WorldGraph> worldGraphType = state.registerUsertype<WorldGraph>("WorldGraph");
 			worldGraphType["createNode"] = &WorldGraph::createNode;

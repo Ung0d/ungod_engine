@@ -112,6 +112,9 @@ namespace ungod
         /** \brief Registers new callback for the view-position-changed-signal. */
         void onViewCenterChanged(const std::function<void(const sf::Vector2f&)>& callback);
 
+        /** \brief Can be called if the relative point for the camera changes, for instance if a new world node becomes active. */
+        void relativeTo(const sf::Vector2f& point);
+
     public:
         static std::unique_ptr<CameraAffector> makeScreenShake(float duration, float frequency, float amplitude);
         static std::unique_ptr<CameraAffector> makeSmoothZoom(float duration, float targetzoom);
@@ -135,6 +138,7 @@ namespace ungod
         bool mMoving;
         sf::Vector2f mNoise;
         std::list<std::unique_ptr<CameraAffector>> mAffectors;  //< affector objects that manipulate the camera for a certain amount of time
+        sf::Vector2f mRelative;
     };
 
     /** \brief An affector that manipulates the camera for a certain amount of time. */

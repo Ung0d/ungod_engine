@@ -186,7 +186,7 @@ namespace ungod
         {
             MetaNode rectNode = context.appendSubnode(serializer, "texrect");
 
-            if (i < data.mKeys.size() && !data.mKeys[i].empty())
+            if (!data.mKeys[i].empty())
             {
                 context.serializeProperty("key", data.mKeys[i], rectNode);
             }

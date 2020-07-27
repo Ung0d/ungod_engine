@@ -122,6 +122,7 @@ namespace uedit
 
     private :
         //game data
+        EditorFrame* mEditorframe;
         EditorState* mEditorState;
         TileMapEditState* mGroundEditState;
         TileMapEditState* mWaterEditState;

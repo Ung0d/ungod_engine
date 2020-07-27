@@ -61,6 +61,11 @@ namespace ungod
         unsigned mVerticalSize;
         unsigned mMapSizeX;
         unsigned mMapSizeY;
+        bool mAltered;
+        unsigned mLastMetaX;
+        unsigned mLastMetaY;
+        unsigned mOverextendX;
+        unsigned mOverextendY;
 
         const MetaMap* mMeta;
 
