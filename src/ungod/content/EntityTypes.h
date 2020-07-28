@@ -75,8 +75,8 @@ namespace ungod
     */
 
     /** \brief A basic entity with just a transform by default. */
-    using EntityBaseComponents = BaseComponents<TransformComponent, EntityBehaviorComponent>;
-    using EntityOptionalComponents = OptionalComponents<VisualsComponent, RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>, 
+    using EntityBaseComponents = BaseComponents<TransformComponent>;
+    using EntityOptionalComponents = OptionalComponents<EntityBehaviorComponent, VisualsComponent, RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>,
 														MultiComponent<RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>>, MovementComponent, SpriteMetadataComponent,
                                                         SpriteComponent, MultiComponent<SpriteComponent>, VertexArrayComponent, VisualAffectorComponent, MultiComponent<VisualAffectorComponent>,
                                                         AnimationComponent, MultiComponent<AnimationComponent>, BigSpriteComponent, 

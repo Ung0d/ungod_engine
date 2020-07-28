@@ -348,6 +348,11 @@ namespace uedit
         mActiveDesigners.back()->Show();
     }
 
+    unsigned EditorFrame::entityDesginersActive() const
+    {
+        return mActiveDesigners.size();
+    }
+
     void EditorFrame::clearEntityDesigner(EntityDesigner* ed)
     {
         mActiveDesigners.erase(std::remove(mActiveDesigners.begin(), mActiveDesigners.end(), ed), mActiveDesigners.end());

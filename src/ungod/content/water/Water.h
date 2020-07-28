@@ -28,6 +28,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "ungod/serialization/SerialWater.h"
+#include <array>
 
 namespace ungod
 {
@@ -41,12 +42,20 @@ namespace ungod
     friend struct DeserialBehavior<Water>;
 
     public:
+        static constexpr int MAX_REFLECTION_WORLDS = 5;
+        static constexpr float DEFAULT_DISTORTION = 0.01f;
+        static constexpr float DEFAULT_FLOW = 0.1f;
+        static constexpr float DEFAULT_REFLECTION_OPACITY = 0.5f;
+        static constexpr float BOUNDING_BOX_SCALING = 3.0f;  ///< indicates how high the imaginary bounding box for the quad tree search is
+        static constexpr float BOUNDS_OVERLAP = 0.95f;  ///< indicates how much the visuals and the reflected visuals of an entity overlap in y-direction, smaller <-> more overlap
+
+    public:
         /** \brief Default constructs the water object for later initialization. */
         Water();
         Water(const Water& other);
 
         /** \brief Renders shaders and reflections (if activated) on top of the given tilemap. */
-        bool render(sf::RenderTarget& target, sf::RenderTexture& rendertex, const TileMap& tilemap, const sf::Texture* tilemapTex, sf::RenderStates states, World& world) const;
+        bool render(sf::RenderTarget& target, sf::RenderTexture& rendertex, const TileMap& tilemap, const sf::Texture* tilemapTex, sf::RenderStates states) const;
 
         void update();
 
@@ -57,7 +66,8 @@ namespace ungod
         void targetsizeChanged(const sf::Vector2u& targetsize);
 
         /** \brief Activates or deactivates the rendering of reflections of nearby world-objects. */
-        void setReflections(bool flag);
+        bool addReflectionWorld(World* world);
+        bool removeReflectionWorld(World* world);
 
         /** \brief Activates or deactivates the rendering of the water shaders. */
         void setShaders(bool flag);
@@ -81,7 +91,6 @@ namespace ungod
         const std::string& getVertexShaderID() const { return mVertexShaderID; }
 
 
-        bool isShowingReflections() const { return mShowReflections; }
         bool isShowingShaders() const { return mShowShaders; }
         float getDistortionFactor() const { return mDistortionFactor; }
         float getFlowFactor() const { return mFlowFactor; }
@@ -98,19 +107,13 @@ namespace ungod
 
         sf::Clock mDistortionTimer;
 
-        bool mShowReflections;
         bool mShowShaders;
 
         float mDistortionFactor;
         float mFlowFactor;
-        float mReflectionOpacity;
-
-        //default values
-        static constexpr float DEFAULT_DISTORTION = 0.01f;
-        static constexpr float DEFAULT_FLOW = 0.1f;
-        static constexpr float DEFAULT_REFLECTION_OPACITY = 0.5f;
-        static constexpr float BOUNDING_BOX_SCALING = 3.0f;  ///< indicates how high the imaginary bounding box for the quad tree search is
-        static constexpr float BOUNDS_OVERLAP = 0.95f;  ///< indicates how much the visuals and the reflected visuals of an entity overlap in y-direction, smaller <-> more overlap
+        float mReflectionOpacity; 
+        
+        std::array<World*, MAX_REFLECTION_WORLDS> mReflectionWorlds;
 
     private:
         void buildDistortionTexture(const sf::Vector2u& texsize);

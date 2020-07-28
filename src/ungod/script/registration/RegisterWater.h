@@ -33,6 +33,7 @@ namespace ungod
     class Application;
     class Entity;
     class WaterHandler;
+    class World;
 
     namespace scriptRegistration
     {
@@ -41,7 +42,8 @@ namespace ungod
         public:
             WaterHandlerFrontEnd(Entity& e, WaterHandler& h) : mEntity(e), mHandler(h) {}
             void initWater(const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader);
-            void setWaterReflections(bool set);
+            void addReflectionWorld(World* world);
+            void removeReflectionWorld(World* world);
             void setWaterShaders(bool set);
             void setWaterDistortionFactor(float distortion);
             void setWaterFlowFactor(float flow);

@@ -450,10 +450,9 @@ namespace uedit
 
     void EditorCanvas::OnPaint(wxPaintEvent& paintEvent)
     {
-        // Prepare the control to be repainted
-        if ( isRunning() )  //underlying application is running
+        if ( mEditorframe->entityDesginersActive()==0u && isRunning() )  //underlying application is running
         {
-            wxPaintDC Dc(this);
+            //wxPaintDC Dc(this);
             processEvents();
             if (update())
                 render();

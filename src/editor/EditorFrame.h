@@ -55,6 +55,8 @@ namespace uedit
         //opens a new entity desginer for the given entity, if no designer is currently open for it
         void openEntityDesigner(ungod::Entity e);
 
+        unsigned entityDesginersActive() const;
+
         ActionManager& getActionManager() { return mActionManager; }
 
         void registerWorld(ungod::World* world);

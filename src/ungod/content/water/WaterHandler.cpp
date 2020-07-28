@@ -57,9 +57,14 @@ namespace ungod
       water.mWater.init(distortionMap, fragmentShader, vertexShader);
    }
 
-   void WaterHandler::setWaterReflections(WaterComponent& water, bool flag)
+   bool WaterHandler::addReflectionWorld(WaterComponent& water, World* world)
    {
-        water.mWater.setReflections(flag);
+        return water.mWater.addReflectionWorld(world);
+   }
+
+   bool WaterHandler::removeReflectionWorld(WaterComponent& water, World* world)
+   {
+       return water.mWater.removeReflectionWorld(world);
    }
 
     void WaterHandler::setWaterShaders(WaterComponent& water, bool flag)

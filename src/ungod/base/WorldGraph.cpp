@@ -261,6 +261,7 @@ namespace ungod
         mCurrentNeighborhood.emplace(mNodes.size()-1); 
         mAdjacencies.setVertexCount((unsigned)mAdjacencies.getVertexCount() + 1);
         notifyBoundsChanged(mNodes.back().get());
+        mNodes.back()->wait();
         return *mNodes.back();
     }
 

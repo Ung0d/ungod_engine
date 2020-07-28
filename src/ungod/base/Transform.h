@@ -62,7 +62,7 @@ namespace ungod
         sf::Vector2f getCenterPosition() const;
 
         /** \brief Returns the world position of the entity origin (0,0) . */
-        sf::Vector2f getOriginPosition() const;
+        sf::Vector2f getGlobalUpperBounds() const;
 
         /** \brief Returns the local upper bounds of the transform. */
         const sf::Vector2f& getUpperBounds() const;

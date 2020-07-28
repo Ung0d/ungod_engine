@@ -54,10 +54,10 @@ namespace ungod
         auto removalCondition = [localCamTopLeft, windowSize](Entity entity)
         {
              const TransformComponent& t = entity.get<TransformComponent>();
-             return !(t.getPosition().x <= localCamTopLeft.x + windowSize.x &&
-                      t.getPosition().x + t.getSize().x >= localCamTopLeft.x &&
-                      t.getPosition().y <= localCamTopLeft.y + windowSize.y &&
-                      t.getPosition().y + t.getSize().y >= localCamTopLeft.y);
+             return !(t.getGlobalUpperBounds().x <= localCamTopLeft.x + windowSize.x &&
+                      t.getGlobalUpperBounds().x + t.getSize().x >= localCamTopLeft.x &&
+                      t.getGlobalUpperBounds().y <= localCamTopLeft.y + windowSize.y &&
+                      t.getGlobalUpperBounds().y + t.getSize().y >= localCamTopLeft.y);
         };
         pull.getList().erase(std::remove_if( pull.getList().begin(),
                                                pull.getList().end(),
@@ -107,7 +107,7 @@ namespace ungod
               {
                   if (target.getSize() != mWaterTex.getSize())
                       mWaterTex.create(target.getSize().x, target.getSize().y);
-                  e.get<WaterComponent>().mWater.render(target, mWaterTex, e.get<TileMapComponent>().mTileMap, &vis.getTexture(), states, e.getWorld());
+                  e.get<WaterComponent>().mWater.render(target, mWaterTex, e.get<TileMapComponent>().mTileMap, &vis.getTexture(), states);
               }
               else
                   e.get<TileMapComponent>().mTileMap.render(target, &vis.getTexture(), states);
@@ -189,10 +189,10 @@ namespace ungod
       if (e.has<VertexArrayComponent>())
       {
           const VertexArray& vertices = e.get<VertexArrayComponent>().getVertices();
-          for (int i = 0; i < vertices.textureRectCount(); ++i)
+          for (unsigned i = 0; i < vertices.textureRectCount(); ++i)
           {
               sf::ConvexShape shape(4);
-              for (int j = 0; j < 4; ++j)
+              for (unsigned j = 0; j < 4; ++j)
                 shape.setPoint(j, vertices.getPoint(i, j));
               shape.setFillColor(sf::Color::Transparent);
               shape.setOutlineThickness(1);

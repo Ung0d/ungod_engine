@@ -35,9 +35,14 @@ namespace ungod
             mHandler.initWater(mEntity, distortionTex, fragmentShader, vertexShader);
         }
 
-        void WaterHandlerFrontEnd::setWaterReflections(bool set)
+        void WaterHandlerFrontEnd::addReflectionWorld(World* world)
         {
-            mHandler.setWaterReflections(mEntity, set);
+            mHandler.addReflectionWorld(mEntity, world);
+        }
+
+        void WaterHandlerFrontEnd::removeReflectionWorld(World* world)
+        {
+            mHandler.removeReflectionWorld(mEntity, world);
         }
 
         void WaterHandlerFrontEnd::setWaterShaders(bool set)
@@ -65,7 +70,8 @@ namespace ungod
         {
             script::Usertype<WaterHandlerFrontEnd> waterHandlerType = state.registerUsertype<WaterHandlerFrontEnd>("WaterHandlerFrontEnd");
             waterHandlerType["initWater"] = &WaterHandlerFrontEnd::initWater;
-            waterHandlerType["setWaterReflections"] = &WaterHandlerFrontEnd::setWaterReflections;
+            waterHandlerType["addReflectionWorld"] = &WaterHandlerFrontEnd::addReflectionWorld;
+            waterHandlerType["removeReflectionWorld"] = &WaterHandlerFrontEnd::removeReflectionWorld;
             waterHandlerType["setWaterShaders"] = &WaterHandlerFrontEnd::setWaterShaders;
             waterHandlerType["setWaterDistortionFactor"] = &WaterHandlerFrontEnd::setWaterDistortionFactor;
             waterHandlerType["setWaterFlowFactor"] = &WaterHandlerFrontEnd::setWaterFlowFactor;

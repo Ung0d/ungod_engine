@@ -54,7 +54,6 @@ namespace uedit
             }
         }
         mState->render(*this, window, states);
-        mEntity.getWorld().getWaterHandler().targetSizeChanged(mEntity.getWorld(), mCanvas.getWindow().getSize());
     }
 
     void EntityPreview::toggleDefault()
@@ -73,5 +72,10 @@ namespace uedit
     void EntityPreview::lookAt(const sf::Vector2f& position)
     {
         mCamera.lookAt(position);
+    }
+
+    EntityPreview::~EntityPreview()
+    {
+        mEntity.getWorld().getWaterHandler().targetSizeChanged(mEntity.getWorld(), mCanvas.getWindow().getSize());
     }
 }

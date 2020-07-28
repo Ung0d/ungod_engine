@@ -67,10 +67,17 @@ namespace ungod
         { initWater(e.modify<WaterComponent>(), distortionTex, fragmentShader, vertexShader); }
         static void initWater(WaterComponent& water, const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader);
 
-        /** \brief Activates or deactivates the rendering of reflections of nearby world-objects. */
-        inline static void setWaterReflections(Entity e, bool flag)
-        { setWaterReflections(e.modify<WaterComponent>(), flag); }
-        static void setWaterReflections(WaterComponent& water, bool flag);
+        /** \brief Adds a world of which nearby world-objects are pulled to draw reflections. */
+        inline static bool addReflectionWorld(Entity e, World* world)
+        { return addReflectionWorld(e.modify<WaterComponent>(), world); }
+        static bool addReflectionWorld(WaterComponent& water, World* world);
+
+        /** \brief Removes a previously added reflection world. */
+        inline static bool removeReflectionWorld(Entity e, World* world)
+        {
+            return removeReflectionWorld(e.modify<WaterComponent>(), world);
+        }
+        static bool removeReflectionWorld(WaterComponent& water, World* world);
 
         /** \brief Activates or deactivates the rendering of the water shaders. */
         inline static void setWaterShaders(Entity e, bool flag)

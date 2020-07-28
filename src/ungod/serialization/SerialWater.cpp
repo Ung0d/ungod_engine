@@ -38,6 +38,11 @@ namespace ungod
         context.serializeProperty("dtex", data.mDistortionTextureFile, serializer);
         context.serializeProperty("vert", data.mVertexShaderID, serializer);
         context.serializeProperty("frag", data.mFragmentShaderID, serializer);
+
+        /*for (int i = 0; i < Water::MAX_REFLECTION_WORLDS; i++)
+            if (data.mReflectionWorlds[i])
+                context.serializeProperty("world" + std::to_string(i), 
+                    data.mReflectionWorlds[i]->getNode().getIdentifier() + "$" + data.mReflectionWorlds[i]->getName(), serializer);*/
     }
 
     void DeserialBehavior<Water>::deserialize(Water& data, MetaNode deserializer, DeserializationContext& context)
@@ -51,6 +56,20 @@ namespace ungod
         attr = context.next(context.deserializeProperty(distex), "dtex", deserializer, attr);
         attr = context.next(context.deserializeProperty(vert), "vert", deserializer, attr);
         attr = context.next(context.deserializeProperty(frag), "frag", deserializer, attr);
+
+        /*std::string val;
+        for (int i = 0; i < Water::MAX_REFLECTION_WORLDS; i++)
+        {
+            attr = context.next(context.deserializeProperty(val), "world" + std::to_string(i), deserializer, attr);
+            if (!val.empty())
+            {
+                auto split = val.find('$');
+                if (split == std::string::npos)
+                    continue;
+                std::string nodeID = val.substr(0, split);
+                std::string worldID = val.substr(split+1, val.length());
+            }
+        }*/
 
         data.init(distex, frag, vert);
     }

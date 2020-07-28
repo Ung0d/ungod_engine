@@ -32,8 +32,8 @@ namespace ungod
 	std::pair<bool, sf::Vector2f> doCollide(const Collider& c1, const Collider& c2, const TransformComponent& t1, const TransformComponent& t2)
 	{
 		bool collision = false;
-		float minMagn = std::numeric_limits<float>::max();
-		sf::Vector2f mdvMin; 
+		//float maxMagn = std::numeric_limits<float>::min();
+		sf::Vector2f mdvSum; 
 		static thread_local detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM> axis;
 		static thread_local detail::ParamStack<sf::Vector2f, Collider::MAX_PARAM/2> pivots1, pivots2;
 		for (unsigned i = 0; i < c1.getNumRuns(); i++)
@@ -47,20 +47,23 @@ namespace ungod
 			bool collisionHere;
 			sf::Vector2f mdv;
 			std::tie(collisionHere, mdv) = satAlgorithm(axis, pivots1, pivots2);
-			if (dotProduct(t1.getTransform().transformPoint(c1.getCenter()) -
-				t2.getTransform().transformPoint(c2.getCenter()), mdv) < 0)
+			if (collisionHere)
 			{
-				mdv = -mdv;
+				if (dotProduct(t1.getTransform().transformPoint(c1.getCenter()) -
+					t2.getTransform().transformPoint(c2.getCenter()), mdv) < 0)
+				{
+					mdv = -mdv;
+				}
+				//float curMagn = sqMagnitude(mdv);
+				//if (curMagn > maxMagn)
+				{
+					mdvSum += mdv;
+					//maxMagn = curMagn;
+				}
+				collision = true;
 			}
-			float curMagn = sqMagnitude(mdv);
-			if (curMagn < minMagn)
-			{
-				mdvMin = mdv;
-				minMagn = curMagn;
-			}
-			collision = collision || collisionHere;
 		}
-		return { collision, mdvMin };
+		return { collision, mdvSum };
 	}
 
 
@@ -95,7 +98,7 @@ namespace ungod
 				c2Left = std::min(c2Left, projection);
 			}
 
-			overlap = std::min(c1Right, c2Right) - std::max(c1Left, c2Left);
+			overlap = std::min(c1Right - c2Left, c2Right - c1Left); // std::min(c1Right, c2Right) - std::max(c1Left, c2Left);
 
 			if (overlap < 0)
 			{

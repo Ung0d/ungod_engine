@@ -45,9 +45,9 @@ namespace ungod
 			return mEntity.get<TransformComponent>().getCenterPosition();
 		}
 
-		sf::Vector2f TransformHandlerFrontEnd::getOriginPosition() const
+		sf::Vector2f TransformHandlerFrontEnd::getGlobalUpperBounds() const
 		{
-			return mEntity.get<TransformComponent>().getOriginPosition();
+			return mEntity.get<TransformComponent>().getGlobalUpperBounds();
 		}
 
 		const sf::Vector2f& TransformHandlerFrontEnd::getUpperBounds() const
@@ -96,7 +96,7 @@ namespace ungod
 			transfHandlerFrontEndType["getSize"] = &TransformHandlerFrontEnd::getSize;
 			transfHandlerFrontEndType["getPosition"] = &TransformHandlerFrontEnd::getPosition;
 			transfHandlerFrontEndType["getCenterPosition"] = &TransformHandlerFrontEnd::getCenterPosition;
-			transfHandlerFrontEndType["getOriginPosition"] = &TransformHandlerFrontEnd::getOriginPosition;
+			transfHandlerFrontEndType["getGlobalUpperBounds"] = &TransformHandlerFrontEnd::getGlobalUpperBounds;
 			transfHandlerFrontEndType["getUpperBounds"] = &TransformHandlerFrontEnd::getUpperBounds;
 			transfHandlerFrontEndType["getLowerBounds"] = &TransformHandlerFrontEnd::getLowerBounds;
 			transfHandlerFrontEndType["getScale"] = &TransformHandlerFrontEnd::getScale;

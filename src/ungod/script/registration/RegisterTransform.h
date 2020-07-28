@@ -43,7 +43,7 @@ namespace ungod
 			sf::Vector2f getPosition() const;
 			sf::Vector2f getSize() const;
 			sf::Vector2f getCenterPosition() const;
-			sf::Vector2f getOriginPosition() const;
+			sf::Vector2f getGlobalUpperBounds() const;
 			const sf::Vector2f& getUpperBounds() const;
 			const sf::Vector2f& getLowerBounds() const;
 			const sf::Vector2f& getScale() const;

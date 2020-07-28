@@ -456,6 +456,7 @@ BOOST_AUTO_TEST_CASE( world_graph_test )
         BOOST_CHECK_EQUAL(ungod::WorldGraphNode::DEFAULT_SIZE, world2->getSize().y);
         BOOST_CHECK_EQUAL(state.getWorldGraph().getActiveNode(), &node);
         node.setSize({ 800,600 });
+        node.save();
         BOOST_CHECK_EQUAL(state.getWorldGraph().getActiveNode(), &node);
         node.setPosition({ 100,100 });
         BOOST_CHECK(!state.getWorldGraph().getActiveNode());

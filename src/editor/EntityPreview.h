@@ -40,8 +40,6 @@ namespace uedit
         virtual void update(float delta) override;
         virtual void render(sf::RenderWindow& window, sf::RenderStates states) override;
 
-        virtual ~EntityPreview() {}
-
         void toggleDefault();
         template<typename T, typename ... PARAM>
         void toggle(PARAM&& ... param)
@@ -63,6 +61,8 @@ namespace uedit
         const EditorCanvas& getCanvas() const { return mCanvas; }
 
         void toggleRenderEnv() { mRenderEnvironment = !mRenderEnvironment; }
+
+        virtual ~EntityPreview();
 
     private:
         ungod::Entity mEntity;

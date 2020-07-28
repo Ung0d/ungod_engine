@@ -4,6 +4,11 @@
 #include "ungod/base/Entity.h"
 #include "ungod/content/water/WaterHandler.h"
 
+namespace ungod
+{
+    class World;
+}
+
 namespace uedit
 {
     class ActionManager;
@@ -16,7 +21,8 @@ namespace uedit
         void loadWaterShaders(ungod::Entity e, const std::string& distortionMap,
             const std::string& fragmentShader, const std::string& vertexShader);
 
-        void setWaterReflections(ungod::Entity e, bool flag);
+        void addReflectionWorld(ungod::Entity e, ungod::World* world);
+        void removeReflectionWorld(ungod::Entity e, ungod::World* world);
 
         void setWaterShaders(ungod::Entity e, bool flag);
 

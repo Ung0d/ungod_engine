@@ -270,12 +270,14 @@ void CollisionHandler<CONTEXT>::entityCollision(Entity e1, Entity e2,
                      TransformComponent t1, TransformComponent t2,
                      RigidbodyComponent<CONTEXT>& r1,  RigidbodyComponent<CONTEXT>& r2)
 {
+	if (e1 == e2)
+		return;
     if (sf::FloatRect(t1.getPosition(), t1.getSize()).intersects(sf::FloatRect(t2.getPosition(), t2.getSize())))
     {
         bool collision;
         sf::Vector2f smallestOffset;
         std::tie(collision, smallestOffset) = doCollide(r1.getCollider(), r2.getCollider(), t1, t2);
-        if ( collision && e1 != e2 )
+        if ( collision )
         {
 			notifyCollision(e1, e2, smallestOffset, r1.getCollider(), r2.getCollider());
 			notifyCollision(e2, e1, smallestOffset, r2.getCollider(), r1.getCollider());

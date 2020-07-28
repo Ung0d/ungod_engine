@@ -49,9 +49,9 @@ namespace ungod
         return mTransform.getTransform().transformPoint(0.5f*(mLowerBound + mUpperBound));
     }
 
-    sf::Vector2f TransformComponent::getOriginPosition() const
+    sf::Vector2f TransformComponent::getGlobalUpperBounds() const
     {
-        return mTransform.getTransform().transformPoint({ 0,0 });
+        return mTransform.getTransform().transformPoint(mUpperBound);
     }
 
 
@@ -66,7 +66,7 @@ namespace ungod
 
     sf::FloatRect TransformComponent::getBounds() const
     {
-        return sf::FloatRect(getPosition(), getSize());
+        return sf::FloatRect(getGlobalUpperBounds(), getSize());
     }
 
     const sf::Vector2f& TransformComponent::getBaseLineOffsets() const

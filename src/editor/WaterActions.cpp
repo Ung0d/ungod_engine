@@ -18,15 +18,22 @@ namespace uedit
             e);
     }
 
-    void WaterActions::setWaterReflections(ungod::Entity e, bool flag)
+    void WaterActions::addReflectionWorld(ungod::Entity e, ungod::World* world)
     {
-        const ungod::Water& w = e.get<ungod::WaterComponent>().getWater();
-        bool old = w.isShowingReflections();
-        mActionManager.action(std::function([this, flag](ungod::Entity e)
-            { e.getWorld().getWaterHandler().setWaterReflections(e, flag); }),
-            std::function([this, old](ungod::Entity e)
-                { e.getWorld().getWaterHandler().setWaterReflections(e, old); }),
-            e);
+        mActionManager.action(std::function([this](ungod::Entity e, ungod::World* world)
+            { e.getWorld().getWaterHandler().addReflectionWorld(e, world); }),
+            std::function([this](ungod::Entity e, ungod::World* world)
+                { e.getWorld().getWaterHandler().removeReflectionWorld(e, world); }),
+            e, world);
+    }
+
+    void WaterActions::removeReflectionWorld(ungod::Entity e, ungod::World* world)
+    {
+        mActionManager.action(std::function([this](ungod::Entity e, ungod::World* world)
+            { e.getWorld().getWaterHandler().removeReflectionWorld(e, world); }),
+            std::function([this](ungod::Entity e, ungod::World* world)
+                { e.getWorld().getWaterHandler().addReflectionWorld(e, world); }),
+            e, world);
     }
 
     void WaterActions::setWaterShaders(ungod::Entity e, bool flag)

@@ -70,8 +70,8 @@ namespace quad
 
     Vector2f ElementTraits<ungod::Entity>::getPosition(const ungod::Entity& e)
     {
-        return Vector2f(e.get<ungod::TransformComponent>().getPosition().x,
-                        e.get<ungod::TransformComponent>().getPosition().y);
+        return Vector2f(e.get<ungod::TransformComponent>().getGlobalUpperBounds().x,
+                        e.get<ungod::TransformComponent>().getGlobalUpperBounds().y);
     }
 
     Vector2f ElementTraits<ungod::Entity>::getSize(const ungod::Entity& e)
