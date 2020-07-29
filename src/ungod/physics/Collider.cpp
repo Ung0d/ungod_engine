@@ -140,7 +140,7 @@ namespace ungod
 	}
 
 
-	sf::Vector2f Collider::getCenter() const
+	sf::Vector2f Collider::getCenter(unsigned i) const
 	{
 		switch (mType)
 		{
@@ -149,7 +149,8 @@ namespace ungod
 		case ColliderType::CONVEX_POLYGON:
 			return PointSetConstAggregator{ *this }.getCenter();
 		case ColliderType::EDGE_CHAIN:
-			return {};
+			return { (PointSetConstAggregator{ *this }.getPointX(i) + PointSetConstAggregator{ *this }.getPointX(i+1))/2, 
+						(PointSetConstAggregator{ *this }.getPointY(i) + PointSetConstAggregator{ *this }.getPointY(i+1))/2 };
 		/*case ColliderType::CIRCLE:
 			return {};*/
 		default:

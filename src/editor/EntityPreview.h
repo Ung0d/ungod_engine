@@ -61,6 +61,7 @@ namespace uedit
         const EditorCanvas& getCanvas() const { return mCanvas; }
 
         void toggleRenderEnv() { mRenderEnvironment = !mRenderEnvironment; }
+        void toggleRenderEnvDebug() { mRenderDebugEnvironment = !mRenderDebugEnvironment; }
 
         virtual ~EntityPreview();
 
@@ -71,6 +72,7 @@ namespace uedit
         CameraController mCamContrl;
         const EditorCanvas& mCanvas;
         bool mRenderEnvironment;
+        bool mRenderDebugEnvironment;
     };
 }
 

@@ -18,7 +18,8 @@ namespace uedit
                           mActionManager(actionManager),
                           mCamContrl(mCamera),
                           mCanvas(canvas),
-                          mRenderEnvironment(false)
+                          mRenderEnvironment(false),
+                          mRenderDebugEnvironment(false)
     {
         toggleDefault();
         resetView();
@@ -43,6 +44,8 @@ namespace uedit
         if (mRenderEnvironment)
         {
             mEntity.getWorld().getGraph().render(window, states);
+            if (mRenderDebugEnvironment)
+                mEntity.getWorld().getGraph().renderDebug(window, states, true, false);
         }
         else
         {

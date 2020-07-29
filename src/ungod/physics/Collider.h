@@ -97,7 +97,7 @@ namespace ungod
 							unsigned i) const;
 
 		/** \brief Returns the center point of the collider. Requires an internal type-check. */
-		sf::Vector2f getCenter() const;
+		sf::Vector2f getCenter(unsigned i) const;
 
 		/** \brief Detail: returns the number of SAT runs required to check this collider. Requires an internal type-check. */
 		unsigned getNumRuns() const;

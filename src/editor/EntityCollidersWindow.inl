@@ -24,13 +24,13 @@ namespace uedit
 
             mCompCountCtrl = new wxTextCtrl(this, -1, 
                 _(std::to_string(mEntity.get<ungod::MultiRigidbodyComponent<CONTEXT>>().getComponentCount())));
-            countSetSizer->Add(mCompCountCtrl, 0, wxALIGN_CENTER_HORIZONTAL);
+            countSetSizer->Add(mCompCountCtrl, 0, wxALIGN_CENTER);
 
             wxButton* setButton = new wxButton(this, -1, _("set collider count"));
             setButton->Bind(wxEVT_BUTTON, &EntityCollidersWindow<CONTEXT>::onSetColliderCountClicked, this);
-            countSetSizer->Add(setButton, 0, wxALIGN_CENTER_HORIZONTAL);
+            countSetSizer->Add(setButton, 0, wxALIGN_CENTER);
 
-            boxsizer->Add(countSetSizer, 1, wxALIGN_CENTER_HORIZONTAL);
+            boxsizer->Add(countSetSizer, 1, wxALIGN_CENTER);
         }
 
         {
@@ -215,10 +215,17 @@ namespace uedit
     {
         if (mEntity.has<ungod::MultiRigidbodyComponent<CONTEXT>>())
         {
-            if (event.GetIndex() == 0)
-                displayRigidbody(0, true);
+            if (!mEntity.has<ungod::RigidbodyComponent<CONTEXT>>())
+            {
+                displayRigidbody(event.GetIndex(), false);
+            }
             else
-                displayRigidbody(event.GetIndex()-1, false);
+            {
+                if (event.GetIndex() == 0)
+                    displayRigidbody(0, true);
+                else
+                    displayRigidbody(event.GetIndex() - 1, false);
+            }
         }
         else
             displayRigidbody(event.GetIndex(), false);

@@ -15,7 +15,8 @@ namespace uedit
         COMP_TABS = 178,
         EDIT_UNDO = 555,
         EDIT_REDO = 556,
-        TOGGLE_RENDER_ENV = 558
+        TOGGLE_RENDER_ENV = 558,
+        TOGGLE_RENDER_ENV_DEBUG = 559
     };
 
 //connect events
@@ -26,6 +27,7 @@ namespace uedit
         EVT_MENU(EDIT_UNDO, EntityDesigner::onEditUndo)
         EVT_MENU(EDIT_REDO, EntityDesigner::onEditRedo)
         EVT_MENU(TOGGLE_RENDER_ENV, EntityDesigner::onToggleRenderEnv)
+        EVT_MENU(TOGGLE_RENDER_ENV_DEBUG, EntityDesigner::onToggleRenderEnvDebug)
     wxEND_EVENT_TABLE()
 
     const wxSize EntityDesigner::DEFAULT_SIZE = {1600, 1000};
@@ -42,6 +44,7 @@ namespace uedit
             menuEdit->Append(EDIT_UNDO, "&undo\tCtrl-Z");
             menuEdit->Append(EDIT_REDO, "&redo\tCtrl-Shift-Z");
             menuEdit->Append(TOGGLE_RENDER_ENV, "&render environment\tCtrl-R");
+            menuEdit->Append(TOGGLE_RENDER_ENV_DEBUG, "&render environment debug\tCtrl-D");
 
             wxMenuBar *menuBar = new wxMenuBar;
             menuBar->Append( menuEdit, "&Edit");
@@ -101,6 +104,11 @@ namespace uedit
     void EntityDesigner::onToggleRenderEnv(wxCommandEvent& event)
     {
         mEntityPreview->toggleRenderEnv();
+    }
+
+    void EntityDesigner::onToggleRenderEnvDebug(wxCommandEvent& event)
+    {
+        mEntityPreview->toggleRenderEnvDebug();
     }
 
     void EntityDesigner::onEntityContentsChanged(ungod::Entity e, ungod::World& world)

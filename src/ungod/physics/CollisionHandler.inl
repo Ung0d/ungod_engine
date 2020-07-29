@@ -272,7 +272,7 @@ void CollisionHandler<CONTEXT>::entityCollision(Entity e1, Entity e2,
 {
 	if (e1 == e2)
 		return;
-    if (sf::FloatRect(t1.getPosition(), t1.getSize()).intersects(sf::FloatRect(t2.getPosition(), t2.getSize())))
+    if (sf::FloatRect(t1.getGlobalUpperBounds(), t1.getSize()).intersects(sf::FloatRect(t2.getGlobalUpperBounds(), t2.getSize())))
     {
         bool collision;
         sf::Vector2f smallestOffset;

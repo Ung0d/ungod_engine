@@ -49,8 +49,8 @@ namespace ungod
 			std::tie(collisionHere, mdv) = satAlgorithm(axis, pivots1, pivots2);
 			if (collisionHere)
 			{
-				if (dotProduct(t1.getTransform().transformPoint(c1.getCenter()) -
-					t2.getTransform().transformPoint(c2.getCenter()), mdv) < 0)
+				if (dotProduct(t1.getTransform().transformPoint(c1.getCenter(i)) -
+					t2.getTransform().transformPoint(c2.getCenter(j)), mdv) < 0)
 				{
 					mdv = -mdv;
 				}
