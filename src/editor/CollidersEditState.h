@@ -113,7 +113,7 @@ namespace uedit
     public:
         CollidersEditState(EntityPreview& preview, EntityCollidersWindow<CONTEXT>& colliderWindow);
 
-        void selectMultiCollider(std::size_t i);
+        void selectMultiCollider(unsigned i);
 
         virtual void handleInput(EntityPreview& preview, const sf::Event& event) override;
         virtual void update(EntityPreview& preview, float delta) override;
@@ -153,7 +153,7 @@ namespace uedit
     }
 
     template<std::size_t CONTEXT>
-    void CollidersEditState<CONTEXT>::selectMultiCollider(std::size_t i)
+    void CollidersEditState<CONTEXT>::selectMultiCollider(unsigned i)
     {
         if (std::find(mSelectedMultiColliders.begin(), mSelectedMultiColliders.end(), i) == mSelectedMultiColliders.end())
             mSelectedMultiColliders.emplace_back(i);

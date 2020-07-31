@@ -141,4 +141,28 @@ BOOST_AUTO_TEST_CASE( floodfill_test )
     }
 }
 
+BOOST_AUTO_TEST_CASE(tilemap_extend_test)
+{
+    ungod::TileMap tilemap;
+    ungod::TileData tiledata;
+    tiledata.ids = std::make_shared<std::vector<int>>(std::initializer_list<int>{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+    tilemap.setTiles(tiledata, 4, 3);
+    tilemap.extend(1, 1, 1, 1);
+    BOOST_CHECK_EQUAL(tilemap.getMapSizeX(), 6);
+    BOOST_CHECK_EQUAL(tilemap.getMapSizeY(), 5);
+    BOOST_CHECK_EQUAL(-1, tilemap.getTileID(0,0));
+    BOOST_CHECK_EQUAL(-1, tilemap.getTileID(1,0));
+    BOOST_CHECK_EQUAL(-1, tilemap.getTileID(4,0));
+    BOOST_CHECK_EQUAL(-1, tilemap.getTileID(0,1));
+    BOOST_CHECK_EQUAL(-1, tilemap.getTileID(0,4));
+    BOOST_CHECK_EQUAL(-1, tilemap.getTileID(5,0));
+    BOOST_CHECK_EQUAL(-1, tilemap.getTileID(5,3));
+    BOOST_CHECK_EQUAL(-1, tilemap.getTileID(2,4));
+    BOOST_CHECK_EQUAL(-1, tilemap.getTileID(3,4));
+    BOOST_CHECK_EQUAL(0, tilemap.getTileID(2, 2));
+    BOOST_CHECK_EQUAL(0, tilemap.getTileID(2, 1));
+    BOOST_CHECK_EQUAL(0, tilemap.getTileID(3, 2));
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()

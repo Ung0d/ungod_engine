@@ -383,6 +383,9 @@ namespace ungod
 		/** \brief Sets the world to a new size. */
 		virtual void setSize(const sf::Vector2f& layersize) override;
 
+        /** Extends world size into specific directions. */
+        virtual void extend(const sf::Vector2f& leftTopExtensions, const sf::Vector2f& rightBotExtensions) override;
+
         //destroys all entities queued for destruction, automatically called during update and on destruction of the world
         void destroyQueued();
     };

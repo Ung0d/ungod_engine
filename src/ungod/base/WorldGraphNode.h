@@ -107,9 +107,12 @@ namespace ungod
 		/** \brief Moves the node (and all internal layers) along an offset. */
 		void move(const sf::Vector2f& offset);
 
-		/** \brief Resizes the node (and all internal layers). This may be a costly operation if the layers 
-		* are nonempty. */
-		void setSize(const sf::Vector2f& size);
+        void setSize(const sf::Vector2f& size);
+
+		/** \brief Resizes the node (and all internal layers). 
+        * This may be a costly operation if the layers are nonempty. 
+        * If leftTop is nonzero, positions of all transforms are adjusted such that  */
+		void extend(const sf::Vector2f& leftTopExtensions, const sf::Vector2f& rightBotExtensions);
 
 		const RenderLayerContainer& getLayers() const { return mLayers; }
 

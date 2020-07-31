@@ -544,6 +544,23 @@ BOOST_AUTO_TEST_CASE(multiple_threads_request_asset_test)
     }
 }
 
+BOOST_AUTO_TEST_CASE(world_extend_test)
+{
+    ungod::ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+    ungod::WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+    node.setSaveContents(false); //do not serialize any changes we make to this node
+    node.setSize({ 1000,1000 });
+    ungod::World* world = node.addWorld();
+    ungod::Entity e = world->create(ungod::EntityBaseComponents(), ungod::EntityOptionalComponents());
+    world->addEntity(e);
+    world->getTransformHandler().setPosition(e, { 100,100 });
+    node.extend({ 100.0f, 200.0f }, { 300.0f, 50.0f });
+    BOOST_CHECK_EQUAL(1400.0f, node.getSize().x);
+    BOOST_CHECK_EQUAL(1250.0f, node.getSize().y);
+    BOOST_CHECK_EQUAL(200.0f, e.get<ungod::TransformComponent>().getPosition().x);
+    BOOST_CHECK_EQUAL(300.0f, e.get<ungod::TransformComponent>().getPosition().y);
+}
+
 BOOST_AUTO_TEST_SUITE_END() 
 
 

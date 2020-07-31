@@ -145,20 +145,35 @@ namespace uedit
 			switch (mCornerSelected)
 			{
 			case 0:
-				mSelectedNode->move(mTotalMove);
-				mSelectedNode->setSize(sf::Vector2f{ mSelectedNode->getBounds().width, mSelectedNode->getBounds().height }-mTotalMove);
+			{
+				mSelectedNode->extend(-mTotalMove, {});
+
+				//mSelectedNode->move(mTotalMove);
+				//mSelectedNode->setSize(sf::Vector2f{ mSelectedNode->getBounds().width, mSelectedNode->getBounds().height }-mTotalMove);
 				break;
+			}
 			case 1:
-				mSelectedNode->move({ 0.0f, mTotalMove.y });
-				mSelectedNode->setSize(sf::Vector2f{ mSelectedNode->getBounds().width, mSelectedNode->getBounds().height }+sf::Vector2f{ mTotalMove.x, -mTotalMove.y });
+			{
+				mSelectedNode->extend({ 0.0f, -mTotalMove.y }, { mTotalMove.x , 0.0f });
+
+				//mSelectedNode->move({ 0.0f, mTotalMove.y });
+				//mSelectedNode->setSize(sf::Vector2f{ mSelectedNode->getBounds().width, mSelectedNode->getBounds().height }+sf::Vector2f{ mTotalMove.x, -mTotalMove.y });
 				break;
+			}
 			case 2:
-				mSelectedNode->setSize(sf::Vector2f{ mSelectedNode->getBounds().width, mSelectedNode->getBounds().height }+mTotalMove);
+			{
+				mSelectedNode->extend({}, mTotalMove);
+				//mSelectedNode->setSize(sf::Vector2f{ mSelectedNode->getBounds().width, mSelectedNode->getBounds().height }+mTotalMove);
 				break;
+			}
 			case 3:
-				mSelectedNode->move({ mTotalMove.x, 0.0f });
-				mSelectedNode->setSize(sf::Vector2f{ mSelectedNode->getBounds().width, mSelectedNode->getBounds().height }+sf::Vector2f{ -mTotalMove.x, mTotalMove.y });
+			{
+				mSelectedNode->extend({ -mTotalMove.x , 0.0f } , { 0.0f, mTotalMove.y });
+
+				//mSelectedNode->move({ mTotalMove.x, 0.0f });
+				//mSelectedNode->setSize(sf::Vector2f{ mSelectedNode->getBounds().width, mSelectedNode->getBounds().height }+sf::Vector2f{ -mTotalMove.x, mTotalMove.y });
 				break;
+			}
 			default:
 				break;
 			}
@@ -380,6 +395,23 @@ namespace uedit
 				});
 			boxsizer->Add(mPriority, 0, wxALIGN_CENTER_HORIZONTAL);
 		}
+		{
+			mTopExtend = new wxTextCtrl(this, -1, _("0"));
+			boxsizer->Add(mTopExtend, 0, wxALIGN_CENTER_HORIZONTAL);
+			{
+				wxSizer* hsizer = new wxBoxSizer(wxHORIZONTAL);
+				mLeftExtend = new wxTextCtrl(this, -1, _("0"));
+				mRightExtend = new wxTextCtrl(this, -1, _("0"));
+				hsizer->Add(mLeftExtend, 0, wxALIGN_CENTER_VERTICAL);
+				hsizer->Add(mRightExtend, 0, wxALIGN_CENTER_VERTICAL);
+				boxsizer->Add(hsizer, 0, wxALIGN_CENTER_HORIZONTAL);
+			}
+			mBottomExtend = new wxTextCtrl(this, -1, _("0"));
+			boxsizer->Add(mBottomExtend, 0, wxALIGN_CENTER_HORIZONTAL);
+			wxButton* extendButton = new wxButton(this, -1, _("extend"));
+			extendButton->Bind(wxEVT_BUTTON, &NodeChangeDialog::onExtendButtonClicked, this);
+			boxsizer->Add(extendButton, 0, wxALIGN_CENTER_HORIZONTAL);
+		}
 
 		SetSizer(boxsizer);
 		Fit();
@@ -410,6 +442,23 @@ namespace uedit
 		//we reset the ref position to the new node center to make sure it is still inside the node
 		sf::Vector2f newRef = mNode->getPosition() + 0.5f*mNode->getSize();
 		mNode->getGraph().updateReferencePosition(newRef);
+	}
+
+	void NodeChangeDialog::onExtendButtonClicked(wxCommandEvent& event)
+	{
+		try
+		{
+			float left = std::stof(std::string(mLeftExtend->GetValue().mb_str()));
+			float top = std::stof(std::string(mTopExtend->GetValue().mb_str()));
+			float right = std::stof(std::string(mRightExtend->GetValue().mb_str()));
+			float bottom = std::stof(std::string(mBottomExtend->GetValue().mb_str()));
+			mNode->extend({ left, top }, { right, bottom });
+		}
+		catch (const std::exception&)
+		{
+			auto err = wxMessageDialog(this, _("At least one of the extension text fields does not contain a valid number."));
+			err.ShowModal();
+		}
 	}
 }
 

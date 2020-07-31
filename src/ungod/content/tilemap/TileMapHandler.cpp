@@ -120,6 +120,12 @@ namespace ungod
 			e.modify<TileMapComponent>().mTileMap.move(vec);
 	}
 
+    void TileMapHandler::extendTilemap(Entity e, unsigned leftExtend, unsigned topExtend, unsigned rightExtend, unsigned bottomExtend, int id)
+    {
+        e.modify<TileMapComponent>().mTileMap.extend(leftExtend, topExtend, rightExtend, bottomExtend, id);
+        mContentsChangedSignal(e, e.modify<TileMapComponent>().mTileMap.getBounds());
+    }
+
     void TileMapHandler::tilemapCallback(Entity e, TileMapComponent& tmc, const std::function<void(TileMap&)>& callback)
     {
         callback(tmc.mTileMap);

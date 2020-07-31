@@ -61,23 +61,26 @@ namespace ungod
         bool active = false;
         if (mVertices.getVertexCount())
         {
-            unsigned metaX = std::max(0, (int)(std::round(windowPosition.x - getPosition().x) / (getScale().x * mTileWidth)) - (int)mOverextendX );
-            unsigned metaY = std::max(0, (int)(std::round(windowPosition.y - getPosition().y) / (getScale().y * mTileHeight)) - (int)mOverextendY );
+            int metaX = (int)(std::round(windowPosition.x - getPosition().x) / (getScale().x * mTileWidth)) - (int)mOverextendX;
+            int metaY = (int)(std::round(windowPosition.y - getPosition().y) / (getScale().y * mTileHeight)) - (int)mOverextendY;
 
             if (!mAltered && 
-                std::abs((int)mLastMetaX - (int)metaX) < mOverextendX  && 
-                std::abs((int)mLastMetaY - (int)metaY) < mOverextendY)
+                std::abs(mLastMetaX - metaX) < mOverextendX  && 
+                std::abs(mLastMetaY - metaY) < mOverextendY)
                 return true;
 
             mLastMetaX = metaX;
             mLastMetaY = metaY;
             mAltered = false;
 
-            for (unsigned x = metaX; x < metaX + mHorizontalSize && x < mMapSizeX; x++)
-                for (unsigned y = metaY; y < metaY + mVerticalSize && y < mMapSizeY; y++)
+            unsigned cutMetaX = (unsigned)std::max(0, metaX);
+            unsigned cutMetaY = (unsigned)std::max(0, metaY);
+
+            for (unsigned x = cutMetaX; x < cutMetaX + mHorizontalSize && x < mMapSizeX; x++)
+                for (unsigned y = cutMetaY; y < cutMetaY + mVerticalSize && y < mMapSizeY; y++)
                 {
                     unsigned j = x * mMapSizeY + y;
-                    sf::Vertex* quad = &mVertices[(y - metaY + (x - metaX) * mVerticalSize) * 4];
+                    sf::Vertex* quad = &mVertices[(y - cutMetaY + (x - cutMetaX) * mVerticalSize) * 4];
 
                     if (ids[j] >= 0)
                     {
@@ -262,5 +265,31 @@ namespace ungod
     sf::FloatRect TileMap::getBounds() const
     {
         return getTransform().transformRect( {sf::Vector2f{0,0}, sf::Vector2f{(float)mTileWidth*mMapSizeX,(float)mTileHeight*mMapSizeY}} );
+    }
+
+
+    void TileMap::extend(unsigned leftExtend, unsigned topExtend, unsigned rightExtend, unsigned bottomExtend, int id)
+    {
+        if (!mTiles.ids) return;
+        //y requires insertions at every mapSizeY-th position...
+        std::vector<int> top, bottom;
+        top.resize(topExtend, id);
+        bottom.resize(bottomExtend, id);
+        for (unsigned x = 0; x < mMapSizeX; x++)
+        {
+            mTiles.ids->insert(mTiles.ids->begin() + x * (mMapSizeY + topExtend + bottomExtend), 
+                top.begin(), top.end());
+            mTiles.ids->insert(mTiles.ids->begin() + ((x+1) * (mMapSizeY + topExtend + bottomExtend) - bottomExtend),
+                bottom.begin(), bottom.end());
+        }
+        mMapSizeY += topExtend + bottomExtend;
+        //...whereras x extensions are easy
+        std::vector<int> left, right;
+        left.resize(leftExtend * mMapSizeY, -1);
+        right.resize(rightExtend * mMapSizeY, -1);
+        mTiles.ids->insert(mTiles.ids->begin(), left.begin(), left.end());
+        mTiles.ids->insert(mTiles.ids->end(), right.begin(), right.end());
+        mMapSizeX += leftExtend + rightExtend;
+        mAltered = true;
     }
 }

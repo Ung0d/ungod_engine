@@ -56,9 +56,11 @@ namespace uedit
         const auto& tm = mEntity.get<ungod::TileMapComponent>().getTileMap();
         if (tm.getTileWidth() != 0 && tm.getTileHeight() != 0)
         {
-            unsigned width = (unsigned)std::floor(mEntity.getWorld().getSize().x / tm.getTileWidth());
-            unsigned height = (unsigned)std::floor(mEntity.getWorld().getSize().y / tm.getTileHeight());
-            mActionManager.tilemapActions().setInactiveTiles(mEntity, width, height);
+            unsigned left = (unsigned)std::ceil(mEntity.get<ungod::TransformComponent>().getGlobalUpperBounds().x / tm.getTileWidth());
+            unsigned top = (unsigned)std::ceil(mEntity.get<ungod::TransformComponent>().getGlobalUpperBounds().y / tm.getTileHeight());
+            unsigned right = (unsigned)std::ceil((mEntity.getWorld().getSize().x - mEntity.get<ungod::TransformComponent>().getGlobalUpperBounds().x - tm.getBounds().width) / tm.getTileWidth());
+            unsigned bottom = (unsigned)std::ceil((mEntity.getWorld().getSize().y - mEntity.get<ungod::TransformComponent>().getGlobalUpperBounds().y - tm.getBounds().height) / tm.getTileHeight());
+            mActionManager.tilemapActions().extend(mEntity, left, top, right, bottom);
         }
         else
         {

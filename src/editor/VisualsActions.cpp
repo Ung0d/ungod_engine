@@ -38,11 +38,11 @@ namespace uedit
             e);
     }
 
-    void VisualsActions::setMultiSpriteTextureRect(ungod::Entity e, const std::string& key, std::size_t i)
+    void VisualsActions::setMultiSpriteTextureRect(ungod::Entity e, const std::string& key, unsigned i)
     {
         auto oldrect = e.get<ungod::MultiSpriteComponent>().getComponent(i).getSprite().getTextureRect();
-        mActionManager.action(std::function([this, key](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setSpriteTextureRect(e, key, i); }),
-            std::function([this, oldrect](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setSpriteTextureRect(e, oldrect, i); }),
+        mActionManager.action(std::function([this, key](ungod::Entity e, unsigned i) { e.getWorld().getVisualsHandler().setSpriteTextureRect(e, key, i); }),
+            std::function([this, oldrect](ungod::Entity e, unsigned i) { e.getWorld().getVisualsHandler().setSpriteTextureRect(e, oldrect, i); }),
             e, i);
     }
 
@@ -54,19 +54,19 @@ namespace uedit
             e);
     }
 
-    void VisualsActions::setMultiSpritePosition(ungod::Entity e, const sf::Vector2f& pos, std::size_t i)
+    void VisualsActions::setMultiSpritePosition(ungod::Entity e, const sf::Vector2f& pos, unsigned i)
     {
         auto oldpos = e.get<ungod::MultiSpriteComponent>().getComponent(i).getSprite().getPosition();
-        mActionManager.action(std::function([this, pos](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setSpritePosition(e, pos, i); }),
-            std::function([this, oldpos](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setSpritePosition(e, oldpos, i); }),
+        mActionManager.action(std::function([this, pos](ungod::Entity e, unsigned i) { e.getWorld().getVisualsHandler().setSpritePosition(e, pos, i); }),
+            std::function([this, oldpos](ungod::Entity e, unsigned i) { e.getWorld().getVisualsHandler().setSpritePosition(e, oldpos, i); }),
             e, i);
     }
 
-    void VisualsActions::setVertexarrayPosition(ungod::Entity e, const sf::Vector2f& pos, std::size_t i)
+    void VisualsActions::setVertexarrayPosition(ungod::Entity e, const sf::Vector2f& pos, unsigned i)
     {
         auto oldpos = e.get<ungod::VertexArrayComponent>().getVertices().getPosition(i);
-        mActionManager.action(std::function([this, pos](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setTextureRectPosition(e, pos, i); }),
-            std::function([this, oldpos](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setTextureRectPosition(e, oldpos, i); }),
+        mActionManager.action(std::function([this, pos](ungod::Entity e, unsigned i) { e.getWorld().getVisualsHandler().setTextureRectPosition(e, pos, i); }),
+            std::function([this, oldpos](ungod::Entity e, unsigned i) { e.getWorld().getVisualsHandler().setTextureRectPosition(e, oldpos, i); }),
             e, i);
     }
 
@@ -86,19 +86,19 @@ namespace uedit
             e);
     }
 
-    void VisualsActions::setMultiSpriteScale(ungod::Entity e, const sf::Vector2f& scale, std::size_t i)
+    void VisualsActions::setMultiSpriteScale(ungod::Entity e, const sf::Vector2f& scale, unsigned i)
     {
         auto oldscale = e.get<ungod::MultiSpriteComponent>().getComponent(i).getSprite().getScale();
-        mActionManager.action(std::function([this, scale](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setScale(e, scale, i); }),
-            std::function([this, oldscale](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setScale(e, oldscale, i); }),
+        mActionManager.action(std::function([this, scale](ungod::Entity e, unsigned i) { e.getWorld().getVisualsHandler().setScale(e, scale, i); }),
+            std::function([this, oldscale](ungod::Entity e, unsigned i) { e.getWorld().getVisualsHandler().setScale(e, oldscale, i); }),
             e, i);
     }
 
-    void VisualsActions::setMultiSpriteRotation(ungod::Entity e, float rota, std::size_t i)
+    void VisualsActions::setMultiSpriteRotation(ungod::Entity e, float rota, unsigned i)
     {
         auto oldrota = e.get<ungod::MultiSpriteComponent>().getComponent(i).getSprite().getRotation();
-        mActionManager.action(std::function([this, rota](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setRotation(e, rota, i); }),
-            std::function([this, oldrota](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setRotation(e, oldrota, i); }),
+        mActionManager.action(std::function([this, rota](ungod::Entity e, unsigned i) { e.getWorld().getVisualsHandler().setRotation(e, rota, i); }),
+            std::function([this, oldrota](ungod::Entity e, unsigned i) { e.getWorld().getVisualsHandler().setRotation(e, oldrota, i); }),
             e, i);
     }
 
@@ -109,19 +109,19 @@ namespace uedit
             e);
     }
 
-    void VisualsActions::setVertexArrayRect(ungod::Entity e, std::size_t i, const std::string& key)
+    void VisualsActions::setVertexArrayRect(ungod::Entity e, unsigned i, const std::string& key)
     {
         auto oldrect = e.get<ungod::VertexArrayComponent>().getVertices().getTextureRect(i);
-        mActionManager.action(std::function([this, key](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setVertexTextureRect(e, i, key); }),
-            std::function([this, oldrect](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setVertexTextureRect(e, i, oldrect); }),
+        mActionManager.action(std::function([this, key](ungod::Entity e, unsigned i) { e.getWorld().getVisualsHandler().setVertexTextureRect(e, i, key); }),
+            std::function([this, oldrect](ungod::Entity e, unsigned i) { e.getWorld().getVisualsHandler().setVertexTextureRect(e, i, oldrect); }),
             e, i);
     }
 
-    void VisualsActions::setVertexArrayRectColor(ungod::Entity e, std::size_t i, const sf::Color& color)
+    void VisualsActions::setVertexArrayRectColor(ungod::Entity e, unsigned i, const sf::Color& color)
     {
         auto oldcol = e.get<ungod::VertexArrayComponent>().getVertices().getRectColor(i);
-        mActionManager.action(std::function([this, color](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setArrayRectColor(e, color, i); }),
-            std::function([this, oldcol](ungod::Entity e, std::size_t i) { e.getWorld().getVisualsHandler().setArrayRectColor(e, oldcol, i); }),
+        mActionManager.action(std::function([this, color](ungod::Entity e, unsigned i) { e.getWorld().getVisualsHandler().setArrayRectColor(e, color, i); }),
+            std::function([this, oldcol](ungod::Entity e, unsigned i) { e.getWorld().getVisualsHandler().setArrayRectColor(e, oldcol, i); }),
             e, i);
     }
 

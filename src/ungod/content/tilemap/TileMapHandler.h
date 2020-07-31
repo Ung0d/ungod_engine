@@ -114,6 +114,10 @@ namespace ungod
 			mContentsChangedSignal.connect(callback);
 		}
 
+        /** \brief Extends the tilemap in x and/or y direction by appending rows or columns and
+        * keeping the exting tiles intact. */
+        void extendTilemap(Entity e, unsigned leftExtend, unsigned topExtend, unsigned rightExtend, unsigned bottomExtend, int id = -1);
+
         /** \brief Applies a user defined function to the tilemap that is allowed to change its bounds. Is used e.g. for deserial. */
         void tilemapCallback(Entity e, TileMapComponent& tmc, const std::function<void(TileMap&)>& callback);
 

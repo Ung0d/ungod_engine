@@ -24,7 +24,7 @@ namespace uedit
     {
         ungod::TileData data;
         data.ids = std::make_shared<std::vector<int>>();
-        data.ids->resize(mapSizeX * mapSizeY, -1);
+        data.ids->resize((std::size_t)mapSizeX * (std::size_t)mapSizeY, -1);
         setTiles(e, data, mapSizeX, mapSizeY);
     }
 
@@ -106,5 +106,19 @@ namespace uedit
             { brush.eraseTile(worldpos, erasingID); }),
             std::function([&brush, worldpos]()
                 { brush.paintTile(worldpos); }));
+    }
+
+    void TilemapActions::extend(ungod::Entity e, unsigned leftExtend, unsigned topExtend, unsigned rightExtend, unsigned bottomExtend, int id)
+    {
+        const ungod::TileMap& tm = e.get<ungod::TileMapComponent>().getTileMap();
+        ungod::TileData oldData;
+        unsigned oldmapx = tm.getMapSizeX();
+        unsigned oldmapy = tm.getMapSizeY();
+        oldData.ids = std::make_shared<std::vector<int>>(*tm.getTileData().ids);
+        mActionManager.action(std::function([this, leftExtend, topExtend, rightExtend, bottomExtend, id](ungod::Entity e)
+            { e.getWorld().getTileMapHandler().extendTilemap(e, leftExtend, topExtend, rightExtend, bottomExtend, id); }),
+            std::function([this, oldData, oldmapx, oldmapy](ungod::Entity e)
+                { e.getWorld().getTileMapHandler().setTiles(e, oldData, oldmapx, oldmapy); }),
+            e);
     }
 }

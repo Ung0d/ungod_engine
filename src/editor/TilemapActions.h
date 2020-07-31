@@ -33,6 +33,8 @@ namespace uedit
 
         void eraseTile(ungod::TilemapBrush& brush, const sf::Vector2f& worldpos, int erasingID);
 
+        void extend(ungod::Entity e, unsigned leftExtend, unsigned topExtend, unsigned rightExtend, unsigned bottomExtend, int id = -1);
+
     private:
         ActionManager& mActionManager;
     };

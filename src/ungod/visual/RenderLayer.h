@@ -110,6 +110,10 @@ namespace ungod
 		/** \brief Sets the render layer to a new size. */
         virtual void setSize(const sf::Vector2f& layersize) {}
 
+        /** \brief Changes layer size, but can extend into specific directions. Alters transforms of all
+        * entities if requried. */
+        virtual void extend(const sf::Vector2f& leftTopExtensions, const sf::Vector2f& rightBotExtensions) {}
+
     };
 
     using RenderLayerPtr = std::shared_ptr<RenderLayer>;
@@ -150,6 +154,7 @@ namespace ungod
 
 		/** \brief Resizes all internal layers. This may be a costly operation if the layers already have content since attached layers may have to reorganize their entire content. */
 		void setSize(const sf::Vector2f& size);
+        void extend(const sf::Vector2f& leftTopExtensions, const sf::Vector2f& rightBotExtensions);
 
         const sf::Vector2f& getSize() const { return mSize; }
 

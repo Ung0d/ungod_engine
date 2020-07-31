@@ -83,10 +83,15 @@ namespace uedit
 		StatDisplay<float>* mSizeY;
 		StatDisplay<std::string>* mIdentifier;
 		StatDisplay<int>* mPriority;
-		owls::SignalLink<void> mNodeChangedLink;
+		owls::SignalLink<void> mNodeChangedLink; 
+		wxTextCtrl* mLeftExtend;
+		wxTextCtrl* mTopExtend;
+		wxTextCtrl* mRightExtend;
+		wxTextCtrl* mBottomExtend;
 
 	private:
 		void updateGraphRefPos();
+		void onExtendButtonClicked(wxCommandEvent& event);
 	};
 }
 

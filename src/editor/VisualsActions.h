@@ -18,17 +18,17 @@ namespace uedit
         void loadTexture(ungod::Entity e, const std::string& file);
         void loadMetadata(ungod::Entity e, const std::string& file);
         void setSpriteTextureRect(ungod::Entity e, const std::string& key);
-        void setMultiSpriteTextureRect(ungod::Entity e, const std::string& key, std::size_t i);
+        void setMultiSpriteTextureRect(ungod::Entity e, const std::string& key,unsigned i);
         void setSpritePosition(ungod::Entity e, const sf::Vector2f& pos);
-        void setMultiSpritePosition(ungod::Entity e, const sf::Vector2f& pos, std::size_t i);
-        void setVertexarrayPosition(ungod::Entity e, const sf::Vector2f& pos, std::size_t i);
+        void setMultiSpritePosition(ungod::Entity e, const sf::Vector2f& pos,unsigned i);
+        void setVertexarrayPosition(ungod::Entity e, const sf::Vector2f& pos,unsigned i);
         void setSpriteScale(ungod::Entity e, const sf::Vector2f& scale);
         void setSpriteRotation(ungod::Entity e, float rota);
-        void setMultiSpriteScale(ungod::Entity e, const sf::Vector2f& scale, std::size_t i);
-        void setMultiSpriteRotation(ungod::Entity e, float rota, std::size_t i);
+        void setMultiSpriteScale(ungod::Entity e, const sf::Vector2f& scale,unsigned i);
+        void setMultiSpriteRotation(ungod::Entity e, float rota,unsigned i);
         void newVertexArrayRect(ungod::Entity e, const sf::FloatRect& rect);
-        void setVertexArrayRect(ungod::Entity e, std::size_t i, const std::string& key);
-        void setVertexArrayRectColor(ungod::Entity e, std::size_t i, const sf::Color& color);
+        void setVertexArrayRect(ungod::Entity e,unsigned i, const std::string& key);
+        void setVertexArrayRectColor(ungod::Entity e,unsigned i, const sf::Color& color);
         void flipVertexX(ungod::Entity e, unsigned i);
         void flipVertexY(ungod::Entity e, unsigned i);
 

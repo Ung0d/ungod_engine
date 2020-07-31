@@ -153,15 +153,25 @@ namespace ungod
         mNodeChangedSignal();
 	}
 
-	void WorldGraphNode::setSize(const sf::Vector2f& size)
-	{
+    void WorldGraphNode::setSize(const sf::Vector2f& size)
+    {
         mBounds.width = size.x;
         mBounds.height = size.y;
-		mLayers.setSize(size);
-		mWorldGraph.notifyBoundsChanged(this);
+        mLayers.setSize(size);
+        mWorldGraph.notifyBoundsChanged(this);
         mNodeChangedSignal();
-	}
+    }
 
+    void WorldGraphNode::extend(const sf::Vector2f & leftTopExtensions, const sf::Vector2f & rightBotExtensions)
+    {
+        mBounds.left -= leftTopExtensions.x;
+        mBounds.top -= leftTopExtensions.y;
+        mBounds.width += leftTopExtensions.x + rightBotExtensions.x;
+        mBounds.height += leftTopExtensions.y + rightBotExtensions.y;
+        mLayers.extend(leftTopExtensions, rightBotExtensions);
+        mWorldGraph.notifyBoundsChanged(this);
+        mNodeChangedSignal();
+    }
 
     void WorldGraphNode::activateLayer(unsigned i, bool active)
     {

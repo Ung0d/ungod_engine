@@ -173,6 +173,29 @@ namespace ungod
 		    mQuadTree.setBoundary({ 0.0f,0.0f,layersize.x,layersize.y });
 	}
 
+    void World::extend(const sf::Vector2f& leftTopExtensions, const sf::Vector2f& rightBotExtensions)
+    {
+        if (leftTopExtensions.x != 0.0f ||
+            leftTopExtensions.y != 0.0f ||
+            rightBotExtensions.x != 0.0f ||
+            rightBotExtensions.y != 0.0f)
+        {
+            auto bounds = mQuadTree.getBoundary();
+            bounds.size.x += leftTopExtensions.x + rightBotExtensions.x;
+            bounds.size.y += leftTopExtensions.y + rightBotExtensions.y;
+            quad::PullResult<Entity> pull;
+            mQuadTree.getContent(pull);
+            mQuadTree.clear();
+            mQuadTree.setBoundary(bounds);
+            while (!pull.done())
+            {
+                Entity e = pull.poll();
+                mTransformHandler.move(e, leftTopExtensions);
+                mQuadTree.insert(e);
+            }
+        }
+    }
+
     void World::update(float delta, const sf::Vector2f& areaPosition, const sf::Vector2f& areaSize)
     {
 		destroyQueued();

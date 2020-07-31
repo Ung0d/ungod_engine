@@ -167,4 +167,11 @@ namespace ungod
         for (const auto& layer : mRenderLayers)
             layer.first->setSize(mSize);
     }
+
+    void RenderLayerContainer::extend(const sf::Vector2f& leftTopExtensions, const sf::Vector2f& rightBotExtensions)
+    {
+        mSize += leftTopExtensions + rightBotExtensions;
+        for (const auto& layer : mRenderLayers)
+            layer.first->extend(leftTopExtensions, rightBotExtensions);
+    }
 }

@@ -62,8 +62,8 @@ namespace ungod
         unsigned mMapSizeX;
         unsigned mMapSizeY;
         bool mAltered;
-        unsigned mLastMetaX;
-        unsigned mLastMetaY;
+        int mLastMetaX;
+        int mLastMetaY;
         unsigned mOverextendX;
         unsigned mOverextendY;
 
@@ -124,6 +124,10 @@ namespace ungod
         sf::FloatRect getBounds() const;
 
         const TileData& getTileData() const { return mTiles; }
+
+        /** \brief Extends the tilemap in x and/or y direction by appending rows or columns and
+        * keeping the exting tiles intact. */
+        void extend(unsigned leftExtend, unsigned topExtend, unsigned rightExtend, unsigned bottomExtend, int id = -1);
     };
 }
 

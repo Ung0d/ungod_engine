@@ -43,7 +43,7 @@ namespace ungod
 
     float CameraListener::getScaling(const sf::Vector2f audioEmission, float cap) const
     {
-		return 1 - std::min(1.0f, distance(mCamera.getCenter() - mWorld.getNode().getPosition(), audioEmission) / cap);
+		return 1 - std::min(1.0f, distance(mWorld.getNode().mapToLocalPosition(mCamera.getCenter()), audioEmission) / cap);
     }
 
     sf::Vector2f CameraListener::getWorldPosition() const

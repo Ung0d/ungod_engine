@@ -25,7 +25,7 @@ namespace uedit
         //build a grid and render it
         float horizontalSize = ceil( mPreview.mCamera.getView().getSize().x / (tm->getScale().x*tm->getTileWidth()) ) + 1;
         float verticalSize = ceil( mPreview.mCamera.getView().getSize().y / (tm->getScale().y*tm->getTileHeight()) ) + 1;
-        mVertices.resize(horizontalSize*verticalSize*4);
+        mVertices.resize((std::size_t)horizontalSize* (std::size_t)verticalSize*4);
 
         sf::Vector2f windowPosition = window.mapPixelToCoords(sf::Vector2i(0,0), mPreview.mCamera.getView());
         windowPosition = states.transform.getInverse().transformPoint(windowPosition);
@@ -124,7 +124,7 @@ namespace uedit
             std::string type = mPreview.mActionManager.getEditorFrame()->getSheetPreview()->getCurrentType();
             if (key != "")
             {
-                if (!mLastTileIndices.x == -1 || mLastTileIndices != tileIndices)
+                if (mLastTileIndices.x == -1 || mLastTileIndices != tileIndices)
                 {
                     mLastTileIndices = tileIndices;
                     if (type == "object")
