@@ -92,6 +92,7 @@ namespace uedit
 
         void onEditUndo(wxCommandEvent& event);
         void onEditRedo(wxCommandEvent& event);
+        void onEditDeselect(wxCommandEvent& event);
 
         void onEditGround(wxCommandEvent& event);
 

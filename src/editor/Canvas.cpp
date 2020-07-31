@@ -66,7 +66,7 @@ namespace uedit
 
     EntityEditState::EntityEditState(ungod::Application& app, ungod::StateID id, EditorState* editorstate, EditorFrame* editorframe) :
         ungod::State(app, id), mEditorState(editorstate), mEFrame(editorframe), mMouseLeftDown(false), mEntityMoveGoingOn(false), mDesignerOpenPressed(false),
-        mCopyPressed(false), mPastePressed(false)
+        mCopyPressed(false), mPastePressed(false), mRectSelect(false)
     {
         mMouseLastPos = sf::Mouse::getPosition();
     }
@@ -101,28 +101,23 @@ namespace uedit
                         mEFrame->getActionManager().transformActions().endEntityMoveSession(e);
                 }
             }
+            if (mRectSelect)
+               evalRectSelect(curEvent);
             break;
         }
         case sf::Event::MouseMoved:
         {
             if (mMouseLeftDown)
             {
-                if (!mEntityMoveGoingOn)
+                if (mEntityMoveGoingOn)
                 {
-                    mEntityMoveGoingOn = true;
                     for (const auto& e : mSelectedEntities)
                     {
                         if (e.has<ungod::TransformComponent>())
-                            mEFrame->getActionManager().transformActions().startEntityMoveSession(e);
-                    }
-                }
-
-                for (const auto& e : mSelectedEntities)
-                {
-                    if (e.has<ungod::TransformComponent>())
-                    {
-                        sf::Vector2f mouseMove = mEditorState->getWorldGraph().getCamera().getZoom() * sf::Vector2f{(float)(curEvent.mouseMove.x - mMouseLastPos.x), (float)(curEvent.mouseMove.y - mMouseLastPos.y)};
-                        mEFrame->getActionManager().transformActions().moveEntity(e, mouseMove);
+                        {
+                            sf::Vector2f mouseMove = mEditorState->getWorldGraph().getCamera().getZoom() * sf::Vector2f{ (float)(curEvent.mouseMove.x - mMouseLastPos.x), (float)(curEvent.mouseMove.y - mMouseLastPos.y) };
+                            mEFrame->getActionManager().transformActions().moveEntity(e, mouseMove);
+                        }
                     }
                 }
             }
@@ -313,6 +308,19 @@ namespace uedit
             }
             mEditorState->getWorldGraph().getCamera().renderEnd();
         }
+
+        if (mRectSelect)
+        {
+            sf::RectangleShape rect;
+            sf::Vector2f mouseWhenClicked = target.mapPixelToCoords(mMouseClickPos);
+            sf::Vector2f mouseNow = target.mapPixelToCoords(sf::Mouse::getPosition(static_cast<const sf::RenderWindow&>(target)));
+            rect.setPosition(mouseWhenClicked);
+            rect.setSize(mouseNow - mouseWhenClicked);
+            rect.setFillColor(sf::Color(200, 40, 40, 50));
+            rect.setOutlineColor(sf::Color(200, 40, 40));
+            rect.setOutlineThickness(4.0f);
+            target.draw(rect, states);
+        }
     }
 
     void EntityEditState::selectEntity(ungod::Entity e)
@@ -348,6 +356,8 @@ namespace uedit
         if (!mEFrame->getSelectedWorld())
             return;
 
+        mMouseClickPos = { event.mouseButton.x, event.mouseButton.y };
+
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
         {
             bool anyClicked = false;
@@ -370,6 +380,16 @@ namespace uedit
             {
                 clearEntitySelection();
             }
+            mRectSelect = true;
+        }
+        else
+        {
+            mEntityMoveGoingOn = true;
+            for (const auto& e : mSelectedEntities)
+            {
+                if (e.has<ungod::TransformComponent>())
+                    mEFrame->getActionManager().transformActions().startEntityMoveSession(e);
+            }
         }
     }
 
@@ -379,6 +399,33 @@ namespace uedit
         {
             mEFrame->openEntityDesigner(e);
         }
+    }
+
+    void EntityEditState::evalRectSelect(const sf::Event& curEvent)
+    {
+        sf::Vector2f mouseWorldPosThen = mApp.getWindow().mapPixelToCoords(
+            mMouseClickPos,
+            mEditorState->getWorldGraph().getCamera().getView(mEFrame->getSelectedWorld()->getRenderDepth()));
+        sf::Vector2f mouseWorldPosNow = mApp.getWindow().mapPixelToCoords(
+            { curEvent.mouseButton.x, curEvent.mouseButton.y },
+            mEditorState->getWorldGraph().getCamera().getView(mEFrame->getSelectedWorld()->getRenderDepth()));
+
+        mouseWorldPosThen = mEFrame->getSelectedWorld()->getNode().mapToLocalPosition(mouseWorldPosThen);
+        mouseWorldPosNow = mEFrame->getSelectedWorld()->getNode().mapToLocalPosition(mouseWorldPosNow);
+
+        quad::PullResult<ungod::Entity> pull;
+        mEFrame->getSelectedWorld()->getQuadTree().retrieve(pull, 
+            { mouseWorldPosThen.x, mouseWorldPosThen.y, mouseWorldPosNow.x - mouseWorldPosThen.x, mouseWorldPosNow.y - mouseWorldPosThen.y });
+        for (const auto& e : pull.getList())
+        {
+            if (e.get<ungod::TransformComponent>().getBounds().intersects(
+                    { mouseWorldPosThen.x, mouseWorldPosThen.y, 
+                    mouseWorldPosNow.x - mouseWorldPosThen.x, mouseWorldPosNow.y - mouseWorldPosThen.y }))
+            {
+                selectEntity(e);
+            }
+        }
+        mRectSelect = false;
     }
 
 

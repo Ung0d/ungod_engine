@@ -17,6 +17,7 @@ namespace uedit
         STATE_PROPERTIES,
         EDIT_UNDO,
         EDIT_REDO,
+        EDIT_DESELECT,
         SHEET_LISTBOX,
         KEY_LISTBOX,
         SHEET_PREVIEW,
@@ -38,6 +39,7 @@ namespace uedit
         EVT_MENU(STATE_PROPERTIES, EditorFrame::onStateProperties)
         EVT_MENU(EDIT_UNDO, EditorFrame::onEditUndo)
         EVT_MENU(EDIT_REDO, EditorFrame::onEditRedo)
+        EVT_MENU(EDIT_DESELECT, EditorFrame::onEditDeselect)
         EVT_MENU(SCRIPT_TOGGLE, EditorFrame::onScriptToggle)
     wxEND_EVENT_TABLE()
 
@@ -73,6 +75,7 @@ namespace uedit
         wxMenu* menuEdit = new wxMenu;
         menuEdit->Append(EDIT_UNDO, "&undo\tCtrl-Z");
         menuEdit->Append(EDIT_REDO, "&redo\tCtrl-Shift-Z");
+        menuEdit->Append(EDIT_DESELECT, "&deselect\tCtrl-X");
 
         wxMenu* menuLayers = new wxMenu;
 		menuLayers->Append(NEW_NODE, "&add node\tCtrl-N",
@@ -217,6 +220,11 @@ namespace uedit
     void EditorFrame::onEditRedo(wxCommandEvent& event)
     {
         mActionManager.redo();
+    }
+
+    void EditorFrame::onEditDeselect(wxCommandEvent& event)
+    {
+        mCanvas->getEntityEditState()->clearEntitySelection();
     }
 
 

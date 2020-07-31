@@ -76,6 +76,7 @@ namespace uedit
 
         void onClick(const sf::Event& event);
         void openDesigners();
+        void evalRectSelect(const sf::Event& curEvent);
 
     private:
         EditorState* mEditorState;
@@ -85,6 +86,8 @@ namespace uedit
         bool mDesignerOpenPressed;
         bool mCopyPressed;
         bool mPastePressed;
+        bool mRectSelect;
+        sf::Vector2i mMouseClickPos;
         sf::Vector2f mCopyTimeCenter;
         sf::Vector2i mMouseLastPos;
         std::vector<ungod::Entity> mSelectedEntities;
