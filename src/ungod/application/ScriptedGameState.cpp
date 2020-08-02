@@ -84,6 +84,12 @@ namespace ungod
 
     void ScriptedGameState::handleEvent(const sf::Event& curEvent)
     {
+        if (curEvent.type == sf::Event::KeyPressed &&
+            curEvent.key.code == sf::Keyboard::F2)
+        {
+            toggleDebugmode(!mRenderDebug);
+            mApp.toggleDebugMode();
+        }
         mWorldGraph.handleInput(curEvent, mApp.getWindow());
     }
 

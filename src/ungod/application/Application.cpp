@@ -28,6 +28,7 @@
 #include "ungod/application/ScriptedMenuState.h"
 #include <boost/filesystem.hpp>
 #include "ungod/script/Registration.h"
+#include <numeric>
 
 namespace ungod
 {
@@ -244,6 +245,10 @@ namespace ungod
                     createWindow();
            });
 
+        mDefaultFont.load(mConfig.getOr<std::string>("gui/default_font", "data/gui/fonts/arial.ttf"), LoadPolicy::SYNC);
+        if (!mDefaultFont.isLoaded())
+            Logger::warning("Could not load the default font. Disabled debug text info.");
+
         //setup initial state
         std::string type = mConfig.getOr<std::string>("initial_state/type", "");
         std::string scriptFile = mConfig.getOr<std::string>("initial_state/script_file", "init.lua");
@@ -328,6 +333,15 @@ namespace ungod
         mActiveCursor.setPosition(cursorPos);
         mWindow.draw(mActiveCursor);
         mCursorCamera.renderEnd();
+        if (mDebugModeToggled && mDefaultFont.isLoaded())
+        {
+            float fps = 1.0f / mRenderTimer.restart().asSeconds();
+            float smoothFPS = FPS_WINDOW_LAMBDA * fps + (1- FPS_WINDOW_LAMBDA) * std::accumulate(mLastFps.begin(), mLastFps.end(), 0) / mLastFps.size();
+            mWindow.draw(sf::Text("FPS: " + std::to_string((int)std::floor(smoothFPS)), mDefaultFont.get(), DEBUG_TEXT_SIZE));
+            mLastFps.push_back(fps);
+            if (mLastFps.size() > FPS_AVG_WINDOW_SIZE)
+                mLastFps.pop_front();
+        }
         mWindow.display();
     }
 

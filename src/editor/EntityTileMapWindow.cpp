@@ -52,15 +52,16 @@ namespace uedit
 
     void EntityTileMapWindow::onFitClicked(wxCommandEvent& event)
     {
-        mActionManager.transformActions().setEntityPosition(mEntity, {});
         const auto& tm = mEntity.get<ungod::TileMapComponent>().getTileMap();
         if (tm.getTileWidth() != 0 && tm.getTileHeight() != 0)
         {
-            unsigned left = (unsigned)std::ceil(mEntity.get<ungod::TransformComponent>().getGlobalUpperBounds().x / tm.getTileWidth());
-            unsigned top = (unsigned)std::ceil(mEntity.get<ungod::TransformComponent>().getGlobalUpperBounds().y / tm.getTileHeight());
-            unsigned right = (unsigned)std::ceil((mEntity.getWorld().getSize().x - mEntity.get<ungod::TransformComponent>().getGlobalUpperBounds().x - tm.getBounds().width) / tm.getTileWidth());
-            unsigned bottom = (unsigned)std::ceil((mEntity.getWorld().getSize().y - mEntity.get<ungod::TransformComponent>().getGlobalUpperBounds().y - tm.getBounds().height) / tm.getTileHeight());
+            sf::Vector2f ub = mEntity.get<ungod::TransformComponent>().getGlobalUpperBounds();
+            unsigned left = (unsigned)std::ceil(ub.x / tm.getTileWidth());
+            unsigned top = (unsigned)std::ceil(ub.y / tm.getTileHeight());
+            unsigned right = (unsigned)std::ceil((mEntity.getWorld().getSize().x - ub.x - tm.getBounds().width) / tm.getTileWidth());
+            unsigned bottom = (unsigned)std::ceil((mEntity.getWorld().getSize().y - ub.y - tm.getBounds().height) / tm.getTileHeight());
             mActionManager.tilemapActions().extend(mEntity, left, top, right, bottom);
+            mActionManager.transformActions().setEntityPosition(mEntity, {});
         }
         else
         {
