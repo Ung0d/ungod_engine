@@ -145,6 +145,9 @@ namespace ungod
         /** \brief Clears the script state. */
         void resetScriptState();
 
+        /** \brief Get a default font for debugging and simple text. */
+        const Font& getDefaultFont() const { return mDefaultFont; }
+
     private:
         //const
         const float mDelta;
@@ -161,12 +164,7 @@ namespace ungod
         unsigned long mWindowStyle;
         sf::ContextSettings mContextSettings;
         bool mVsync;
-        static constexpr unsigned DEBUG_TEXT_SIZE = 22u;
-        static constexpr unsigned FPS_AVG_WINDOW_SIZE = 7u;
-        static constexpr float FPS_WINDOW_LAMBDA = 0.5f;
         Font mDefaultFont;
-        sf::Clock mRenderTimer;
-        std::list<float> mLastFps;
         //audio
         MusicManager mMusicManager;
         SoundProfileManager mSoundProfileManager;

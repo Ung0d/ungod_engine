@@ -69,7 +69,10 @@ namespace ungod
         script::Environment getEnvironment() const { return mScriptCallbacks.getEnvironment(); }
 
         /** \brief Activates or deactivates the debug rendering mode. */
-        void toggleDebugmode(bool debug) { mRenderDebug = debug; }
+        void toggleDebugRender(bool debug) { mRenderDebug = debug; }
+
+        /** \brief Activates or deactivates the debug rendering mode. */
+        void toggleDebugInfo(bool debug) { mDebugInfo = debug; }
 
         /** \brief Activates or deactivates the debug entity bounds rendering mode. */
         void debugEntityBounds(bool bounds) { mDebugBounds = bounds; }
@@ -150,6 +153,14 @@ namespace ungod
         bool mDebugColliders;
         bool mDebugAudioEmitters;
         bool mDebugLightEmitters;
+        bool mDebugInfo;
+
+        //debug
+        static constexpr unsigned FPS_AVG_WINDOW_SIZE = 7u;
+        static constexpr float FPS_WINDOW_LAMBDA = 0.5f;
+        static constexpr unsigned DEBUG_TEXT_SIZE = 22u;
+        sf::Clock mRenderTimer;
+        std::list<float> mLastFps;
 
         EntityBehaviorManager mEntityBehaviorManager;
         Renderer mRenderer;

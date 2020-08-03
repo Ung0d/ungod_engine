@@ -258,9 +258,11 @@ namespace uedit
 
     void EntityEditState::render(sf::RenderTarget& target, sf::RenderStates states)
     {
-        mEditorState->toggleDebugmode(true);
+        mEditorState->toggleDebugRender(true);
+        mEditorState->toggleDebugInfo(true);
         mEditorState->render(target, states);
-        mEditorState->toggleDebugmode(false);
+        mEditorState->toggleDebugRender(false);
+        mEditorState->toggleDebugInfo(false);
 
 		/*auto bounds = mEditorState->getWorldGraph().getActiveNode()->getBounds();
         sf::RenderStates nodeStates = states;

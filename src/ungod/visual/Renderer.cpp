@@ -32,7 +32,7 @@
 
 namespace ungod
 {
-    Renderer::Renderer(Application& app) : mShowWater(false)
+    Renderer::Renderer(Application& app) : mShowWater(false), mDrawCalls(0)
     {
         mShowWater = mWaterTex.create(app.getWindow().getSize().x, app.getWindow().getSize().y);
         app.onTargetSizeChanged([this, &app](const sf::Vector2u& targetsize)
@@ -103,6 +103,7 @@ namespace ungod
       if (vis.isVisible() && vis.isLoaded())
       {
           if (e.has<TileMapComponent>())
+          {
               if (e.has<WaterComponent>())
               {
                   if (target.getSize() != mWaterTex.getSize())
@@ -111,14 +112,18 @@ namespace ungod
               }
               else
                   e.get<TileMapComponent>().mTileMap.render(target, &vis.getTexture(), states);
+              mDrawCalls += 1;
+          }
 
           if (e.has<VertexArrayComponent>())
           {
              e.get<VertexArrayComponent>().mVertices.render(target, states);
+             mDrawCalls += 1;
           }
           if (e.has<SpriteComponent>())
           {
              e.get<SpriteComponent>().mSprite.render(target, states);
+             mDrawCalls += 1;
           }
           if (e.has<MultiSpriteComponent>())
           {
@@ -126,11 +131,13 @@ namespace ungod
              for (unsigned i = 0; i < multisprite.getComponentCount(); ++i)
              {
                  multisprite.getComponent(i).mSprite.render(target, states);
+                 mDrawCalls += 1;
              }
           }
           if (e.has<ParticleSystemComponent>())
           {
               e.modify<ParticleSystemComponent>().mParticleSystem->render(&vis.getTexture(), target, states);
+              mDrawCalls += 1;
           }
       }
     }

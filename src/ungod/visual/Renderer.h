@@ -104,11 +104,16 @@ namespace ungod
         /** \brief Renders the origin and the range of a light. */
         void renderLightDebug(Entity e, const TransformComponent& transf, sf::RenderTarget& target, sf::RenderStates states) const;
 
+        void resetDrawCalls() { mDrawCalls = 0; }
+
+        int getDrawCalls() const { return mDrawCalls;  }
+
         static constexpr float INNER_RECT_PERCENTAGE = 0.1f;
 
     private:
         sf::RenderTexture mWaterTex;
         bool mShowWater;
+        int mDrawCalls;
 
     private:
         void updateAnimation(Entity e, AnimationComponent& animation, float delta, VisualsHandler& vh);

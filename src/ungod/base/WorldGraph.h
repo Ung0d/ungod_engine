@@ -69,7 +69,8 @@ namespace ungod
         /** \brief Forwards a custom event. */
         void handleCustomEvent(const CustomEvent& event);
 
-        /** \brief Accesses a graph node by position; nullptr if not found. */
+        /** \brief Accesses a graph node by position; nullptr if not found. If the position
+        * is inside the bounds of multiple nodes, the (a) node with highest priority is returned. */
         WorldGraphNode* getNode(const sf::Vector2f& pos);
 
         /** \brief Slow retrieval by name (O(#nodes)); nullptr if not found. */

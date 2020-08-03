@@ -28,6 +28,7 @@
 #include "ungod/script/CustomEvent.h"
 #include "ungod/base/World.h"
 #include "ungod/serialization/DeserialInit.h"
+#include <numeric>
 
 namespace ungod
 {
@@ -40,10 +41,11 @@ namespace ungod
             mWorldGraph(*this),
             mRenderDebug(false),
             mDebugBounds(true),
-            mDebugTexrects(true),
+            mDebugTexrects(false),
             mDebugColliders(true),
             mDebugAudioEmitters(true),
             mDebugLightEmitters(true),
+            mDebugInfo(false),
             mRenderer(mApp),
             mEntityBehaviorManager(mApp),
             mLightManager(mApp)
@@ -84,11 +86,12 @@ namespace ungod
 
     void ScriptedGameState::handleEvent(const sf::Event& curEvent)
     {
-        if (curEvent.type == sf::Event::KeyPressed &&
-            curEvent.key.code == sf::Keyboard::F2)
+        if (curEvent.type == sf::Event::KeyPressed)
         {
-            toggleDebugmode(!mRenderDebug);
-            mApp.toggleDebugMode();
+            if (curEvent.key.code == sf::Keyboard::F2)
+                toggleDebugRender(!mRenderDebug);
+            if (curEvent.key.code == sf::Keyboard::F3)
+                toggleDebugInfo(!mDebugInfo);
         }
         mWorldGraph.handleInput(curEvent, mApp.getWindow());
     }
@@ -103,9 +106,50 @@ namespace ungod
 
     void ScriptedGameState::render(sf::RenderTarget& target, sf::RenderStates states)
     {
+        mRenderer.resetDrawCalls();
+
         mWorldGraph.render(target, states);
         if (mRenderDebug)
             mWorldGraph.renderDebug(target, states, mDebugBounds, mDebugTexrects, mDebugColliders, mDebugAudioEmitters, mDebugLightEmitters);
+
+        if (mDebugInfo)
+        {
+            if (mApp.getDefaultFont().isLoaded())
+            {
+                float fps = 1.0f / mRenderTimer.restart().asSeconds();
+                float smoothFPS = FPS_WINDOW_LAMBDA * fps + (1 - FPS_WINDOW_LAMBDA) * std::accumulate(mLastFps.begin(), mLastFps.end(), 0) / mLastFps.size();
+                target.draw(sf::Text("FPS: " + std::to_string((int)std::floor(smoothFPS)), mApp.getDefaultFont().get(), DEBUG_TEXT_SIZE));
+                mLastFps.push_back(fps);
+                if (mLastFps.size() > FPS_AVG_WINDOW_SIZE)
+                    mLastFps.pop_front();
+
+                sf::Text drawCallsTxt("Draw calls: " + std::to_string(mRenderer.getDrawCalls()), mApp.getDefaultFont().get(), DEBUG_TEXT_SIZE);
+                drawCallsTxt.setPosition(0, 30);
+                target.draw(drawCallsTxt);
+
+                sf::Text absoluteCamPosTxt("Absolute camera position: (" + 
+                                        std::to_string(mWorldGraph.getCamera().getCenter().x) + ", " +
+                                        std::to_string(mWorldGraph.getCamera().getCenter().y) + ")",
+                                        mApp.getDefaultFont().get(), DEBUG_TEXT_SIZE);
+                absoluteCamPosTxt.setPosition(0, 60);
+                target.draw(absoluteCamPosTxt);
+
+                sf::Text relativeCamPosTxt("", mApp.getDefaultFont().get(), DEBUG_TEXT_SIZE);
+                if (mWorldGraph.getActiveNode())
+                {
+                    relativeCamPosTxt.setString("Relative camera position: (" +
+                        std::to_string(mWorldGraph.getCamera().getCenter().x + mWorldGraph.getActiveNode()->getPosition().x) + ", " +
+                        std::to_string(mWorldGraph.getCamera().getCenter().y + mWorldGraph.getActiveNode()->getPosition().y) + ") \t Active node:" +
+                        mWorldGraph.getActiveNode()->getIdentifier());
+                }
+                else
+                {
+                    relativeCamPosTxt.setString("No active node.");
+                }
+                relativeCamPosTxt.setPosition(0, 90);
+                target.draw(relativeCamPosTxt);
+            }
+        }
     }
 
 

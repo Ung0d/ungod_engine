@@ -34,7 +34,8 @@ namespace ungod
         void registerGameState(ScriptStateBase& state)
         {
             script::Usertype<ScriptedGameState> stateType = state.registerUsertype<ScriptedGameState>("ScriptedGameState", sol::base_classes, sol::bases<State>());
-            stateType["toggleDebugmode"] = &ScriptedGameState::toggleDebugmode;
+            stateType["toggleDebugRender"] = &ScriptedGameState::toggleDebugRender;
+            stateType["toggleDebugInfo"] = &ScriptedGameState::toggleDebugInfo;
             stateType["debugEntityBounds"] = &ScriptedGameState::debugEntityBounds;
             stateType["debugTexrects"] = &ScriptedGameState::debugTexrects;
             stateType["debugColliders"] = &ScriptedGameState::debugColliders;

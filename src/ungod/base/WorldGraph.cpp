@@ -195,10 +195,12 @@ namespace ungod
     {
         quad::PullResult<WorldGraphNode*> result;
         mWorldQT.retrieve(result, {pos.x, pos.y, 1, 1});
+        WorldGraphNode* resultNode = nullptr;
 		for (const auto& node : result.getList())
-			if (node->getBounds().contains(pos))
-				return node;
-        return nullptr;
+            if (node->getBounds().contains(pos))
+                if (!resultNode || resultNode->getPriority() < node->getPriority())
+                    resultNode = node;
+        return resultNode;
     }
 
     WorldGraphNode* WorldGraph::getNode(const std::string& identifier)
