@@ -51,8 +51,19 @@ namespace ungod
         {
             for (std::size_t i = 0; i < particles.getParticleCount(); i++)
             {
-                float rel = particles.getParticleData(i).lifetime / particles.getParticleData(i).maxlifetime;
-                particles.getParticleData(i).color.a = static_cast<sf::Uint8>(255 * rel);
+                float rel = 4*particles.getParticleData(i).lifetime / particles.getParticleData(i).maxlifetime;
+                if (rel <= 1.0f)
+                    particles.getParticleData(i).color.a = static_cast<sf::Uint8>(255 * rel);
+            }
+        }
+
+        void fadeIn(FadeIn& data, ParticleSystem& particles, float delta)
+        {
+            for (std::size_t i = 0; i < particles.getParticleCount(); i++)
+            {
+                float rel = 4 * (1 - particles.getParticleData(i).lifetime / particles.getParticleData(i).maxlifetime);
+                if (rel <= 1.0f)
+                    particles.getParticleData(i).color.a = static_cast<sf::Uint8>(255 * rel);
             }
         }
 
@@ -178,7 +189,7 @@ namespace ungod
         {
             if (data.keys.empty())
                 return {};
-            unsigned keyid = (unsigned)NumberGenerator::getRandBetw(0, (unsigned)data.keys.size()-1);
+            unsigned keyid = (unsigned)NumberGenerator::getRandBetw(0, (unsigned)data.keys.size());
             if (!data.nodes[keyid])
                 return {};
             auto result = data.nodes[keyid].getAttributes<int, int, int, int>(

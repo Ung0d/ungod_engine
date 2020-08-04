@@ -179,7 +179,7 @@ namespace ungod
         * the appropriate data. */
         void onAffectorsChanged(const std::function<void(Entity, const std::string&, const PSData&)>& callback);
 
-        const ParticleFunctorMaster& getFunctorMaster() { return sParticleFunctorMaster; }
+        const ParticleFunctorMaster& getFunctorMaster() { return mParticleFunctorMaster; }
 
         /** \brief Returns the key of the attached emitter. */
         std::string getEmitterKey(Entity e) const;
@@ -213,7 +213,7 @@ namespace ungod
         void handleParticleSystemAdded(Entity e);
 
     private:
-        static const ParticleFunctorMaster sParticleFunctorMaster;
+        const ParticleFunctorMaster mParticleFunctorMaster;
         sf::Clock mAABBUpdate;
         int mRectUpdateTimer;
         owls::Signal< Entity, const sf::FloatRect& > mContentsChangedSignal;

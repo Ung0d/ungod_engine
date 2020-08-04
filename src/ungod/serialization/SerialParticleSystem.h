@@ -35,6 +35,7 @@ namespace ungod
     struct DirectionalForce;
 	struct DisplaceForce;
 	struct FadeOut;
+    struct FadeIn;
 	struct ColorShift;
 	struct RotateParticle;
 	struct ScaleParticle;
@@ -128,6 +129,25 @@ namespace ungod
     struct DeserialBehavior<FadeOut>
     {
         static void deserialize(FadeOut& data, MetaNode deserializer, DeserializationContext& context);
+    };
+
+
+    template <>
+    struct SerialIdentifier<FadeIn>
+    {
+        static std::string get() { return "FadeIn"; }
+    };
+
+    template <>
+    struct SerialBehavior<FadeIn>
+    {
+        static void serialize(const FadeIn& data, MetaNode serializer, SerializationContext& context);
+    };
+
+    template <>
+    struct DeserialBehavior<FadeIn>
+    {
+        static void deserialize(FadeIn& data, MetaNode deserializer, DeserializationContext& context);
     };
 
 
@@ -478,15 +498,15 @@ namespace ungod
     };
 
     template <>
-    struct SerialBehavior<UniversalEmitter, const ParticleFunctorMaster*>
+    struct SerialBehavior<UniversalEmitter, const ParticleFunctorMaster&>
     {
-        static void serialize(const UniversalEmitter& data, MetaNode serializer, SerializationContext& context, const ParticleFunctorMaster* master);
+        static void serialize(const UniversalEmitter& data, MetaNode serializer, SerializationContext& context, const ParticleFunctorMaster& master);
     };
 
     template <>
-    struct DeserialBehavior<UniversalEmitter, const ParticleFunctorMaster*>
+    struct DeserialBehavior<UniversalEmitter, const ParticleFunctorMaster&>
     {
-        static void deserialize(UniversalEmitter& data, MetaNode deserializer, DeserializationContext& context, const ParticleFunctorMaster* master);
+        static void deserialize(UniversalEmitter& data, MetaNode deserializer, DeserializationContext& context, const ParticleFunctorMaster& master);
     };
 
 
@@ -511,7 +531,7 @@ namespace ungod
 
     /** \brief A method that must be called for the deserial context in question when running adeserial-session
     * where particle-systems are (or may be) involved. */
-    void prepareParticleSystemDeserial(DeserializationContext& context, const ParticleFunctorMaster* master);
+    void prepareParticleSystemDeserial(DeserializationContext& context, const ParticleFunctorMaster& master);
 }
 
 #endif // SERIAL_COMPONENTS_H

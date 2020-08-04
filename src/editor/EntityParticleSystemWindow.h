@@ -110,6 +110,7 @@ namespace uedit
             DIRECTIONAL_FORCE,
             DISPLACE_FORCE,
             FADE_OUT,
+            FADE_IN,
             ANIMATED_PARTICLES,
             COLOR_SHIFT,
             ROTATE_PARTICLES,
@@ -130,6 +131,7 @@ namespace uedit
         wxRadioButton* mChoiceDirecForce;
         wxRadioButton* mChoiceDisplForce;
         wxRadioButton* mChoiceFadeOut;
+        wxRadioButton* mChoiceFadeIn;
         wxRadioButton* mChoiceAnimatedParticles;
         wxRadioButton* mChoiceColorShift;
         wxRadioButton* mChoiceRotateParticles;
@@ -252,6 +254,16 @@ namespace uedit
     {
     public:
         TexrectByKeyPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent);
+
+    private:
+        wxButton* mSetSelected;
+    };
+
+
+    class MultipleTexrectByKeyPanel : public wxPanel
+    {
+    public:
+        MultipleTexrectByKeyPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent);
 
     private:
         wxButton* mSetSelected;

@@ -37,6 +37,7 @@ namespace uedit
         mState->update(*this, delta);
         mEntity.getWorld().getTileMapHandler().update({ mEntity }, mEntity.getWorld(), mCamera);
         mEntity.getWorld().getWaterHandler().targetSizeChanged(mEntity.getWorld(), mWindow.getSize());
+        mEntity.getWorld().getParticleSystemHandler().update({ mEntity }, delta);
     }
 
     void EntityPreview::render(sf::RenderWindow& window, sf::RenderStates states)

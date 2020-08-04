@@ -27,8 +27,6 @@
 
 namespace ungod
 {
-    const ParticleFunctorMaster ParticleSystemHandler::sParticleFunctorMaster;
-
     void ParticleSystemHandler::update(const std::list<Entity>& entities, float delta)
     {
         if (mAABBUpdate.getElapsedTime().asMilliseconds() >= mRectUpdateTimer)
@@ -80,7 +78,7 @@ namespace ungod
     void ParticleSystemHandler::handleParticleSystemAdded(Entity e)
     {
         if (!e.modify<ParticleSystemComponent>().mParticleSystem)
-            e.modify<ParticleSystemComponent>().mParticleSystem.emplace( sParticleFunctorMaster );
+            e.modify<ParticleSystemComponent>().mParticleSystem.emplace( mParticleFunctorMaster );
     }
 
     void ParticleSystemHandler::setRectUpdateTimer(int rectupd)

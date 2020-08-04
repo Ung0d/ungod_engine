@@ -69,9 +69,9 @@ namespace ungod
 
     void DeserialBehavior<World, DeserialMemory&>::deserialize(World& data, MetaNode deserializer, DeserializationContext& context, DeserialMemory& deserialMemory)
     {
-        DeserialBehavior<RenderLayer, DeserialMemory&>::deserialize(data, deserializer, context, deserialMemory);
-
         initDeserial(context, data);
+
+        DeserialBehavior<RenderLayer, DeserialMemory&>::deserialize(data, deserializer, context, deserialMemory);
 
         //get the most basic parameters of the worlds
         auto result = deserializer.getAttributes<uint8_t, uint8_t, uint8_t, uint8_t>

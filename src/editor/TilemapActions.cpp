@@ -56,8 +56,8 @@ namespace uedit
         const std::vector<std::string>& keymap)
     {
         const ungod::TileMap& tm = e.get<ungod::TileMapComponent>().getTileMap();
-        unsigned oldTileWidth = tm.getTileWidth();
-        unsigned oldTileHeight = tm.getTileHeight();
+        unsigned oldTileWidth = (unsigned)tm.getTileWidth();
+        unsigned oldTileHeight = (unsigned)tm.getTileHeight();
         std::vector<std::string> oldKeymap = tm.getKeyMap();
 
         mActionManager.action(std::function([this, tileWidth, tileHeight, keymap](ungod::Entity e)

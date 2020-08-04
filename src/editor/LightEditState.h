@@ -14,7 +14,7 @@ namespace uedit
     {
         static unsigned numPoints(const ungod::ShadowEmitterComponent& c)
         {
-            return c.getCollider().getPointCount();
+            return (unsigned)c.getCollider().getPointCount();
         }
 
         static void setup(ungod::Entity e, ungod::ShadowEmitterComponent& c, ActionManager& actionManager, std::list<PointDragger>& draggers)

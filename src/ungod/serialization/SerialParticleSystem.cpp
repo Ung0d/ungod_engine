@@ -37,7 +37,8 @@ namespace ungod
         context.serializeProperty("s", data.getParticleSpeed(), serializer);
         context.serializeObject("em", data.mEmitter, serializer);
         context.serializeObject("es", data.mCountEstimator, serializer);
-        context.serializeObject("texr", data.mTexrectInit, serializer);
+        if (data.mTexrectInit)
+            context.serializeObject("texr", data.mTexrectInit, serializer);
         context.serializeObjectContainer("aff", data.mAffectors, serializer);
     }
 
@@ -100,6 +101,18 @@ namespace ungod
 
 
     void DeserialBehavior<FadeOut>::deserialize(FadeOut& data, MetaNode deserializer, DeserializationContext& context)
+    {
+        data.init(); //returns immediatly, but still xD
+    }
+
+
+    void SerialBehavior<FadeIn>::serialize(const FadeIn& data, MetaNode serializer, SerializationContext& context)
+    {
+        //nothing to do here...
+    }
+
+
+    void DeserialBehavior<FadeIn>::deserialize(FadeIn& data, MetaNode deserializer, DeserializationContext& context)
     {
         data.init(); //returns immediatly, but still xD
     }
@@ -417,7 +430,7 @@ namespace ungod
     }
 
 
-    void SerialBehavior<UniversalEmitter, const ParticleFunctorMaster*>::serialize(const UniversalEmitter& data, MetaNode serializer, SerializationContext& context, const ParticleFunctorMaster* master)
+    void SerialBehavior<UniversalEmitter, const ParticleFunctorMaster&>::serialize(const UniversalEmitter& data, MetaNode serializer, SerializationContext& context, const ParticleFunctorMaster& master)
     {
         context.serializeObject("pos", data.mPosInit, serializer);
         context.serializeObject("vel", data.mVelInit, serializer);
@@ -426,14 +439,14 @@ namespace ungod
     }
 
 
-    void DeserialBehavior<UniversalEmitter, const ParticleFunctorMaster*>::deserialize(UniversalEmitter& data, MetaNode deserializer, DeserializationContext& context, const ParticleFunctorMaster* master)
+    void DeserialBehavior<UniversalEmitter, const ParticleFunctorMaster&>::deserialize(UniversalEmitter& data, MetaNode deserializer, DeserializationContext& context, const ParticleFunctorMaster& master)
     {
         FunctorHandle posinit, velinit, lifetimeinit, spawninit;
         auto attr = context.first(context.deserializeObject(posinit), "pos", deserializer);
         attr = context.next(context.deserializeObject(velinit), "vel", deserializer, attr);
         attr = context.next(context.deserializeObject(lifetimeinit), "lt", deserializer, attr);
         attr = context.next(context.deserializeObject(spawninit), "si", deserializer, attr);
-        data.init(master);
+        data.init(&master);
         data.mPosInit = posinit;
         data.mVelInit = velinit;
         data.mLifetimeInit = lifetimeinit;
@@ -452,11 +465,12 @@ namespace ungod
 
 
 
-    void prepareParticleSystemDeserial(DeserializationContext& context, const ParticleFunctorMaster* master)
+    void prepareParticleSystemDeserial(DeserializationContext& context, const ParticleFunctorMaster& master)
     {
         context.instantiate<DirectionalForce>([] () { return new DirectionalForce(); });
         context.instantiate<DisplaceForce>([] () { return new DisplaceForce(); });
         context.instantiate<FadeOut>([] () { return new FadeOut(); });
+        context.instantiate<FadeIn>([]() { return new FadeIn(); });
         context.instantiate<AnimatedParticles>([] () { return new AnimatedParticles(); });
         context.instantiate<ColorShift>([] () { return new ColorShift(); });
         context.instantiate<RotateParticle>([] () { return new RotateParticle(); });
@@ -473,7 +487,7 @@ namespace ungod
         context.instantiate<ConeDist>([] () { return new ConeDist(); });
         context.instantiate<IntervalTick>([] () { return new IntervalTick(); });
         context.instantiate<IntervalLifetime>([] () { return new IntervalLifetime(); });
-        context.instantiate<UniversalEmitter, const ParticleFunctorMaster*>([] () { return new UniversalEmitter(); }, std::move(master));
+        context.instantiate<UniversalEmitter, const ParticleFunctorMaster&>([] () { return new UniversalEmitter(); }, master);
         context.instantiate<UniversalEstimator>([] () { return new UniversalEstimator(); });
     }
 }

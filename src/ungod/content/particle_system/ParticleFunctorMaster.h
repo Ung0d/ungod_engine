@@ -38,6 +38,7 @@ namespace ungod
     const std::string PS_DIRECTIONAL_FORCE = "directional_force";
     const std::string PS_DISPLACE_FORCE = "displace_force";
     const std::string PS_FADE_OUT = "fade_out";
+    const std::string PS_FADE_IN = "fade_in";
     const std::string PS_ANIMATED_PARTICLES = "animated_particles";
     const std::string PS_COLOR_SHIFT = "color_shift";
     const std::string PS_ROTATE_PARTICLE = "rotate_particle";

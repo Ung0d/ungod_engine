@@ -442,6 +442,9 @@ namespace uedit
                                         case AffectorCreateDialog::AffType::FADE_OUT:
                                             actionManager.particleSystemActions().addAffector<ungod::FadeOut>(e, ungod::PS_FADE_OUT);
                                             break;
+                                        case AffectorCreateDialog::AffType::FADE_IN:
+                                            actionManager.particleSystemActions().addAffector<ungod::FadeIn>(e, ungod::PS_FADE_IN);
+                                            break;
                                         case AffectorCreateDialog::AffType::ANIMATED_PARTICLES:
                                             actionManager.particleSystemActions().addAffector<ungod::AnimatedParticles>(e, ungod::PS_ANIMATED_PARTICLES, "", "", 0);
                                             break;
@@ -522,6 +525,10 @@ namespace uedit
             {
                 mAffectorPanel = new FadeOutPanel(mEntity, mActionManager, mList->GetSelection(), this);
             }
+            else if (activeKey == ungod::PS_FADE_IN)
+            {
+                mAffectorPanel = new FadeOutPanel(mEntity, mActionManager, mList->GetSelection(), this);
+            }
             else if (activeKey == ungod::PS_ANIMATED_PARTICLES)
             {
                 mAffectorPanel = new AnimatedParticlesPanel(mEntity, mActionManager, mList->GetSelection(), this);
@@ -562,6 +569,7 @@ namespace uedit
             mChoiceDirecForce = new wxRadioButton(this, -1, "Directional force", wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
             mChoiceDisplForce = new wxRadioButton(this, -1, "Displacement force");
             mChoiceFadeOut = new wxRadioButton(this, -1, "Fade out");
+            mChoiceFadeIn = new wxRadioButton(this, -1, "Fade in");
             mChoiceAnimatedParticles = new wxRadioButton(this, -1, "Animated Particles");
             mChoiceColorShift = new wxRadioButton(this, -1, "Color shift");
             mChoiceRotateParticles = new wxRadioButton(this, -1, "Rotating Particles");
@@ -570,6 +578,7 @@ namespace uedit
             vbox->Add(mChoiceDirecForce, 1, wxALIGN_LEFT);
             vbox->Add(mChoiceDisplForce, 1, wxALIGN_LEFT);
             vbox->Add(mChoiceFadeOut, 1, wxALIGN_LEFT);
+            vbox->Add(mChoiceFadeIn, 1, wxALIGN_LEFT);
             vbox->Add(mChoiceAnimatedParticles, 1, wxALIGN_LEFT);
             vbox->Add(mChoiceColorShift, 1, wxALIGN_LEFT);
             vbox->Add(mChoiceRotateParticles, 1, wxALIGN_LEFT);
@@ -617,6 +626,10 @@ namespace uedit
         else if (mChoiceFadeOut->GetValue())
         {
             mType = FADE_OUT;
+        }
+        else if (mChoiceFadeIn->GetValue())
+        {
+            mType = FADE_IN;
         }
         else if (mChoiceAnimatedParticles->GetValue())
         {
@@ -1024,6 +1037,7 @@ namespace uedit
             wxArrayString texrectInitializers;
             texrectInitializers.Add(ungod::PS_EXPLICIT_TEXRECT);
             texrectInitializers.Add(ungod::PS_TEXRECT_BY_KEY);
+            texrectInitializers.Add(ungod::PS_MULTIPLE_TEXRECTS_BY_KEY);
             mTexrectInitChoice = new LabeledChoice(this, -1, texrectInitializers, _("texrect initializers: "));
             mTexrectInitChoice->bindChoice([this, e, &actionManager] (wxCommandEvent& event) { this->onTexrectInitChoice(event, e, actionManager); });
 
@@ -1042,6 +1056,11 @@ namespace uedit
             else if (key == ungod::PS_EXPLICIT_TEXRECT )
             {
                 mTexrectInitPanel = new ExplicitTexrectPanel(e, actionManager, this);
+                vbox->Add(mTexrectInitPanel, 0, wxALIGN_CENTER_HORIZONTAL);
+            }
+            else if (key == ungod::PS_MULTIPLE_TEXRECTS_BY_KEY)
+            {
+                mTexrectInitPanel = new MultipleTexrectByKeyPanel(e, actionManager, this);
                 vbox->Add(mTexrectInitPanel, 0, wxALIGN_CENTER_HORIZONTAL);
             }
         }
@@ -1068,6 +1087,10 @@ namespace uedit
         else if (key == ungod::PS_TEXRECT_BY_KEY)
         {
             actionManager.particleSystemActions().setTexrectInitializer<ungod::TexrectByKey>(e, key, "", "");
+        }
+        else if (key == ungod::PS_MULTIPLE_TEXRECTS_BY_KEY)
+        {
+            actionManager.particleSystemActions().setTexrectInitializer<ungod::MultipleTexrectsByKey>(e, key, "", std::vector<std::string>{});
         }
     }
 
@@ -1175,6 +1198,34 @@ namespace uedit
                      });
             });
         vbox->Add(mSetSelected,0,wxALIGN_CENTER_HORIZONTAL);
+
+        SetSizer(vbox);
+        Layout();
+        Fit();
+    }
+
+
+    MultipleTexrectByKeyPanel::MultipleTexrectByKeyPanel(ungod::Entity e, ActionManager& actionManager, wxWindow* parent) : wxPanel(parent)
+    {
+        SetWindowStyle(wxBORDER_SIMPLE);
+
+        wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
+
+        mSetSelected = new wxButton(this, -1, _("add selected"));
+        mSetSelected->Bind(wxEVT_BUTTON, [e, &actionManager](wxCommandEvent& event)
+            {
+                std::string meta = actionManager.getEditorFrame()->getSheetPreview()->getCurrentMeta();
+                std::string key = actionManager.getEditorFrame()->getSheetPreview()->getCurrentKey();
+                actionManager.particleSystemActions().alterTexrectInitializer<ungod::MultipleTexrectsByKey>(
+                    e, [meta, key](ungod::ScopedAccessor<ungod::MultipleTexrectsByKey>& a)
+                    {
+                        auto keys = a->keys;
+                        if (std::find(keys.begin(), keys.end(), key) == keys.end())
+                            keys.emplace_back(key);
+                        a->init(meta, keys);
+                    });
+            });
+        vbox->Add(mSetSelected, 0, wxALIGN_CENTER_HORIZONTAL);
 
         SetSizer(vbox);
         Layout();
@@ -1660,10 +1711,17 @@ namespace uedit
             mMin = new StatDisplay<float>("min tick:", this, -1);
             mMin->connectSetter( [this, e, &actionManager](float x)
             {
+                    if (x <= e.get<ungod::ParticleSystemComponent>().getSystem().
+                        getEmitter<ungod::UniversalEmitter>().getSpawnInterval<ungod::IntervalTick>().msmax)
                 actionManager.particleSystemActions().alterSpawnInterval<ungod::IntervalTick>(e, [x] (ungod::ScopedAccessor<ungod::IntervalTick>& f)
                                                {
                                                     f->msmin = x;
                                                });
+                    else
+                    {
+                    auto err = wxMessageDialog(this, _("Minimum can not be smaller than maximum."));
+                    err.ShowModal();
+                    }
             } );
             mMin->connectGetter( [this, e]()
             {
@@ -1678,10 +1736,17 @@ namespace uedit
             mMax = new StatDisplay<float>("max tick:", this, -1);
             mMax->connectSetter( [this, e, &actionManager](float x)
             {
+                    if (x >= e.get<ungod::ParticleSystemComponent>().getSystem().
+                        getEmitter<ungod::UniversalEmitter>().getSpawnInterval<ungod::IntervalTick>().msmin)
                 actionManager.particleSystemActions().alterSpawnInterval<ungod::IntervalTick>(e, [x] (ungod::ScopedAccessor<ungod::IntervalTick>& f)
                                                {
                                                     f->msmax = x;
                                                });
+                    else
+                    {
+                        auto err = wxMessageDialog(this, _("Maximum can not be smaller than minimum."));
+                        err.ShowModal();
+                    }
             } );
             mMax->connectGetter( [this, e]()
             {

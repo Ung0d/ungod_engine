@@ -34,6 +34,7 @@ namespace ungod
             mAffectors.addFunctor<DirectionalForce>(PS_DIRECTIONAL_FORCE, &directionalForce);
             mAffectors.addFunctor<DisplaceForce>(PS_DISPLACE_FORCE, &displaceForce);
             mAffectors.addFunctor<FadeOut>(PS_FADE_OUT, &fadeOut);
+            mAffectors.addFunctor<FadeIn>(PS_FADE_IN, &fadeIn);
             mAffectors.addFunctor<AnimatedParticles>(PS_ANIMATED_PARTICLES, &animatedParticles);
             mAffectors.addFunctor<ColorShift>(PS_COLOR_SHIFT, &colorShift);
             mAffectors.addFunctor<RotateParticle>(PS_ROTATE_PARTICLE, &rotateParticle);

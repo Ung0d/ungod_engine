@@ -40,10 +40,10 @@ namespace ungod
     class ParticleFunctorMaster;
 
     /** \brief Data for the DirectionalForce affector. */
-    class UniversalEmitter : public BaseFunctorData<const ParticleFunctorMaster*>
+    class UniversalEmitter : public BaseFunctorData<const ParticleFunctorMaster&>
     {
-     friend struct SerialBehavior<UniversalEmitter, const ParticleFunctorMaster*>;
-    friend struct DeserialBehavior<UniversalEmitter, const ParticleFunctorMaster*>;
+     friend struct SerialBehavior<UniversalEmitter, const ParticleFunctorMaster&>;
+    friend struct DeserialBehavior<UniversalEmitter, const ParticleFunctorMaster&>;
     public:
         UniversalEmitter() : mMaster(nullptr) {}
 
@@ -131,9 +131,9 @@ namespace ungod
         FUNCTOR_DATA(UniversalEmitter)
 
     public:
-        virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, const ParticleFunctorMaster*&& master) const override
+        virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, const ParticleFunctorMaster& master) const override
         {
-            deferredSerialize<UniversalEmitter, const ParticleFunctorMaster*>(*this, serializer, context, std::move(master));
+            deferredSerialize<UniversalEmitter, const ParticleFunctorMaster&>(*this, serializer, context, master);
         }
         virtual std::string getSerialIdentifier() const override
         {

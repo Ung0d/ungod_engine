@@ -10,11 +10,11 @@ namespace uedit
 
         wxStaticText* statt = new wxStaticText(this, -1, text);
 
-        hbox->Add(statt, 0, wxALIGN_CENTER_HORIZONTAL);
+        hbox->Add(statt, 0, wxALIGN_CENTER_VERTICAL);
 
         mChoice = new wxChoice(this, -1, wxDefaultPosition, wxDefaultSize, choices);
 
-        hbox->Add(mChoice, 0, wxALIGN_CENTER_HORIZONTAL);
+        hbox->Add(mChoice, 0, wxALIGN_CENTER_VERTICAL);
 
         SetSizer(hbox);
         Layout();
