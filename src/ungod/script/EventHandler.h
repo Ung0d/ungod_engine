@@ -58,6 +58,28 @@ namespace ungod
         using Signal = owls::Signal<const CustomEvent&>;
 
         /**
+        * \brief Schedules delayed events. */
+        class EventScheduler
+        {
+        public:
+            EventScheduler() = default;
+
+            void handleCustomEvent(const CustomEvent& evt);
+
+            void dispatchDelayed();
+
+            EventListenerLink addListener(const std::function<void(const CustomEvent&)>& callback);
+
+        private:
+            std::set<detail::DelayedEvent, detail::DelayedEventCompare> mDelayedEvents;
+            sf::Clock mClock;
+            Signal mEventSignal;
+
+        private:
+            void dispatch(const CustomEvent& evt);
+        };
+
+        /**
         * \brief A class that handles event listenings and emission from and to scripted entities.
         * Entities have to listen to an event type to receive events. */
         class EventHandler
@@ -70,15 +92,8 @@ namespace ungod
             template<typename CB>
             EventListenerLink addListener(const CB& callback, const std::string& eventType);
 
-            void dispatchDelayed();
-
         private:
             std::unordered_map< std::string, std::unique_ptr<Signal> > mListeners;
-            std::set<detail::DelayedEvent, detail::DelayedEventCompare> mDelayedEvents;
-            sf::Clock mClock;
-
-        private:
-            void dispatch(const CustomEvent& evt);
         };
 
 

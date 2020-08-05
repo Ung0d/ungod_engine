@@ -69,6 +69,11 @@ namespace ungod
         mBackgroundColor(sf::Color::Black)
     {
         ungod::BaseAsset::setManager(mAssetmanager);
+
+        mEventScheduler.addListener([this](const CustomEvent& event)
+            {
+                mStatemanager.onCustomEvent(event);
+            });
     }
 
     void Application::initApplication()
@@ -315,6 +320,7 @@ namespace ungod
         mUpdateCounter = 0;
         while (mAccumulator >= mDelta && ++mUpdateCounter <= mMaxUpdates)
         {
+             mEventScheduler.dispatchDelayed();
              mAssetmanager.update();
              mInputManager.update();
              mStatemanager.update(mDelta);
@@ -339,8 +345,7 @@ namespace ungod
 
     void Application::emitCustomEvent(const std::string& type, script::Environment data, float delay)
     {
-        CustomEvent event = makeCustomEvent(mScriptState, type, data, delay);
-        mStatemanager.onCustomEvent(event);
+        mEventScheduler.handleCustomEvent(makeCustomEvent(mScriptState, type, data, delay));
     }
 
     void Application::resetScriptState()

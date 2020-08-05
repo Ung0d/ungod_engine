@@ -70,7 +70,7 @@ namespace ungod
     {
          void LayerTransition::init(sf::BigSprite& sprite, unsigned duration)
          {
-            sprite.setPosition(mStartingPosition);
+            sprite.move(mStartingPosition);
             //compute adjusted scale that takes starting and end position of the moving layer into account
            /* float startScaleX = (sprite.getGlobalBounds().width - mStartingPosition.x) / sprite.getGlobalBounds().width;
             float startScaleY = (sprite.getGlobalBounds().height - mStartingPosition.y) / sprite.getGlobalBounds().height;
@@ -278,9 +278,8 @@ namespace ungod
         }
         for (auto& layer : mScenes[mCurrent].mLayers)
         {
-            float sx = mScreenSize.x / layer.first.getLocalBounds().width;
-            float sy = mScreenSize.y / layer.first.getLocalBounds().height;
-            float scale = std::min(sx, sy);
+            //we want to fit screen width in any case
+            float scale = mScreenSize.x / layer.first.getLocalBounds().width;
             layer.first.setScale({scale, scale});
             layer.first.setPosition({-(layer.first.getLocalBounds().width*scale-mScreenSize.x)/2, -(layer.first.getLocalBounds().height*scale-mScreenSize.y)/2});
         }

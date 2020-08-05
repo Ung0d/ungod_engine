@@ -362,8 +362,8 @@ namespace ungod
                                 node->getBounds().intersects({ entityGlobal.x, entityGlobal.y,
                               e.get<TransformComponent>().getSize().x, e.get<TransformComponent>().getSize().y }))
                             {
-                                newNode = node;
-                                break;
+                                if (!newNode || newNode->getPriority() < node->getPriority())
+                                    newNode = node;
                             }
                         }
                         if (newNode)

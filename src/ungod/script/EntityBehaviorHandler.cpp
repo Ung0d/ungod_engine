@@ -99,7 +99,7 @@ namespace ungod
 
         mEntityChangedNodeLink = world.getState()->getWorldGraph().onEntityChangedNode([this](Entity e, WorldGraph& wg, WorldGraphNode& oldNode, WorldGraphNode& newNode)
             { 
-                if (&e.getWorld().getBehaviorHandler() == this)
+               if (&e.getWorld().getBehaviorHandler() == this)
                     callbackInvoker<WorldGraph&, WorldGraphNode&, WorldGraphNode&>(ON_ENTERED_NEW_NODE, e, wg, oldNode, newNode);  
             });
     }
@@ -129,8 +129,6 @@ namespace ungod
                 }
             }
         }
-
-        mEventHandler.dispatchDelayed();
     }
 
     void EntityBehaviorHandler::handleCustomEvent(const CustomEvent& event)

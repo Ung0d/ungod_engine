@@ -6,7 +6,7 @@ namespace ungod
 {
     namespace script
     {
-        void EventHandler::handleCustomEvent(const CustomEvent& evt) 
+        void EventScheduler::handleCustomEvent(const CustomEvent& evt)
         {
             float delay = evt.get_or("delay", 0.0f);
             if (delay > 0.0f)
@@ -18,7 +18,7 @@ namespace ungod
                 dispatch(evt);
         }
 
-        void EventHandler::dispatchDelayed()
+        void EventScheduler::dispatchDelayed()
         {
             float curTime = mClock.getElapsedTime().asSeconds();
             while (!mDelayedEvents.empty() && mDelayedEvents.begin()->dispatchTime <= curTime)
@@ -28,7 +28,18 @@ namespace ungod
             }
         }
 
-        void EventHandler::dispatch(const CustomEvent& evt)
+        void EventScheduler::dispatch(const CustomEvent& evt)
+        {
+            mEventSignal(evt);
+        }
+
+        EventListenerLink EventScheduler::addListener(const std::function<void(const CustomEvent&)>& callback)
+        {
+            return mEventSignal.connect(callback);
+        }
+
+
+        void EventHandler::handleCustomEvent(const CustomEvent& evt) 
         {
             auto signal = mListeners.find(evt["type"]);
             if (signal != mListeners.end())

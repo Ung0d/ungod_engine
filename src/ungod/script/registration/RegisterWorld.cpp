@@ -85,6 +85,7 @@ namespace ungod
 			worldType["getNode"] = &World::getNode;
 			//handlers
 			worldType["getLightHandler"] = [](World& w) -> LightHandler& { return w.getLightHandler();  };
+			worldType["getParentChildHandler"] = [](World& w) -> ParentChildHandler& { return w.getParentChildHandler();  };
         }
     }
 }

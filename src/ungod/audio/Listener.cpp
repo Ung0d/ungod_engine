@@ -48,6 +48,6 @@ namespace ungod
 
     sf::Vector2f CameraListener::getWorldPosition() const
     {
-		return mCamera.getCenter() - mWorld.getNode().getPosition();
+		return mWorld.getNode().mapToLocalPosition(mCamera.getCenter());
     }
 }

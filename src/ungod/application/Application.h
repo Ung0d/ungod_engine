@@ -39,6 +39,7 @@
 #include "ungod/audio/Audio.h"
 #include "ungod/base/Input.h"
 #include "ungod/visual/Font.h"
+#include "ungod/script/EventHandler.h"
 
 namespace ungod
 {
@@ -148,6 +149,10 @@ namespace ungod
         /** \brief Get a default font for debugging and simple text. */
         const Font& getDefaultFont() const { return mDefaultFont; }
 
+        void processEvents();
+        bool update();
+        void render();
+
     private:
         //const
         const float mDelta;
@@ -158,6 +163,7 @@ namespace ungod
         StateManager mStatemanager;
         script::SharedState mScriptState;
         script::Environment mGlobalScriptEnvironment;
+        script::EventScheduler mEventScheduler;
         //video
         sf::RenderWindow mWindow;
         sf::VideoMode mVideoMode;
@@ -207,9 +213,6 @@ namespace ungod
         STATE* addState(PARAM&& ... param);
         template<typename STATE, typename ... PARAM>
         STATE* addInactiveState(PARAM&& ... param);
-        void processEvents();
-        bool update();
-        void render();
     };
 
 

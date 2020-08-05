@@ -234,6 +234,7 @@ BOOST_AUTO_TEST_CASE( script_test )
         BOOST_REQUIRE_EQUAL(*check_delayed_event, 0);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        EmbeddedTestApp::getApp().update();
 
         world->update(20.0f, {0,0}, {800,600});
 
