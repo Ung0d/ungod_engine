@@ -259,7 +259,7 @@ namespace ungod
         auto attr = context.first(context.deserializeProperty(metaID), "metaID", deserializer);
         attr = context.next(context.deserializeContainer<std::string>([&keys](std::size_t s) { keys.reserve(s); },
                                                          [&keys](const std::string& key) { keys.emplace_back(key); }),
-                            "key", deserializer, attr);
+                            "keys", deserializer, attr);
         data.init(metaID, keys);
     }
 

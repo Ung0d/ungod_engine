@@ -123,9 +123,9 @@ namespace ungod
         if (mLoadingInProcess)
             mLoadingInProcess = !tryInit();
         sf::View camview = mWorldGraph.getCamera().getView();
-        sf::Vector2f campos{ camview.getCenter().x - camview.getSize().x / 2,camview.getCenter().y - camview.getSize().y / 2 };
+        sf::Vector2f campos{ camview.getCenter().x - 1.5f*camview.getSize().x,camview.getCenter().y - 1.5f * camview.getSize().y };
         sf::Vector2f viewpos = mapToLocalPosition(campos);
-        mLayers.update(delta, viewpos, camview.getSize());
+        mLayers.update(delta, viewpos, 3.0f*camview.getSize());
     }
 
     void WorldGraphNode::handleInput(const sf::Event& event, const sf::RenderTarget& target)

@@ -179,6 +179,7 @@ namespace ungod
             meta.load(metaID);
             if (meta.isLoaded())
             {
+                nodes.clear();
                 nodes.reserve(keys.size());
                 for (const auto& key : keys)
                     nodes.emplace_back(meta.getNodeWithKey(key));
@@ -189,7 +190,7 @@ namespace ungod
         {
             if (data.keys.empty())
                 return {};
-            unsigned keyid = (unsigned)NumberGenerator::getRandBetw(0, (unsigned)data.keys.size());
+            unsigned keyid = (unsigned)NumberGenerator::getRandBetw(0, (unsigned)(data.keys.size()-1));
             if (!data.nodes[keyid])
                 return {};
             auto result = data.nodes[keyid].getAttributes<int, int, int, int>(

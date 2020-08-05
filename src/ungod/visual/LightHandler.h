@@ -30,11 +30,12 @@
 #define UNGOD_LIGHT_HANDLER_H
 
 #include "ungod/visual/LightManager.h"
-#include "quadtree/QuadTree.h"
 #include "owls/Signal.h"
 
 namespace ungod
 {
+    class World; 
+
     /** \brief Handles all Lights and LightColliders and is responsible for rendering them. */
     class LightHandler
     {
@@ -44,7 +45,7 @@ namespace ungod
         void init(LightManager& lightManager);
 
         /** \brief Renders lights and lightcolliders of a list of entities. */
-        void render(const quad::PullResult<Entity>& pull, const quad::QuadTree<Entity>& quadtree, sf::RenderTarget& target, sf::RenderStates states, bool drawShadows = true);
+        void render(const quad::PullResult<Entity>& pull, const World& world, sf::RenderTarget& target, sf::RenderStates states, bool drawShadows = true);
 
         /** \brief Updates LightAffectors. */
         void update(const std::list<Entity>& entities, float delta);

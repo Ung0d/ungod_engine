@@ -247,7 +247,7 @@ namespace ungod
         mMaster->getRenderer().render(mRenderedEntities, target, states, mVisualsHandler);
 
         if (mRenderLight)
-            mLightHandler.render(mRenderedEntities, mQuadTree, target, states);
+            mLightHandler.render(mRenderedEntities, *this, target, states);
 
         return true; //todo meaningful return value
     }

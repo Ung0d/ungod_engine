@@ -216,6 +216,7 @@ namespace ungod
         mCursorCamera.init(mWindow);
         if (mActiveCursor.getTexture())
             mWindow.setMouseCursorVisible(false);
+        mTargetSizeChanged(mWindow.getSize());
     }
 
 
@@ -229,6 +230,7 @@ namespace ungod
         mCursorCamera.init(mWindow);
         if (mActiveCursor.getTexture())
             mWindow.setMouseCursorVisible(false);
+        mTargetSizeChanged(mWindow.getSize());
     }
 
 

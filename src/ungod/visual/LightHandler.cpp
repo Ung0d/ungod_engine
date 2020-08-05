@@ -39,27 +39,43 @@ namespace ungod
         mLightManager = &lightManager;
     }
 
-    void LightHandler::render(const quad::PullResult<Entity>& pull, const quad::QuadTree<Entity>& quadtree, sf::RenderTarget& target, sf::RenderStates states, bool drawShadows)
+    void LightHandler::render(const quad::PullResult<Entity>& pull, const World& world, sf::RenderTarget& target, sf::RenderStates states, bool drawShadows)
     {
-        mLightManager->getCompositionTexture().clear(mAmbientColor);
+        sf::View defaultView{ sf::FloatRect{0.0f,0.0f,(float)target.getSize().x,(float)target.getSize().y} };
+
+        //set sprite transparency based on distance to world borders (light fades out when leaving)
+        auto nodeBounds = world.getNode().getBounds();
+        nodeBounds.left -= world.getGraph().getActiveNode()->getPosition().x;
+        nodeBounds.top -= world.getGraph().getActiveNode()->getPosition().y;
+        float dtl = std::min(2 * (target.getView().getCenter().x - nodeBounds.left) / target.getView().getSize().x,
+            2 * (target.getView().getCenter().y - nodeBounds.top) / target.getView().getSize().y);
+        float dbr = std::min(2 * (nodeBounds.left + nodeBounds.width - target.getView().getCenter().x) / target.getView().getSize().x,
+            2 * (nodeBounds.top + nodeBounds.height - target.getView().getCenter().y) / target.getView().getSize().y);
+        float fade = std::min(1.0f, std::max(0.0f, std::min(dtl, dbr)));
+        auto col = mAmbientColor;
+        col.r = (sf::Uint8)(col.r*fade + 255u *(1-fade));
+        col.g = (sf::Uint8)(col.g * fade + 255u * (1 - fade));
+        col.b = (sf::Uint8)(col.b * fade + 255u * (1 - fade));
+
+        mLightManager->getCompositionTexture().clear(col);
         // mLightManager->getCompositionTexture().setView(mLightManager->getCompositionTexture().getDefaultView());
-        mLightManager->getCompositionTexture().setView(target.getView()); //TODO check correctness of this
+        mLightManager->getCompositionTexture().setView(defaultView); 
 
 
         //iterator over the one-light-components
         dom::Utility<Entity>::iterate<TransformComponent, LightEmitterComponent>(pull.getList(),
-          [this, &target, &states, drawShadows, &quadtree] (Entity e, TransformComponent& lightTransf, LightEmitterComponent& light)
+          [this, &target, &states, drawShadows, &world] (Entity e, TransformComponent& lightTransf, LightEmitterComponent& light)
           {
-              renderLight(target, states, quadtree, e, lightTransf, light, drawShadows);
+              renderLight(target, states, world.getQuadTree(), e, lightTransf, light, drawShadows);
           });
 
         //iterate over the multiple-light-components
         dom::Utility<Entity>::iterate<TransformComponent, MultiLightEmitter>(pull.getList(),
-          [this, &target, &states, drawShadows, &quadtree] (Entity e, TransformComponent& lightTransf, MultiLightEmitter& light)
+          [this, &target, &states, drawShadows, &world] (Entity e, TransformComponent& lightTransf, MultiLightEmitter& light)
           {
               for (std::size_t i = 0; i < light.getComponentCount(); ++i)
               {
-                renderLight(target, states, quadtree, e, lightTransf, light.getComponent(i), drawShadows);
+                renderLight(target, states, world.getQuadTree(), e, lightTransf, light.getComponent(i), drawShadows);
               }
           });
 
@@ -69,8 +85,9 @@ namespace ungod
 		lightstates.blendMode = sf::BlendMultiply;
 
 		mDisplaySprite.setTexture(mLightManager->getCompositionTexture().getTexture(), true);
+
 		sf::View view = target.getView();
-        target.setView(sf::View{ sf::FloatRect{0.0f,0.0f,(float)target.getSize().x,(float)target.getSize().y} });
+        target.setView(defaultView);
 		target.draw(mDisplaySprite, lightstates);
 		target.setView(view);
     }
