@@ -142,7 +142,7 @@ namespace ungod
         {
             for (std::size_t i = 0; i < particles.getParticleCount(); i++)
             {
-                particles.getParticleData(i).rotation = std::acos( (-particles.getParticleData(i).mov.velocity.y)/magnitude(particles.getParticleData(i).mov.velocity) ) * 180.0f / PI;
+                particles.getParticleData(i).rotation = std::acos( (particles.getParticleData(i).mov.velocity.y)/magnitude(particles.getParticleData(i).mov.velocity) ) * 180.0f / PI;
             }
         }
 
