@@ -291,6 +291,8 @@ namespace uedit
         quad::PullResult<ungod::WorldGraphNode*> pull;
         sf::Vector2f windowTop = target.mapPixelToCoords({}, mEditorState->getWorldGraph().getCamera().getView());
         sf::Vector2f windowBot = target.mapPixelToCoords(static_cast<sf::Vector2i>(target.getSize()), mEditorState->getWorldGraph().getCamera().getView());
+        windowTop += mEditorState->getWorldGraph().getActiveNode()->getPosition();
+        windowBot += mEditorState->getWorldGraph().getActiveNode()->getPosition();
         mEditorState->getWorldGraph().getQuadTree().retrieve(pull, {windowTop.x, windowTop.y, windowBot.x - windowTop.x, windowBot.y - windowTop.y});
         for (auto* n : pull.getList())
         {
@@ -301,7 +303,8 @@ namespace uedit
             if (sf::FloatRect{windowTop, windowBot - windowTop}.intersects(nbounds))
             {
                 sf::RectangleShape rect;
-                rect.setPosition(std::max(windowTop.x, nbounds.left), std::max(windowTop.y, nbounds.top));
+                rect.setPosition(std::max(windowTop.x, nbounds.left) - mEditorState->getWorldGraph().getActiveNode()->getPosition().x, 
+                                std::max(windowTop.y, nbounds.top) - mEditorState->getWorldGraph().getActiveNode()->getPosition().y);
                 rect.setSize(sf::Vector2f{ std::min(windowBot.x, nbounds.left + nbounds.width), std::min(windowBot.y, nbounds.top + nbounds.height) } - rect.getPosition());
                 rect.setFillColor(sf::Color::Transparent);
                 rect.setOutlineColor(sf::Color::Green);

@@ -107,7 +107,7 @@ namespace ungod
 
 
         template<typename T>
-        std::unordered_map<std::string, Tensor<T>> getInputTensors(const std::vector<std::string>& names, const std::vector<std::vector< int >>& dims)
+        std::unordered_map<std::string, Tensor<T>> Predictor::getInputTensors(const std::vector<std::string>& names, const std::vector<std::vector< int >>& dims)
         {
             ungod::Logger::assertion(names.size() == dims.size(), "names and batch_sizes need equal length");
             ungod::Logger::assertion(names.size() == this->mInterpreter->inputs().size(), "number of model inputs and requested tensors do not match");

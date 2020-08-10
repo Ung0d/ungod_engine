@@ -38,6 +38,7 @@
 #include <tuple>
 #include <limits>
 #include <iostream>
+#include <algorithm>
 
 using EntityID = uint64_t;
 using SubID = uint16_t;
