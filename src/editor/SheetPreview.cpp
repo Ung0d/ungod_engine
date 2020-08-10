@@ -189,10 +189,11 @@ namespace uedit
     void SheetPreview::selectSheetKey(const std::string& sheetID, const std::string& key)
     {
         boost::filesystem::path p = sheetID;
+        std::string comp = p.parent_path().filename().string() + "/" + p.stem().string();
         for (unsigned i = 0; i < mLoadedSheets->GetCount(); ++i)
         {
             std::string cursheet = std::string(mLoadedSheets->GetString(i).mb_str());
-            if (cursheet == p.stem().string())
+            if (cursheet == comp)
             {
                 mLoadedSheets->Deselect(mLoadedSheets->GetSelection());
                 mLoadedSheets->SetSelection(i);
@@ -226,7 +227,8 @@ namespace uedit
         for (unsigned i = 0; i < mImages.size(); ++i)
         {
             boost::filesystem::path p = mImages[i].getFilePath();
-            mLoadedSheets->Append(_(p.stem().string()));
+            std::string id = p.parent_path().filename().string() + "/" + p.stem().string();
+            mLoadedSheets->Append(_(id));
         }
 
         if (mImages.size() > 0)
