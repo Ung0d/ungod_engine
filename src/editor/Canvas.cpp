@@ -298,14 +298,13 @@ namespace uedit
         {
             mEditorState->getWorldGraph().getCamera().renderBegin();
             auto nbounds = n->getBounds();
-            nbounds.left = 0;
-            nbounds.top = 0;
             if (sf::FloatRect{windowTop, windowBot - windowTop}.intersects(nbounds))
             {
                 sf::RectangleShape rect;
                 rect.setPosition(std::max(windowTop.x, nbounds.left) - mEditorState->getWorldGraph().getActiveNode()->getPosition().x, 
                                 std::max(windowTop.y, nbounds.top) - mEditorState->getWorldGraph().getActiveNode()->getPosition().y);
-                rect.setSize(sf::Vector2f{ std::min(windowBot.x, nbounds.left + nbounds.width), std::min(windowBot.y, nbounds.top + nbounds.height) } - rect.getPosition());
+                rect.setSize(sf::Vector2f{ std::min(windowBot.x, nbounds.left + nbounds.width), std::min(windowBot.y, nbounds.top + nbounds.height) } 
+                - rect.getPosition() - mEditorState->getWorldGraph().getActiveNode()->getPosition());
                 rect.setFillColor(sf::Color::Transparent);
                 rect.setOutlineColor(sf::Color::Green);
                 rect.setOutlineThickness(10.0f);

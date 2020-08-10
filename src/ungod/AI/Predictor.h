@@ -67,7 +67,7 @@ namespace ungod
 
             /** \brief Returns input tensors to set. Reallocates on first invoke and every invoke with dims unqual to the 
             * previous call. */
-            template<typename T, int DIM>
+            template<typename T>
             std::unordered_map<std::string, Tensor<T>> getInputTensors(const std::vector<std::string>& names, const std::vector<std::vector< int >>& dims);
 
             /** \brief Invokes the model and returns the computed output tensors. */
