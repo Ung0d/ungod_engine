@@ -319,6 +319,11 @@ namespace ungod
                     mEntityBehaviorHandler.initBehavior(fcpy);
                 }
             }
+            if (e.has<ParentComponent>())
+            {
+                for (const auto& child : e.get<ParentComponent>().getChildren())
+                    mParentChildHandler.addChild(fcpy, accomodateForeign(child));
+            }
             mTransformHandler.setPosition(fcpy,
                 getNode().mapToLocalPosition(
                     e.getWorld().getNode().mapToGlobalPosition(e.get<TransformComponent>().getPosition())));

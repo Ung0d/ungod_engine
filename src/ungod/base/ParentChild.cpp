@@ -34,6 +34,9 @@ namespace ungod
     }
 
 
+    ChildComponent::ChildComponent(const ChildComponent& other) 
+     : mChildTransform(other.mChildTransform) {}
+
     const sf::Vector2f& ChildComponent::getPosition() const
     {
         return mChildTransform.getPosition();

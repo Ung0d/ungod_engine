@@ -40,8 +40,13 @@ namespace ungod
     {
     friend class ParentChildHandler;
     public:
+        ParentComponent() = default;
+        ParentComponent(const ParentComponent& other) {}
+
         /** \brief Returns the number of children. */
         unsigned getNumberOfChildren() const;
+
+        const std::list<Entity>& getChildren() const { return mChildren; }
 
     private:
         std::list<Entity> mChildren;
@@ -54,6 +59,9 @@ namespace ungod
     {
     friend class ParentChildHandler;
     public:
+        ChildComponent() = default;
+        ChildComponent(const ChildComponent& other);
+
         const sf::Vector2f& getPosition() const;
 
         const sf::Vector2f& getScale() const;
