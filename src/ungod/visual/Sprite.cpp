@@ -84,6 +84,11 @@ namespace ungod
         return &mVertices[0];
     }
 
+    const sf::Color& Sprite::getColor() const
+    {
+        return mVertices[0].color;
+    }
+
     void Sprite::setPosition(const sf::Vector2f& position)
     {
         sf::Vector2f rounded{std::round(position.x), std::round(position.y)} ;

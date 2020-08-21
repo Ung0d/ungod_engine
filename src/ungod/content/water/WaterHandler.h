@@ -61,7 +61,7 @@ namespace ungod
 
         void init(World & world);
 
-        void update(const std::list<Entity>& entities);
+        void update(const std::list<Entity>& entities, const Camera& cam);
 
         inline static void initWater(Entity e, const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader)
         { initWater(e.modify<WaterComponent>(), distortionTex, fragmentShader, vertexShader); }

@@ -76,10 +76,9 @@ namespace ungod
         int intervalTick(IntervalTick& data, float delta)
         {
             int num = 0;
-            data.timer += delta;
-            while (data.timer >= data.timermax)
+            if ((float)data.timer.getElapsedTime().asMilliseconds() >= data.timermax)
             {
-                data.timer -= data.timermax;
+                data.timer.restart();
                 data.timermax = NumberGenerator::getFloatRandBetw(data.msmin, data.msmax);
                 num += data.numparticle;
             }

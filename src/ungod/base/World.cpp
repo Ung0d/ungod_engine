@@ -229,7 +229,7 @@ namespace ungod
         mLightHandler.update(mInUpdateRange.getList(), delta);
         mParticleSystemHandler.update(mInUpdateRange.getList(), delta);
         mTileMapHandler.update(mInUpdateRange.getList(), *this);
-        mWaterHandler.update(mInUpdateRange.getList());
+        mWaterHandler.update(mInUpdateRange.getList(), mNode.getGraph().getCamera());
         mMusicEmitterMixer.update(delta, mQuadTree);
 
         mMaster->getRenderer().update(mInUpdateRange.getList(), delta, mVisualsHandler);
@@ -328,6 +328,7 @@ namespace ungod
                 getNode().mapToLocalPosition(
                     e.getWorld().getNode().mapToGlobalPosition(e.get<TransformComponent>().getPosition())));
             e.getWorld().destroy(e);
+            addEntity(fcpy);
             return fcpy;
         }
         else

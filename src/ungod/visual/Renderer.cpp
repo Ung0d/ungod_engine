@@ -35,9 +35,11 @@ namespace ungod
     Renderer::Renderer(Application& app) : mShowWater(false), mDrawCalls(0)
     {
         mShowWater = mWaterTex.create(app.getWindow().getSize().x, app.getWindow().getSize().y);
+        mWaterTex.setRepeated(true);
         app.onTargetSizeChanged([this, &app](const sf::Vector2u& targetsize)
             {
                 mShowWater = mWaterTex.create(app.getWindow().getSize().x, app.getWindow().getSize().y);
+                mWaterTex.setRepeated(true);
             });
     }
 

@@ -33,7 +33,8 @@ namespace uedit
         SET_VERTEX_RECT_COUNT,
         CHOICE_VERTEX,
         VERTEX_RECT_BY_KEY,
-        VERTEX_COLOR_PICKER
+        VERTEX_COLOR_PICKER,
+        SPRITE_COLOR_PICKER
     };
 
     class EntityVisualsWindow : public wxWindow
@@ -76,6 +77,7 @@ namespace uedit
         StatDisplay<float>* mVertexPositionY;
         int mSelectedVertex;
         wxColourPickerCtrl* mVertexColor;
+        wxColourPickerCtrl* mSpriteColor;
         wxCheckBox* mVertexFlipX;
         wxCheckBox* mVertexFlipY;
 
@@ -93,6 +95,8 @@ namespace uedit
         void onVectexRectSelect(wxCommandEvent & event);
         void onVertexRectByKey(wxCommandEvent & event);
         void onVertexColorSelect(wxColourPickerEvent& event);
+
+        void onSpriteColorSelect(wxColourPickerEvent& event);
 
         static void setTexRectLabel(wxStaticText* text, const sf::FloatRect& rect);
 

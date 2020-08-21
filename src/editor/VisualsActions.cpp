@@ -86,6 +86,14 @@ namespace uedit
             e);
     }
 
+    void VisualsActions::setSpriteColor(ungod::Entity e, const sf::Color& color)
+    {
+        auto oldcol = e.get<ungod::SpriteComponent>().getSprite().getColor();
+        mActionManager.action(std::function([this, color](ungod::Entity e) { e.getWorld().getVisualsHandler().setSpriteColor(e, color); }),
+            std::function([this, oldcol](ungod::Entity e) { e.getWorld().getVisualsHandler().setSpriteColor(e, oldcol); }),
+            e);
+    }
+
     void VisualsActions::setMultiSpriteScale(ungod::Entity e, const sf::Vector2f& scale, unsigned i)
     {
         auto oldscale = e.get<ungod::MultiSpriteComponent>().getComponent(i).getSprite().getScale();

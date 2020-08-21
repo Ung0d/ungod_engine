@@ -43,12 +43,12 @@ namespace ungod
             });
     }
 
-    void WaterHandler::update(const std::list<Entity>& entities)
+    void WaterHandler::update(const std::list<Entity>& entities, const Camera& cam)
     {
         dom::Utility<Entity>::iterate<WaterComponent>(entities,
-            [](Entity e, WaterComponent& wc)
+            [&cam](Entity e, WaterComponent& wc)
             {
-                wc.mWater.update();
+                wc.mWater.update(cam);
             });
     }
 

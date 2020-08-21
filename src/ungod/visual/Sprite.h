@@ -59,6 +59,8 @@ namespace ungod
 
         sf::Vertex const* getVertices() const;
 
+        const sf::Color& getColor() const;
+
         void setPosition(const sf::Vector2f& position);
 
         void setPosition(float x, float y);

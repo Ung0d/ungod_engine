@@ -16,13 +16,14 @@ namespace uedit
         EVT_CHOICE(CHOICE_VERTEX, EntityVisualsWindow::onVectexRectSelect)
         EVT_BUTTON(VERTEX_RECT_BY_KEY, EntityVisualsWindow::onVertexRectByKey)
         EVT_COLOURPICKER_CHANGED(VERTEX_COLOR_PICKER, EntityVisualsWindow::onVertexColorSelect)
+        EVT_COLOURPICKER_CHANGED(SPRITE_COLOR_PICKER, EntityVisualsWindow::onSpriteColorSelect)
     wxEND_EVENT_TABLE()
 
     EntityVisualsWindow::EntityVisualsWindow(ungod::Entity e, ActionManager& actionManager, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz) :
         wxWindow(parent, id, pos, siz), mEntity(e), mActionManager(actionManager), mTypeNotebook(nullptr), mTexRectLabel(nullptr), mMultiTexRectLabel(nullptr),
         mCompCountCtrl(nullptr), mMultiSpriteChoice(nullptr), mSpritePanel(nullptr), mMultiSpritePanel(nullptr),
         mVertexPanel(nullptr), mVertexChoice(nullptr), mVertexTexRectLabel(nullptr),
-        mVertexPositionX(nullptr), mVertexPositionY(nullptr), mSelectedVertex(-1), mVertexColor(nullptr), mVertexFlipX(nullptr), mVertexFlipY(nullptr)
+        mVertexPositionX(nullptr), mVertexPositionY(nullptr), mSelectedVertex(-1), mVertexColor(nullptr), mSpriteColor(nullptr), mVertexFlipX(nullptr), mVertexFlipY(nullptr)
     {
         wxSizer* boxsizer = new wxBoxSizer(wxVERTICAL);
 
@@ -367,6 +368,11 @@ namespace uedit
         }
     }
 
+    void EntityVisualsWindow::onSpriteColorSelect(wxColourPickerEvent& event)
+    {
+        mActionManager.visualsActions().setSpriteColor(mEntity, convertColor(event.GetColour()));
+    }
+
     void EntityVisualsWindow::buildSpriteEdit(ungod::SpriteComponent& sprite)
     {
         mSpritePanel = new wxPanel(mTypeNotebook);
@@ -449,6 +455,14 @@ namespace uedit
                         return mEntity.get<ungod::SpriteComponent>().getSprite().getRotation();
                     } );
             spriteSizer->Add(mSpriteRotation,0,wxALIGN_CENTER_HORIZONTAL);
+        }
+
+        {
+            wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
+            hbox->Add(new wxStaticText(mSpritePanel, -1, _("color: ")), 1, wxALIGN_LEFT | wxALL, 3);
+            mSpriteColor = new wxColourPickerCtrl(mSpritePanel, SPRITE_COLOR_PICKER);
+            hbox->Add(mSpriteColor, 1, wxALL, 3);
+            spriteSizer->Add(hbox, 0, wxALIGN_CENTER_HORIZONTAL);
         }
 
         if (mEntity.has<ungod::SpriteMetadataComponent>())

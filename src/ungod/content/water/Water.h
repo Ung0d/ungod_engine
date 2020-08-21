@@ -34,6 +34,7 @@ namespace ungod
 {
     class TileMap;
     class World;
+    class Camera;
 
     /** \brief A manager class for water-fields and their rendering. */
     class Water : public Serializable<Water>
@@ -57,7 +58,7 @@ namespace ungod
         /** \brief Renders shaders and reflections (if activated) on top of the given tilemap. */
         bool render(sf::RenderTarget& target, sf::RenderTexture& rendertex, const TileMap& tilemap, const sf::Texture* tilemapTex, sf::RenderStates states) const;
 
-        void update();
+        void update(const Camera& cam);
 
         /** \brief Provides appropriate resources to set up all internals of the water. */
         void init(const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader);

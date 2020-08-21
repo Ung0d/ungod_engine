@@ -121,7 +121,7 @@ namespace ungod
 
     void Camera::lookAt(const sf::Vector2f& position)
     {
-        mView.setCenter(sf::Vector2f{ std::floor(position.x), std::floor(position.y) });
+        mView.setCenter(position);
         mViewCenterChanged(mView.getCenter());
     }
 

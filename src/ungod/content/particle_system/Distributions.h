@@ -185,20 +185,21 @@ namespace ungod
     /** \brief Data for the DirectionalForce affector. */
     struct IntervalTick : public BaseFunctorData<>
     {
-        IntervalTick() : msmin(0), msmax(0), numparticle(0), timer(0), timermax(0) {}
+        IntervalTick() : msmin(0), msmax(0), numparticle(0), timer(), timermax(0) {}
 
         inline void init(float imsmin, float imsmax, int inumparticle)
         {
             msmin = imsmin;
             msmax = imsmax;
             numparticle = inumparticle;
-            timer = 0.0f; timermax = NumberGenerator::getFloatRandBetw(msmin, msmax);
+            timer.restart(); 
+            timermax = NumberGenerator::getFloatRandBetw(msmin, msmax);
         }
 
         float msmin;
         float msmax;
         int numparticle;
-        float timer;
+        sf::Clock timer;
         float timermax;
 
     private:

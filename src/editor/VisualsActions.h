@@ -24,6 +24,7 @@ namespace uedit
         void setVertexarrayPosition(ungod::Entity e, const sf::Vector2f& pos,unsigned i);
         void setSpriteScale(ungod::Entity e, const sf::Vector2f& scale);
         void setSpriteRotation(ungod::Entity e, float rota);
+        void setSpriteColor(ungod::Entity e, const sf::Color& color);
         void setMultiSpriteScale(ungod::Entity e, const sf::Vector2f& scale,unsigned i);
         void setMultiSpriteRotation(ungod::Entity e, float rota,unsigned i);
         void newVertexArrayRect(ungod::Entity e, const sf::FloatRect& rect);

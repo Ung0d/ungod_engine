@@ -5,6 +5,7 @@
 #include "Utility.h"
 #include "Canvas.h"
 #include "wx/window.h"
+#include "StatDisplayer.h"
 
 namespace uedit
 {
@@ -35,10 +36,15 @@ namespace uedit
         ungod::Entity mEntity;
         ActionManager& mActionManager;
         EntityDesigner* mDesigner;
+        StatDisplay<float>* mFlowFactor;
+        StatDisplay<float>* mDistortionFactor;
+        StatDisplay<float>* mReflectionOpacity;
 
     private:
         void onInitClicked(wxCommandEvent & event);
         void onViewReset(wxCommandEvent & event);
+
+        void refreshStats();
     };
 }
 

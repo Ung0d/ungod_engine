@@ -88,9 +88,49 @@ namespace uedit
         resetViewBut->Bind(wxEVT_BUTTON, &EntityWaterWindow::onViewReset, this);
         vbox->Add(resetViewBut,1,wxCENTER);
 
+
+        {
+            mFlowFactor = new StatDisplay<float>("flow:", this, -1);
+            mFlowFactor->connectSetter([this](float flow)
+                {
+                    mActionManager.waterActions().setWaterFlowFactor(mEntity, flow);
+                });
+            mFlowFactor->connectGetter([this]()
+                {
+                    return mEntity.get<ungod::WaterComponent>().getWater().getFlowFactor();
+                });
+            vbox->Add(mFlowFactor, 0, wxALIGN_CENTER_HORIZONTAL);
+        }
+        {
+            mDistortionFactor = new StatDisplay<float>("distortion:", this, -1);
+            mDistortionFactor->connectSetter([this](float dist)
+                {
+                    mActionManager.waterActions().setWaterDistortionFactor(mEntity, dist);
+                });
+            mDistortionFactor->connectGetter([this]()
+                {
+                    return mEntity.get<ungod::WaterComponent>().getWater().getDistortionFactor();
+                });
+            vbox->Add(mDistortionFactor, 0, wxALIGN_CENTER_HORIZONTAL);
+        }
+        {
+            mReflectionOpacity = new StatDisplay<float>("reflection opacity:", this, -1);
+            mReflectionOpacity->connectSetter([this](float opac)
+                {
+                    mActionManager.waterActions().setWaterReflectionOpacity(mEntity, opac);
+                });
+            mReflectionOpacity->connectGetter([this]()
+                {
+                    return mEntity.get<ungod::WaterComponent>().getWater().getReflectionOpacity();
+                });
+            vbox->Add(mReflectionOpacity, 0, wxALIGN_CENTER_HORIZONTAL);
+        }
+
         SetSizer(vbox);
         Fit();
         Layout();
+
+        refreshStats();
 
         mDesigner->getEntityPreview()->lookAt(canvas.getCameraCenter());
     }
@@ -109,5 +149,14 @@ namespace uedit
     void EntityWaterWindow::onViewReset(wxCommandEvent & event)
     {
         mDesigner->getEntityPreview()->resetView();
+    }
+
+    void EntityWaterWindow::refreshStats()
+    {
+        //todo: call this method if external code alters these stats..
+        //introduce "waterChanged" signal in ungod::WaterHandler
+        mFlowFactor->setValue(mEntity.modify<ungod::WaterComponent>().getWater().getFlowFactor());
+        mDistortionFactor->setValue(mEntity.modify<ungod::WaterComponent>().getWater().getDistortionFactor());
+        mReflectionOpacity->setValue(mEntity.modify<ungod::WaterComponent>().getWater().getReflectionOpacity());
     }
 }

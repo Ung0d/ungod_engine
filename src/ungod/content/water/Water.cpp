@@ -152,9 +152,10 @@ namespace ungod
         return true; 
     }
 
-    void Water::update()
+    void Water::update(const Camera& cam)
     {
         mWaterShader.setUniform("time", mDistortionTimer.getElapsedTime().asSeconds());
+        mWaterShader.setUniform("offset", sf::Vector2f{cam.getCenter().x, -cam.getCenter().y});
     }
 
     void Water::init(const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader)
