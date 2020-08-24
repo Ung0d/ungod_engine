@@ -151,20 +151,20 @@ namespace ungod
     void LightHandler::update(const std::list<Entity>& entities, float delta)
     {
         //iterate over LightAffectors
-        dom::Utility<Entity>::iterate<LightAffectorComponent>(entities,
-          [delta, this] (Entity e, LightAffectorComponent& affector)
+        dom::Utility<Entity>::iterate<LightEmitterComponent, LightAffectorComponent>(entities,
+          [delta, this] (Entity e, LightEmitterComponent& emitter, LightAffectorComponent& affector)
           {
               if (affector.isActive() && affector.mCallback)
-                affector.mCallback( delta, *affector.mEmitter );
+                affector.mCallback( delta, emitter);
           });
         //iterate over MultilightLightAffectors
-        dom::Utility<Entity>::iterate<MultiLightAffector>(entities,
-          [delta, this] (Entity e, MultiLightAffector& affector)
+        dom::Utility<Entity>::iterate<MultiLightEmitter, MultiLightAffector>(entities,
+          [delta, this] (Entity e, MultiLightEmitter& emitter, MultiLightAffector& affector)
           {
               for (std::size_t i = 0; i < affector.getComponentCount(); ++i)
               {
                   if (affector.getComponent(i).isActive() && affector.getComponent(i).mCallback)
-                    affector.getComponent(i).mCallback( delta, *affector.getComponent(i).mEmitter );
+                    affector.getComponent(i).mCallback( delta, emitter.getComponent(i));
               }
           });
     }
@@ -287,23 +287,17 @@ namespace ungod
 
     void LightHandler::setAffectorCallback(Entity e, const std::function<void(float, LightEmitterComponent&)>& callback)
     {
-        setAffectorCallback(callback, e.modify<LightAffectorComponent>(), e.modify<LightEmitterComponent>());
+        setAffectorCallback(callback, e.modify<LightAffectorComponent>());
     }
 
-    void LightHandler::setAffectorCallback(Entity e, std::size_t lightIndex, const std::function<void(float, LightEmitterComponent&)>& callback)
+    void LightHandler::setAffectorCallback(Entity e, std::size_t affectorIndex, const std::function<void(float, LightEmitterComponent&)>& callback)
     {
-        setAffectorCallback(callback, e.modify<LightAffectorComponent>(), e.modify<MultiLightEmitter>().getComponent(lightIndex));
+        setAffectorCallback(callback, e.modify<MultiLightAffector>().getComponent(affectorIndex));
     }
 
-    void LightHandler::setAffectorCallback(Entity e, std::size_t lightIndex, std::size_t affectorIndex, const std::function<void(float, LightEmitterComponent&)>& callback)
-    {
-        setAffectorCallback(callback, e.modify<MultiLightAffector>().getComponent(affectorIndex), e.modify<MultiLightEmitter>().getComponent(lightIndex));
-    }
-
-    void LightHandler::setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, LightAffectorComponent& affector, LightEmitterComponent& emitter)
+    void LightHandler::setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, LightAffectorComponent& affector)
     {
         affector.mCallback = callback;
-        affector.mEmitter = &emitter;
     }
 
     void LightHandler::loadLightTexture(LightEmitterComponent& le, const std::string& textureID)

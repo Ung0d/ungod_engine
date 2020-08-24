@@ -61,8 +61,7 @@ namespace ungod
             bool isLightActive();
             bool isLightActive(std::size_t index);
             void setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback);
-            void setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, std::size_t lightIndex);
-            void setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, std::size_t lightIndex, std::size_t affectorIndex);
+            void setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, std::size_t affectorIndex);
             void setAffectorActive(bool active);
             void setAffectorActive(bool active, std::size_t affectorIndex);
             bool isAffectorActive();

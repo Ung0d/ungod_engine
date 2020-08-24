@@ -24,6 +24,7 @@
 */
 
 #include "ungod/serialization/DeserialMemory.h"
+#include "ungod/application/ScriptedGameState.h"
 
 namespace ungod
 {
@@ -34,6 +35,6 @@ namespace ungod
 
 	void  DeserialMemory::notifyScriptedEntity(Entity e, const std::string& scriptname, MetaNode serializer, DeserializationContext& context)
 	{
-		scriptEntities.emplace_front(e, scriptname, serializer, context);
+		scriptEntities.emplace_front(e, scriptname, serializer, context, node->getGraph().getState().getEntityBehaviorManager().getBehaviorManager().makeInstanceEnvironment());
 	}
 }

@@ -27,6 +27,7 @@
 #include "ungod/base/World.h"
 #include "ungod/application/Application.h"
 #include "ungod/serialization/DeserialMemory.h"
+#include "ungod/serialization/EntitySerial.h"
 
 namespace ungod
 {
@@ -349,6 +350,15 @@ namespace ungod
             context.serializeProperty("flip_x", true, serializer);
         if (data.mSprite.isFlippedY())
             context.serializeProperty("flip_y", true, serializer);
+
+        //serialize color, if we got a color unequal to white... ommit serial, if its white
+        if (data.mSprite.getColor() != sf::Color::White)
+        {
+            context.serializeProperty("r", data.mSprite.getColor().r, serializer);
+            context.serializeProperty("g", data.mSprite.getColor().g, serializer);
+            context.serializeProperty("b", data.mSprite.getColor().b, serializer);
+            context.serializeProperty("a", data.mSprite.getColor().a, serializer);
+        }
     }
 
     void DeserialBehavior<SpriteComponent, Entity, DeserialMemory&>::deserialize(SpriteComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
@@ -371,9 +381,13 @@ namespace ungod
                                         std::get<2>(result), std::get<3>(result)) );
         }
 
-        auto result = deserializer.getAttributes<float, float, float, float, float,float, float,bool,bool>(
+        auto result = deserializer.getAttributes<float, float, float, float, float,float, float,bool,bool, uint8_t, uint8_t, uint8_t, uint8_t>(
                      {"pos_x", 0.0f},  {"pos_y", 0.0f}, {"scale_x", 1.0f}, {"scale_y", 1.0f}, {"rotation", 0.0f},
-                     {"origin_x", 0.0f}, {"origin_y", 0.0f}, {"flip_x", false}, {"flip_y", false}  );
+                     {"origin_x", 0.0f}, {"origin_y", 0.0f}, {"flip_x", false}, {"flip_y", false},
+                     { "r", sf::Color::White.r },
+                     { "g", sf::Color::White.g },
+                     { "b", sf::Color::White.b },
+                     { "a", sf::Color::White.a } );
         e.getWorld().getVisualsHandler().setSpritePosition(e, data, sf::Vector2f(std::get<0>(result), std::get<1>(result)));
         e.getWorld().getVisualsHandler().setScale(e, data, {std::get<2>(result), std::get<3>(result)});
         e.getWorld().getVisualsHandler().setRotation(e, data, std::get<4>(result));
@@ -382,6 +396,7 @@ namespace ungod
             e.getWorld().getVisualsHandler().flipSpriteX(data);
         if (std::get<8>(result))
             e.getWorld().getVisualsHandler().flipSpriteY(data);
+        e.getWorld().getVisualsHandler().setSpriteColor(data, sf::Color{ std::get<9>(result), std::get<10>(result), std::get<11>(result), std::get<12>(result) });
     }
 
     void SerialBehavior<VisualAffectorComponent, Entity>::serialize(const VisualAffectorComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
@@ -602,6 +617,163 @@ namespace ungod
         deserialmemory.notifyScriptedEntity(e, std::get<0>(result), deserializer.firstNode("userdata"), context);
 
     }
+
+
+    void SerialBehavior<BehaviorParameterComponent, Entity>::serialize(
+        const BehaviorParameterComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
+    {
+        script::Environment env;
+        if (e.get<EntityBehaviorComponent>().hasValidEnvironment())
+            env = e.get<EntityBehaviorComponent>().getEnvironment();
+        else
+            env = e.get<EntityBehaviorComponent>().getStateEnvironment();
+
+        context.serializeProperty("n", data.mParam.size(), serializer);
+
+        for (const auto& p : data.mParam)
+        {
+            context.serializeObject("p", *p, serializer, script::Environment(env));
+        }
+    }
+
+    void DeserialBehavior<BehaviorParameterComponent, Entity, DeserialMemory&>::deserialize(
+        BehaviorParameterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
+    {
+        context.instantiate<detail::BehaviorParameter<std::string>>([&data]()
+            {
+                return new detail::BehaviorParameter<std::string>{};
+            }, script::Environment{ deserialmemory.scriptEntities.front().initParam });
+        context.instantiate<detail::BehaviorParameter<float>>([&data]()
+            {
+                return new detail::BehaviorParameter<float>{};
+            }, script::Environment{ deserialmemory.scriptEntities.front().initParam });
+        context.instantiate<detail::BehaviorParameter<int>>([&data]()
+            {
+                return new detail::BehaviorParameter<int>{};
+            }, script::Environment{ deserialmemory.scriptEntities.front().initParam });
+        context.instantiate<detail::BehaviorParameter<bool>>([&data]()
+            {
+                return new detail::BehaviorParameter<bool>{};
+            }, script::Environment{ deserialmemory.scriptEntities.front().initParam });
+        context.instantiate<detail::BehaviorParameter<sf::Vector2f>>([&data]()
+            {
+                return new detail::BehaviorParameter<sf::Vector2f>{};
+            }, script::Environment{ deserialmemory.scriptEntities.front().initParam });
+        context.instantiate<detail::BehaviorParameter<Entity>>([&data]()
+            {
+                return new detail::BehaviorParameter<Entity>{};
+            }, script::Environment{ deserialmemory.scriptEntities.front().initParam });
+
+        unsigned n;
+        auto attr = context.first(context.deserializeProperty(n, 0u), "n", deserializer);
+
+        for (unsigned i = 0; i < n; i++)
+        {
+            attr = context.next(context.deserializeInstantiation<detail::BehaviorParameterBase>(
+                [&data](detail::BehaviorParameterBase* p) { data.mParam.emplace_back(p); }), "p", deserializer, attr);
+        }
+    }
+
+
+    void SerialBehavior<detail::BehaviorParameter<std::string>, script::Environment>::serialize(
+        const detail::BehaviorParameter<std::string>& data, MetaNode serializer, SerializationContext& context, script::Environment env)
+    {
+        context.serializeProperty("n", data.getName(), serializer);
+        context.serializeProperty("v", data.get(env), serializer);
+    }
+
+    void DeserialBehavior<detail::BehaviorParameter<std::string>, script::Environment>::deserialize(
+        detail::BehaviorParameter<std::string>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env)
+    {
+        auto result = deserializer.getAttributes<std::string, std::string>({ "n", "" } , { "v", "" });
+        data.setName(std::get<0>(result));
+        data.set(std::get<1>(result), env);
+    }
+
+
+    void SerialBehavior<detail::BehaviorParameter<float>, script::Environment>::serialize(
+        const detail::BehaviorParameter<float>& data, MetaNode serializer, SerializationContext& context, script::Environment env)
+    {
+        context.serializeProperty("n", data.getName(), serializer);
+        context.serializeProperty("v", data.get(env), serializer);
+    }
+
+    void DeserialBehavior<detail::BehaviorParameter<float>, script::Environment>::deserialize(
+        detail::BehaviorParameter<float>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env)
+    {
+        auto result = deserializer.getAttributes<std::string, float>({ "n", "" }, { "v", 0.0f });
+        data.setName(std::get<0>(result));
+        data.set(std::get<1>(result), env);
+    }
+
+
+    void SerialBehavior<detail::BehaviorParameter<int>, script::Environment>::serialize(
+        const detail::BehaviorParameter<int>& data, MetaNode serializer, SerializationContext& context, script::Environment env)
+    {
+        context.serializeProperty("n", data.getName(), serializer);
+        context.serializeProperty("v", data.get(env), serializer);
+    }
+
+    void DeserialBehavior<detail::BehaviorParameter<int>, script::Environment>::deserialize(
+        detail::BehaviorParameter<int>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env)
+    {
+        auto result = deserializer.getAttributes<std::string, int>({ "n", "" }, { "v", 0 });
+        data.setName(std::get<0>(result));
+        data.set(std::get<1>(result), env);
+    }
+
+
+    void SerialBehavior<detail::BehaviorParameter<bool>, script::Environment>::serialize(
+        const detail::BehaviorParameter<bool>& data, MetaNode serializer, SerializationContext& context, script::Environment env)
+    {
+        context.serializeProperty("n", data.getName(), serializer);
+        context.serializeProperty("v", data.get(env), serializer);
+    }
+
+    void DeserialBehavior<detail::BehaviorParameter<bool>, script::Environment>::deserialize(
+        detail::BehaviorParameter<bool>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env)
+    {
+        auto result = deserializer.getAttributes<std::string, bool>({ "n", "" }, { "v", false });
+        data.setName(std::get<0>(result));
+        data.set(std::get<1>(result), env);
+    }
+
+
+    void SerialBehavior<detail::BehaviorParameter<sf::Vector2f>, script::Environment>::serialize(
+        const detail::BehaviorParameter< sf::Vector2f >& data, MetaNode serializer, SerializationContext& context, script::Environment env)
+    {
+        context.serializeProperty("n", data.getName(), serializer);
+        context.serializeProperty("x", data.get(env).x, serializer);
+        context.serializeProperty("y", data.get(env).y, serializer);
+    }
+
+    void DeserialBehavior<detail::BehaviorParameter<sf::Vector2f>, script::Environment>::deserialize(
+        detail::BehaviorParameter<sf::Vector2f>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env)
+    {
+        auto result = deserializer.getAttributes<std::string, float, float>({ "n", "" }, { "x", 0.0f }, { "y", 0.0f });
+        data.setName(std::get<0>(result));
+        data.set({ std::get<1>(result), std::get<2>(result) }, env);
+    }
+
+
+    void SerialBehavior<detail::BehaviorParameter<Entity>, script::Environment>::serialize(
+        const detail::BehaviorParameter<Entity>& data, MetaNode serializer, SerializationContext& context, script::Environment env)
+    {
+        context.serializeProperty("n", data.getName(), serializer);
+        context.serializeWeak("e", data.get(env), data.get(env).getInstantiation()->getSerialIdentifier(), serializer);
+    }
+
+    void DeserialBehavior<detail::BehaviorParameter<Entity>, script::Environment>::deserialize(
+        detail::BehaviorParameter<Entity>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env)
+    {
+        auto result = deserializer.getAttributes<std::string>({ "n", "" });
+        context.first(context.deserializeWeak<Entity>([&data, result, env](Entity& e)
+            { 
+                data.setName(std::get<0>(result));
+                data.set(e, env);
+            }), "e", deserializer);
+    }
+
 
     void SerialBehavior<EntityUpdateTimer, Entity>::serialize(const EntityUpdateTimer& data, MetaNode serializer, SerializationContext& context, Entity e)
     {

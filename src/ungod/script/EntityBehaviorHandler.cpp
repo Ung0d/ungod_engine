@@ -40,9 +40,9 @@ namespace ungod
         return valid() && static_cast<bool>(mBehavior->Behavior<>::getEnvironment());
     }
 
-    bool EntityBehaviorComponent::hasValidStateEnvironment(const std::string& stateName) const
+    bool EntityBehaviorComponent::hasValidStateEnvironment() const
     {
-        return valid() && static_cast<bool>(mBehavior->getEnvironment(stateName));
+        return valid() && static_cast<bool>(mBehavior->getEnvironment());
     }
 
     script::Environment EntityBehaviorComponent::getEnvironment() const
@@ -50,15 +50,17 @@ namespace ungod
         return mBehavior->Behavior<>::getEnvironment().value();
     }
 
-    script::Environment EntityBehaviorComponent::getStateEnvironment(const std::string& stateName) const
+    script::Environment EntityBehaviorComponent::getStateEnvironment() const
     {
-        return mBehavior->getEnvironment(stateName).value();
+        return mBehavior->getEnvironment().value();
     }
 
     const std::string& EntityBehaviorComponent::getScriptName() const
     {
         return mBehavior->getScriptName();
     }
+
+
 
     EntityBehaviorHandler::EntityBehaviorHandler() : mWorld(nullptr) {}
 

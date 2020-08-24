@@ -48,7 +48,7 @@ namespace ungod
      friend struct SerialBehavior<WorldGraph>;
     friend struct DeserialBehavior<WorldGraph, ScriptedGameState&>;
     public:
-        WorldGraph(const ScriptedGameState& state, unsigned distance = 1);
+        WorldGraph(ScriptedGameState& state, unsigned distance = 1);
 
         /** \brief Updates the reference position. If the active world changes, new nodes are loaded and old ones unloaded as needed. Returns true if the active node has changed. */
         bool updateReferencePosition(const sf::Vector2f& pos, bool ignoreIdentity = true);
@@ -139,7 +139,11 @@ namespace ungod
         /** \brief Unloads all active nodes */
         void unloadAll();
 
+        const ScriptedGameState& getState() const { return mState; }
+        ScriptedGameState& getState() { return mState; }
+
     private:
+        ScriptedGameState& mState;
         int mActive;
         unsigned mDistance;
         quad::QuadTree<WorldGraphNode*> mWorldQT;

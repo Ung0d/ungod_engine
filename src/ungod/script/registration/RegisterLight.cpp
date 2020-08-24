@@ -130,14 +130,9 @@ namespace ungod
 			mHandler.setAffectorCallback(mEntity, callback);
 		}
 
-		void LightHandlerFrontEnd::setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, std::size_t lightIndex)
+		void LightHandlerFrontEnd::setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, std::size_t affectorIndex)
 		{
-			mHandler.setAffectorCallback(mEntity, lightIndex, callback);
-		}
-
-		void LightHandlerFrontEnd::setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, std::size_t lightIndex, std::size_t affectorIndex)
-		{
-			mHandler.setAffectorCallback(mEntity, lightIndex, affectorIndex, callback);
+			mHandler.setAffectorCallback(mEntity, affectorIndex, callback);
 		}
 
 		void LightHandlerFrontEnd::setAffectorActive(bool active)
@@ -217,10 +212,8 @@ namespace ungod
 			lightHandlerFrontEndType["setAffectorCallback"] =
 				sol::overload([](LightHandlerFrontEnd& lhfe, const std::function<void(float, LightEmitterComponent&)>& callback)
 					{ lhfe.setAffectorCallback(callback); },
-					[](LightHandlerFrontEnd& lhfe, const std::function<void(float, LightEmitterComponent&)>& callback, std::size_t lightIndex)
-					{ lhfe.setAffectorCallback(callback, lightIndex); },
-					[](LightHandlerFrontEnd& lhfe, const std::function<void(float, LightEmitterComponent&)>& callback, std::size_t lightIndex, std::size_t affectorIndex)
-					{ lhfe.setAffectorCallback(callback, lightIndex, affectorIndex); });
+					[](LightHandlerFrontEnd& lhfe, const std::function<void(float, LightEmitterComponent&)>& callback, std::size_t affectorIndex)
+					{ lhfe.setAffectorCallback(callback, affectorIndex); });
 			lightHandlerFrontEndType["setAffectorActive"] =
 				sol::overload(
 					[](LightHandlerFrontEnd& lhfe, bool active) { lhfe.setAffectorActive(active); },

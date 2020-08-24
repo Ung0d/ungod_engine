@@ -310,10 +310,10 @@ namespace ungod
 
         /** \brief Returns a script variable defined in this behavior. Call is safe. If the variable is not defined, an empty optional is returned. */
         template<typename T>
-        Optional<T> getStateVariable(const std::string& stateName, const std::string& name) const;
+        Optional<T> getStateVariable(const std::string& name) const;
 
         /** \brief Returns the underlying instance environment for the given state. */
-        detail::OptionalEnvironment getEnvironment(const std::string& stateName) const;
+        detail::OptionalEnvironment getEnvironment() const;
 
         /** \brief Returns the underlying static environment. */
         script::Environment getStaticEnvironment() const;
@@ -717,24 +717,22 @@ namespace ungod
 
     template <typename ... INIT_PARAM>
     template<typename T>
-    Optional<T> StateBehavior<INIT_PARAM...>::getStateVariable(const std::string& stateName, const std::string& name) const
+    Optional<T> StateBehavior<INIT_PARAM...>::getStateVariable(const std::string& name) const
     {
-        auto res = mStates.find(stateName);
-        if (res != mStates.end())
+        if (mStates.size() > 0u)
         {
-            if (res->second.getEnvironment())
-                return res->second.getEnvironment()->get<Optional<T>>(name);
+            if (mStates.begin()->second.getEnvironment())
+                return mStates.begin()->second.getEnvironment()->get<Optional<T>>(name);
         }
         return Optional<T>();
     }
 
     template <typename ... INIT_PARAM>
-    detail::OptionalEnvironment StateBehavior<INIT_PARAM...>::getEnvironment(const std::string& stateName) const
+    detail::OptionalEnvironment StateBehavior<INIT_PARAM...>::getEnvironment() const
     {
-        auto res = mStates.find(stateName);
-        if (res != mStates.end())
+        if (mStates.size() > 0u) //todo hacky, but works since every state has the same env... rewrite needed
         {
-            return res->second.getEnvironment();
+            return mStates.begin()->second.getEnvironment();
         }
         return detail::OptionalEnvironment();
     }

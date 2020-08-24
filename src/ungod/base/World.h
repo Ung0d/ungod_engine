@@ -452,6 +452,8 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, OptionalComponents<OPTIONAL...> co, const std::string& script)
     {
         Entity e(dom::Universe<>::create<BASE...>(), cb, co);
+        if (!e.has<EntityBehaviorComponent>())
+            e.add<EntityBehaviorComponent>();
         mEntityBehaviorHandler.assignBehavior(e, script);
         mEntityCreationSignal(e);
         mEntityBehaviorHandler.initBehavior(e);
@@ -462,6 +464,8 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, OptionalComponents<OPTIONAL...> co, const std::string& script, script::Environment param)
     {
         Entity e(dom::Universe<>::create<BASE...>(), cb, co);
+        if (!e.has<EntityBehaviorComponent>())
+            e.add<EntityBehaviorComponent>();
         mEntityBehaviorHandler.assignBehavior(e, script, param);
         mEntityCreationSignal(e);
         mEntityBehaviorHandler.initBehavior(e);
@@ -481,6 +485,8 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, const std::string& script)
     {
         Entity e(dom::Universe<>::create<BASE...>(), cb, OptionalComponents<>());
+        if (!e.has<EntityBehaviorComponent>())
+            e.add<EntityBehaviorComponent>();
         mEntityBehaviorHandler.assignBehavior(e, script);
         mEntityCreationSignal(e);
         mEntityBehaviorHandler.initBehavior(e);
@@ -491,6 +497,8 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, const std::string& script, script::Environment param)
     {
         Entity e(dom::Universe<>::create<BASE...>(), cb, OptionalComponents<>());
+        if (!e.has<EntityBehaviorComponent>())
+            e.add<EntityBehaviorComponent>();
         mEntityBehaviorHandler.assignBehavior(e, script, param);
         mEntityCreationSignal(e);
         mEntityBehaviorHandler.initBehavior(e);
@@ -510,6 +518,7 @@ namespace ungod
     Entity World::create(OptionalComponents<OPTIONAL...> co, const std::string& script)
     {
         Entity e(dom::Universe<>::create(), BaseComponents<>(), co);
+        e.add<EntityBehaviorComponent>();
         mEntityBehaviorHandler.assignBehavior(e, script);
         mEntityCreationSignal(e);
         mEntityBehaviorHandler.initBehavior(e);
@@ -520,6 +529,7 @@ namespace ungod
     Entity World::create(OptionalComponents<OPTIONAL...> co, const std::string& script, script::Environment param)
     {
         Entity e(dom::Universe<>::create(), BaseComponents<>(), co);
+        e.add<EntityBehaviorComponent>();
         mEntityBehaviorHandler.assignBehavior(e, script, param);
         mEntityCreationSignal(e);
         mEntityBehaviorHandler.initBehavior(e);
@@ -539,6 +549,8 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, OptionalComponents<OPTIONAL...> co, dom::ComponentInstantiator<BASE>... ci,  const std::string& script)
     {
         Entity e(dom::Universe<>::create<BASE...>(ci...), cb, co);
+        if (!e.has<EntityBehaviorComponent>())
+            e.add<EntityBehaviorComponent>();
         mEntityBehaviorHandler.assignBehavior(e, script);
         mEntityCreationSignal(e);
         mEntityBehaviorHandler.initBehavior(e);
@@ -549,6 +561,8 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, OptionalComponents<OPTIONAL...> co, dom::ComponentInstantiator<BASE>... ci,  const std::string& script, script::Environment param)
     {
         Entity e(dom::Universe<>::create<BASE...>(ci...), cb, co);
+        if (!e.has<EntityBehaviorComponent>())
+            e.add<EntityBehaviorComponent>();
         mEntityBehaviorHandler.assignBehavior(e, script, param);
         mEntityCreationSignal(e);
         mEntityBehaviorHandler.initBehavior(e);
@@ -568,6 +582,8 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, dom::ComponentInstantiator<BASE>... ci,  const std::string& script)
     {
         Entity e(dom::Universe<>::create<BASE...>(ci...), cb, OptionalComponents<>());
+        if (!e.has<EntityBehaviorComponent>())
+            e.add<EntityBehaviorComponent>();
         mEntityBehaviorHandler.assignBehavior(e, script);
         mEntityCreationSignal(e);
         mEntityBehaviorHandler.initBehavior(e);
@@ -578,6 +594,8 @@ namespace ungod
     Entity World::create(BaseComponents<BASE...> cb, dom::ComponentInstantiator<BASE>... ci,  const std::string& script, script::Environment param)
     {
         Entity e(dom::Universe<>::create<BASE...>(ci...), cb, OptionalComponents<>());
+        if (!e.has<EntityBehaviorComponent>())
+            e.add<EntityBehaviorComponent>();
         mEntityBehaviorHandler.assignBehavior(e, script, param);
         mEntityCreationSignal(e);
         mEntityBehaviorHandler.initBehavior(e);

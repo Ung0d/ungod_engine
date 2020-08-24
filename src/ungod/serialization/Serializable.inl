@@ -62,7 +62,7 @@ namespace ungod
 
         //object already serialized? (shared instance call?)
         auto res = empl.first->second.indexMap.emplace(SerialID<T>::get(data), SerialInfo());
-        if (res.second) //first time serialize
+        if (res.second || !res.first->second.weakQueue.empty()) //first time serialize
         {
             //define the serial info and insert it under the data-adress
             res.first->second.index = empl.first->second.subCount++;

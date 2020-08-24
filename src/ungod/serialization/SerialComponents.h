@@ -26,6 +26,7 @@
 #ifndef SERIAL_COMPONENTS_H
 #define SERIAL_COMPONENTS_H
 
+#include <SFML/System/Vector2.hpp>
 #include "ungod/serialization/Serializable.h"
 #include "ungod/script/Script.h"
 
@@ -55,12 +56,19 @@ namespace ungod
     class Initializer;
     class EntityBehaviorManager;
     class EntityBehaviorComponent;
+    class BehaviorParameterComponent;
     class EntityUpdateTimer;
     class ParticleSystemComponent;
     class MusicEmitterComponent;
     class ParentComponent;
     class ChildComponent;
     struct DeserialMemory;
+
+    namespace detail
+    {
+        template<typename T>
+        class BehaviorParameter;
+    }
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -438,6 +446,124 @@ namespace ungod
         static void deserialize(EntityBehaviorComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
     };
 
+
+    template <>
+    struct SerialIdentifier<BehaviorParameterComponent>
+    {
+        static std::string get() { return "BPC"; }
+    };
+    template <>
+    struct SerialBehavior<BehaviorParameterComponent, Entity>
+    {
+        static void serialize(const BehaviorParameterComponent& data, MetaNode serializer, SerializationContext& context, Entity e);
+    };
+    template <>
+    struct DeserialBehavior<BehaviorParameterComponent, Entity, DeserialMemory&>
+    {
+        static void deserialize(BehaviorParameterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory);
+    };
+
+
+    template <>
+    struct SerialIdentifier<detail::BehaviorParameter<std::string>>
+    {
+        static std::string get() { return "strParam"; }
+    };
+    template <>
+    struct SerialBehavior<detail::BehaviorParameter<std::string>, script::Environment>
+    {
+        static void serialize(const detail::BehaviorParameter<std::string>& data, MetaNode serializer, SerializationContext& context, script::Environment env);
+    };
+    template <>
+    struct DeserialBehavior<detail::BehaviorParameter<std::string>, script::Environment>
+    {
+        static void deserialize(detail::BehaviorParameter<std::string>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env);
+    };
+
+
+    template <>
+    struct SerialIdentifier<detail::BehaviorParameter<float>>
+    {
+        static std::string get() { return "floatParam"; }
+    };
+    template <>
+    struct SerialBehavior<detail::BehaviorParameter<float>, script::Environment>
+    {
+        static void serialize(const detail::BehaviorParameter<float>& data, MetaNode serializer, SerializationContext& context, script::Environment env);
+    };
+    template <>
+    struct DeserialBehavior<detail::BehaviorParameter<float>, script::Environment>
+    {
+        static void deserialize(detail::BehaviorParameter<float>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env);
+    };
+
+
+    template <>
+    struct SerialIdentifier<detail::BehaviorParameter<int>>
+    {
+        static std::string get() { return "intParam"; }
+    };
+    template <>
+    struct SerialBehavior<detail::BehaviorParameter<int>, script::Environment>
+    {
+        static void serialize(const detail::BehaviorParameter<int>& data, MetaNode serializer, SerializationContext& context, script::Environment env);
+    };
+    template <>
+    struct DeserialBehavior<detail::BehaviorParameter<int>, script::Environment>
+    {
+        static void deserialize(detail::BehaviorParameter<int>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env);
+    };
+
+
+    template <>
+    struct SerialIdentifier<detail::BehaviorParameter<bool>>
+    {
+        static std::string get() { return "boolParam"; }
+    };
+    template <>
+    struct SerialBehavior<detail::BehaviorParameter<bool>, script::Environment>
+    {
+        static void serialize(const detail::BehaviorParameter<bool>& data, MetaNode serializer, SerializationContext& context, script::Environment env);
+    };
+    template <>
+    struct DeserialBehavior<detail::BehaviorParameter<bool>, script::Environment>
+    {
+        static void deserialize(detail::BehaviorParameter<bool>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env);
+    };
+
+
+    template <>
+    struct SerialIdentifier<detail::BehaviorParameter<sf::Vector2f>>
+    {
+        static std::string get() { return "vecParam"; }
+    };
+    template <>
+    struct SerialBehavior<detail::BehaviorParameter<sf::Vector2f>, script::Environment>
+    {
+        static void serialize(const detail::BehaviorParameter<sf::Vector2f>& data, MetaNode serializer, SerializationContext& context, script::Environment env);
+    };
+    template <>
+    struct DeserialBehavior<detail::BehaviorParameter<sf::Vector2f>, script::Environment>
+    {
+        static void deserialize(detail::BehaviorParameter<sf::Vector2f>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env);
+    };
+
+
+    template <>
+    struct SerialIdentifier<detail::BehaviorParameter<Entity>>
+    {
+        static std::string get() { return "enParam"; }
+    };
+    template <>
+    struct SerialBehavior<detail::BehaviorParameter<Entity>, script::Environment>
+    {
+        static void serialize(const detail::BehaviorParameter<Entity>& data, MetaNode serializer, SerializationContext& context, script::Environment env);
+    };
+    template <>
+    struct DeserialBehavior<detail::BehaviorParameter<Entity>, script::Environment>
+    {
+        static void deserialize(detail::BehaviorParameter<Entity>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env);
+    };
 
     template <>
     struct SerialIdentifier<EntityUpdateTimer>

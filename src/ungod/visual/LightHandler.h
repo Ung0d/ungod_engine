@@ -133,13 +133,10 @@ namespace ungod
         * affector to work. Requires LightEmitter-component and a LightEffector-component. */
         void setAffectorCallback(Entity e, const std::function<void(float, LightEmitterComponent&)>& callback);
 
-        /** \brief Sets the affector for a MultiLightEmitter-component. */
-        void setAffectorCallback(Entity e, std::size_t lightIndex, const std::function<void(float, LightEmitterComponent&)>& callback);
-
         /** \brief Sets the affector for a MultiLightEmitter-component and MultiLightEmitter-component. */
-        void setAffectorCallback(Entity e, std::size_t lightIndex, std::size_t affectorIndex, const std::function<void(float, LightEmitterComponent&)>& callback);
+        void setAffectorCallback(Entity e, std::size_t affectorIndex, const std::function<void(float, LightEmitterComponent&)>& callback);
 
-        void setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, LightAffectorComponent& affector, LightEmitterComponent& emitter);
+        void setAffectorCallback(const std::function<void(float, LightEmitterComponent&)>& callback, LightAffectorComponent& affector);
 
         /** \brief Loads a custom texture for the light emitter of the entity. */
         inline void loadLightTexture(Entity e, const std::string& textureID) { loadLightTexture(e.modify<LightEmitterComponent>(), textureID); }

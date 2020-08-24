@@ -40,9 +40,9 @@ namespace ungod
         public:
             EntityBehaviorHandlerFrontEnd(Entity& e, EntityBehaviorHandler& h) : mEntity(e), mHandler(h) {}
             bool hasValidEnvironment() const;
-            bool hasValidStateEnvironment(const std::string& stateName) const;
+            bool hasValidStateEnvironment() const;
             script::Environment getEnvironment() const;
-            script::Environment getStateEnvironment(const std::string& stateName) const;
+            script::Environment getStateEnvironment() const;
             void assignBehavior(const std::string& name);
             void assignBehavior(const std::string& name, script::Environment param);
             void setUpdateInterval(float interval);

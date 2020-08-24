@@ -130,17 +130,13 @@ namespace uedit
 
         inline void setAffectorCallback(ungod::Entity e, const std::function<void(float, ungod::LightEmitterComponent&)>& callback)
         {
-            setAffectorCallback(e, e.modify<ungod::LightAffectorComponent>(), e.modify<ungod::LightEmitterComponent>(), callback);
+            setAffectorCallback(e, e.modify<ungod::LightAffectorComponent>(), callback);
         }
-        inline void setMultiAffectorCallback(ungod::Entity e, const std::function<void(float, ungod::LightEmitterComponent&)>& callback, std::size_t lightIndex)
+        inline void setMultiAffectorCallback(ungod::Entity e, const std::function<void(float, ungod::LightEmitterComponent&)>& callback, std::size_t affectorIndex)
         {
-            setAffectorCallback(e, e.modify<ungod::LightAffectorComponent>(), e.modify<ungod::MultiLightEmitter>().getComponent(lightIndex), callback);
+            setAffectorCallback(e, e.modify<ungod::MultiLightAffector>().getComponent(affectorIndex),  callback);
         }
-        inline void setMultiAffectorCallback(ungod::Entity e, const std::function<void(float, ungod::LightEmitterComponent&)>& callback, std::size_t lightIndex, std::size_t affectorIndex)
-        {
-            setAffectorCallback(e, e.modify<ungod::MultiLightAffector>().getComponent(affectorIndex), e.modify<ungod::MultiLightEmitter>().getComponent(lightIndex), callback);
-        }
-        void setAffectorCallback(ungod::Entity e, ungod::LightAffectorComponent& affector, ungod::LightEmitterComponent& emitter, const std::function<void(float, ungod::LightEmitterComponent&)>& callback);
+        void setAffectorCallback(ungod::Entity e, ungod::LightAffectorComponent& affector, const std::function<void(float, ungod::LightEmitterComponent&)>& callback);
 
     private:
         ActionManager& mActionManager;

@@ -260,7 +260,6 @@ namespace ungod
     friend class LightHandler;
     private:
         std::function<void(float, LightEmitterComponent&)> mCallback;
-        LightEmitterComponent* mEmitter;
         bool mActive;
 
     public:

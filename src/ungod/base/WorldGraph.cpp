@@ -34,7 +34,7 @@
 
 namespace ungod
 {
-     WorldGraph::WorldGraph(const ScriptedGameState& state, unsigned distance) : mActive(-1), mDistance(distance), mCamera(state.getApp().getWindow())
+     WorldGraph::WorldGraph(ScriptedGameState& state, unsigned distance) : mState(state), mActive(-1), mDistance(distance), mCamera(state.getApp().getWindow())
      {
      }
 

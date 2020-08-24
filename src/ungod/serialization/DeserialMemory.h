@@ -35,17 +35,19 @@ namespace ungod
 	{
 		struct EntityScriptPair
 		{
-			EntityScriptPair(Entity e, const std::string& s, MetaNode n, DeserializationContext& c) : 
-				entity(e), script(s), node(n), context(c) {}
+			EntityScriptPair(Entity e, const std::string& s, MetaNode n, DeserializationContext& c, script::Environment param) :
+				entity(e), script(s), node(n), context(c), initParam(param) {}
 
 			Entity entity;
 			std::string script;
 			MetaNode node;
 			DeserializationContext& context;
+			script::Environment initParam;
 		};
 	}
 
 	class WorldGraphNode;
+	class ScriptedGameState;
 
 	/** \brief A class that memorizes things during the deserialization of a
 	* render layer container. After deserialization, finalize can be called to 

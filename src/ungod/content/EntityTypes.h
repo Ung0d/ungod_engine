@@ -57,6 +57,7 @@ namespace ungod
     class Initializer;
     class EntityBehaviorManager;
     class EntityBehaviorComponent;
+    class BehaviorParameterComponent;
     class EntityUpdateTimer;
     template<typename C > class MultiComponent;
     class ParticleSystemComponent;
@@ -81,7 +82,7 @@ namespace ungod
                                                         SpriteComponent, MultiComponent<SpriteComponent>, VertexArrayComponent, VisualAffectorComponent, MultiComponent<VisualAffectorComponent>,
                                                         AnimationComponent, MultiComponent<AnimationComponent>, BigSpriteComponent, 
 														RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>, MultiComponent<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>,
-                                                        EntityUpdateTimer, SoundEmitterComponent, SteeringComponent<script::Environment>, PathFinderComponent, ShadowEmitterComponent, LightEmitterComponent, LightAffectorComponent,
+                                                        EntityUpdateTimer, BehaviorParameterComponent, SoundEmitterComponent, SteeringComponent<script::Environment>, PathFinderComponent, ShadowEmitterComponent, LightEmitterComponent, LightAffectorComponent,
                                                         MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>, MultiComponent<ShadowEmitterComponent>, ParticleSystemComponent,
                                                         ParentComponent, ChildComponent>;
 
@@ -89,13 +90,13 @@ namespace ungod
     using ActorBaseComponents = BaseComponents<TransformComponent, VisualsComponent, RigidbodyComponent<MOVEMENT_COLLISION_CONTEXT>, MovementComponent, EntityBehaviorComponent>;
     using ActorOptionalComponents = OptionalComponents<SpriteMetadataComponent, SpriteComponent, MultiComponent<SpriteComponent>, VertexArrayComponent, VisualAffectorComponent, MultiComponent<VisualAffectorComponent>,
                                                        AnimationComponent, MultiComponent<AnimationComponent>, RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>,
-                                                       EntityUpdateTimer, SoundEmitterComponent, SteeringComponent<script::Environment>, PathFinderComponent, ShadowEmitterComponent, LightEmitterComponent, LightAffectorComponent,
+                                                       EntityUpdateTimer, BehaviorParameterComponent, SoundEmitterComponent, SteeringComponent<script::Environment>, PathFinderComponent, ShadowEmitterComponent, LightEmitterComponent, LightAffectorComponent,
                                                        MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>, MultiComponent<ShadowEmitterComponent>, ParticleSystemComponent,
                                                        ParentComponent, ChildComponent>;
 
     /** \brief An MetaObject is a scriptable entity with no transform, that has no representation in the world. */
     using MetaObjectBaseComponents = BaseComponents<EntityBehaviorComponent>;
-    using MetaObjectOptionalComponents = OptionalComponents<EntityUpdateTimer, ParentComponent, ChildComponent>;
+    using MetaObjectOptionalComponents = OptionalComponents<EntityUpdateTimer, BehaviorParameterComponent, ParentComponent, ChildComponent>;
 
     /** \brief A Light that illuminates dark places. */
     using LightBaseComponents = BaseComponents<TransformComponent, LightEmitterComponent>;
@@ -111,7 +112,7 @@ namespace ungod
                                                              EntityBehaviorComponent, SpriteComponent, MultiComponent<SpriteComponent>, VertexArrayComponent, VisualAffectorComponent, 
                                                              MultiComponent<VisualAffectorComponent>, AnimationComponent, MultiComponent<AnimationComponent>, 
                                                              RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>, MultiComponent<RigidbodyComponent<SEMANTICS_COLLISION_CONTEXT>>,
-                                                             EntityUpdateTimer, SoundEmitterComponent, ShadowEmitterComponent, LightEmitterComponent, LightAffectorComponent,
+                                                             EntityUpdateTimer, BehaviorParameterComponent, SoundEmitterComponent, ShadowEmitterComponent, LightEmitterComponent, LightAffectorComponent,
                                                              MultiComponent<LightAffectorComponent>, MultiComponent<LightEmitterComponent>, MultiComponent<ShadowEmitterComponent>, ParticleSystemComponent,
                                                              ParentComponent, ChildComponent, TileMapComponent, WaterComponent>;
 
@@ -122,7 +123,7 @@ namespace ungod
 
     /** \brief A audio emitter entity. */
     using AudioEmitterBaseComponents = BaseComponents<TransformComponent, MusicEmitterComponent>;
-    using AudioEmitterOptionalComponents = OptionalComponents<EntityBehaviorComponent, EntityUpdateTimer, ParentComponent, ChildComponent>;
+    using AudioEmitterOptionalComponents = OptionalComponents<EntityBehaviorComponent, EntityUpdateTimer, BehaviorParameterComponent, ParentComponent, ChildComponent>;
 
     /** @} */
 

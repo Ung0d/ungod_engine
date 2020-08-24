@@ -57,7 +57,7 @@ namespace ungod
 
         /** \brief Returns a script variable defined in this behavior. Call is safe. If the variable is not defined, an empty optional is returned. */
         template<typename T>
-        Optional<T> getStateVariable(const std::string& stateName, const std::string& name) const;
+        Optional<T> getStateVariable(const std::string& name) const;
 
         /** \brief Returns true if and only if a valid behavior is assigned. Note that this does not mean,
         * that the behavior is safe to use. If the underlying script had an error, this is still true, but
@@ -76,13 +76,13 @@ namespace ungod
 
         /** \brief Returns true if the behavior was successfully initialized before and a script enviroment is set.
         * See also hasValidEnvionment() ref. */
-        bool hasValidStateEnvironment(const std::string& stateName) const;
+        bool hasValidStateEnvironment() const;
 
         /** \brief Returns the instance script-enviroment. A test whether a behavior was successfully assigned before is mandatory. */
         script::Environment getEnvironment() const;
 
         /** \brief Returns the instance script-enviroment. A test whether a behavior was successfully assigned before is mandatory. */
-        script::Environment getStateEnvironment(const std::string& stateName) const;
+        script::Environment getStateEnvironment() const;
 
         /** \brief Returns the top level identifier of the assigned script. The behavior must be in a valid state. */
         const std::string& getScriptName() const;
@@ -105,6 +105,70 @@ namespace ungod
         EntityUpdateTimer(float cInterval) : mInterval(cInterval) {}
     };
 
+
+    namespace detail
+    {
+        class BehaviorParameterBase : public PolymorphicSerializable<BehaviorParameterBase, script::Environment>
+        {
+        public:
+            BehaviorParameterBase(const std::string& name) : mName(name) {}
+
+            const std::string& getName() const { return mName; }
+
+            virtual ~BehaviorParameterBase() {}
+
+        protected:
+            std::string mName;
+        };
+
+        template<typename T>
+        class BehaviorParameter : public BehaviorParameterBase
+        {
+        public:
+            BehaviorParameter();
+            BehaviorParameter(const std::string& name);
+
+            void set(const T& param, script::Environment env);
+
+            void setName(const std::string& name);
+
+            T get(script::Environment env) const;
+
+            virtual ~BehaviorParameter() {}
+
+        public:
+            virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, script::Environment&& env) const override
+            {
+                deferredSerialize<BehaviorParameter<T>, script::Environment>(*this, serializer, context, script::Environment{ env });
+            }
+
+            virtual std::string getSerialIdentifier() const override
+            {
+                return deferredGetIdentifier<BehaviorParameter<T>>();
+            }
+        };
+    }
+
+
+    /**
+    * \ingroup Components
+    * \brief A component that holds a list of initialization parameters for a script (Type, name).
+    * Supported types are string, numbers, boolean and ungod::Entity. The component takes are of
+    * serialization and invokes the entity script with the respective parameters when the entity 
+    * is deserialized. */
+    class BehaviorParameterComponent : public Serializable<BehaviorParameterComponent>
+    {
+    friend class EntityBehaviorHandler;
+    friend struct SerialBehavior<BehaviorParameterComponent, Entity>;
+    friend struct DeserialBehavior<BehaviorParameterComponent, Entity, DeserialMemory&>;
+    public:
+        BehaviorParameterComponent() = default;
+
+    private:
+        std::vector< std::shared_ptr< detail::BehaviorParameterBase > > mParam;
+    };
+
+
     /** \brief A manager object that couples the ungod::Entity object with script-defined behavior.
    * That means, there is a set of actions defined here, that are catched by this manager and
    * evaluated in script files. */
@@ -122,9 +186,13 @@ namespace ungod
         /** \brief Forwards the custom event to the script behaviors. */
         void handleCustomEvent(const CustomEvent& event);
 
-        /** \brief Assigns a behavior to the given entity. The behavior must have been loaded beforehand. */
+        /** \brief Assigns a behavior to the given entity. The behavior must be already loaded. */
         void assignBehavior(Entity e, const std::string& name);
         void assignBehavior(Entity e, const std::string& name, script::Environment param);
+
+        /** \brief Registers a script parameter for serialization. */
+        template<typename T>
+        void serializeParameter(Entity e, const std::string& name);
 
         /** \brief Inits the behavior of the entity. A behavior has to be attached. */
         void initBehavior(Entity e);
@@ -181,12 +249,49 @@ namespace ungod
     ///////impl
 
     template<typename T>
-    Optional<T> EntityBehaviorComponent::getStateVariable(const std::string& stateName, const std::string& name) const
+    Optional<T> EntityBehaviorComponent::getStateVariable(const std::string& name) const
     {
         if (mBehavior)
-            return mBehavior->getStateVariable<T>(stateName, name);
+            return mBehavior->getStateVariable<T>(name);
         else
             return Optional<T>();
+    }
+
+
+    namespace detail
+    {
+        template<typename T>
+        BehaviorParameter<T>::BehaviorParameter() : BehaviorParameterBase("") {}
+
+        template<typename T>
+        BehaviorParameter<T>::BehaviorParameter(const std::string& name) : BehaviorParameterBase(name) {}
+
+        template<typename T>
+        void BehaviorParameter<T>::set(const T& param, script::Environment env)
+        {
+            env[mName] = param;
+        }
+
+        template<typename T>
+        void BehaviorParameter<T>::setName(const std::string& name)
+        {
+            mName = name;
+        }
+
+        template<typename T>
+        T BehaviorParameter<T>::get(script::Environment env) const
+        {
+            return env.get<T>(mName);
+        }
+    }
+
+    template<typename T>
+    void EntityBehaviorHandler::serializeParameter(Entity e, const std::string& name)
+    {
+        if (!e.has<BehaviorParameterComponent>())
+            e.add<BehaviorParameterComponent>();
+        BehaviorParameterComponent& paramc = e.modify<BehaviorParameterComponent>();
+        paramc.mParam.emplace_back( new detail::BehaviorParameter<T>(name) );
     }
 }
 

@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( script_test )
         BOOST_REQUIRE(behavior);
 
         //check whether the initial state is active
-        auto check = behavior->getStateVariable<bool>("state1", "check");
+        auto check = behavior->getStateVariable<bool>("check");
 
         BOOST_REQUIRE(check);
         BOOST_REQUIRE(*check);
@@ -175,13 +175,13 @@ BOOST_AUTO_TEST_CASE( script_test )
         behavior->execute(ON_EVENT);
 
         //check whether the "state closed" method was properly called (unchecks check)
-        check = behavior->getStateVariable<bool>("state1", "check");
+        check = behavior->getStateVariable<bool>("check");
 
         BOOST_REQUIRE(check);
         BOOST_REQUIRE(!(*check));
 
         //check whether the new state was properly activated
-        auto check2 = behavior->getStateVariable<bool>("state2", "check_state2");
+        auto check2 = behavior->getStateVariable<bool>("check_state2");
 
         BOOST_REQUIRE(check2);
         BOOST_REQUIRE(*check2);
@@ -190,8 +190,8 @@ BOOST_AUTO_TEST_CASE( script_test )
         behavior->execute(ON_EVENT);
 
         //check the flags again, state1 must be active, state2 inactive
-        check = behavior->getStateVariable<bool>("state1", "check");
-        check2 = behavior->getStateVariable<bool>("state2", "check_state2");
+        check = behavior->getStateVariable<bool>("check");
+        check2 = behavior->getStateVariable<bool>("check_state2");
         BOOST_REQUIRE(check);
         BOOST_REQUIRE(*check);
         BOOST_REQUIRE(check2);
@@ -217,8 +217,8 @@ BOOST_AUTO_TEST_CASE( script_test )
         BOOST_REQUIRE(globaltest);
         BOOST_CHECK_EQUAL(2, *globaltest);
 
-        auto check_update = e.get<EntityBehaviorComponent>().getStateVariable<bool>("normal", "check_update");
-        auto check_creation = e.get<EntityBehaviorComponent>().getStateVariable<bool>("normal", "check_creation");
+        auto check_update = e.get<EntityBehaviorComponent>().getStateVariable<bool>("check_update");
+        auto check_creation = e.get<EntityBehaviorComponent>().getStateVariable<bool>("check_creation");
 
         BOOST_REQUIRE(check_update);
         BOOST_REQUIRE(!(*check_update));
@@ -226,10 +226,10 @@ BOOST_AUTO_TEST_CASE( script_test )
         BOOST_REQUIRE(check_creation);
         BOOST_REQUIRE(*check_creation);
 
-        auto check_event = e.get<EntityBehaviorComponent>().getStateVariable<int>("normal", "event_received");
+        auto check_event = e.get<EntityBehaviorComponent>().getStateVariable<int>("event_received");
         BOOST_REQUIRE(check_event);
         BOOST_REQUIRE_EQUAL(*check_event, 5);
-        auto check_delayed_event = e.get<EntityBehaviorComponent>().getStateVariable<int>("normal", "delayed_event_received");
+        auto check_delayed_event = e.get<EntityBehaviorComponent>().getStateVariable<int>("delayed_event_received");
         BOOST_REQUIRE(check_delayed_event);
         BOOST_REQUIRE_EQUAL(*check_delayed_event, 0);
 
@@ -238,11 +238,11 @@ BOOST_AUTO_TEST_CASE( script_test )
 
         world->update(20.0f, {0,0}, {800,600});
 
-        check_delayed_event = e.get<EntityBehaviorComponent>().getStateVariable<int>("normal", "delayed_event_received");
+        check_delayed_event = e.get<EntityBehaviorComponent>().getStateVariable<int>("delayed_event_received");
         BOOST_REQUIRE(check_delayed_event);
         BOOST_REQUIRE_EQUAL(*check_delayed_event, 13);
 
-        check_update = e.get<EntityBehaviorComponent>().getStateVariable<bool>("normal", "check_update");
+        check_update = e.get<EntityBehaviorComponent>().getStateVariable<bool>("check_update");
 
         BOOST_REQUIRE(check_update);
         BOOST_REQUIRE(*check_update);
@@ -303,15 +303,96 @@ BOOST_AUTO_TEST_CASE(trigger_test)
     world->addEntity(trigger);
     world->addEntity(tester);
     world->update(20.0f, { 0,0 }, { 15000,15000 });
-    auto check_enter = trigger.get<EntityBehaviorComponent>().getStateVariable<bool>("trigger", "check_enter");
-    auto check_coll = trigger.get<EntityBehaviorComponent>().getStateVariable<bool>("trigger", "check_coll");
+    auto check_enter = trigger.get<EntityBehaviorComponent>().getStateVariable<bool>("check_enter");
+    auto check_coll = trigger.get<EntityBehaviorComponent>().getStateVariable<bool>("check_coll");
     BOOST_REQUIRE(check_enter);
     BOOST_CHECK(*check_enter);
     BOOST_REQUIRE(check_coll);
     BOOST_CHECK(*check_coll);
     world->getTransformHandler().setPosition(tester, { 400,400 });
     world->update(20.0f, { 0,0 }, { 15000,15000 });
-    auto check_exit = trigger.get<EntityBehaviorComponent>().getStateVariable<bool>("trigger", "check_exit");
+    auto check_exit = trigger.get<EntityBehaviorComponent>().getStateVariable<bool>( "check_exit");
     BOOST_REQUIRE(check_exit);
     BOOST_CHECK(*check_exit);
+}
+
+BOOST_AUTO_TEST_CASE(parameter_serial_test)
+{
+    using namespace ungod;
+    {
+        ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+        WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+        node.setSize({ 15000, 15000 });
+        World* world = node.addWorld();
+        state.getEntityBehaviorManager().loadBehaviorScript("test_data/parameter_setter.lua");
+        Entity e = world->create(EntityBaseComponents(), EntityOptionalComponents(), "parameter_setter");
+        Entity e2 = world->create(EntityBaseComponents(), EntityOptionalComponents());
+        e.get<EntityBehaviorComponent>().getStateEnvironment().set("var_1", "bark");
+        e.get<EntityBehaviorComponent>().getStateEnvironment().set("var_2", 99);
+        e.get<EntityBehaviorComponent>().getStateEnvironment().set("var_3", e2);
+        world->getBehaviorHandler().serializeParameter<std::string>(e, "var_1");
+        world->getBehaviorHandler().serializeParameter<int>(e, "var_2");
+        world->getBehaviorHandler().serializeParameter<Entity>(e, "var_3");
+
+        world->addEntity(e);
+        world->addEntity(e2);
+
+        SerializationContext context;
+        context.serializeRootObject(*world);
+        context.save("test_output/parameter_serial_world_sav.xml");
+
+        auto var_1 = e.get<EntityBehaviorComponent>().getStateVariable<std::string>("var_1");
+        auto var_2 = e.get<EntityBehaviorComponent>().getStateVariable<int>("var_2");
+        auto var_3 = e.get<EntityBehaviorComponent>().getStateVariable<Entity>("var_3");
+        BOOST_REQUIRE(var_1);
+        BOOST_REQUIRE(var_2);
+        BOOST_REQUIRE(var_3);
+        BOOST_REQUIRE_EQUAL(*var_1, "bark");
+        BOOST_REQUIRE_EQUAL(*var_2, 99);
+        BOOST_REQUIRE(*var_3 == e2);
+    }
+
+    {
+        ScriptedGameState state(EmbeddedTestApp::getApp(), 0);
+        WorldGraphNode& node = state.getWorldGraph().createNode(state, "nodeid", "nodefile");
+        node.setSaveContents(false);
+        node.setSize({ 15000, 15000 });
+        World* world = node.addWorld(false);
+        state.getEntityBehaviorManager().loadBehaviorScript("test_data/parameter_setter.lua");
+
+        DeserializationContext context;
+        context.read("test_output/parameter_serial_world_sav.xml");
+
+        DeserialMemory dm;
+        dm.node = &node;
+        context.deserializeRootObject(*world, dm);
+        world->init(state, &dm);
+
+        quad::PullResult<Entity> pull;
+        world->getQuadTree().getContent(pull);
+        BOOST_CHECK_EQUAL(pull.getList().size(), 2u);
+        BOOST_REQUIRE(pull.getList().front().has < EntityBehaviorComponent >() ||
+            pull.getList().back().has < EntityBehaviorComponent >());
+        Entity e1, e2;
+        if (pull.getList().front().has < EntityBehaviorComponent >())
+        {
+            e1 = pull.getList().front();
+            e2 = pull.getList().back();
+        }
+        else
+        {
+            e2 = pull.getList().front();
+            e1 = pull.getList().back();
+        }
+
+        auto var_1 = e1.get<EntityBehaviorComponent>().getStateVariable<std::string>("var_1");
+        auto var_2 = e1.get<EntityBehaviorComponent>().getStateVariable<int>("var_2");
+        auto var_3 = e1.get<EntityBehaviorComponent>().getStateVariable<Entity>("var_3");
+        BOOST_REQUIRE(var_1);
+        BOOST_REQUIRE(var_2);
+        BOOST_REQUIRE(var_3);
+        BOOST_REQUIRE_EQUAL(*var_1, "bark");
+        BOOST_REQUIRE_EQUAL(*var_2, 99);
+        BOOST_REQUIRE(*var_3 == e2);
+    }
 }

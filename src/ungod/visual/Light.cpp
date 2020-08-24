@@ -680,7 +680,7 @@ namespace ungod
    }
 
 
-    LightAffectorComponent::LightAffectorComponent() : mCallback(nullptr), mEmitter(nullptr), mActive(true) {}
+    LightAffectorComponent::LightAffectorComponent() : mCallback(nullptr), mActive(true) {}
 
     void LightAffectorComponent::setActive(bool active)
     {

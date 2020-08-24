@@ -122,13 +122,13 @@ namespace uedit
     }
 
 
-    void LightActions::setAffectorCallback(ungod::Entity e, ungod::LightAffectorComponent& affector, ungod::LightEmitterComponent& emitter, const std::function<void(float, ungod::LightEmitterComponent&)>& callback)
+    void LightActions::setAffectorCallback(ungod::Entity e, ungod::LightAffectorComponent& affector, const std::function<void(float, ungod::LightEmitterComponent&)>& callback)
     {
         auto oldcallback = affector.getCallback();
-        mActionManager.action(std::function([this, &affector, &emitter, callback](ungod::Entity e)
-            { e.getWorld().getLightHandler().setAffectorCallback(callback, affector, emitter); }),
-            std::function([this, &affector, &emitter, oldcallback](ungod::Entity e)
-                { e.getWorld().getLightHandler().setAffectorCallback(oldcallback, affector, emitter); }),
+        mActionManager.action(std::function([this, &affector, callback](ungod::Entity e)
+            { e.getWorld().getLightHandler().setAffectorCallback(callback, affector); }),
+            std::function([this, &affector, oldcallback](ungod::Entity e)
+                { e.getWorld().getLightHandler().setAffectorCallback(oldcallback, affector); }),
             e);
     }
 }

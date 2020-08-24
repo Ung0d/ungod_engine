@@ -174,13 +174,13 @@ namespace uedit
         {
             FlickeringDialog fd(this, -1, "Flickering");
             if (fd.ShowModal() == wxID_OK)
-                mActionManager.lightActions().setAffectorCallback(mEntity, mAffectorComponent, mEmitterComponent, ungod::LightFlickering(fd.getPeriod(), fd.getStrength()));
+                mActionManager.lightActions().setAffectorCallback(mEntity, mAffectorComponent, ungod::LightFlickering(fd.getPeriod(), fd.getStrength()));
         }
         else if (mChoice->GetSelection() == 2) //Randomized Flickering
         {
             FlickeringDialog fd(this, -1, "RandomizedFlickering");
             if (fd.ShowModal() == wxID_OK)
-                mActionManager.lightActions().setAffectorCallback(mEntity, mAffectorComponent, mEmitterComponent, ungod::RandomizedFlickering(fd.getPeriod(), fd.getStrength()));
+                mActionManager.lightActions().setAffectorCallback(mEntity, mAffectorComponent, ungod::RandomizedFlickering(fd.getPeriod(), fd.getStrength()));
         }
     }
 

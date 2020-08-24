@@ -37,6 +37,7 @@ BOOST_AUTO_TEST_CASE(entity_instantiation_test)
         ungod::initContext(context);
         context.read("test_output/instantiation_sav.xml");
         ungod::DeserialMemory dm;
+        dm.node = &node;
         context.deserializeRootObject(*world, dm);
 
         //todo write checks

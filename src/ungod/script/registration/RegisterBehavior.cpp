@@ -37,9 +37,9 @@ namespace ungod
             return mEntity.get<EntityBehaviorComponent>().hasValidEnvironment();
         }
 
-        bool EntityBehaviorHandlerFrontEnd::hasValidStateEnvironment(const std::string& stateName) const
+        bool EntityBehaviorHandlerFrontEnd::hasValidStateEnvironment() const
         {
-            return mEntity.get<EntityBehaviorComponent>().hasValidStateEnvironment(stateName);
+            return mEntity.get<EntityBehaviorComponent>().hasValidStateEnvironment();
         }
 
         script::Environment EntityBehaviorHandlerFrontEnd::getEnvironment() const
@@ -47,9 +47,9 @@ namespace ungod
             return mEntity.get<EntityBehaviorComponent>().getEnvironment();
         }
 
-        script::Environment EntityBehaviorHandlerFrontEnd::getStateEnvironment(const std::string& stateName) const
+        script::Environment EntityBehaviorHandlerFrontEnd::getStateEnvironment() const
         {
-            return mEntity.get<EntityBehaviorComponent>().getStateEnvironment(stateName);
+            return mEntity.get<EntityBehaviorComponent>().getStateEnvironment();
         }
 
         void EntityBehaviorHandlerFrontEnd::assignBehavior(const std::string& name)
