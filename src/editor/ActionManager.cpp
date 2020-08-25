@@ -14,6 +14,7 @@ namespace uedit
         mWaterActions(*this),
         mLightActions(*this),
         mAudioActions(*this),
+        mBehaviorActions(*this),
         mParticleSystemActions(*this)
     {
     }
@@ -35,24 +36,5 @@ namespace uedit
             e.getWorld().destroy(e);
         }
         mRemovedEntities.clear();
-    }
-
-
-
-
-    
-
-    void ActionManager::attachScript(ungod::Entity e, const std::string& name)
-    {
-        std::string oldscript = "";
-        if (e.get<ungod::EntityBehaviorComponent>().valid())
-            oldscript = e.get<ungod::EntityBehaviorComponent>().getScriptName();
-        action(std::function([this, name](ungod::Entity e){ e.getWorld().getBehaviorHandler().assignBehavior(e, name); }),
-                        std::function([this, oldscript](ungod::Entity e)
-                                     {
-                                         if (oldscript != "")
-                                            e.getWorld().getBehaviorHandler().assignBehavior(e, oldscript);
-                                    }),
-                            e);
     }
 }

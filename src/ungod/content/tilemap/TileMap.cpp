@@ -65,8 +65,8 @@ namespace ungod
             int metaY = (int)(std::round(windowPosition.y - getPosition().y) / (getScale().y * mTileHeight)) - (int)mOverextendY;
 
             if (!mAltered && 
-                std::abs(mLastMetaX - metaX) < mOverextendX  && 
-                std::abs(mLastMetaY - metaY) < mOverextendY)
+                (unsigned)std::abs(mLastMetaX - metaX) < mOverextendX  && 
+                (unsigned)std::abs(mLastMetaY - metaY) < mOverextendY)
                 return true;
 
             mLastMetaX = metaX;

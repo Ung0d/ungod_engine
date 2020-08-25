@@ -90,6 +90,14 @@ namespace uedit
         }
     }
 
+    std::vector<std::string> FileManager::getFilepaths() const
+    {
+        std::vector<std::string> files;
+        for (const auto& file : mLoadedFiles)
+            files.emplace_back(file.first);
+        return files;
+    }
+
 
     void FileManager::addMenuItem(int id, const std::string& itemtxt)
     {

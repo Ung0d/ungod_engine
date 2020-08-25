@@ -17,9 +17,15 @@ namespace uedit
         SCRIPT_RUN = 999
     };
 
-    ScriptManager::ScriptManager(const std::string& baseFilepath, ungod::Application& app, ActionManager& actionManager, wxWindow* parent, wxWindowID id, const wxPoint& pos) :
+    ScriptManager::ScriptManager(const std::string& baseFilepath,
+                                ungod::Application& app,
+                                EditorFrame* editorFrame, 
+                                ActionManager& actionManager, 
+                                wxWindow* parent, 
+                                wxWindowID id, 
+                                const wxPoint& pos) :
                                       wxFrame(parent, id, "Script Manager", pos),
-                                    mActionManager(actionManager), mApp(app), mEditorTabs(nullptr), mLoadedScripts(nullptr), mBasePath(baseFilepath)
+                                    mActionManager(actionManager), mApp(app), mEditorFrame(editorFrame), mEditorTabs(nullptr), mLoadedScripts(nullptr), mBasePath(baseFilepath)
     {
         wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
 
@@ -43,6 +49,12 @@ namespace uedit
         SetSize(wxSize(800, 600));
         SetSizer(hbox);
         Fit();
+    }
+
+    void ScriptManager::loadScript(const std::string& file)
+    {
+        mEditorFrame->getCanvas()->getEditorState()->getEntityBehaviorManager().loadBehaviorScript(file);
+        mLoadedScripts->addPath(file);
     }
 
 
@@ -260,5 +272,7 @@ namespace ungod
     void DeserialBehavior<uedit::ScriptManager>::deserialize(uedit::ScriptManager& data, MetaNode deserializer, DeserializationContext& context)
     {
         context.first(context.deserializeObject(*data.mLoadedScripts), "filemanager", deserializer);
+        for (const auto& file : data.mLoadedScripts->getFilepaths())
+            data.mEditorFrame->getCanvas()->getEditorState()->getEntityBehaviorManager().loadBehaviorScript(file);
     }
 }

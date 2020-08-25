@@ -127,7 +127,7 @@ namespace uedit
 		}
         hbox->Add(vbox, 8, wxEXPAND);
 
-        mScriptManager = new ScriptManager("C:/Users/Felix/Desktop/GameProgramming/lota_final/res", *mCanvas, mActionManager, this,SCRIPT_MANAGER, wxPoint(200, 240));
+        mScriptManager = new ScriptManager("C:/Users/Felix/Desktop/GameProgramming/lota_final/res", *mCanvas, this, mActionManager, this,SCRIPT_MANAGER, wxPoint(200, 240));
 
         mParent->SetSizer(hbox);
 

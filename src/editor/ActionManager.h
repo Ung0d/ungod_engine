@@ -13,6 +13,7 @@
 #include "editor/WaterActions.h"
 #include "editor/LightActions.h"
 #include "editor/AudioActions.h"
+#include "editor/BehaviorActions.h"
 #include "editor/ParticleSystemActions.h" 
 
 namespace uedit
@@ -44,9 +45,6 @@ namespace uedit
             mActionManager.redo();
         }
 
-
-        void attachScript(ungod::Entity e, const std::string& name);
-
         //removes the given entity from the world and marks it for deletion
         //it IS NOT DELETED DIRECTLY, to ensure that the operation is redoable
         void removeEntity(ungod::Entity e);
@@ -76,6 +74,8 @@ namespace uedit
 
         AudioActions& audioActions() { return mAudioActions; }
 
+        BehaviorActions& behaviorActions() { return mBehaviorActions; }
+
         ParticleSystemActions& particleSystemActions() { return mParticleSystemActions; } 
 
         void onSomethingChanged(const std::function<void()>& callback)
@@ -93,6 +93,7 @@ namespace uedit
         WaterActions mWaterActions;
         LightActions mLightActions;
         AudioActions mAudioActions;
+        BehaviorActions mBehaviorActions;
         ParticleSystemActions mParticleSystemActions;
         owls::Signal<> mSomethingChangedSignal;
 

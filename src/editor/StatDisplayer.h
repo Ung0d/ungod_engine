@@ -1,6 +1,8 @@
 #ifndef UEDIT_STAT_DISPLAYER_H
 #define UEDIT_STAT_DISPLAYER_H
 
+
+#include <SFML/System/Vector2.hpp>
 #include "wx/panel.h"
 #include "wx/textctrl.h"
 #include "wx/sizer.h"
@@ -8,6 +10,12 @@
 #include "wx/msgdlg.h"
 #include <type_traits>
 #include <string>
+#include <optional>
+
+namespace ungod
+{
+    class Entity;
+}
 
 namespace uedit
 {
@@ -25,16 +33,22 @@ namespace uedit
             //refreshes the text by calling the getter
             void refreshValue();
 
+            //returns the value current displayed
+            std::optional<T> getValue();
+
             //connects a setter function to the display that is invoked, when the value is changed
             void connectSetter(const std::function<void(T)>& setter);
 
             //connects a getter function to the display that is invoked, when an invalid value (not a number) is entered to reset the device
             void connectGetter(const std::function<T()>& getter);
 
+            const std::string& getText() const { return mText; }
+
         protected:
             wxTextCtrl* mTextCtrl;
             std::function<void(T)> mSetter;
             std::function<T()> mGetter;
+            std::string mText;
         };
     }
 
@@ -58,12 +72,11 @@ namespace uedit
 
 
 
-
     namespace detail
     {
         template<typename T>
         StatDisplayImpl<T>::StatDisplayImpl(const std::string& text, wxWindow * parent, wxWindowID id, const wxPoint & pos, const wxSize& siz)
-        : wxPanel(parent, id, pos, siz)
+        : wxPanel(parent, id, pos, siz), mText(text)
         {
             wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
             hbox->Add(new wxStaticText(this, -1, _(text)), 1, wxALIGN_LEFT | wxALL, 3);
@@ -89,6 +102,32 @@ namespace uedit
         inline void StatDisplayImpl<std::string>::refreshValue()
         {
             mTextCtrl->SetLabel(mGetter());
+        }
+
+        template<typename T>
+        std::optional<T> StatDisplayImpl<T>::getValue() 
+        {
+            try
+            {
+                if constexpr (std::is_integral_v<T>)
+                    return static_cast<T>(std::stoi(
+                        std::string(detail::StatDisplayImpl<T>::mTextCtrl->GetValue().mb_str())));
+                else //assume floating point
+                    return static_cast<T>(std::stof(
+                        std::string(detail::StatDisplayImpl<T>::mTextCtrl->GetValue().mb_str())));
+            }
+            catch (const std::exception&)
+            {
+                auto err = wxMessageDialog(this, _("Text field must contain a valid number."));
+                err.ShowModal();
+                return {};
+            }
+        }
+
+        template<>
+        inline std::optional<std::string> StatDisplayImpl<std::string>::getValue() 
+        {
+            return std::string(detail::StatDisplayImpl<std::string>::mTextCtrl->GetValue().mb_str());
         }
 
         template<typename T>
@@ -118,23 +157,12 @@ namespace uedit
         if (!detail::StatDisplayImpl<T>::mSetter || !detail::StatDisplayImpl<T>::mGetter)
             return;
 
-        try
-        {
-			if constexpr (std::is_integral_v<T>)
-                detail::StatDisplayImpl<T>::mSetter(
-                    static_cast<T>(std::stoi( 
-                        std::string(detail::StatDisplayImpl<T>::mTextCtrl->GetValue().mb_str()) )));
-            else //assume floating point
-                detail::StatDisplayImpl<T>::mSetter(
-                    static_cast<T>(std::stof(
-                        std::string(detail::StatDisplayImpl<T>::mTextCtrl->GetValue().mb_str()))));
-        }
-        catch(const std::exception&)
-        {
-            auto err = wxMessageDialog(this, _("Text field must contain a valid number."));
-            err.ShowModal();
+        std::optional<T> t = this->getValue();
+
+        if (t)
+            detail::StatDisplayImpl<T>::mSetter(*t);
+        else
             detail::StatDisplayImpl<T>::setValue(detail::StatDisplayImpl<T>::mGetter());
-        }
     }
 
 

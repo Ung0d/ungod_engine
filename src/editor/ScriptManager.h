@@ -24,6 +24,7 @@ namespace uedit
         MARGIN_FOLD
     };
 
+    class EditorFrame;
 
     class CodeEditor : public wxStyledTextCtrl
     {
@@ -51,7 +52,8 @@ namespace uedit
     friend struct ungod::DeserialBehavior<ScriptManager>;
     public:
         ScriptManager(const std::string& baseFilepath,
-                      ungod::Application& app,
+                       ungod::Application& app,
+                      EditorFrame* editorFrame,
                       ActionManager& actionManager,
                       wxWindow* parent = nullptr,
                       wxWindowID id = -1,
@@ -60,9 +62,12 @@ namespace uedit
 
     const std::vector<CodeEditor*>& getEditors() const { return mEditors; }
 
+    void loadScript(const std::string& file);
+
     private:
         ActionManager& mActionManager;
         ungod::Application& mApp;
+        EditorFrame* mEditorFrame;
         wxNotebook* mEditorTabs;
         FileManager* mLoadedScripts;
         boost::filesystem::path mBasePath;
