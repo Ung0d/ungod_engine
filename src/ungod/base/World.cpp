@@ -316,6 +316,7 @@ namespace ungod
                 if (eb.hasValidEnvironment())
                 {
                     eb.getEnvironment()["entity"] = fcpy;
+                    e.getWorld().getBehaviorHandler().dissociateBehavior(e);
                     mEntityBehaviorHandler.initBehavior(fcpy);
                 }
             }

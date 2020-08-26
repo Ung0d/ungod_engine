@@ -165,11 +165,14 @@ namespace ungod
 
     void EntityBehaviorHandler::initBehavior(Entity e)
     {
-        mWorld->getState()->getEntityBehaviorManager().getBehaviorManager().initBehavior(e.modify<EntityBehaviorComponent>().mBehavior);
+        mWorld->getState()->getEntityBehaviorManager().getBehaviorManager().initBehavior(
+            e.modify<EntityBehaviorComponent>().mBehavior);
     }
 
     void EntityBehaviorHandler::dissociateBehavior(Entity e)
     {
+        mWorld->getState()->getEntityBehaviorManager().getBehaviorManager().exitBehavior(
+            e.modify<EntityBehaviorComponent>().mBehavior);
         e.modify<EntityBehaviorComponent>().mBehavior = StateBehaviorPtr<>();
     }
 

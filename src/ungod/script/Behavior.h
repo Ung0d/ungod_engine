@@ -247,6 +247,8 @@ namespace ungod
 
         void init(std::size_t initIndex, INIT_PARAM&& ... param);
 
+        void exit(INIT_PARAM&& ... param);
+
         /** \brief Executes the callback with given index. Forwards the additional
         * arguments to the method call. */
         template<typename ... ARGS>
@@ -296,6 +298,8 @@ namespace ungod
         StateBehavior& operator=(const StateBehavior&) = delete;
 
         void init(std::size_t initIndex, INIT_PARAM&& ... param);
+
+        void exit(INIT_PARAM&& ... param);
 
         /** \brief Executes the callback with given index. Forwards the additional
         * arguments to the method call. */
@@ -391,6 +395,9 @@ namespace ungod
 
         void initBehavior(const BehaviorPtr<INIT_PARAM...>& bptr);
         void initBehavior(const StateBehaviorPtr<INIT_PARAM...>& sbptr);
+
+        void exitBehavior(const BehaviorPtr<INIT_PARAM...>& bptr);
+        void exitBehavior(const StateBehaviorPtr<INIT_PARAM...>& sbptr);
 
         /** \brief Creates a new global behavior. This method is exposed to the scripting language. */
         static script::Environment newGlobalBehavior(const std::string& identifier, script::Environment env, sol::optional<detail::NamedEnvironment>& global);
@@ -605,6 +612,12 @@ namespace ungod
     }
 
     template <typename ... INIT_PARAM>
+    void Behavior<INIT_PARAM...>::exit(INIT_PARAM&& ... param)
+    {
+        mGlobal.execute(mExitIndex, std::forward<INIT_PARAM>(param)...);
+    }
+
+    template <typename ... INIT_PARAM>
     Behavior<INIT_PARAM...>::~Behavior()
     {
         mGlobal.deref();
@@ -670,6 +683,13 @@ namespace ungod
             mCurrent = &res->second;
             mCurrent->execute(initIndex, std::forward<INIT_PARAM>(param)...);
         }
+    }
+
+    template <typename ... INIT_PARAM>
+    void StateBehavior<INIT_PARAM...>::exit(INIT_PARAM&& ... param)
+    {
+        Behavior<INIT_PARAM...>::exit(std::forward<INIT_PARAM>(param)...);
+        mCurrent->execute(Behavior<INIT_PARAM...>::mExitIndex, std::forward<INIT_PARAM>(param)...);
     }
 
     template <typename ... INIT_PARAM>
@@ -825,6 +845,18 @@ namespace ungod
     void BehaviorManager<INIT_PARAM...>::initBehavior(const StateBehaviorPtr<INIT_PARAM...>& sbptr)
     {
         sbptr->init(mInitIndex);
+    }
+
+    template <typename ... INIT_PARAM>
+    void BehaviorManager<INIT_PARAM...>::exitBehavior(const BehaviorPtr<INIT_PARAM...>& bptr)
+    {
+        bptr->exit();
+    }
+
+    template <typename ... INIT_PARAM>
+    void BehaviorManager<INIT_PARAM...>::exitBehavior(const StateBehaviorPtr<INIT_PARAM...>& sbptr)
+    {
+        sbptr->exit();
     }
 
     template <typename ... INIT_PARAM>
