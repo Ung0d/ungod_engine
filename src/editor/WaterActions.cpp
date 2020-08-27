@@ -18,22 +18,22 @@ namespace uedit
             e);
     }
 
-    void WaterActions::addReflectionWorld(ungod::Entity e, ungod::World* world)
+    void WaterActions::addReflectionWorld(ungod::Entity e, ungod::WorldGraphNode* node, const std::string& world)
     {
-        mActionManager.action(std::function([this](ungod::Entity e, ungod::World* world)
-            { e.getWorld().getWaterHandler().addReflectionWorld(e, world); }),
-            std::function([this](ungod::Entity e, ungod::World* world)
-                { e.getWorld().getWaterHandler().removeReflectionWorld(e, world); }),
-            e, world);
+        mActionManager.action< ungod::Entity, ungod::WorldGraphNode*, std::string >(std::function([this](ungod::Entity e, ungod::WorldGraphNode* node, std::string world)
+            { e.getWorld().getWaterHandler().addReflectionWorld(e, node, world); }),
+            std::function([this](ungod::Entity e, ungod::WorldGraphNode* node, std::string world)
+                { e.getWorld().getWaterHandler().removeReflectionWorld(e, node, world); }),
+            e, node, world);
     }
 
-    void WaterActions::removeReflectionWorld(ungod::Entity e, ungod::World* world)
+    void WaterActions::removeReflectionWorld(ungod::Entity e, ungod::WorldGraphNode* node, const std::string& world)
     {
-        mActionManager.action(std::function([this](ungod::Entity e, ungod::World* world)
-            { e.getWorld().getWaterHandler().removeReflectionWorld(e, world); }),
-            std::function([this](ungod::Entity e, ungod::World* world)
-                { e.getWorld().getWaterHandler().addReflectionWorld(e, world); }),
-            e, world);
+        mActionManager.action< ungod::Entity, ungod::WorldGraphNode*, std::string >(std::function([this](ungod::Entity e, ungod::WorldGraphNode* node, std::string world)
+            { e.getWorld().getWaterHandler().removeReflectionWorld(e, node, world); }),
+            std::function([this](ungod::Entity e, ungod::WorldGraphNode* node, std::string world)
+                { e.getWorld().getWaterHandler().addReflectionWorld(e, node, world); }),
+            e, node, world);
     }
 
     void WaterActions::setWaterShaders(ungod::Entity e, bool flag)

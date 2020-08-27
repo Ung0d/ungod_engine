@@ -30,7 +30,6 @@
 
 namespace ungod
 {
-    constexpr int Water::MAX_REFLECTION_WORLDS;
     constexpr float Water::DEFAULT_DISTORTION;
     constexpr float Water::DEFAULT_FLOW;
     constexpr float Water::DEFAULT_REFLECTION_OPACITY;
@@ -38,8 +37,7 @@ namespace ungod
     constexpr float Water::BOUNDS_OVERLAP;
 
     Water::Water() : mShowShaders(false),
-                    mDistortionFactor(DEFAULT_DISTORTION), mFlowFactor(DEFAULT_FLOW), mReflectionOpacity(DEFAULT_REFLECTION_OPACITY),
-                    mReflectionWorlds{ nullptr }
+                    mDistortionFactor(DEFAULT_DISTORTION), mFlowFactor(DEFAULT_FLOW), mReflectionOpacity(DEFAULT_REFLECTION_OPACITY)
     {
     }
 
@@ -49,12 +47,11 @@ namespace ungod
         mDistortionFactor = other.mDistortionFactor;
         mFlowFactor = other.mFlowFactor;
         mReflectionOpacity = other.mReflectionOpacity;
-        mReflectionWorlds = other.mReflectionWorlds;
         init(other.mDistortionTextureFile, mFragmentShaderID, mVertexShaderID);
         targetsizeChanged(other.mTargetSize);
     }
 
-    bool Water::render(sf::RenderTarget& target, sf::RenderTexture& rendertex, const TileMap& tilemap, const sf::Texture* tilemapTex, sf::RenderStates states) const
+    bool Water::render(sf::RenderTarget& target, sf::RenderTexture& rendertex, const TileMap& tilemap, const sf::Texture* tilemapTex, sf::RenderStates states, const std::vector<ungod::World*>& reflectionWorlds) const
     {
         rendertex.clear(sf::Color::Transparent);
 
@@ -63,10 +60,10 @@ namespace ungod
 
         sf::Vector2f windowUpLeftPosition = target.mapPixelToCoords(sf::Vector2i(0, 0));
 
-        for (World* world : mReflectionWorlds)
+        for (ungod::World* world : reflectionWorlds)
         {
-            if (!world)
-                continue;
+            sf::RenderStates worldStates;
+            worldStates.transform.translate(world->getNode().getPosition() - world->getNode().getGraph().getActiveNode()->getPosition());
 
             windowUpLeftPosition = world->getNode().mapToLocalPosition(windowUpLeftPosition);
 
@@ -78,9 +75,9 @@ namespace ungod
                                                     BOUNDING_BOX_SCALING * target.getView().getSize().y });
 
             dom::Utility<Entity>::iterate<TransformComponent, VisualsComponent>(pull.getList(),
-                [this, &states, world, &rendertex, &tilemap](Entity e, TransformComponent& transf, VisualsComponent& vis)
+                [this, &states, worldStates, world, &rendertex, &tilemap](Entity e, TransformComponent& transf, VisualsComponent& vis)
                 {
-                    auto globalTMBounds = states.transform.getInverse().transformRect(tilemap.getBounds());
+                    auto globalTMBounds = states.transform.transformRect(tilemap.getBounds());
                     auto transformedUpLeft = world->getNode().mapToLocalPosition(sf::Vector2f{ globalTMBounds.left, globalTMBounds.top });
                     globalTMBounds.left = transformedUpLeft.x;
                     globalTMBounds.top = transformedUpLeft.y;
@@ -95,7 +92,7 @@ namespace ungod
                         float curOpacity = vis.getOpacity();
                         VisualsHandler::setOpacity(e, curOpacity * mReflectionOpacity);
                         if (!e.has<WaterComponent>())
-                            world->getState()->getRenderer().renderEntity(e, transf, vis, rendertex, states, true, BOUNDS_OVERLAP * (-2 * lowerBounds.y + upperBounds.y));
+                            world->getState()->getRenderer().renderEntity(e, transf, vis, rendertex, worldStates, true, BOUNDS_OVERLAP * (-2 * lowerBounds.y + upperBounds.y));
                         VisualsHandler::setOpacity(e, curOpacity);
                     }
                 });
@@ -192,29 +189,6 @@ namespace ungod
             buildDistortionTexture(targetsize);
             mWaterShader.setUniform("screenSize", sf::Vector2f{ (float)mTargetSize.x, (float)mTargetSize.y });
         }
-    }
-
-    bool Water::addReflectionWorld(World* world)
-    {
-        for (int i = 0; i < MAX_REFLECTION_WORLDS; i++)
-            if (!mReflectionWorlds[i])
-            {
-                mReflectionWorlds[i] = world;
-                return true;
-            }
-        Logger::warning("Maximum number of worlds for water reflection (", MAX_REFLECTION_WORLDS, ") exceeded.");
-        return false;
-    }
-
-    bool Water::removeReflectionWorld(World* world)
-    {
-        for (int i = 0; i < MAX_REFLECTION_WORLDS; i++)
-            if (mReflectionWorlds[i] == world)
-            {
-                mReflectionWorlds[i] = nullptr;
-                return true;
-            }
-        return false;
     }
 
     void Water::setShaders(bool flag)

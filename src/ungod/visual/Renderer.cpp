@@ -110,7 +110,7 @@ namespace ungod
               {
                   if (target.getSize() != mWaterTex.getSize())
                       mWaterTex.create(target.getSize().x, target.getSize().y);
-                  e.get<WaterComponent>().mWater.render(target, mWaterTex, e.get<TileMapComponent>().mTileMap, &vis.getTexture(), states);
+                  e.get<WaterComponent>().mWater.render(target, mWaterTex, e.get<TileMapComponent>().mTileMap, &vis.getTexture(), states, e.get<WaterComponent>().getReflectionWorlds());
               }
               else
                   e.get<TileMapComponent>().mTileMap.render(target, &vis.getTexture(), states);

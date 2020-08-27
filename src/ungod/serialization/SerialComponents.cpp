@@ -502,11 +502,27 @@ namespace ungod
     void SerialBehavior<WaterComponent, Entity>::serialize(const WaterComponent& data, MetaNode serializer, SerializationContext& context, Entity e)
     {
         context.serializeObject("water", data.getWater(), serializer);
+        context.serializePropertyContainer< std::string >("worlds", [&data](size_t i)
+            { 
+                if (data.mReflectionWorlds[i].first)
+                    return data.mReflectionWorlds[i].first->getIdentifier() + "/" + data.mReflectionWorlds[i].second;
+                else
+                    return std::string{ "none" };
+            },
+            WaterComponent::MAX_REFLECTION_WORLDS, serializer);
     }
 
     void DeserialBehavior<WaterComponent, Entity, DeserialMemory&>::deserialize(WaterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
-        context.first(context.deserializeObject(data.mWater), "water", deserializer);
+        auto attr = context.first(context.deserializeObject(data.mWater), "water", deserializer);
+        unsigned i = 0;
+        std::vector<std::string> keys;
+        context.next(context.deserializeContainer<std::string>([&keys](std::size_t num) { keys.reserve(num); }, [&i, &keys](const std::string& s)
+            {
+                keys.emplace_back(s);
+                i++;
+            }), "worlds", deserializer, attr);
+        deserialmemory.notifyWaterEntity(e, keys);
     }
 
 

@@ -158,6 +158,18 @@ namespace ungod
             {
                 mEntityBehaviorHandler.initBehavior(entry.entity);
             }
+            for (const auto& entry : deserialMemory->waterEntities)
+            {
+                for (const auto& s : entry.keys)
+                {
+                    std::size_t sep = s.find('/');
+                    if (sep != std::string::npos)
+                    {
+                        std::string nodeID = s.substr(0, sep);
+                        mWaterHandler.addReflectionWorld(entry.entity, getGraph().getNode(nodeID), s.substr(sep + 1, s.size()));
+                    }
+                }
+            }
         }
     }
 

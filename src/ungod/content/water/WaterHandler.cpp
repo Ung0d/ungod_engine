@@ -26,9 +26,29 @@
 #include "ungod/content/water/WaterHandler.h"
 #include "ungod/application/Application.h"
 #include "ungod/base/World.h"
+#include "ungod/base/WorldGraphNode.h"
 
 namespace ungod
 {
+    constexpr std::size_t WaterComponent::MAX_REFLECTION_WORLDS;
+
+    std::vector<World*> WaterComponent::getReflectionWorlds() const
+    {
+        std::vector<World*> reflworlds;
+        for (unsigned i = 0; i < MAX_REFLECTION_WORLDS; i++)
+        {
+            if (mReflectionWorlds[i].first)
+            {
+                auto* world = mReflectionWorlds[i].first->getWorld(mReflectionWorlds[i].second);
+                if (world)
+                    reflworlds.emplace_back(world);
+            }
+        }
+        return reflworlds;
+    }
+
+
+
     void WaterHandler::init(World& world)
     {
         targetSizeChanged(world, world.getState()->getApp().getWindow().getSize());
@@ -57,14 +77,37 @@ namespace ungod
       water.mWater.init(distortionMap, fragmentShader, vertexShader);
    }
 
-   bool WaterHandler::addReflectionWorld(WaterComponent& water, World* world)
+   bool WaterHandler::addReflectionWorld(WaterComponent& water, WorldGraphNode* node, const std::string& world)
    {
-        return water.mWater.addReflectionWorld(world);
+       for (int i = 0; i < WaterComponent::MAX_REFLECTION_WORLDS; i++)
+           if (water.mReflectionWorlds[i].first == node &&
+               water.mReflectionWorlds[i].second == world)
+           {
+               Logger::warning("Attempt to add a reflection world twice. Omitting second one.");
+               return false;
+           }
+       for (int i = 0; i < WaterComponent::MAX_REFLECTION_WORLDS; i++)
+           if (!water.mReflectionWorlds[i].first)
+           {
+               water.mReflectionWorlds[i].first = node;
+               water.mReflectionWorlds[i].second = world;
+               return true;
+           }
+       Logger::warning("Maximum number of worlds for water reflection (", WaterComponent::MAX_REFLECTION_WORLDS, ") exceeded.");
+       return false;
    }
 
-   bool WaterHandler::removeReflectionWorld(WaterComponent& water, World* world)
+   bool WaterHandler::removeReflectionWorld(WaterComponent& water, WorldGraphNode* node, const std::string& world)
    {
-       return water.mWater.removeReflectionWorld(world);
+       for (int i = 0; i < WaterComponent::MAX_REFLECTION_WORLDS; i++)
+           if (water.mReflectionWorlds[i].first == node &&
+               water.mReflectionWorlds[i].second == world)
+           {
+               water.mReflectionWorlds[i].first = nullptr;
+               water.mReflectionWorlds[i].second.clear();
+               return true;
+           }
+       return false;
    }
 
     void WaterHandler::setWaterShaders(WaterComponent& water, bool flag)

@@ -35,14 +35,14 @@ namespace ungod
             mHandler.initWater(mEntity, distortionTex, fragmentShader, vertexShader);
         }
 
-        void WaterHandlerFrontEnd::addReflectionWorld(World* world)
+        void WaterHandlerFrontEnd::addReflectionWorld(WorldGraphNode* node, const std::string& world)
         {
-            mHandler.addReflectionWorld(mEntity, world);
+            mHandler.addReflectionWorld(mEntity, node, world);
         }
 
-        void WaterHandlerFrontEnd::removeReflectionWorld(World* world)
+        void WaterHandlerFrontEnd::removeReflectionWorld(WorldGraphNode* node, const std::string& world)
         {
-            mHandler.removeReflectionWorld(mEntity, world);
+            mHandler.removeReflectionWorld(mEntity, node, world);
         }
 
         void WaterHandlerFrontEnd::setWaterShaders(bool set)

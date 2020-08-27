@@ -44,10 +44,10 @@ namespace ungod
 			sf::Vector2f getSize() const;
 			sf::Vector2f getCenterPosition() const;
 			sf::Vector2f getGlobalUpperBounds() const;
-			const sf::Vector2f& getUpperBounds() const;
-			const sf::Vector2f& getLowerBounds() const;
-			const sf::Vector2f& getScale() const;
-			const sf::Vector2f& getBaseLineOffsets() const;
+			sf::Vector2f getUpperBounds() const;
+			sf::Vector2f getLowerBounds() const;
+			sf::Vector2f getScale() const;
+			sf::Vector2f getBaseLineOffsets() const;
 			void setPosition(const sf::Vector2f& pos);
 			void setScale(const sf::Vector2f& scale);
 			void setBaseLineOffsets(const sf::Vector2f& offsets);

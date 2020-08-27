@@ -39,12 +39,16 @@ namespace uedit
         StatDisplay<float>* mFlowFactor;
         StatDisplay<float>* mDistortionFactor;
         StatDisplay<float>* mReflectionOpacity;
+        wxComboBox* mWorldsComboBox;
 
     private:
         void onInitClicked(wxCommandEvent & event);
         void onViewReset(wxCommandEvent & event);
-
         void refreshStats();
+        void onWorldAddClicked(wxCommandEvent& event);
+        void onWorldRemoveClicked(wxCommandEvent& event);
+        wxArrayString getWorldChoices() const;
+        std::pair<ungod::WorldGraphNode*, std::string> getSelectedWorld() const;
     };
 }
 

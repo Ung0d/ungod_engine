@@ -26,6 +26,8 @@
 #ifndef UNGOD_WATER_HANDLER_H
 #define UNGOD_WATER_HANDLER_H
 
+#include <array>
+#include <utility>
 #include "ungod/content/water/Water.h"
 #include "ungod/base/Entity.h"
 #include "owls/Signal.h"
@@ -34,6 +36,7 @@ namespace ungod
 {
     class World;
     class Camera;
+    class WorldGraphNode;
 
     /**
     * \ingroup Components
@@ -43,14 +46,22 @@ namespace ungod
     {
     friend class WaterHandler;
     friend class Renderer;
+    friend struct SerialBehavior<WaterComponent, Entity>;
     friend struct DeserialBehavior<WaterComponent, Entity, DeserialMemory&>;
+
+    public:
+        static constexpr std::size_t MAX_REFLECTION_WORLDS= 3;
 
     public:
         WaterComponent() = default;
 
         const Water& getWater() const { return mWater; }
+
+        std::vector<World*> getReflectionWorlds() const;
+
     private:
         Water mWater;
+        std::array< std::pair<WorldGraphNode*, std::string>, MAX_REFLECTION_WORLDS> mReflectionWorlds;
     };
 
     /** \brief A class that manages water-entities. */
@@ -68,16 +79,16 @@ namespace ungod
         static void initWater(WaterComponent& water, const std::string& distortionTex, const std::string& fragmentShader, const std::string& vertexShader);
 
         /** \brief Adds a world of which nearby world-objects are pulled to draw reflections. */
-        inline static bool addReflectionWorld(Entity e, World* world)
-        { return addReflectionWorld(e.modify<WaterComponent>(), world); }
-        static bool addReflectionWorld(WaterComponent& water, World* world);
+        inline static bool addReflectionWorld(Entity e, WorldGraphNode* node, const std::string& world)
+        { return addReflectionWorld(e.modify<WaterComponent>(), node, world); }
+        static bool addReflectionWorld(WaterComponent& water, WorldGraphNode* node, const std::string& world);
 
         /** \brief Removes a previously added reflection world. */
-        inline static bool removeReflectionWorld(Entity e, World* world)
+        inline static bool removeReflectionWorld(Entity e, WorldGraphNode* node, const std::string& world)
         {
-            return removeReflectionWorld(e.modify<WaterComponent>(), world);
+            return removeReflectionWorld(e.modify<WaterComponent>(), node, world);
         }
-        static bool removeReflectionWorld(WaterComponent& water, World* world);
+        static bool removeReflectionWorld(WaterComponent& water, WorldGraphNode* node, const std::string& world);
 
         /** \brief Activates or deactivates the rendering of the water shaders. */
         inline static void setWaterShaders(Entity e, bool flag)

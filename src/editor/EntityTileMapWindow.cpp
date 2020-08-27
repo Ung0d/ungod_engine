@@ -125,6 +125,18 @@ namespace uedit
                 });
             vbox->Add(mReflectionOpacity, 0, wxALIGN_CENTER_HORIZONTAL);
         }
+        {
+            wxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
+            mWorldsComboBox = new wxComboBox(this, -1, wxEmptyString, wxDefaultPosition, wxDefaultSize, getWorldChoices());
+            auto* addButton = new wxButton(this, -1, _("add"));
+            addButton->Bind(wxEVT_BUTTON, &EntityWaterWindow::onWorldAddClicked, this);
+            auto* rmButton = new wxButton(this, -1, _("remove"));
+            rmButton->Bind(wxEVT_BUTTON, &EntityWaterWindow::onWorldRemoveClicked, this);
+            hbox->Add(mWorldsComboBox, 0, wxALIGN_CENTER_VERTICAL);
+            hbox->Add(addButton, 0, wxALIGN_CENTER_VERTICAL);
+            hbox->Add(rmButton, 0, wxALIGN_CENTER_VERTICAL);
+            vbox->Add(hbox, 0, wxALIGN_CENTER_HORIZONTAL);
+        }
 
         SetSizer(vbox);
         Fit();
@@ -158,5 +170,51 @@ namespace uedit
         mFlowFactor->setValue(mEntity.modify<ungod::WaterComponent>().getWater().getFlowFactor());
         mDistortionFactor->setValue(mEntity.modify<ungod::WaterComponent>().getWater().getDistortionFactor());
         mReflectionOpacity->setValue(mEntity.modify<ungod::WaterComponent>().getWater().getReflectionOpacity());
+    }
+
+    void EntityWaterWindow::onWorldAddClicked(wxCommandEvent& event)
+    {
+        auto p = getSelectedWorld();
+        if (!p.first) return;
+        mActionManager.waterActions().addReflectionWorld(mEntity, p.first, p.second);
+    }
+
+    void EntityWaterWindow::onWorldRemoveClicked(wxCommandEvent& event)
+    {
+        auto p = getSelectedWorld();
+        if (!p.first) return;
+        mActionManager.waterActions().removeReflectionWorld(mEntity, p.first, p.second);
+    }
+
+    wxArrayString EntityWaterWindow::getWorldChoices() const
+    {
+        wxArrayString worldChoices;
+        for (unsigned i = 0; i < mEntity.getWorld().getGraph().getNumberOfNodes(); i++)
+        {
+            auto* node = mEntity.getWorld().getGraph().getNode(i);
+            for (unsigned j = 0; j < node->getNumWorld(); j++)
+            {
+                ungod::RenderLayer* rl = node->getWorld(j);
+                worldChoices.Add(node->getIdentifier() + "/" + rl->getName());
+            }
+        }
+        return worldChoices;
+    }
+
+    std::pair<ungod::WorldGraphNode*, std::string> EntityWaterWindow::getSelectedWorld() const
+    {
+        std::string selected{ mWorldsComboBox->GetValue().mb_str() };
+        if (!selected.empty())
+        {
+            std::size_t sep = selected.find('/');
+            if (sep != std::string::npos)
+            {
+                std::string nodeID = selected.substr(0, sep);
+                std::string world = selected.substr(sep + 1, selected.size());
+                auto* node = mEntity.getWorld().getGraph().getNode(nodeID);
+                return { node, world };
+            }
+        }
+        return { nullptr, std::string{} };
     }
 }

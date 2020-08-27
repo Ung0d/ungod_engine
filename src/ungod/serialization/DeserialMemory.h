@@ -44,6 +44,14 @@ namespace ungod
 			DeserializationContext& context;
 			script::Environment initParam;
 		};
+
+		struct EntityWaterPair
+		{
+			EntityWaterPair(Entity e, const std::vector<std::string>& k) : entity(e), keys(k) {}
+
+			Entity entity;
+			std::vector<std::string> keys;
+		};
 	}
 
 	class WorldGraphNode;
@@ -59,10 +67,13 @@ namespace ungod
 		WorldGraphNode* node;
 		std::forward_list<Entity> all;
 		std::forward_list<detail::EntityScriptPair> scriptEntities;
+		std::forward_list<detail::EntityWaterPair> waterEntities;
 
 		void notifyDeserial(Entity e);
 
 		void notifyScriptedEntity(Entity e, const std::string& scriptname, MetaNode serializer, DeserializationContext& context);
+
+		void notifyWaterEntity(Entity e, const std::vector<std::string>& k);
 	};
 }
 

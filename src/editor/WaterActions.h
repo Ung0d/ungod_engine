@@ -21,8 +21,8 @@ namespace uedit
         void loadWaterShaders(ungod::Entity e, const std::string& distortionMap,
             const std::string& fragmentShader, const std::string& vertexShader);
 
-        void addReflectionWorld(ungod::Entity e, ungod::World* world);
-        void removeReflectionWorld(ungod::Entity e, ungod::World* world);
+        void addReflectionWorld(ungod::Entity e, ungod::WorldGraphNode* node, const std::string& world);
+        void removeReflectionWorld(ungod::Entity e, ungod::WorldGraphNode* node, const std::string& world);
 
         void setWaterShaders(ungod::Entity e, bool flag);
 

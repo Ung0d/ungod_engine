@@ -28,7 +28,6 @@
 
 #include <SFML/Graphics.hpp>
 #include "ungod/serialization/SerialWater.h"
-#include <array>
 
 namespace ungod
 {
@@ -43,7 +42,6 @@ namespace ungod
     friend struct DeserialBehavior<Water>;
 
     public:
-        static constexpr int MAX_REFLECTION_WORLDS = 5;
         static constexpr float DEFAULT_DISTORTION = 0.01f;
         static constexpr float DEFAULT_FLOW = 0.1f;
         static constexpr float DEFAULT_REFLECTION_OPACITY = 0.5f;
@@ -56,7 +54,7 @@ namespace ungod
         Water(const Water& other);
 
         /** \brief Renders shaders and reflections (if activated) on top of the given tilemap. */
-        bool render(sf::RenderTarget& target, sf::RenderTexture& rendertex, const TileMap& tilemap, const sf::Texture* tilemapTex, sf::RenderStates states) const;
+        bool render(sf::RenderTarget& target, sf::RenderTexture& rendertex, const TileMap& tilemap, const sf::Texture* tilemapTex, sf::RenderStates states, const std::vector<ungod::World*>& reflectionWorlds = {}) const;
 
         void update(const Camera& cam);
 
@@ -65,10 +63,6 @@ namespace ungod
 
         /** \brief Fits to a new target size. */
         void targetsizeChanged(const sf::Vector2u& targetsize);
-
-        /** \brief Activates or deactivates the rendering of reflections of nearby world-objects. */
-        bool addReflectionWorld(World* world);
-        bool removeReflectionWorld(World* world);
 
         /** \brief Activates or deactivates the rendering of the water shaders. */
         void setShaders(bool flag);
@@ -113,8 +107,6 @@ namespace ungod
         float mDistortionFactor;
         float mFlowFactor;
         float mReflectionOpacity; 
-        
-        std::array<World*, MAX_REFLECTION_WORLDS> mReflectionWorlds;
 
     private:
         void buildDistortionTexture(const sf::Vector2u& texsize);

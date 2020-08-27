@@ -50,22 +50,22 @@ namespace ungod
 			return mEntity.get<TransformComponent>().getGlobalUpperBounds();
 		}
 
-		const sf::Vector2f& TransformHandlerFrontEnd::getUpperBounds() const
+		sf::Vector2f TransformHandlerFrontEnd::getUpperBounds() const
 		{
 			return mEntity.get<TransformComponent>().getUpperBounds();
 		}
 
-		const sf::Vector2f& TransformHandlerFrontEnd::getLowerBounds() const
+		sf::Vector2f TransformHandlerFrontEnd::getLowerBounds() const
 		{
 			return mEntity.get<TransformComponent>().getLowerBounds();
 		}
 
-		const sf::Vector2f& TransformHandlerFrontEnd::getScale() const
+		sf::Vector2f TransformHandlerFrontEnd::getScale() const
 		{
 			return mEntity.get<TransformComponent>().getScale();
 		}
 
-		const sf::Vector2f& TransformHandlerFrontEnd::getBaseLineOffsets() const
+		sf::Vector2f TransformHandlerFrontEnd::getBaseLineOffsets() const
 		{
 			return mEntity.get<TransformComponent>().getBaseLineOffsets();
 		}

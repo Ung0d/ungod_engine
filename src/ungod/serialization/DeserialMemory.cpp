@@ -37,4 +37,9 @@ namespace ungod
 	{
 		scriptEntities.emplace_front(e, scriptname, serializer, context, node->getGraph().getState().getEntityBehaviorManager().getBehaviorManager().makeInstanceEnvironment());
 	}
+
+	void DeserialMemory::notifyWaterEntity(Entity e, const std::vector<std::string>& k)
+	{
+		waterEntities.emplace_front(e, k);
+	}
 }
