@@ -98,6 +98,9 @@ namespace ungod
         /** \brief Accesses the underlying vertex array. */
         const VertexArray& getVertices() const { return mVertices; }
 
+        /** \brief Accesses the texture key. */
+        const std::string& getKey(unsigned i) const { return mKeys[i]; }
+
     private:
         VertexArray mVertices;
         std::array<std::string, VertexArray::maxTextureRectCount()> mKeys;
@@ -118,6 +121,9 @@ namespace ungod
 
         /** \brief Accesses the underlying sprite. */
         const Sprite& getSprite() const { return mSprite; }
+
+        /** \brief Accesses the texture key. */
+        const std::string& getKey() const { return mKey; }
 
     private:
         Sprite mSprite;

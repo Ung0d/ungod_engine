@@ -90,6 +90,11 @@ namespace ungod
 			mHandler.move(mEntity, offset);
 		}
 
+		sf::Vector2f TransformHandlerFrontEnd::mapToLocal(const sf::Vector2f& pos) const
+		{
+			return mEntity.get<TransformComponent>().getTransform().getInverse().transformPoint(pos);
+		}
+
         void registerTransform(ScriptStateBase& state)
         {
 			script::Usertype<TransformHandlerFrontEnd> transfHandlerFrontEndType = state.registerUsertype<TransformHandlerFrontEnd>("TransformHandlerFrontEnd");
@@ -105,6 +110,7 @@ namespace ungod
 			transfHandlerFrontEndType["setBaseLineOffsets"] = &TransformHandlerFrontEnd::setBaseLineOffsets;
 			transfHandlerFrontEndType["setScale"] = &TransformHandlerFrontEnd::setScale;
 			transfHandlerFrontEndType["move"] = &TransformHandlerFrontEnd::move;
+			transfHandlerFrontEndType["mapToLocal"] = &TransformHandlerFrontEnd::mapToLocal;
         }
     }
 }

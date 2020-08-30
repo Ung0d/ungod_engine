@@ -285,8 +285,11 @@ namespace ungod
         /** \brief Returns a list of entities that are in render range during the current frame. */
         const quad::PullResult<Entity>& getEntitiesInRenderRange() const;
 
-        /** \brief Returns the entities relativly neraby the given entity. */
-        quad::PullResult<Entity> getEntitiesNearby(Entity e) const;
+        /** \brief Returns the entities relativly neraby the given entity. If checked = true, the
+        * queried entities will be quecked for exact intersection with the target (rather than the faster
+        * may-be). */
+        quad::PullResult<Entity> getEntitiesNearby(Entity e, bool checked = true) const;
+        quad::PullResult<Entity> getEntitiesNearby(const sf::Vector2f& pos, bool checked = true) const;
 
         /** \brief Notifies the world that the given entity was serialized. */
         void notifySerialized(Entity e, MetaNode serializer, SerializationContext& context);
@@ -388,6 +391,8 @@ namespace ungod
 
         //destroys all entities queued for destruction, automatically called during update and on destruction of the world
         void destroyQueued();
+
+        void checkEntityQuery(quad::PullResult<Entity>& pull, const quad::Bounds& bounds) const;
     };
 
 

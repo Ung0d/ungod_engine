@@ -11,6 +11,8 @@
 
 namespace ungod
 {
+    class Entity;
+
     constexpr float PI = 3.14159265359f;
 
     template<typename DERIV, typename BASE>
@@ -88,6 +90,9 @@ namespace ungod
 
     //returns a vector of all filenames in a given directory
     std::vector<std::string> enumerateDirectory(const std::string& pathToDir);
+
+
+    bool isBelow(Entity l, Entity r);
 }
 
 #endif // UTILITY_H

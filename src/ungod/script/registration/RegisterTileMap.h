@@ -51,6 +51,7 @@ namespace ungod
             void setTile(int id, unsigned x, unsigned y);
             void setTileDims(unsigned tileWidth, unsigned tileHeight, script::Environment keymap);
             void addKey(const std::string& key);
+            std::string getKey(unsigned i);
             void floodFill(unsigned ix, unsigned iy, script::Environment replacementIDs);
             void setPosition(const sf::Vector2f& position);
         private:

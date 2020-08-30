@@ -83,6 +83,15 @@ namespace ungod
 			worldType["getEntityByName"] = &World::getEntityByName;
 			worldType["getGraph"] = &World::getGraph;
 			worldType["getNode"] = &World::getNode;
+			worldType["queryNearby"] = sol::overload([](World& world, Entity e)
+				{
+					quad::PullResult<Entity> pull = world.getEntitiesNearby(e);
+					return pull.getList();
+				}, [](World& world, const sf::Vector2f& pos)
+				{
+					quad::PullResult<Entity> pull = world.getEntitiesNearby(pos);
+					return pull.getList();
+				});
 			//handlers
 			worldType["getLightHandler"] = [](World& w) -> LightHandler& { return w.getLightHandler();  };
 			worldType["getParentChildHandler"] = [](World& w) -> ParentChildHandler& { return w.getParentChildHandler();  };

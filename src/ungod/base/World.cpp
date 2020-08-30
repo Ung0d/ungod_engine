@@ -214,21 +214,11 @@ namespace ungod
 
         //first step: retrieve the entities that may collide with the window
         mInUpdateRange.getList().clear();
-        mQuadTree.retrieve(mInUpdateRange, {areaPosition.x, areaPosition.y, areaSize.x, areaSize.y} );
+        quad::Bounds bounds{ areaPosition.x, areaPosition.y, areaSize.x, areaSize.y };
+        mQuadTree.retrieve(mInUpdateRange, bounds);
 
         //second step: sort out the entities, that are not in the update area
-        auto removalCondition = [areaPosition, areaSize](Entity entity)
-        {
-             const TransformComponent& t = entity.get<TransformComponent>();
-
-             return !(t.getPosition().x <= areaPosition.x + areaSize.x &&
-                      t.getPosition().x + t.getSize().x >= areaPosition.x &&
-                      t.getPosition().y <= areaPosition.y + areaSize.y &&
-                      t.getPosition().y + t.getSize().y >= areaPosition.y);
-        };
-        mInUpdateRange.getList().erase(std::remove_if( mInUpdateRange.getList().begin(),
-                                               mInUpdateRange.getList().end(),
-                                               removalCondition), mInUpdateRange.getList().end());
+        checkEntityQuery(mInUpdateRange, bounds);
 
         mEntityBehaviorHandler.update(mInUpdateRange.getList(), delta);
         mMovementHandler.update(mInUpdateRange.getList(), delta);
@@ -388,11 +378,24 @@ namespace ungod
         return mRenderedEntities;
     }
 
-    quad::PullResult<Entity> World::getEntitiesNearby(Entity e) const
+    quad::PullResult<Entity> World::getEntitiesNearby(Entity e, bool checked) const
     {
         quad::PullResult<Entity> pull;
         TransformComponent& t = e.modify<TransformComponent>();
-        mQuadTree.retrieve(pull, {t.getPosition().x, t.getPosition().y, t.getSize().x, t.getSize().y} );
+        quad::Bounds bounds{ t.getPosition().x, t.getPosition().y, t.getSize().x, t.getSize().y };
+        mQuadTree.retrieve(pull, bounds );
+        if (checked)
+            checkEntityQuery(pull, bounds);
+        return pull;
+    }
+
+    quad::PullResult<Entity> World::getEntitiesNearby(const sf::Vector2f& pos, bool checked) const
+    {
+        quad::PullResult<Entity> pull;
+        quad::Bounds bounds{ pos.x, pos.y, 1.0f, 1.0f };
+        mQuadTree.retrieve(pull, bounds);
+        if (checked)
+            checkEntityQuery(pull, bounds);
         return pull;
     }
 
@@ -480,5 +483,21 @@ namespace ungod
             e.mHandle.destroy();
         }
         mEntitiesToDestroy.clear();
+    }
+
+    void World::checkEntityQuery(quad::PullResult<Entity>& pull, const quad::Bounds& bounds) const
+    {
+        auto removalCondition = [bounds](Entity entity)
+        {
+            const TransformComponent& t = entity.get<TransformComponent>();
+
+            return !(t.getPosition().x <= bounds.position.x + bounds.size.x &&
+                t.getPosition().x + t.getSize().x >= bounds.position.x &&
+                t.getPosition().y <= bounds.position.y + bounds.size.y &&
+                t.getPosition().y + t.getSize().y >= bounds.position.y);
+        };
+        pull.getList().erase(std::remove_if(pull.getList().begin(),
+            pull.getList().end(),
+            removalCondition), pull.getList().end());
     }
 }

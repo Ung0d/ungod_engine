@@ -29,6 +29,7 @@
 #include "ungod/content/particle_system/ParticleSystem.h"
 #include "ungod/visual/Visual.h"
 #include "ungod/application/Application.h"
+#include "ungod/base/Utility.h"
 
 namespace ungod
 {
@@ -66,29 +67,7 @@ namespace ungod
                                                removalCondition), pull.getList().end());
 
         //third step: depth sorting
-        auto depthSorting = [](Entity l, Entity r)
-        {
-            //TRUE == "left is rendered FIRST, right after"
-
-            const TransformComponent& left = l.get<TransformComponent>();
-            const TransformComponent& right = r.get<TransformComponent>();
-
-            //test if right.rightAnchor is RIGHT of the line between the two anchors of left
-            sf::Vector2 lla = left.getLeftAnchor();
-            sf::Vector2 lra = left.getRightAnchor();
-            sf::Vector2 rla = right.getLeftAnchor();
-            sf::Vector2 rra = right.getRightAnchor();
-
-            /*if (sign(lra, rra ,lla) > 0 && sign(lra, rla ,lla) > 0)
-                return true;
-
-            if (sign(rra, lra ,rla) >= 0 && sign(rra, lla ,rla) >= 0)
-                return false;*/
-
-            return std::max(rra.y, rla.y) > std::max(lla.y, lra.y);
-        };
-
-        pull.getList().sort(depthSorting);
+        pull.getList().sort(isBelow);
     }
 
 

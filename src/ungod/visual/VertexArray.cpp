@@ -213,4 +213,14 @@ namespace ungod
     {
         return mVertices[i * 4u].texCoords.y > mVertices[i * 4u + 3].texCoords.y;
     }
+
+    int VertexArray::getRectIndex(const sf::Vector2f& pos) const
+    {
+        for (int i = 0; i < mRectsUsed; i++)
+        {
+            if (getBounds(i).contains(pos))
+                return i;
+        }
+        return -1;
+    }
 }

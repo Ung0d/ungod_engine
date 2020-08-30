@@ -52,6 +52,7 @@ namespace ungod
 			void setScale(const sf::Vector2f& scale);
 			void setBaseLineOffsets(const sf::Vector2f& offsets);
 			void move(const sf::Vector2f& offset);
+			sf::Vector2f mapToLocal(const sf::Vector2f& pos) const;
 
 		private:
 			Entity& mEntity;

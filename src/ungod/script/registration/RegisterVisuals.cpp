@@ -39,6 +39,11 @@ namespace ungod
 			return mEntity.get<VisualsComponent>().isLoaded();
 		}
 
+		std::string VisualHandlerFrontEnd::getFilePath() const
+		{
+			return mEntity.get<VisualsComponent>().getFilePath();
+		}
+
 		bool VisualHandlerFrontEnd::isVisible() const
 		{
 			return mEntity.get<VisualsComponent>().isVisible();
@@ -114,6 +119,16 @@ namespace ungod
 			mHandler.setArrayRectColor(mEntity, color, index);
 		}
 
+		std::string VisualHandlerFrontEnd::getVertexTextureKey(unsigned index)
+		{
+			return mEntity.get<VertexArrayComponent>().getKey(index);
+		}
+
+		int VisualHandlerFrontEnd::getVertexRectIndex(const sf::Vector2f& pos)
+		{
+			return mEntity.get<VertexArrayComponent>().getVertices().getRectIndex(pos);
+		}
+
 		const sf::Vector2f& VisualHandlerFrontEnd::getPoint(unsigned rectIndex, unsigned pointIndex)
 		{
 			return mHandler.getPoint(mEntity, rectIndex, pointIndex);
@@ -187,6 +202,16 @@ namespace ungod
 		sf::FloatRect VisualHandlerFrontEnd::getSpriteUntransformedBounds(unsigned index) const
 		{
 			return mEntity.get<MultiSpriteComponent>().getComponent(index).getSprite().getUntransformedBounds();
+		}
+
+		std::string VisualHandlerFrontEnd::getSpriteTextureKey() const
+		{
+			return mEntity.get<SpriteComponent>().getKey();
+		}
+
+		std::string VisualHandlerFrontEnd::getSpriteTextureKey(unsigned index) const
+		{
+			return mEntity.get<MultiSpriteComponent>().getComponent(index).getKey();
 		}
 
 		void VisualHandlerFrontEnd::setSpriteTextureRect(const sf::FloatRect& rect) 
@@ -489,6 +514,7 @@ namespace ungod
         {
 			script::Usertype<VisualHandlerFrontEnd> visualsHandlerType = state.registerUsertype<VisualHandlerFrontEnd>("VisualHandlerFrontEnd");
 			visualsHandlerType["isLoaded"] = &VisualHandlerFrontEnd::isLoaded;
+			visualsHandlerType["getFilePath"] = &VisualHandlerFrontEnd::getFilePath;
 			visualsHandlerType["isVisible"] = &VisualHandlerFrontEnd::isVisible;
 			visualsHandlerType["setVisible"] = &VisualHandlerFrontEnd::setVisible;
 			visualsHandlerType["getOpacity"] = &VisualHandlerFrontEnd::getOpacity;
@@ -502,8 +528,10 @@ namespace ungod
 			visualsHandlerType["setVertexPoints"] = &VisualHandlerFrontEnd::setVertexPoints;
 			visualsHandlerType["newVertexTextureRect"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.newVertexTextureRect(); },
 																[](VisualHandlerFrontEnd& vh, const sf::FloatRect& rect) { return vh.newVertexTextureRect(rect); },
-																[](VisualHandlerFrontEnd& vh, const std::string& key) { return vh.newVertexTextureRect(key); });
+																[](VisualHandlerFrontEnd& vh, const std::string& key) { return vh.newVertexTextureRect(key); }); 
 			visualsHandlerType["setVertexRectColor"] = &VisualHandlerFrontEnd::setVertexRectColor;
+			visualsHandlerType["getVertexTextureKey"] = &VisualHandlerFrontEnd::getVertexTextureKey;
+			visualsHandlerType["getVertexRectIndex"] = &VisualHandlerFrontEnd::getVertexRectIndex;
 			visualsHandlerType["getPoint"] = &VisualHandlerFrontEnd::getPoint;
 			visualsHandlerType["getSpritePosition"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpritePosition(); },
 																	[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.getSpritePosition(index); });
@@ -519,6 +547,8 @@ namespace ungod
 																[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.getSpriteBounds(index); });
 			visualsHandlerType["getSpriteUntransformedBounds"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpriteUntransformedBounds(); },
 																				[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.getSpriteUntransformedBounds(index); });
+			visualsHandlerType["getSpriteTextureKey"] = sol::overload([](VisualHandlerFrontEnd& vh) { return vh.getSpriteTextureKey(); },
+																				[](VisualHandlerFrontEnd& vh, unsigned index) { return vh.getSpriteTextureKey(index); });
 			visualsHandlerType["setSpriteTextureRect"] = sol::overload([](VisualHandlerFrontEnd& vh, const sf::FloatRect& rect) { vh.setSpriteTextureRect(rect); },
 																		[](VisualHandlerFrontEnd& vh, const sf::FloatRect& rect, unsigned index) { vh.setSpriteTextureRect(rect, index); },
 																		[](VisualHandlerFrontEnd& vh, const std::string& key) { vh.setSpriteTextureRect(key); },

@@ -56,8 +56,7 @@ namespace ungod
 
 		int TileMapHandlerFrontEnd::getTileID(const sf::Vector2f& pos) const
 		{
-			sf::Vector2f posLocal = mEntity.get<TransformComponent>().getTransform().getInverse().transformPoint(pos);
-			return mEntity.get<TileMapComponent>().getTileMap().getTileID(posLocal);
+			return mEntity.get<TileMapComponent>().getTileMap().getTileID(pos);
 		}
 
 		void TileMapHandlerFrontEnd::setTiles(script::Environment tiles, unsigned mapX, unsigned mapY)
@@ -91,6 +90,11 @@ namespace ungod
 			mHandler.addKey(mEntity, key);
 		}
 
+		std::string TileMapHandlerFrontEnd::getKey(unsigned i)
+		{
+			return mEntity.get<TileMapComponent>().getTileMap().getKeyMap().at(i);
+		}
+
 		void TileMapHandlerFrontEnd::floodFill(unsigned ix, unsigned iy, script::Environment replacementIDs)
 		{
 			mHandler.floodFillTileMap(mEntity, ix, iy, env2vec<int>(replacementIDs));
@@ -114,6 +118,7 @@ namespace ungod
 			tmHandlerType["setZeroTiles"] = &TileMapHandlerFrontEnd::setZeroTiles;
 			tmHandlerType["setTile"] = &TileMapHandlerFrontEnd::setTile;
 			tmHandlerType["addKey"] = &TileMapHandlerFrontEnd::addKey;
+			tmHandlerType["getKey"] = &TileMapHandlerFrontEnd::getKey;
 			tmHandlerType["setTileDims"] = &TileMapHandlerFrontEnd::setTileDims;
 			tmHandlerType["floodfill"] = &TileMapHandlerFrontEnd::floodFill;
 			tmHandlerType["setPosition"] = &TileMapHandlerFrontEnd::setPosition;

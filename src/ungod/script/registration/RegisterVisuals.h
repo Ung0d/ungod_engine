@@ -44,6 +44,7 @@ namespace ungod
         public:
             VisualHandlerFrontEnd(Entity& e, VisualsHandler& h) : mEntity(e), mHandler(h) {}
             bool isLoaded() const;
+            std::string getFilePath() const;
             bool isVisible() const;
             void setVisible(bool visible);
             float getOpacity() const;
@@ -59,6 +60,8 @@ namespace ungod
             void setVertexPoints(unsigned index, const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3, const sf::Vector2f& p4);
             bool newVertexTextureRect();
             void setVertexRectColor(const sf::Color& color, unsigned index);
+            std::string getVertexTextureKey(unsigned index);
+            int getVertexRectIndex(const sf::Vector2f& pos);
             const sf::Vector2f& getPoint(unsigned rectIndex, unsigned pointIndex);
             const sf::Vector2f& getSpritePosition() const;
             const sf::Vector2f& getSpritePosition(unsigned index) const;
@@ -74,6 +77,8 @@ namespace ungod
             sf::FloatRect getSpriteBounds(unsigned index) const;
             sf::FloatRect getSpriteUntransformedBounds() const;
             sf::FloatRect getSpriteUntransformedBounds(unsigned index) const;
+            std::string getSpriteTextureKey() const;
+            std::string getSpriteTextureKey(unsigned index) const;
             void setSpriteTextureRect(const sf::FloatRect& rect);
             void setSpriteTextureRect(const sf::FloatRect& rect, unsigned index);
             void setSpriteTextureRect(const std::string& key);

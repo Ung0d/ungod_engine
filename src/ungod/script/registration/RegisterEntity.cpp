@@ -26,6 +26,7 @@
 #include "ungod/script/Registration.h"
 #include "ungod/physics/CollisionContexts.h"
 #include "ungod/base/World.h"
+#include "ungod/base/Utility.h"
 
 namespace ungod
 {
@@ -159,6 +160,8 @@ namespace ungod
 			remType["tilemap"] = &Rem::rem<TileMapComponent>;
 			remType["water"] = &Rem::rem<WaterComponent>;
 			remType["particleSystem"] = &Rem::rem<ParticleSystemComponent>;
+
+			state.registerFunction("isBelow", &ungod::isBelow);
 		}
 	}
 }

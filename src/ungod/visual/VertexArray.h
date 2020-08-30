@@ -100,6 +100,11 @@ namespace ungod
         bool isFlippedX(unsigned i) const;
         bool isFlippedY(unsigned i) const;
 
+        /** \brief Maps a position in entity local coordinates to the corresponding rect index. 
+        * If the position intersects multiple rects, the rect with lowest index is returned. If no rect contains 
+        * the given position, -1 is returned. */
+        int getRectIndex(const sf::Vector2f& pos) const;
+
     private:
         std::array<sf::Vertex, 4 * MAX_NUM_RECT> mVertices;
         unsigned mRectsUsed;

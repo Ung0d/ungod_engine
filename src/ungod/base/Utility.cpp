@@ -2,6 +2,8 @@
 #include <time.h>
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
+#include "ungod/base/Entity.h"
+#include "ungod/base/Transform.h"
 
 namespace ungod
 {
@@ -55,4 +57,27 @@ namespace ungod
 
         return enumFiles;
     }
+
+
+    bool isBelow(Entity l, Entity r)
+    {
+        //TRUE == "left is rendered FIRST, right after"
+
+        const TransformComponent& left = l.get<TransformComponent>();
+        const TransformComponent& right = r.get<TransformComponent>();
+
+        //test if right.rightAnchor is RIGHT of the line between the two anchors of left
+        sf::Vector2 lla = left.getLeftAnchor();
+        sf::Vector2 lra = left.getRightAnchor();
+        sf::Vector2 rla = right.getLeftAnchor();
+        sf::Vector2 rra = right.getRightAnchor();
+
+        /*if (sign(lra, rra ,lla) > 0 && sign(lra, rla ,lla) > 0)
+            return true;
+
+        if (sign(rra, lra ,rla) >= 0 && sign(rra, lla ,rla) >= 0)
+            return false;*/
+
+        return std::max(rra.y, rla.y) > std::max(lla.y, lra.y);
+    };
 }
