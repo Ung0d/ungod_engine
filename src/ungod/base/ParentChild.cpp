@@ -107,6 +107,18 @@ namespace ungod
     }
 
 
+    void ParentChildHandler::setPositionTracking(Entity child, bool active)
+    {
+        child.modify<ChildComponent>().mTrackPosition = active;
+    }
+
+
+    void ParentChildHandler::setScaleTracking(Entity child, bool active)
+    {
+        child.modify<ChildComponent>().mTrackScale = active;
+    }
+
+
     void ParentChildHandler::updateAllChildPositions(Entity e)
     {
         const ParentComponent& pc = e.get<ParentComponent>();
@@ -127,7 +139,8 @@ namespace ungod
     {
         const TransformComponent& tc = e.get<TransformComponent>();
         const ChildComponent& cc = child.get<ChildComponent>();
-        mWorld->getTransformHandler().setPosition(child, cc.getPosition() + tc.getPosition());
+        if (cc.mTrackPosition)
+            mWorld->getTransformHandler().setPosition(child, cc.getPosition() + tc.getPosition());
     }
 
 
@@ -135,6 +148,7 @@ namespace ungod
     {
         const TransformComponent& tc = e.get<TransformComponent>();
         const ChildComponent& cc = child.get<ChildComponent>();
-        mWorld->getTransformHandler().setScale(child, {cc.getScale().x * tc.getScale().x, cc.getScale().y * tc.getScale().y});
+        if (cc.mTrackScale)
+             mWorld->getTransformHandler().setScale(child, {cc.getScale().x * tc.getScale().x, cc.getScale().y * tc.getScale().y});
     }
 }

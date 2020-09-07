@@ -76,10 +76,17 @@ namespace ungod
             if (meta.isLoaded())
             {
                 animations.resize(numAnim);
-                for (auto& a : animations)
+                if (numAnim > 1)
                 {
-                    a.animation.startAnimation(meta, key, a.vertices);
-                    a.animation.setFrame( NumberGenerator::getRandBetw(0, a.animation.getFrameCount()-1), a.vertices);
+                    for (auto& a : animations)
+                    {
+                        a.animation.startAnimation(meta, key, a.vertices);
+                        a.animation.setFrame(NumberGenerator::getRandBetw(0, a.animation.getFrameCount() - 1), a.vertices);
+                    }
+                }
+                else
+                {
+                    animations.back().animation.startAnimation(meta, key, animations.back().vertices);
                 }
             }
         }

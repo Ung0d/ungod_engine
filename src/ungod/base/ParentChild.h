@@ -59,7 +59,7 @@ namespace ungod
     {
     friend class ParentChildHandler;
     public:
-        ChildComponent() = default;
+        ChildComponent() : mTrackPosition(true), mTrackScale(true) {}
         ChildComponent(const ChildComponent& other);
 
         const sf::Vector2f& getPosition() const;
@@ -69,6 +69,8 @@ namespace ungod
     private:
         Entity mParent;
         sf::Transformable mChildTransform; //< defines local coordinate system for the child, is applied on top of the parents transform
+        bool mTrackPosition;
+        bool mTrackScale;
     };
 
     /** \brief A manager structure that handles all operations on ParentChildComponents. */
@@ -89,6 +91,12 @@ namespace ungod
 
         /** \brief Sets the local child scale. */
         void setChildScale(Entity child, const sf::Vector2f& scale);
+
+        /** \brief Enables or disables the position tracking for the given child. */
+        void setPositionTracking(Entity child, bool active);
+
+        /** \brief Enables or disables the scale tracking for the given child. */
+        void setScaleTracking(Entity child, bool active);
 
     private:
         World* mWorld;

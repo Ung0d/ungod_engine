@@ -90,6 +90,8 @@ namespace ungod
 
         bool valid() const;
 
+        explicit operator bool() const { return valid(); }
+
     private:
         std::pair<const std::string, SoundProfile>* mIter;
     };

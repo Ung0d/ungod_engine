@@ -85,7 +85,8 @@ namespace ungod
 
         void registerAudio(ScriptStateBase& state)
         {
-            state.registerUsertype<ProfileHandle>("SoundProfileHandle");
+			script::Usertype<ProfileHandle> profileType = state.registerUsertype<ProfileHandle>("SoundProfileHandle");
+			profileType["valid"] = &ProfileHandle::valid;
 
 			script::Usertype<MusicManager> mmType = state.registerUsertype<MusicManager>("MusicManager");
 			mmType["loadMusic"] = &MusicManager::loadMusic;

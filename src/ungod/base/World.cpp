@@ -147,13 +147,9 @@ namespace ungod
         {
             for (const auto& entry : deserialMemory->scriptEntities) //assign scripts first!
             {
-                mEntityBehaviorHandler.assignBehavior(entry.entity, entry.script, entry.initParam);
+                mEntityBehaviorHandler.assignBehavior(entry.entity, entry.script, entry.initParam, false);
                 mEntityDeserializedSignal(entry.entity, entry.node, entry.context);
             }
-            /*for (const auto& entity : deserialMemory->all) //signals may invoke script calls!
-            {
-                mEntityCreationSignal(entity);
-            } */
             for (const auto& entry : deserialMemory->scriptEntities) 
             {
                 mEntityBehaviorHandler.initBehavior(entry.entity);

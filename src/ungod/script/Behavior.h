@@ -179,7 +179,7 @@ namespace ungod
 
             /** \brief Returns a new instance. */
             template <typename ... INIT_PARAM>
-            BehaviorPtr<INIT_PARAM...> makeInstance(script::Environment parent, std::size_t constructIndex, std::size_t exitIndex, INIT_PARAM&& ... param);
+            BehaviorPtr<INIT_PARAM...> makeInstance(script::Environment parent, std::size_t constructIndex, std::size_t exitIndex, bool callConstruct, INIT_PARAM&& ... param);
 
             /** \brief Sets up internal cache. */
             void init(NamedEnvironment global, const IdentifierLookup& callbackIdentifiers);
@@ -208,7 +208,7 @@ namespace ungod
 
             /** \brief Returns a new instance. */
             template <typename ... INIT_PARAM>
-            StateBehaviorPtr<INIT_PARAM...> makeInstance(script::Environment parent, std::size_t constructIndex, std::size_t exitIndex, INIT_PARAM&& ... param);
+            StateBehaviorPtr<INIT_PARAM...> makeInstance(script::Environment parent, std::size_t constructIndex, std::size_t exitIndex, bool callConstruct, INIT_PARAM&& ... param);
 
             const std::string& getInitState() const { return mInitState; }
 
@@ -239,7 +239,7 @@ namespace ungod
         std::size_t mExitIndex; ///< index of the "state exit" method
 
     public:
-        Behavior(detail::MetaBehavior* meta, const detail::RefInstanceCache& global, std::size_t constructIndex, std::size_t exitIndex, INIT_PARAM&& ... param);
+        Behavior(detail::MetaBehavior* meta, const detail::RefInstanceCache& global, std::size_t constructIndex, std::size_t exitIndex, bool callConstruct, INIT_PARAM&& ... param);
 
     public:
         Behavior(const Behavior&) = delete;
@@ -287,7 +287,7 @@ namespace ungod
         ///NOTE that since StateBehavior will ALWAYS be initialized with a valid MetaSTATEBehavior ptr, we could safely
         //cast the internal pointer to the MetaBehavior to MetaStateBehavior if needed
         StateBehavior(detail::MetaStateBehavior* meta, const detail::RefInstanceCache& global, detail::StateMap statemap, 
-                      std::size_t constructIndex, std::size_t exitIndex, INIT_PARAM&& ... param);
+                      std::size_t constructIndex, std::size_t exitIndex, bool callConstruct, INIT_PARAM&& ... param);
 
     private:
         void internalStateChange(detail::InstanceCache* newState, std::size_t initIndex, std::size_t exitIndex, INIT_PARAM&& ... param);
@@ -409,13 +409,13 @@ namespace ungod
         * An appropriate meta behavior must be loaded beforehand. The return value follows std::optional semantics and contains a
         * valid result, if and only if the key was found. InstanceEnv must be a valid environment where a subtable for the
         * behavior data can be created. The parent environment must be unique to the instance. */
-        BehaviorPtr<INIT_PARAM...> makeBehavior(const std::string& key, script::Environment instanceEnv, INIT_PARAM ... param) const;
+        BehaviorPtr<INIT_PARAM...> makeBehavior(const std::string& key, script::Environment instanceEnv, bool callConstruct, INIT_PARAM ... param) const;
 
         /** \brief Returns a fresh instance of a state-behavior based on the meta state-behavior that is stored under the given string.
         * An appropriate meta state-behavior must be loaded beforehand. The return value follows std::optional semantics and contains a
         * valid result, if and only if the key was found. InstanceEnv must be a valid environment where a subtable for the
         * behavior data can be created. The parent environment must be unique to the instance. */
-        StateBehaviorPtr<INIT_PARAM...> makeStateBehavior(const std::string& key, script::Environment instanceEnv, INIT_PARAM ... param) const;
+        StateBehaviorPtr<INIT_PARAM...> makeStateBehavior(const std::string& key, script::Environment instanceEnv, bool callConstruct, INIT_PARAM ... param) const;
 
         /** \brief Accesses a static variable of the given behavior. Call is safe. Returned optional value is empty if not found. */
         template<typename T>
@@ -571,15 +571,15 @@ namespace ungod
         }
 
         template <typename ... INIT_PARAM>
-        BehaviorPtr<INIT_PARAM...> MetaBehavior::makeInstance(script::Environment parent, std::size_t constructIndex, std::size_t exitIndex, INIT_PARAM&& ... param)
+        BehaviorPtr<INIT_PARAM...> MetaBehavior::makeInstance(script::Environment parent, std::size_t constructIndex, std::size_t exitIndex, bool callConstruct, INIT_PARAM&& ... param)
         {
             RefInstanceCache ic(mGlobal);
             ic.init(parent);
-            return std::make_shared<Behavior<INIT_PARAM...>>(this, ic, constructIndex, exitIndex, std::forward<INIT_PARAM>(param)... );
+            return std::make_shared<Behavior<INIT_PARAM...>>(this, ic, constructIndex, exitIndex, callConstruct, std::forward<INIT_PARAM>(param)... );
         }
 
         template <typename ... INIT_PARAM>
-        StateBehaviorPtr<INIT_PARAM...> MetaStateBehavior::makeInstance(script::Environment parent, std::size_t constructIndex, std::size_t exitIndex, INIT_PARAM&& ... param)
+        StateBehaviorPtr<INIT_PARAM...> MetaStateBehavior::makeInstance(script::Environment parent, std::size_t constructIndex, std::size_t exitIndex, bool callConstruct, INIT_PARAM&& ... param)
         {
             RefInstanceCache iglobal(mGlobal);
             iglobal.init(parent);
@@ -590,7 +590,7 @@ namespace ungod
             }
             StateBehaviorPtr<INIT_PARAM...> sbptr = std::make_shared<StateBehavior<INIT_PARAM...>>(
                         this, iglobal, std::move(statemap), constructIndex, 
-                            exitIndex, std::forward<INIT_PARAM>(param)...);
+                            exitIndex, callConstruct, std::forward<INIT_PARAM>(param)...);
             parent["states"] = sbptr.get();
             return sbptr;
         }
@@ -598,11 +598,12 @@ namespace ungod
 
 
     template <typename ... INIT_PARAM>
-    Behavior<INIT_PARAM...>::Behavior(detail::MetaBehavior* meta, const detail::RefInstanceCache& global, std::size_t constructIndex, std::size_t exitIndex, INIT_PARAM&& ... param)
+    Behavior<INIT_PARAM...>::Behavior(detail::MetaBehavior* meta, const detail::RefInstanceCache& global, std::size_t constructIndex, std::size_t exitIndex, bool callConstruct, INIT_PARAM&& ... param)
         : mMeta(meta), mGlobal(global), mExitIndex(exitIndex)
     {
         mGlobal.ref(std::forward<INIT_PARAM>(param)...);
-        mGlobal.execute(constructIndex, std::forward<INIT_PARAM>(param)...);
+        if (callConstruct)
+            mGlobal.execute(constructIndex, std::forward<INIT_PARAM>(param)...);
     }
 
     template <typename ... INIT_PARAM>
@@ -662,14 +663,13 @@ namespace ungod
 
     template <typename ... INIT_PARAM>
     StateBehavior<INIT_PARAM...>::StateBehavior(detail::MetaStateBehavior* meta, const detail::RefInstanceCache& global, detail::StateMap statemap,
-                                                std::size_t constructIndex, std::size_t exitIndex, INIT_PARAM&& ... param)
-        : Behavior<INIT_PARAM...>(meta, global, constructIndex, exitIndex, std::forward<INIT_PARAM>(param)...), mStates(statemap), mCurrent(&detail::InstanceCache::null()), mLast(&detail::InstanceCache::null())
+                                                std::size_t constructIndex, std::size_t exitIndex, bool callConstruct, INIT_PARAM&& ... param)
+        : Behavior<INIT_PARAM...>(meta, global, constructIndex, exitIndex, callConstruct, std::forward<INIT_PARAM>(param)...), mStates(statemap), mCurrent(&detail::InstanceCache::null()), mLast(&detail::InstanceCache::null())
     {
         //call the contruct method for every state
-        for (auto& ic : mStates)
-        {
-            ic.second.execute(constructIndex, std::forward<INIT_PARAM>(param)...);
-        }
+        if (callConstruct)
+            for (auto& ic : mStates)
+                ic.second.execute(constructIndex, std::forward<INIT_PARAM>(param)...);
     }
 
     template <typename ... INIT_PARAM>
@@ -952,24 +952,24 @@ namespace ungod
 
 
     template <typename ... INIT_PARAM>
-    BehaviorPtr<INIT_PARAM...> BehaviorManager<INIT_PARAM...>::makeBehavior(const std::string& key, script::Environment instanceEnv, INIT_PARAM ... param) const
+    BehaviorPtr<INIT_PARAM...> BehaviorManager<INIT_PARAM...>::makeBehavior(const std::string& key, script::Environment instanceEnv, bool callConstruct, INIT_PARAM ... param) const
     {
         auto res = mBehaviors.find(key);
         if (res != mBehaviors.end())
         {
-            return res->second->makeInstance(instanceEnv, mConstructIndex, mExitIndex, std::forward<INIT_PARAM>(param)...);
+            return res->second->makeInstance(instanceEnv, mConstructIndex, mExitIndex, callConstruct, std::forward<INIT_PARAM>(param)...);
         }
         return BehaviorPtr<INIT_PARAM...>();
     }
 
 
     template <typename ... INIT_PARAM>
-    StateBehaviorPtr<INIT_PARAM...> BehaviorManager<INIT_PARAM...>::makeStateBehavior(const std::string& key, script::Environment instanceEnv, INIT_PARAM ... param) const
+    StateBehaviorPtr<INIT_PARAM...> BehaviorManager<INIT_PARAM...>::makeStateBehavior(const std::string& key, script::Environment instanceEnv, bool callConstruct, INIT_PARAM ... param) const
     {
         auto res = mStateBehaviors.find(key);
         if (res != mStateBehaviors.end())
         {
-            return res->second->makeInstance(instanceEnv, mConstructIndex, mExitIndex, std::forward<INIT_PARAM>(param)...);
+            return res->second->makeInstance(instanceEnv, mConstructIndex, mExitIndex, callConstruct, std::forward<INIT_PARAM>(param)...);
         }
         else
             ungod::Logger::error("Can not find a behavior " + key + ". Did you forget to load it?");

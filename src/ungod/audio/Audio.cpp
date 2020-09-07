@@ -88,10 +88,7 @@ namespace ungod
         if (res != mSoundProfiles.end())
             return &(*(res));
         else
-        {
-            Logger::warning("Can not find a sound profile named", key);
             return {};
-        }
     }
 
     void SoundProfileManager::initSounds(const std::string& key, std::size_t num)

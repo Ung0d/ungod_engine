@@ -138,25 +138,25 @@ namespace ungod
         mEventHandler.handleCustomEvent(event);
     }
 
-    void EntityBehaviorHandler::assignBehavior(Entity e, const std::string& key)
+    void EntityBehaviorHandler::assignBehavior(Entity e, const std::string& key, bool callConstruct)
     {
         //assign a previously loaded behavior
         script::Environment instance = mWorld->getState()->getEntityBehaviorManager().getBehaviorManager().makeInstanceEnvironment();
         instance["entity"] = e;
-        e.modify<EntityBehaviorComponent>().mBehavior = mWorld->getState()->getEntityBehaviorManager().getBehaviorManager().makeStateBehavior(key, instance);
+        e.modify<EntityBehaviorComponent>().mBehavior = mWorld->getState()->getEntityBehaviorManager().getBehaviorManager().makeStateBehavior(key, instance, callConstruct);
 
         //track entity if it has no transform
         if (!e.has<TransformComponent>())
             mMetaEntities.emplace(e);
     }
 
-    void EntityBehaviorHandler::assignBehavior(Entity e, const std::string& key, script::Environment param)
+    void EntityBehaviorHandler::assignBehavior(Entity e, const std::string& key, script::Environment param, bool callConstruct)
     {
         //assign a previously loaded behavior
         script::Environment instance = mWorld->getState()->getEntityBehaviorManager().getBehaviorManager().makeInstanceEnvironment();
         instance["entity"] = e;
         embedEnv(param, instance);
-        e.modify<EntityBehaviorComponent>().mBehavior = mWorld->getState()->getEntityBehaviorManager().getBehaviorManager().makeStateBehavior(key, instance);
+        e.modify<EntityBehaviorComponent>().mBehavior = mWorld->getState()->getEntityBehaviorManager().getBehaviorManager().makeStateBehavior(key, instance, callConstruct);
 
         //track entity if it has no transform
         if (!e.has<TransformComponent>())

@@ -39,7 +39,7 @@ namespace ungod
     class ParticleSystem;
     class ParticleFunctorMaster;
 
-    /** \brief Data for the DirectionalForce affector. */
+    /** \brief Universal particle emitter with a large set of possibilities. */
     class UniversalEmitter : public BaseFunctorData<const ParticleFunctorMaster&>
     {
      friend struct SerialBehavior<UniversalEmitter, const ParticleFunctorMaster&>;

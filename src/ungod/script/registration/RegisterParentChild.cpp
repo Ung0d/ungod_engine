@@ -42,7 +42,9 @@ namespace ungod
             state.registerUsertype<ParentChildHandler>("ParentChildHandler",
                                                     "addChild", &ParentChildHandler::addChild,
                                                     "setChildPosition", &ParentChildHandler::setChildPosition,
-                                                    "setChildScale", &ParentChildHandler::setChildScale);
+                                                    "setChildScale", &ParentChildHandler::setChildScale,
+                                                    "setPositionTracking", &ParentChildHandler::setPositionTracking,
+                                                    "setScaleTracking", &ParentChildHandler::setScaleTracking);
         }
     }
 }

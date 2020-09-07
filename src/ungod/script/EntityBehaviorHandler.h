@@ -187,8 +187,8 @@ namespace ungod
         void handleCustomEvent(const CustomEvent& event);
 
         /** \brief Assigns a behavior to the given entity. The behavior must be already loaded. */
-        void assignBehavior(Entity e, const std::string& name);
-        void assignBehavior(Entity e, const std::string& name, script::Environment param);
+        void assignBehavior(Entity e, const std::string& name, bool callConstruct = true);
+        void assignBehavior(Entity e, const std::string& name, script::Environment param, bool callConstruct = true);
 
         /** \brief Registers a script parameter for serialization. */
         template<typename T>
