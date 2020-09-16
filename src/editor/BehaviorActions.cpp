@@ -31,13 +31,17 @@ namespace uedit
         mActionManager.action(std::function([this, e, name, param]()
             {
                 e.getWorld().getBehaviorHandler().assignBehavior(e, name, param);
+                e.getWorld().getBehaviorHandler().initBehavior(e);
             }),
             std::function([this, e, oldScript]()
                 {
                     if (oldScript == "")
                         e.getWorld().getBehaviorHandler().dissociateBehavior(e);
                     else
+                    {
                         e.getWorld().getBehaviorHandler().assignBehavior(e, oldScript);
+                        e.getWorld().getBehaviorHandler().initBehavior(e);
+                    }
                 }));
     }
 }

@@ -430,7 +430,8 @@ namespace ungod
     {
         auto result = deserializer.getAttributes<bool, std::string>
                 ({ "running", false }, {"key", ""});
-        e.getWorld().getVisualsHandler().setAnimationState(e, std::get<1>(result));
+        if (std::get<1>(result) != "")
+            e.getWorld().getVisualsHandler().setAnimationState(e, std::get<1>(result));
         e.getWorld().getVisualsHandler().setRunning(e, std::get<0>(result));
     }
 
@@ -648,58 +649,66 @@ namespace ungod
 
         for (const auto& p : data.mParam)
         {
-            context.serializeObject("p", *p, serializer, script::Environment(env));
+            context.serializeObject("p", *p, serializer, script::Environment(env), 
+                script::SharedState{ e.getWorld().getGraph().getState().getEntityBehaviorManager().getBehaviorManager().getSharedState() });
         }
     }
 
     void DeserialBehavior<BehaviorParameterComponent, Entity, DeserialMemory&>::deserialize(
         BehaviorParameterComponent& data, MetaNode deserializer, DeserializationContext& context, Entity e, DeserialMemory& deserialmemory)
     {
-        context.instantiate<detail::BehaviorParameter<std::string>>([&data]()
-            {
-                return new detail::BehaviorParameter<std::string>{};
-            }, script::Environment{ deserialmemory.scriptEntities.front().initParam });
-        context.instantiate<detail::BehaviorParameter<float>>([&data]()
-            {
-                return new detail::BehaviorParameter<float>{};
-            }, script::Environment{ deserialmemory.scriptEntities.front().initParam });
-        context.instantiate<detail::BehaviorParameter<int>>([&data]()
-            {
-                return new detail::BehaviorParameter<int>{};
-            }, script::Environment{ deserialmemory.scriptEntities.front().initParam });
-        context.instantiate<detail::BehaviorParameter<bool>>([&data]()
-            {
-                return new detail::BehaviorParameter<bool>{};
-            }, script::Environment{ deserialmemory.scriptEntities.front().initParam });
-        context.instantiate<detail::BehaviorParameter<sf::Vector2f>>([&data]()
-            {
-                return new detail::BehaviorParameter<sf::Vector2f>{};
-            }, script::Environment{ deserialmemory.scriptEntities.front().initParam });
-        context.instantiate<detail::BehaviorParameter<Entity>>([&data]()
-            {
-                return new detail::BehaviorParameter<Entity>{};
-            }, script::Environment{ deserialmemory.scriptEntities.front().initParam });
-
-        unsigned n;
-        auto attr = context.first(context.deserializeProperty(n, 0u), "n", deserializer);
-
-        for (unsigned i = 0; i < n; i++)
+        deserialmemory.scriptEntities.front().paramCallback = [&data, deserializer, &context](script::Environment env, script::SharedState ss)
         {
-            attr = context.next(context.deserializeInstantiation<detail::BehaviorParameterBase>(
-                [&data](detail::BehaviorParameterBase* p) { data.mParam.emplace_back(p); }), "p", deserializer, attr);
-        }
+            context.instantiate<detail::BehaviorParameter<std::string>>([&data]()
+                {
+                    return new detail::BehaviorParameter<std::string>{};
+                }, script::Environment{ env }, script::SharedState{ ss });
+            context.instantiate<detail::BehaviorParameter<float>>([&data]()
+                {
+                    return new detail::BehaviorParameter<float>{};
+                }, script::Environment{ env }, script::SharedState{ ss });
+            context.instantiate<detail::BehaviorParameter<int>>([&data]()
+                {
+                    return new detail::BehaviorParameter<int>{};
+                }, script::Environment{ env }, script::SharedState{ ss });
+            context.instantiate<detail::BehaviorParameter<bool>>([&data]()
+                {
+                    return new detail::BehaviorParameter<bool>{};
+                }, script::Environment{ env }, script::SharedState{ ss });
+            context.instantiate<detail::BehaviorParameter<sf::Vector2f>>([&data]()
+                {
+                    return new detail::BehaviorParameter<sf::Vector2f>{};
+                }, script::Environment{ env }, script::SharedState{ ss });
+            context.instantiate<detail::BehaviorParameter<Entity>>([&data]()
+                {
+                    return new detail::BehaviorParameter<Entity>{};
+                }, script::Environment{ env }, script::SharedState{ ss });
+            context.instantiate<detail::BehaviorParameter<script::Environment>>([&data]()
+                {
+                    return new detail::BehaviorParameter<script::Environment>{};
+                }, script::Environment{ env }, script::SharedState{ ss });
+
+            unsigned n;
+            auto attr = context.first(context.deserializeProperty(n, 0u), "n", deserializer);
+
+            for (unsigned i = 0; i < n; i++)
+            {
+                attr = context.next(context.deserializeInstantiation<detail::BehaviorParameterBase>(
+                    [&data](detail::BehaviorParameterBase* p) { data.mParam.emplace_back(p); }), "p", deserializer, attr);
+            }
+        };
     }
 
 
-    void SerialBehavior<detail::BehaviorParameter<std::string>, script::Environment>::serialize(
-        const detail::BehaviorParameter<std::string>& data, MetaNode serializer, SerializationContext& context, script::Environment env)
+    void SerialBehavior<detail::BehaviorParameter<std::string>, script::Environment, script::SharedState>::serialize(
+        const detail::BehaviorParameter<std::string>& data, MetaNode serializer, SerializationContext& context, script::Environment env, script::SharedState)
     {
         context.serializeProperty("n", data.getName(), serializer);
         context.serializeProperty("v", data.get(env), serializer);
     }
 
-    void DeserialBehavior<detail::BehaviorParameter<std::string>, script::Environment>::deserialize(
-        detail::BehaviorParameter<std::string>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env)
+    void DeserialBehavior<detail::BehaviorParameter<std::string>, script::Environment, script::SharedState>::deserialize(
+        detail::BehaviorParameter<std::string>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env, script::SharedState)
     {
         auto result = deserializer.getAttributes<std::string, std::string>({ "n", "" } , { "v", "" });
         data.setName(std::get<0>(result));
@@ -707,15 +716,15 @@ namespace ungod
     }
 
 
-    void SerialBehavior<detail::BehaviorParameter<float>, script::Environment>::serialize(
-        const detail::BehaviorParameter<float>& data, MetaNode serializer, SerializationContext& context, script::Environment env)
+    void SerialBehavior<detail::BehaviorParameter<float>, script::Environment, script::SharedState>::serialize(
+        const detail::BehaviorParameter<float>& data, MetaNode serializer, SerializationContext& context, script::Environment env, script::SharedState)
     {
         context.serializeProperty("n", data.getName(), serializer);
         context.serializeProperty("v", data.get(env), serializer);
     }
 
-    void DeserialBehavior<detail::BehaviorParameter<float>, script::Environment>::deserialize(
-        detail::BehaviorParameter<float>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env)
+    void DeserialBehavior<detail::BehaviorParameter<float>, script::Environment, script::SharedState>::deserialize(
+        detail::BehaviorParameter<float>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env, script::SharedState)
     {
         auto result = deserializer.getAttributes<std::string, float>({ "n", "" }, { "v", 0.0f });
         data.setName(std::get<0>(result));
@@ -723,15 +732,15 @@ namespace ungod
     }
 
 
-    void SerialBehavior<detail::BehaviorParameter<int>, script::Environment>::serialize(
-        const detail::BehaviorParameter<int>& data, MetaNode serializer, SerializationContext& context, script::Environment env)
+    void SerialBehavior<detail::BehaviorParameter<int>, script::Environment, script::SharedState>::serialize(
+        const detail::BehaviorParameter<int>& data, MetaNode serializer, SerializationContext& context, script::Environment env, script::SharedState)
     {
         context.serializeProperty("n", data.getName(), serializer);
         context.serializeProperty("v", data.get(env), serializer);
     }
 
-    void DeserialBehavior<detail::BehaviorParameter<int>, script::Environment>::deserialize(
-        detail::BehaviorParameter<int>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env)
+    void DeserialBehavior<detail::BehaviorParameter<int>, script::Environment, script::SharedState>::deserialize(
+        detail::BehaviorParameter<int>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env, script::SharedState)
     {
         auto result = deserializer.getAttributes<std::string, int>({ "n", "" }, { "v", 0 });
         data.setName(std::get<0>(result));
@@ -739,15 +748,15 @@ namespace ungod
     }
 
 
-    void SerialBehavior<detail::BehaviorParameter<bool>, script::Environment>::serialize(
-        const detail::BehaviorParameter<bool>& data, MetaNode serializer, SerializationContext& context, script::Environment env)
+    void SerialBehavior<detail::BehaviorParameter<bool>, script::Environment, script::SharedState>::serialize(
+        const detail::BehaviorParameter<bool>& data, MetaNode serializer, SerializationContext& context, script::Environment env, script::SharedState)
     {
         context.serializeProperty("n", data.getName(), serializer);
         context.serializeProperty("v", data.get(env), serializer);
     }
 
-    void DeserialBehavior<detail::BehaviorParameter<bool>, script::Environment>::deserialize(
-        detail::BehaviorParameter<bool>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env)
+    void DeserialBehavior<detail::BehaviorParameter<bool>, script::Environment, script::SharedState>::deserialize(
+        detail::BehaviorParameter<bool>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env, script::SharedState)
     {
         auto result = deserializer.getAttributes<std::string, bool>({ "n", "" }, { "v", false });
         data.setName(std::get<0>(result));
@@ -755,16 +764,16 @@ namespace ungod
     }
 
 
-    void SerialBehavior<detail::BehaviorParameter<sf::Vector2f>, script::Environment>::serialize(
-        const detail::BehaviorParameter< sf::Vector2f >& data, MetaNode serializer, SerializationContext& context, script::Environment env)
+    void SerialBehavior<detail::BehaviorParameter<sf::Vector2f>, script::Environment, script::SharedState>::serialize(
+        const detail::BehaviorParameter< sf::Vector2f >& data, MetaNode serializer, SerializationContext& context, script::Environment env, script::SharedState)
     {
         context.serializeProperty("n", data.getName(), serializer);
         context.serializeProperty("x", data.get(env).x, serializer);
         context.serializeProperty("y", data.get(env).y, serializer);
     }
 
-    void DeserialBehavior<detail::BehaviorParameter<sf::Vector2f>, script::Environment>::deserialize(
-        detail::BehaviorParameter<sf::Vector2f>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env)
+    void DeserialBehavior<detail::BehaviorParameter<sf::Vector2f>, script::Environment, script::SharedState>::deserialize(
+        detail::BehaviorParameter<sf::Vector2f>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env, script::SharedState)
     {
         auto result = deserializer.getAttributes<std::string, float, float>({ "n", "" }, { "x", 0.0f }, { "y", 0.0f });
         data.setName(std::get<0>(result));
@@ -772,15 +781,15 @@ namespace ungod
     }
 
 
-    void SerialBehavior<detail::BehaviorParameter<Entity>, script::Environment>::serialize(
-        const detail::BehaviorParameter<Entity>& data, MetaNode serializer, SerializationContext& context, script::Environment env)
+    void SerialBehavior<detail::BehaviorParameter<Entity>, script::Environment, script::SharedState>::serialize(
+        const detail::BehaviorParameter<Entity>& data, MetaNode serializer, SerializationContext& context, script::Environment env, script::SharedState)
     {
         context.serializeProperty("n", data.getName(), serializer);
         context.serializeWeak("e", data.get(env), data.get(env).getInstantiation()->getSerialIdentifier(), serializer);
     }
 
-    void DeserialBehavior<detail::BehaviorParameter<Entity>, script::Environment>::deserialize(
-        detail::BehaviorParameter<Entity>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env)
+    void DeserialBehavior<detail::BehaviorParameter<Entity>, script::Environment, script::SharedState>::deserialize(
+        detail::BehaviorParameter<Entity>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env, script::SharedState)
     {
         auto result = deserializer.getAttributes<std::string>({ "n", "" });
         context.first(context.deserializeWeak<Entity>([&data, result, env](Entity& e)
@@ -788,6 +797,42 @@ namespace ungod
                 data.setName(std::get<0>(result));
                 data.set(e, env);
             }), "e", deserializer);
+    }
+
+
+    void SerialBehavior<detail::BehaviorParameter<script::Environment>, script::Environment, script::SharedState>::serialize(
+        const detail::BehaviorParameter<script::Environment>& data, MetaNode serializer, SerializationContext& context, script::Environment env, script::SharedState ss)
+    {
+        context.serializeProperty("n", data.getName(), serializer);
+        script::Environment p = data.get(env);
+        std::string tableAsString = "{";
+        for (const auto& x : p)
+        {
+            sol::object value = x.second;
+            if (value.is<std::string>())
+            {
+                tableAsString += " \"" + value.as<std::string>() + "\",";
+            }
+            else
+            {
+                std::string svalue = ss->get<sol::function>("tostring")(value);
+                tableAsString += " "+svalue+",";
+            }
+        }
+        tableAsString = tableAsString.substr(0, tableAsString.size() - 1);
+        tableAsString += "}";
+        context.serializeProperty("t", tableAsString, serializer);
+    }
+
+    void DeserialBehavior<detail::BehaviorParameter<script::Environment>, script::Environment, script::SharedState>::deserialize(
+        detail::BehaviorParameter<script::Environment>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env, script::SharedState ss)
+    {
+        auto result = deserializer.getAttributes<std::string, std::string>({ "n", "" }, { "t", "" });
+        ss->script("______TABLE="+ std::get<1>(result));
+        script::Environment p = ss->get<script::Environment>("______TABLE");
+        ss->set("______TABLE", sol::nil);
+        data.setName(std::get<0>(result));
+        data.set(p, env);
     }
 
 

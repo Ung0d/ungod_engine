@@ -35,7 +35,7 @@ namespace ungod
 
 	void  DeserialMemory::notifyScriptedEntity(Entity e, const std::string& scriptname, MetaNode serializer, DeserializationContext& context)
 	{
-		scriptEntities.emplace_front(e, scriptname, serializer, context, node->getGraph().getState().getEntityBehaviorManager().getBehaviorManager().makeInstanceEnvironment());
+		scriptEntities.emplace_front(e, scriptname, serializer, context);
 	}
 
 	void DeserialMemory::notifyWaterEntity(Entity e, const std::vector<std::string>& k)

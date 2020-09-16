@@ -96,6 +96,11 @@ namespace ungod
 			mHandler.setSpawnInterval<OneShotTick>(mEntity, PS_ONE_SHOT_TICK, inumparticle);
 		}
 
+		void ParticleSystemHandlerFrontEnd::setBurstTick(int inumparticle, float idelay)
+		{
+			mHandler.setSpawnInterval<BurstTick>(mEntity, PS_BURST_TICK, inumparticle, idelay);
+		}
+
 		void ParticleSystemHandlerFrontEnd::setLifetimeInterval(float ltmin, float ltmax)
 		{
 			mHandler.setLifetimeDist<IntervalLifetime>(mEntity, PS_INTERVAL_LIFETIME, ltmin, ltmax);
@@ -119,6 +124,11 @@ namespace ungod
 		void ParticleSystemHandlerFrontEnd::addParticleFadeOut()
 		{
 			mHandler.addAffector<FadeOut>(mEntity, PS_FADE_OUT);
+		}
+
+		void ParticleSystemHandlerFrontEnd::addParticleFadeIn()
+		{
+			mHandler.addAffector<FadeIn>(mEntity, PS_FADE_IN);
 		}
 
 		void ParticleSystemHandlerFrontEnd::addColorShift(const sf::Color& colorBegin, const sf::Color& colorEnd)
@@ -173,10 +183,11 @@ namespace ungod
 			psmType["setLineSegmentDist"] = &ParticleSystemHandlerFrontEnd::setLineSegmentDist;
                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			psmType["setFixedVelocity"] = &ParticleSystemHandlerFrontEnd::setFixedVelocity;
-			psmType["setIntervalTick"] = &ParticleSystemHandlerFrontEnd::setIntervalTick;
+			psmType["setConeDist"] = &ParticleSystemHandlerFrontEnd::setConeDist;
                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			psmType["setIntervalTick"] = &ParticleSystemHandlerFrontEnd::setIntervalTick;
 			psmType["setOneShotTick"] = &ParticleSystemHandlerFrontEnd::setOneShotTick;
+			psmType["setBurstTick"] = &ParticleSystemHandlerFrontEnd::setBurstTick;
                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			psmType["setLifetimeInterval"] = &ParticleSystemHandlerFrontEnd::setLifetimeInterval;
                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -184,6 +195,7 @@ namespace ungod
 			psmType["addDisplaceForce"] = &ParticleSystemHandlerFrontEnd::addDisplaceForce;
 			psmType["addAnimatedParticles"] = &ParticleSystemHandlerFrontEnd::addAnimatedParticles;
 			psmType["addParticleFadeOut"] = &ParticleSystemHandlerFrontEnd::addParticleFadeOut;
+			psmType["addParticleFadeIn"] = &ParticleSystemHandlerFrontEnd::addParticleFadeIn;
 			psmType["addColorShift"] = &ParticleSystemHandlerFrontEnd::addColorShift;
 			psmType["addParticleRotation"] = &ParticleSystemHandlerFrontEnd::addParticleRotation;
 			psmType["addParticleScale"] = &ParticleSystemHandlerFrontEnd::addParticleScale;

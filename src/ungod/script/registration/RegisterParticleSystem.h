@@ -55,11 +55,13 @@ namespace ungod
             void setConeDist(const sf::Vector2f& d1, const sf::Vector2f& d2);
             void setIntervalTick(float imsmin, float imsmax, int inumparticle);
             void setOneShotTick(int inumparticle);
+            void setBurstTick(int inumparticle, float idelay);
             void setLifetimeInterval(float ltmin, float ltmax);
             void addDirectionalForce(const sf::Vector2f& force);
             void addDisplaceForce(float speed, float circle, float angle);
             void addAnimatedParticles(const std::string& metaID, const std::string& key, std::size_t numAnim);
             void addParticleFadeOut();
+            void addParticleFadeIn();
             void addColorShift(const sf::Color& colorBegin, const sf::Color& colorEnd);
             void addParticleRotation(float speed);
             void addParticleScale(const sf::Vector2f& scalesBegin, const sf::Vector2f& scalesEnd);

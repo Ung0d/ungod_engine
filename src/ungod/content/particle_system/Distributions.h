@@ -241,6 +241,34 @@ namespace ungod
     int oneShotTick(OneShotTick& data, float delta);
 
 
+
+    /** \brief Data for the DirectionalForce affector. */
+    struct BurstTick : public BaseFunctorData<>
+    {
+        BurstTick() : numparticle(0) {}
+
+        inline void init(int inumparticle, float idelay)
+        {
+            numparticle = inumparticle;
+            delay = idelay;
+            timer.restart();
+        }
+
+        int numparticle;
+        float delay;
+        sf::Clock timer;
+
+    private:
+        FUNCTOR_DATA(BurstTick)
+
+    public:
+        SERIALIZABLE_DERIVED
+    };
+
+
+    /** \brief Emits particles in a burst. */
+    int burstTick(BurstTick& data, float delta);
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

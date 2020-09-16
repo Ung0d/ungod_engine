@@ -470,14 +470,14 @@ namespace ungod
         static std::string get() { return "strParam"; }
     };
     template <>
-    struct SerialBehavior<detail::BehaviorParameter<std::string>, script::Environment>
+    struct SerialBehavior<detail::BehaviorParameter<std::string>, script::Environment, script::SharedState>
     {
-        static void serialize(const detail::BehaviorParameter<std::string>& data, MetaNode serializer, SerializationContext& context, script::Environment env);
+        static void serialize(const detail::BehaviorParameter<std::string>& data, MetaNode serializer, SerializationContext& context, script::Environment env, script::SharedState ss);
     };
     template <>
-    struct DeserialBehavior<detail::BehaviorParameter<std::string>, script::Environment>
+    struct DeserialBehavior<detail::BehaviorParameter<std::string>, script::Environment, script::SharedState>
     {
-        static void deserialize(detail::BehaviorParameter<std::string>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env);
+        static void deserialize(detail::BehaviorParameter<std::string>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env, script::SharedState ss);
     };
 
 
@@ -487,14 +487,14 @@ namespace ungod
         static std::string get() { return "floatParam"; }
     };
     template <>
-    struct SerialBehavior<detail::BehaviorParameter<float>, script::Environment>
+    struct SerialBehavior<detail::BehaviorParameter<float>, script::Environment, script::SharedState>
     {
-        static void serialize(const detail::BehaviorParameter<float>& data, MetaNode serializer, SerializationContext& context, script::Environment env);
+        static void serialize(const detail::BehaviorParameter<float>& data, MetaNode serializer, SerializationContext& context, script::Environment env, script::SharedState ss);
     };
     template <>
-    struct DeserialBehavior<detail::BehaviorParameter<float>, script::Environment>
+    struct DeserialBehavior<detail::BehaviorParameter<float>, script::Environment, script::SharedState>
     {
-        static void deserialize(detail::BehaviorParameter<float>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env);
+        static void deserialize(detail::BehaviorParameter<float>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env, script::SharedState ss);
     };
 
 
@@ -504,14 +504,14 @@ namespace ungod
         static std::string get() { return "intParam"; }
     };
     template <>
-    struct SerialBehavior<detail::BehaviorParameter<int>, script::Environment>
+    struct SerialBehavior<detail::BehaviorParameter<int>, script::Environment, script::SharedState>
     {
-        static void serialize(const detail::BehaviorParameter<int>& data, MetaNode serializer, SerializationContext& context, script::Environment env);
+        static void serialize(const detail::BehaviorParameter<int>& data, MetaNode serializer, SerializationContext& context, script::Environment env, script::SharedState ss);
     };
     template <>
-    struct DeserialBehavior<detail::BehaviorParameter<int>, script::Environment>
+    struct DeserialBehavior<detail::BehaviorParameter<int>, script::Environment, script::SharedState>
     {
-        static void deserialize(detail::BehaviorParameter<int>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env);
+        static void deserialize(detail::BehaviorParameter<int>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env, script::SharedState ss);
     };
 
 
@@ -521,14 +521,14 @@ namespace ungod
         static std::string get() { return "boolParam"; }
     };
     template <>
-    struct SerialBehavior<detail::BehaviorParameter<bool>, script::Environment>
+    struct SerialBehavior<detail::BehaviorParameter<bool>, script::Environment, script::SharedState>
     {
-        static void serialize(const detail::BehaviorParameter<bool>& data, MetaNode serializer, SerializationContext& context, script::Environment env);
+        static void serialize(const detail::BehaviorParameter<bool>& data, MetaNode serializer, SerializationContext& context, script::Environment env, script::SharedState ss);
     };
     template <>
-    struct DeserialBehavior<detail::BehaviorParameter<bool>, script::Environment>
+    struct DeserialBehavior<detail::BehaviorParameter<bool>, script::Environment, script::SharedState>
     {
-        static void deserialize(detail::BehaviorParameter<bool>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env);
+        static void deserialize(detail::BehaviorParameter<bool>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env, script::SharedState ss);
     };
 
 
@@ -538,14 +538,14 @@ namespace ungod
         static std::string get() { return "vecParam"; }
     };
     template <>
-    struct SerialBehavior<detail::BehaviorParameter<sf::Vector2f>, script::Environment>
+    struct SerialBehavior<detail::BehaviorParameter<sf::Vector2f>, script::Environment, script::SharedState>
     {
-        static void serialize(const detail::BehaviorParameter<sf::Vector2f>& data, MetaNode serializer, SerializationContext& context, script::Environment env);
+        static void serialize(const detail::BehaviorParameter<sf::Vector2f>& data, MetaNode serializer, SerializationContext& context, script::Environment env, script::SharedState ss);
     };
     template <>
-    struct DeserialBehavior<detail::BehaviorParameter<sf::Vector2f>, script::Environment>
+    struct DeserialBehavior<detail::BehaviorParameter<sf::Vector2f>, script::Environment, script::SharedState>
     {
-        static void deserialize(detail::BehaviorParameter<sf::Vector2f>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env);
+        static void deserialize(detail::BehaviorParameter<sf::Vector2f>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env, script::SharedState ss);
     };
 
 
@@ -555,15 +555,33 @@ namespace ungod
         static std::string get() { return "enParam"; }
     };
     template <>
-    struct SerialBehavior<detail::BehaviorParameter<Entity>, script::Environment>
+    struct SerialBehavior<detail::BehaviorParameter<Entity>, script::Environment, script::SharedState>
     {
-        static void serialize(const detail::BehaviorParameter<Entity>& data, MetaNode serializer, SerializationContext& context, script::Environment env);
+        static void serialize(const detail::BehaviorParameter<Entity>& data, MetaNode serializer, SerializationContext& context, script::Environment env, script::SharedState ss);
     };
     template <>
-    struct DeserialBehavior<detail::BehaviorParameter<Entity>, script::Environment>
+    struct DeserialBehavior<detail::BehaviorParameter<Entity>, script::Environment, script::SharedState>
     {
-        static void deserialize(detail::BehaviorParameter<Entity>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env);
+        static void deserialize(detail::BehaviorParameter<Entity>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env, script::SharedState ss);
     };
+
+
+    template <>
+    struct SerialIdentifier<detail::BehaviorParameter<script::Environment>>
+    {
+        static std::string get() { return "envParam"; }
+    };
+    template <>
+    struct SerialBehavior<detail::BehaviorParameter<script::Environment>, script::Environment, script::SharedState>
+    {
+        static void serialize(const detail::BehaviorParameter<script::Environment>& data, MetaNode serializer, SerializationContext& context, script::Environment env, script::SharedState ss);
+    };
+    template <>
+    struct DeserialBehavior<detail::BehaviorParameter<script::Environment>, script::Environment, script::SharedState>
+    {
+        static void deserialize(detail::BehaviorParameter<script::Environment>& data, MetaNode deserializer, DeserializationContext& context, script::Environment env, script::SharedState ss);
+    };
+
 
     template <>
     struct SerialIdentifier<EntityUpdateTimer>

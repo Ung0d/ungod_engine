@@ -414,6 +414,24 @@ namespace ungod
     }
 
 
+    void SerialBehavior<BurstTick>::serialize(const BurstTick& data, MetaNode serializer, SerializationContext& context)
+    {
+        context.serializeProperty("num", data.numparticle, serializer);
+        context.serializeProperty("delay", data.delay, serializer);
+    }
+
+
+    void DeserialBehavior<BurstTick>::deserialize(BurstTick& data, MetaNode deserializer, DeserializationContext& context)
+    {
+        int num;
+        float delay;
+        auto attr = context.first(context.deserializeProperty<int>(num, 0), "num", deserializer);
+        attr = context.next(context.deserializeProperty<float>(delay, 0.0f), "delay", deserializer, attr);
+        data.init(num, delay);
+    }
+
+
+
     void SerialBehavior<IntervalLifetime>::serialize(const IntervalLifetime& data, MetaNode serializer, SerializationContext& context)
     {
         context.serializeProperty("min", data.msmin, serializer);
@@ -424,8 +442,8 @@ namespace ungod
     void DeserialBehavior<IntervalLifetime>::deserialize(IntervalLifetime& data, MetaNode deserializer, DeserializationContext& context)
     {
         float msmin, msmax;
-        auto attr = context.first(context.deserializeProperty<float>(msmin, 0u), "min", deserializer);
-        attr = context.next(context.deserializeProperty<float>(msmax, 0u), "max", deserializer, attr);
+        auto attr = context.first(context.deserializeProperty<float>(msmin, 0.0f), "min", deserializer);
+        attr = context.next(context.deserializeProperty<float>(msmax, 0.0f), "max", deserializer, attr);
         data.init(msmin, msmax);
     }
 

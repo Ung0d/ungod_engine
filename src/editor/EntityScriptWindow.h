@@ -12,6 +12,7 @@
 #include "wx/textctrl.h"
 #include "wx/radiobut.h"
 #include "wx/dialog.h"
+#include "wx/msgdlg.h"
 
 namespace uedit
 {
@@ -28,7 +29,7 @@ namespace uedit
             ParameterDisplayBase(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& siz = wxDefaultSize) :
                 wxPanel(parent, id, pos, siz) {}
 
-            virtual void addParameter(ungod::script::Environment env) const = 0;
+            virtual void addParameter(ungod::script::Environment env, ungod::Entity e) const = 0;
         };
     }
 
@@ -41,7 +42,7 @@ namespace uedit
             : ParameterDisplayBase(parent, id, pos, siz), mStatDisplay(new StatDisplay<T>(name, this, -1))
         {}
 
-        virtual void addParameter(ungod::script::Environment env) const override
+        virtual void addParameter(ungod::script::Environment env, ungod::Entity e) const override
         {
             std::optional<T> t = mStatDisplay->getValue();
             if (t)
@@ -51,6 +52,68 @@ namespace uedit
     private:
         StatDisplay<T>* mStatDisplay;
     };
+
+
+
+    class EntityParameterDisplay : public detail::ParameterDisplayBase
+    {
+    public:
+        EntityParameterDisplay(const std::string& name, wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& siz = wxDefaultSize)
+            : ParameterDisplayBase(parent, id, pos, siz)
+        {}
+
+        virtual void addParameter(ungod::script::Environment env, ungod::Entity e) const override
+        {
+        }
+    };
+
+
+    class Vec2fParameterDisplay : public detail::ParameterDisplayBase
+    {
+    public:
+        Vec2fParameterDisplay(const std::string& name, wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& siz = wxDefaultSize)
+            : ParameterDisplayBase(parent, id, pos, siz)
+        {}
+
+        virtual void addParameter(ungod::script::Environment env, ungod::Entity e) const override
+        {
+        }
+    };
+
+
+    class TableParameterDisplay : public detail::ParameterDisplayBase
+    {
+    public:
+        TableParameterDisplay(const std::string& name, wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& siz = wxDefaultSize)
+            : ParameterDisplayBase(parent, id, pos, siz), mStatDisplay(new StatDisplay<std::string>(name, this, -1))
+        {}
+
+        virtual void addParameter(ungod::script::Environment env, ungod::Entity e) const override
+        {
+            auto ss = e.getWorld().getGraph().getState().getEntityBehaviorManager().getBehaviorManager().getSharedState();
+            std::optional<std::string> t = mStatDisplay->getValue();
+            if (t)
+            {
+                auto result = ss->script("______TABLE=" + *t, [](lua_State*, sol::protected_function_result pfr) { return pfr; });
+                if (result.valid())
+                {
+                    sol::object o = ss->get<ungod::script::Environment>("______TABLE");
+                    ss->set("______TABLE", sol::nil);
+                    if (o.is<ungod::script::Environment>())
+                    {
+                        env[mStatDisplay->getText()] = o.as<ungod::script::Environment>();
+                        return;
+                    }
+                }
+            }
+            auto err = wxMessageDialog(GetParent(), _("Field does not contain code that defines a environment."));
+            err.ShowModal();
+        }
+
+    private:
+        StatDisplay<std::string>* mStatDisplay;
+    };
+
 
     class EntityScriptWindow : public wxWindow
     {
@@ -102,6 +165,7 @@ namespace uedit
         wxRadioButton* mChoiceBool;
         wxRadioButton* mChoiceEntity;
         wxRadioButton* mChoiceVec2f;
+        wxRadioButton* mChoiceTable;
     };
 }
 

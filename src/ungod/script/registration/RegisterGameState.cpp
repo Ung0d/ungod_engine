@@ -49,7 +49,8 @@ namespace ungod
 			stateType["updateWorldGraph"] = [](ScriptedGameState& state) 
 					{ 
                         auto* node = state.getWorldGraph().getActiveNode();
-                        if (node)
+                        sf::Vector2f updPos = state.getWorldGraph().getCamera().getCenter() + node->getPosition();
+                        if (node && state.getWorldGraph().getNode(updPos))
                             state.getWorldGraph().updateReferencePosition(
                                 state.getWorldGraph().getCamera().getCenter() + node->getPosition()); 
                     };

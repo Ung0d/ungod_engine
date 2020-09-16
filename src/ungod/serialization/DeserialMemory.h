@@ -35,14 +35,14 @@ namespace ungod
 	{
 		struct EntityScriptPair
 		{
-			EntityScriptPair(Entity e, const std::string& s, MetaNode n, DeserializationContext& c, script::Environment param) :
-				entity(e), script(s), node(n), context(c), initParam(param) {}
+			EntityScriptPair(Entity e, const std::string& s, MetaNode n, DeserializationContext& c) :
+				entity(e), script(s), node(n), context(c) {}
 
 			Entity entity;
 			std::string script;
 			MetaNode node;
 			DeserializationContext& context;
-			script::Environment initParam;
+			std::function<void(script::Environment env, script::SharedState ss)> paramCallback;
 		};
 
 		struct EntityWaterPair

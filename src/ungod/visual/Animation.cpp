@@ -63,7 +63,10 @@ namespace ungod
 
     std::string Animation::getKey() const
     {
-        return mCurrentNode.parent().name();
+        if (mCurrentNode)
+            return mCurrentNode.parent().name();
+        else
+            return {};
     }
 
     unsigned Animation::getCurrentIndex() const

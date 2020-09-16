@@ -97,6 +97,21 @@ namespace ungod
         }
 
 
+        int burstTick(BurstTick& data, float delta)
+        {
+            if (data.numparticle > 0)
+            {
+                if ((float)data.timer.getElapsedTime().asMilliseconds() >= data.delay)
+                {
+                    data.timer.restart();
+                    data.numparticle -= 1;
+                    return 1;
+                }
+            }
+            return 0;
+        }
+
+
         float intervalLifetime(IntervalLifetime& data)
         {
             return NumberGenerator::getFloatRandBetw(data.msmin, data.msmax);

@@ -56,6 +56,7 @@ namespace ungod
     const std::string PS_CONE_DIST = "cone_dist";
     const std::string PS_INTERVAL_TICK = "interval_tick";
     const std::string PS_ONE_SHOT_TICK = "one_shot_tick";
+    const std::string PS_BURST_TICK = "burst_tick";
     const std::string PS_INTERVAL_LIFETIME = "interval_lifetime";
     const std::string PS_UNIVERSAL_EMITTER = "universal_emitter";
     const std::string PS_UNIVERSAL_ESTIMATE = "universal_estimate";

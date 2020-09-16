@@ -53,6 +53,7 @@ namespace ungod
 	struct ConeDist;
 	struct IntervalTick;
 	struct OneShotTick;
+    struct BurstTick;
 	struct IntervalLifetime;
     class UniversalEmitter;
     struct UniversalEstimator;
@@ -467,6 +468,25 @@ namespace ungod
     struct DeserialBehavior<OneShotTick>
     {
         static void deserialize(OneShotTick& data, MetaNode deserializer, DeserializationContext& context);
+    };
+
+
+    template <>
+    struct SerialIdentifier<BurstTick>
+    {
+        static std::string get() { return "BurstTick"; }
+    };
+
+    template <>
+    struct SerialBehavior<BurstTick>
+    {
+        static void serialize(const BurstTick& data, MetaNode serializer, SerializationContext& context);
+    };
+
+    template <>
+    struct DeserialBehavior<BurstTick>
+    {
+        static void deserialize(BurstTick& data, MetaNode deserializer, DeserializationContext& context);
     };
 
 

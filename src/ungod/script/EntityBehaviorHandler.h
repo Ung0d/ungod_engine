@@ -108,7 +108,7 @@ namespace ungod
 
     namespace detail
     {
-        class BehaviorParameterBase : public PolymorphicSerializable<BehaviorParameterBase, script::Environment>
+        class BehaviorParameterBase : public PolymorphicSerializable<BehaviorParameterBase, script::Environment, script::SharedState>
         {
         public:
             BehaviorParameterBase(const std::string& name) : mName(name) {}
@@ -137,9 +137,9 @@ namespace ungod
             virtual ~BehaviorParameter() {}
 
         public:
-            virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, script::Environment&& env) const override
+            virtual void serialize(ungod::MetaNode serializer, ungod::SerializationContext& context, script::Environment&& env, script::SharedState&& ss) const override
             {
-                deferredSerialize<BehaviorParameter<T>, script::Environment>(*this, serializer, context, script::Environment{ env });
+                deferredSerialize<BehaviorParameter<T>, script::Environment>(*this, serializer, context, script::Environment{ env }, script::SharedState{ ss });
             }
 
             virtual std::string getSerialIdentifier() const override

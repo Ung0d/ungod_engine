@@ -1,5 +1,6 @@
 #include "EntityScriptWindow.h"
 #include "EditorFrame.h"
+#include <SFML/System/Vector2.hpp>
 #include "wx/msgdlg.h"
 
 namespace uedit
@@ -22,7 +23,7 @@ namespace uedit
     {
         ungod::script::Environment paramEnv = mActionManager.getEditorFrame()->getCanvas()->getEditorState()->getEntityBehaviorManager().getBehaviorManager().createEnvironment();
         for (auto p : mParameterDisplays)
-            p->addParameter(paramEnv);
+            p->addParameter(paramEnv, mEntity);
         auto file = mScriptFilePicker->GetFileName();
         file.MakeRelativeTo();
         mScriptManager.loadScript(std::string{ file.GetFullPath().mb_str() });
@@ -94,12 +95,14 @@ namespace uedit
         mChoiceBool = new wxRadioButton(this, -1, "bool", wxDefaultPosition, wxDefaultSize);
         mChoiceEntity = new wxRadioButton(this, -1, "entity", wxDefaultPosition, wxDefaultSize);
         mChoiceVec2f = new wxRadioButton(this, -1, "vec2f", wxDefaultPosition, wxDefaultSize);
+        mChoiceTable = new wxRadioButton(this, -1, "table", wxDefaultPosition, wxDefaultSize);
         vbox->Add(mChoiceFloat, 1, wxALIGN_LEFT);
         vbox->Add(mChoiceInt, 1, wxALIGN_LEFT);
         vbox->Add(mChoiceString, 1, wxALIGN_LEFT);
         vbox->Add(mChoiceBool, 1, wxALIGN_LEFT);
         vbox->Add(mChoiceEntity, 1, wxALIGN_LEFT);
         vbox->Add(mChoiceVec2f, 1, wxALIGN_LEFT);
+        vbox->Add(mChoiceTable, 1, wxALIGN_LEFT);
 
         masterSizer->Add(vbox, 1, wxALIGN_CENTER);
 
@@ -144,9 +147,20 @@ namespace uedit
             mEntityScriptWindow.appendParameterDisplay(new SimpleParameterDisplay<bool>(name, mEntityScriptWindow.getScriptLoadPanel(), -1));
         }
         else if (mChoiceEntity->GetValue())
-        { }
+        {
+            mEntityScriptWindow.getEntity().getWorld().getBehaviorHandler().serializeParameter<ungod::Entity>(mEntityScriptWindow.getEntity(), name);
+            mEntityScriptWindow.appendParameterDisplay(new EntityParameterDisplay(name, mEntityScriptWindow.getScriptLoadPanel(), -1));
+        }
         else if (mChoiceVec2f->GetValue())
-        { }
+        {
+            mEntityScriptWindow.getEntity().getWorld().getBehaviorHandler().serializeParameter<sf::Vector2f>(mEntityScriptWindow.getEntity(), name);
+            mEntityScriptWindow.appendParameterDisplay(new Vec2fParameterDisplay(name, mEntityScriptWindow.getScriptLoadPanel(), -1));
+        }
+        else if (mChoiceTable->GetValue())
+        {
+            mEntityScriptWindow.getEntity().getWorld().getBehaviorHandler().serializeParameter<ungod::script::Environment>(mEntityScriptWindow.getEntity(), name);
+            mEntityScriptWindow.appendParameterDisplay(new TableParameterDisplay(name, mEntityScriptWindow.getScriptLoadPanel(), -1));
+        }
 
         mEntityScriptWindow.rebuild();
 

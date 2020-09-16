@@ -59,6 +59,7 @@ namespace ungod
             //interval dists
             mIntervalDistributions.addFunctor<IntervalTick>(PS_INTERVAL_TICK, &intervalTick);
             mIntervalDistributions.addFunctor<OneShotTick>(PS_ONE_SHOT_TICK, &oneShotTick);
+            mIntervalDistributions.addFunctor<BurstTick>(PS_BURST_TICK, &burstTick);
 
             //lifetime dists
             mLifetimeDistributions.addFunctor<IntervalLifetime>(PS_INTERVAL_LIFETIME, &intervalLifetime);

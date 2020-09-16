@@ -80,7 +80,7 @@ namespace ungod
 
         for (const auto& layer : mRenderLayers)
             if (layer.second)
-				layer.first->update(delta, areaPosition* layer.first->getRenderDepth(), areaSize);
+				layer.first->update(delta, areaPosition* layer.first->getRenderDepth(), areaSize/ layer.first->getRenderDepth());
     }
 
 

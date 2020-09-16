@@ -147,7 +147,14 @@ namespace ungod
         {
             for (const auto& entry : deserialMemory->scriptEntities) //assign scripts first!
             {
-                mEntityBehaviorHandler.assignBehavior(entry.entity, entry.script, entry.initParam, false);
+                if (entry.paramCallback)
+                { 
+                    script::Environment env = getGraph().getState().getEntityBehaviorManager().getBehaviorManager().makeInstanceEnvironment();
+                    entry.paramCallback(env, getGraph().getState().getEntityBehaviorManager().getBehaviorManager().getSharedState());
+                    mEntityBehaviorHandler.assignBehavior(entry.entity, entry.script, env, false);
+                }
+                else
+                    mEntityBehaviorHandler.assignBehavior(entry.entity, entry.script, false);
                 mEntityDeserializedSignal(entry.entity, entry.node, entry.context);
             }
             for (const auto& entry : deserialMemory->scriptEntities) 

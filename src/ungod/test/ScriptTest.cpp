@@ -6,6 +6,7 @@
 #include "ungod/application/ScriptedMenuState.h"
 #include "ungod/application/ScriptedGameState.h"
 #include "ungod/test/mainTest.h"
+#include "ungod/serialization/DeserialInit.h"
 #include <chrono>
 #include <thread>
 #include "ungod/test/mainTest.h"
@@ -104,7 +105,7 @@ BOOST_AUTO_TEST_CASE( script_test )
 
         {
             script::Environment instance = bm.makeInstanceEnvironment();
-            ungod::BehaviorPtr<> behavior = bm.makeBehavior("global_test", instance);
+            ungod::BehaviorPtr<> behavior = bm.makeBehavior("global_test", instance, true);
             bm.initBehavior(behavior);
 
             BOOST_REQUIRE(behavior);
@@ -117,7 +118,7 @@ BOOST_AUTO_TEST_CASE( script_test )
             {
                 //static constr NOT called twice when creating multiple instances? --- sheeeesh that would be sucky
                 script::Environment instance2 = bm.makeInstanceEnvironment();
-                ungod::BehaviorPtr<> behavior2 = bm.makeBehavior("global_test", instance2);
+                ungod::BehaviorPtr<> behavior2 = bm.makeBehavior("global_test", instance2, true);
                 staticconstr = behavior2->getStaticVariable<int>("constr");
                 BOOST_REQUIRE(staticconstr);
                 BOOST_CHECK_EQUAL(37, *staticconstr);
@@ -160,7 +161,7 @@ BOOST_AUTO_TEST_CASE( script_test )
         BehaviorManager<> bm( {"onCreate", "onInit", "onUncheck", "onStaticConstr", "onStaticDestr", "onEvent"}, ON_CREATE, ON_INIT, ON_UNCHECK, ON_SC, ON_SD );
         bm.loadBehavior("test_data/state_test.lua");
         script::Environment instance = bm.makeInstanceEnvironment();
-        StateBehaviorPtr<> behavior = bm.makeStateBehavior("state_test", instance);
+        StateBehaviorPtr<> behavior = bm.makeStateBehavior("state_test", instance, true);
         bm.initBehavior(behavior);
 
         BOOST_REQUIRE(behavior);
@@ -327,12 +328,15 @@ BOOST_AUTO_TEST_CASE(parameter_serial_test)
         state.getEntityBehaviorManager().loadBehaviorScript("test_data/parameter_setter.lua");
         Entity e = world->create(EntityBaseComponents(), EntityOptionalComponents(), "parameter_setter");
         Entity e2 = world->create(EntityBaseComponents(), EntityOptionalComponents());
+        script::Environment env = state.getEntityBehaviorManager().getBehaviorManager().getSharedState()->create_table_with(1, 110, 2, true, 3, "wuff");
         e.get<EntityBehaviorComponent>().getStateEnvironment().set("var_1", "bark");
         e.get<EntityBehaviorComponent>().getStateEnvironment().set("var_2", 99);
         e.get<EntityBehaviorComponent>().getStateEnvironment().set("var_3", e2);
+        e.get<EntityBehaviorComponent>().getStateEnvironment().set("var_4", env);
         world->getBehaviorHandler().serializeParameter<std::string>(e, "var_1");
         world->getBehaviorHandler().serializeParameter<int>(e, "var_2");
         world->getBehaviorHandler().serializeParameter<Entity>(e, "var_3");
+        world->getBehaviorHandler().serializeParameter<script::Environment>(e, "var_4");
 
         world->addEntity(e);
         world->addEntity(e2);
@@ -361,6 +365,7 @@ BOOST_AUTO_TEST_CASE(parameter_serial_test)
         state.getEntityBehaviorManager().loadBehaviorScript("test_data/parameter_setter.lua");
 
         DeserializationContext context;
+        initContext(context);
         context.read("test_output/parameter_serial_world_sav.xml");
 
         DeserialMemory dm;
@@ -388,11 +393,15 @@ BOOST_AUTO_TEST_CASE(parameter_serial_test)
         auto var_1 = e1.get<EntityBehaviorComponent>().getStateVariable<std::string>("var_1");
         auto var_2 = e1.get<EntityBehaviorComponent>().getStateVariable<int>("var_2");
         auto var_3 = e1.get<EntityBehaviorComponent>().getStateVariable<Entity>("var_3");
+        auto var_4 = e1.get<EntityBehaviorComponent>().getStateVariable<script::Environment>("var_4");
         BOOST_REQUIRE(var_1);
         BOOST_REQUIRE(var_2);
         BOOST_REQUIRE(var_3);
+        BOOST_REQUIRE(var_4);
         BOOST_REQUIRE_EQUAL(*var_1, "bark");
         BOOST_REQUIRE_EQUAL(*var_2, 99);
         BOOST_REQUIRE(*var_3 == e2);
+        BOOST_REQUIRE(var_4->get<int>(1) == 110);
+        BOOST_REQUIRE(var_4->get<std::string>(3) == "wuff");
     }
 }
